@@ -1,0 +1,66 @@
+from rest_framework import serializers
+from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+User = get_user_model()
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['role'] = user.role
+        token['phone'] = user.phone
+        token['username'] = user.username
+
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        # Add extra responses to the API
+        data['role'] = self.user.role
+        data['username'] = self.user.username
+        data['phone'] = self.user.phone
+        return data
+
+
+from .models import TutorProfile
+
+from .models import TutorProfile, TutorKYC, TutorStatus
+
+class TutorKYCSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TutorKYC
+        fields = ['id', 'status', 'submission_count', 'rejection_reason', 'created_at', 'aadhaar_document', 'education_certificate', 'photo']
+        read_only_fields = ['status', 'submission_count', 'rejection_reason', 'created_at']
+
+class TutorStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TutorStatus
+        fields = ['status', 'last_updated']
+
+class TutorProfileSerializer(serializers.ModelSerializer):
+    kyc = TutorKYCSerializer(source='kyc_records', many=True, read_only=True)
+    status_msg = TutorStatusSerializer(source='status_record', read_only=True)
+    
+    class Meta:
+        model = TutorProfile
+        fields = '__all__'
+        read_only_fields = ['user', 'profile_completion_percentage']
+
+class UserSerializer(serializers.ModelSerializer):
+    tutor_profile = TutorProfileSerializer(read_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'role', 'phone', 'password', 'tutor_profile']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        instance = self.Meta.model(**validated_data)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance
