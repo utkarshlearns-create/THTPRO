@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCheck } from 'lucide-react';
 import { jwtDecode } from "jwt-decode";
+import API_BASE_URL from '../config';
 
 const AdminLogin = () => {
     const [formData, setFormData] = useState({ phone: '', password: '' });
@@ -15,7 +16,7 @@ const AdminLogin = () => {
         setLoading(true);
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/users/login/', {
+            const response = await fetch(`${API_BASE_URL}/api/users/login/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: formData.phone, password: formData.password }),

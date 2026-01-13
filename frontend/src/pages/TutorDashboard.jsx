@@ -15,6 +15,7 @@ import {
   Lock,
   Bell
 } from 'lucide-react';
+import API_BASE_URL from '../config';
 
 const TutorDashboard = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -79,7 +80,7 @@ const TutorDashboard = () => {
     const fetchStats = async () => {
         try {
             const token = localStorage.getItem('access');
-            const response = await fetch('http://localhost:8000/api/users/dashboard/stats/', {
+            const response = await fetch(`${API_BASE_URL}/api/users/dashboard/stats/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -98,7 +99,7 @@ const TutorDashboard = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('access');
-            const response = await fetch('http://localhost:8000/api/users/profile/', {
+            const response = await fetch(`${API_BASE_URL}/api/users/profile/`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -147,7 +148,7 @@ const TutorDashboard = () => {
         setSaving(true);
         try {
             const token = localStorage.getItem('access');
-            const response = await fetch('http://localhost:8000/api/users/profile/', {
+            const response = await fetch(`${API_BASE_URL}/api/users/profile/`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -192,7 +193,7 @@ const TutorDashboard = () => {
             data.append('education_certificate', kycFiles.education_certificate);
             data.append('photo', kycFiles.photo);
 
-            const response = await fetch('http://localhost:8000/api/users/kyc/submit/', {
+            const response = await fetch(`${API_BASE_URL}/api/users/kyc/submit/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

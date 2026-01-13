@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
+import API_BASE_URL from '../config';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +25,8 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/users/login/', {
+      // Inside component
+      const response = await fetch(`${API_BASE_URL}/api/users/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
