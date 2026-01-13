@@ -7,10 +7,12 @@ from .views import (
     AdminReviewView,
     AdminTutorListView,
     SignupView,
-    DashboardStatsView
+    DashboardStatsView,
+    SetupAdminView
 )
 
 urlpatterns = [
+    path('setup-admin/', SetupAdminView.as_view(), name='setup-admin'),
     path('signup/', SignupView.as_view(), name='signup'),
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('me/', CurrentUserView.as_view(), name='current_user'),

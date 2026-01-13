@@ -144,3 +144,19 @@ class DashboardStatsView(views.APIView):
             "accepted_applications": 0
         }
         return Response(stats)
+
+class SetupAdminView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        phone = "9876543210"
+        if not User.objects.filter(phone=phone).exists():
+            User.objects.create_superuser(
+                phone=phone,
+                password="admin12345",
+                username="Super Admin",
+                role='ADMIN'
+            )
+            return Response({"message": f"Superuser {phone} created successfully!"})
+        return Response({"message": f"Superuser {phone} already exists."})
+
