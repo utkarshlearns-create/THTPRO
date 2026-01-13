@@ -150,13 +150,21 @@ class SetupAdminView(APIView):
 
     def get(self, request):
         phone = "9876543210"
-        if not User.objects.filter(phone=phone).exists():
-            User.objects.create_superuser(
-                phone=phone,
-                password="admin12345",
-                username="Super Admin",
-                role='ADMIN'
-            )
-            return Response({"message": f"Superuser {phone} created successfully!"})
-        return Response({"message": f"Superuser {phone} already exists."})
+        try:
+            if not User.objects.filter(phone=phone).exists():
+                # Ensure username is unique if it defaults to empty string or if we are not providing one
+                # Actually, AbstractUser requires username. We are providing "Super Admin".
+                # But "Super Admin" might be taken? user.username must be unique.
+                
+                # Let's use phone as username to be safe
+                u = User.objects.create_superuser(
+                    phone=phone,
+                    password="admin12345",
+                    username=phone, # Use phone as username to ensure uniqueness
+                    role='ADMIN'
+                )
+                return Response({"message": f"Superuser {phone} created successfully!"})
+            return Response({"message": f"Superuser {phone} already exists."})
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 
