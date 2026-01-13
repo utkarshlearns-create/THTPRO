@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { User, Phone, Lock, Briefcase } from 'lucide-react';
+import API_BASE_URL from '../config';
 
 const Signup = () => {
     const [searchParams] = useSearchParams();
@@ -31,7 +32,7 @@ const Signup = () => {
         setError('');
         
         try {
-            const response = await fetch('http://localhost:8000/api/users/signup/', {
+            const response = await fetch(`${API_BASE_URL}/api/users/signup/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
