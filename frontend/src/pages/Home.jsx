@@ -2,14 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   ShieldCheck, 
-  UserCheck, 
-  CreditCard, 
   Clock, 
   MapPin, 
-  BookOpen, 
+  CreditCard,
   ChevronRight, 
   CheckCircle,
-  GraduationCap,
   ArrowRight,
   Phone,
   MessageCircle,
@@ -18,10 +15,10 @@ import {
   BookOpenText,
   TrendingUp,
   School,
+  BookOpen,
   Files,
   Code2
 } from 'lucide-react';
-import JobWizard from '../components/JobWizard';
 
 const LandingPage = () => {
   return (
@@ -30,49 +27,38 @@ const LandingPage = () => {
       <section className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                {/* Left Side: Text & CTA */}
-                <div className="text-left">
-                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-indigo-100 shadow-sm mb-8">
-                        <span className="flex h-2 w-2 relative">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
-                        </span>
-                        <span className="text-sm font-semibold text-indigo-900 tracking-wide uppercase">Lucknow's Premier Tutoring Platform</span>
-                    </div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-indigo-100 shadow-sm mb-8">
+                <span className="flex h-2 w-2 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+                </span>
+                <span className="text-sm font-semibold text-indigo-900 tracking-wide uppercase">Lucknow's Premier Tutoring Platform</span>
+            </div>
 
-                    <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight">
-                        Unlock Your Child's <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">True Potential.</span>
-                    </h1>
-                    
-                    <p className="mt-6 text-lg text-slate-600 mb-10 leading-relaxed">
-                        Bridge the gap between ambitious students and expert educators. 
-                        Get connected with verified, experienced mentors in just a few clicks.
-                    </p>
+            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight">
+              Unlock Your Child's<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">True Potential.</span>
+            </h1>
+            
+            <p className="mt-6 text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+              We bridge the gap between ambitious students and expert educators. 
+              Get connected with verified, experienced mentors who prioritize your child's growth.
+            </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4">
-                         <Link
-                            to="/signup?role=teacher"
-                            className="inline-flex justify-center items-center px-8 py-4 border border-slate-200 text-lg font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
-                            >
-                            Become a Tutor
-                        </Link>
-                         <button
-                            onClick={() => document.getElementById('wizard-section').scrollIntoView({ behavior: 'smooth' })}
-                            className="btn-primary lg:hidden flex items-center justify-center gap-2 px-8 py-4 text-lg shadow-indigo-200 shadow-lg"
-                        >
-                            Post Requirement
-                        </button>
-                    </div>
-                </div>
-
-                {/* Right Side: Wizard Component */}
-                <div id="wizard-section" className="relative z-10 w-full">
-                   <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-200 rounded-full blur-3xl opacity-50"></div>
-                   <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-pink-200 rounded-full blur-3xl opacity-50"></div>
-                   <JobWizard />
-                </div>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+               <Link
+                  to="/parent-home" 
+                  className="btn-primary flex items-center justify-center gap-2 px-8 py-4 text-lg shadow-indigo-200 shadow-lg hover:shadow-indigo-300 hover:-translate-y-1 transition-all"
+                >
+                  Find a Tutor
+                  <ChevronRight className="h-5 w-5" />
+                </Link>
+                <Link
+                  to="/signup?role=teacher"
+                  className="inline-flex justify-center items-center px-8 py-4 border border-slate-200 text-lg font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+                >
+                  Become a Tutor
+                </Link>
             </div>
             
             {/* Trust Badges */}
