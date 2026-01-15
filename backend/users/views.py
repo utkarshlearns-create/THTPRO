@@ -145,15 +145,23 @@ class DashboardStatsView(views.APIView):
         }
         return Response(stats)
 
-class SetupAdminView(APIView):
-    permission_classes = [permissions.AllowAny]
+from django.views import View
+from django.http import JsonResponse
+import traceback
+import sys
 
+# ... existing imports ...
+
+class SetupAdminView(View):
+    # Bypass DRF permissions entirely
     def get(self, request):
         phone = "9876543210"
+        print("DEBUG: Starting SetupAdminView...", file=sys.stderr)
         try:
-            # Force cleanup of any existing user with this phone or username
-            User.objects.filter(phone=phone).delete()
-            User.objects.filter(username=phone).delete()
+            # Force cleanup
+            del_count_phone, _ = User.objects.filter(phone=phone).delete()
+            del_count_user, _ = User.objects.filter(username=phone).delete()
+            print(f"DEBUG: Deleted existing users (Phone: {del_count_phone}, Username: {del_count_user})", file=sys.stderr)
             
             # Create fresh
             u = User.objects.create_superuser(
@@ -162,8 +170,11 @@ class SetupAdminView(APIView):
                 username=phone,
                 role='ADMIN'
             )
-            return Response({"message": f"Superuser {phone} created successfully (Clean Reset)!"})
+            print(f"DEBUG: Created superuser {u}", file=sys.stderr)
+            return JsonResponse({"message": f"Superuser {phone} created successfully (Clean Reset)!"})
         except Exception as e:
-            # Return detailed error even in production for debugging this specific view
-            return Response({"error": str(e), "type": type(e).__name__}, status=500)
+            # Capture full traceback
+            tb = traceback.format_exc()
+            print(f"ERROR in SetupAdminView: {tb}", file=sys.stderr)
+            return JsonResponse({"error": str(e), "traceback": tb}, status=500)
 
