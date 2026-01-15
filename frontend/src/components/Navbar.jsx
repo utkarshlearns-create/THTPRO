@@ -10,11 +10,10 @@ const Navbar = () => {
 
 
   useEffect(() => {
+    // Check role on mount and on every route change (e.g. after login/logout)
     const userRole = localStorage.getItem('role');
-    if (userRole) {
-      setRole(userRole);
-    }
-  }, []);
+    setRole(userRole); // Update state even if null (for logout)
+  }, [location]);
 
   return (
     <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100/50 supports-[backdrop-filter]:bg-white/60">
