@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Bell, Wallet, User } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState(null);
   const location = useLocation();
 
-  const isDashboard = location.pathname.includes('/dashboard');
+
 
   useEffect(() => {
     const userRole = localStorage.getItem('role');
@@ -33,55 +33,61 @@ const Navbar = () => {
             </Link>
 
             {/* Desktop Navigation */}
-            {!isDashboard && (
-                <div className="hidden md:flex items-center space-x-8">
-                    <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Find Tutors</a>
-                    <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Become a Tutor</a>
-                    <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">About Us</a>
-                    
-                    {role ? (
-                        <div className="flex items-center gap-4 ml-4">
-                            <Link 
-                                to={role === 'ADMIN' ? '/admin-dashboard' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'} 
-                                className="text-slate-900 font-semibold hover:text-indigo-600 transition-colors"
-                            >
-                                Dashboard
-                            </Link>
-                            <button
-                                onClick={() => {
-                                    localStorage.removeItem('role');
-                                    localStorage.removeItem('access');
-                                    window.location.href = '/login';
-                                }}
-                                className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-full font-semibold transition-all"
-                            >
-                                Logout
-                            </button>
+            <div className="hidden md:flex items-center space-x-8">
+                {/* Generic Links - Hide if Logged In */}
+                {!role && (
+                    <>
+                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Find Tutors</a>
+                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Become a Tutor</a>
+                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">About Us</a>
+                    </>
+                )}
+                
+                {role ? (
+                    <div className="flex items-center gap-6 ml-4">
+                        {/* Wallet Balance (Tutor & Parent) */}
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-sm font-semibold text-slate-700">
+                             <Wallet size={18} className="text-indigo-600" />
+                             <span>₹0</span>
                         </div>
-                    ) : (
-                        <div className="flex items-center gap-4 ml-4">
-                            <Link to="/login" className="text-slate-900 font-semibold hover:text-indigo-600 transition-colors">
-                                Log in
-                            </Link>
-                            <Link to="/signup" className="btn-primary px-6 py-2.5 shadow-lg shadow-indigo-200 hover:shadow-indigo-300">
-                                Get Started
-                            </Link>
-                        </div>
-                    )}
-                </div>
-            )}
+
+                        {/* Notifications */}
+                        <button className="relative text-slate-500 hover:text-indigo-600 transition-colors">
+                            <Bell size={22} />
+                            <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                        </button>
+
+                        {/* Profile Dropdown Trigger (Simplified as Link/Button for now) */}
+                        <Link 
+                            to={role === 'ADMIN' ? '/admin-dashboard' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'} 
+                            className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-lg transition-colors"
+                        >
+                            <div className="h-9 w-9 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm">
+                                {role === 'TEACHER' ? 'T' : role === 'PARENT' ? 'P' : 'A'}
+                            </div>
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-4 ml-4">
+                        <Link to="/login" className="text-slate-900 font-semibold hover:text-indigo-600 transition-colors">
+                            Log in
+                        </Link>
+                        <Link to="/signup" className="btn-primary px-6 py-2.5 shadow-lg shadow-indigo-200 hover:shadow-indigo-300">
+                            Get Started
+                        </Link>
+                    </div>
+                )}
+            </div>
 
             {/* Mobile menu button */}
-            {!isDashboard && (
-                <div className="md:hidden flex items-center">
-                    <button
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="text-slate-600 hover:text-slate-900 focus:outline-none p-2"
-                    >
-                        {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                    </button>
-                </div>
-            )}
+            <div className="md:hidden flex items-center">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="text-slate-600 hover:text-slate-900 focus:outline-none p-2"
+                >
+                    {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </button>
+            </div>
         </div>
       </div>
 
