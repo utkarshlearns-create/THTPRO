@@ -26,26 +26,27 @@ function App() {
           <Route path="/admin-login" element={<AdminLogin />} />
 
           {/* New routes for ParentHome and TutorHome */}
+          {/* New routes for ParentHome and TutorHome */}
           <Route path="/parent-home" element={
-            <ProtectedRoute allowedRoles={[UserRoles.PARENT]}>
+            <ProtectedRoute allowedRoles={['PARENT']}>
               <ParentHome />
             </ProtectedRoute>
           } />
           <Route path="/tutor-home" element={
-            <ProtectedRoute allowedRoles={[UserRoles.TEACHER]}>
+            <ProtectedRoute allowedRoles={['TEACHER']}>
               <TutorHome />
             </ProtectedRoute>
           } />
 
-          <Route element={<ProtectedRoute allowedRoles={[UserRoles.ADMIN]} />}>
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
             <Route path="/dashboard/admin" element={<AdminDashboard />} />
           </Route>
           
-          <Route element={<ProtectedRoute allowedRoles={[UserRoles.TEACHER]} />}>
+          <Route element={<ProtectedRoute allowedRoles={['TEACHER']} />}>
             <Route path="/dashboard/tutor" element={<TutorDashboard />} />
           </Route>
 
-          <Route element={<ProtectedRoute allowedRoles={[UserRoles.PARENT]} />}>
+          <Route element={<ProtectedRoute allowedRoles={['PARENT']} />}>
             <Route path="/dashboard/parent" element={<ParentDashboard />} />
           </Route>
           {/* Add more routes here as we build them */}
