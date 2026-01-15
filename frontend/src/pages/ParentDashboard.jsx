@@ -126,15 +126,7 @@ const ParentDashboard = () => {
                                 </button>
                              </div>
                              
-                             {/* Placeholder for Jobs List */}
-                             <div className="bg-white p-10 rounded-xl shadow-sm border border-slate-200 text-center">
-                                <div className="mx-auto w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
-                                    <Briefcase size={24} className="text-indigo-400" />
-                                </div>
-                                <h3 className="text-lg font-medium text-slate-900">No Jobs Posted Yet</h3>
-                                <p className="text-slate-500 mt-1 max-w-sm mx-auto">Post your first tuition requirement to find the best tutors in your locality.</p>
-                                <button className="mt-6 text-indigo-600 font-medium hover:underline">Post a requirement now</button>
-                             </div>
+                             <JobsList />
                         </div>
                     )}
 
@@ -195,6 +187,74 @@ const SidebarItem = ({ icon, label, active = false, isOpen, onClick }) => (
         </button>
     </li>
 );
+
+const JobsList = () => {
+    const [jobs, setJobs] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchJobs();
+    }, []);
+
+    const fetchJobs = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setJobs(data);
+            }
+        } catch (error) {
+            console.error("Error fetching jobs:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) return <div className="p-8 text-center">Loading Jobs...</div>;
+
+    if (jobs.length === 0) {
+        return (
+             <div className="bg-white p-10 rounded-xl shadow-sm border border-slate-200 text-center">
+                <div className="mx-auto w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
+                    <Briefcase size={24} className="text-indigo-400" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-900">No Jobs Posted Yet</h3>
+                <p className="text-slate-500 mt-1 max-w-sm mx-auto">Post your first tuition requirement to find the best tutors in your locality.</p>
+             </div>
+        );
+    }
+
+    return (
+        <div className="grid gap-4">
+            {jobs.map((job) => (
+                <div key={job.id} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-200 transition-colors">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <h3 className="text-lg font-bold text-slate-900">{job.student_name}</h3>
+                                <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-full font-medium">{job.class_grade}</span>
+                                <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${job.status === 'OPEN' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
+                                    {job.status}
+                                </span>
+                            </div>
+                            <p className="text-slate-500 text-sm mb-3">
+                                {job.board} • {job.subjects.join(', ')} • {job.locality}
+                            </p>
+                            <div className="flex gap-4 text-sm text-slate-600">
+                                <span className="flex items-center gap-1"><Clock size={16} /> {job.preferred_time || 'Any Time'}</span>
+                                <span className="flex items-center gap-1"><Wallet size={16} /> {job.budget_range || 'Negotiable'}</span>
+                            </div>
+                        </div>
+                        <button className="text-indigo-600 font-medium text-sm hover:underline">View Details</button>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
 
 const WalletSection = () => {
     const [wallet, setWallet] = useState(null);
