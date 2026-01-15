@@ -13,7 +13,8 @@ import {
   CheckCircle,
   Clock,
   Lock,
-  Bell
+  Bell,
+  Wallet
 } from 'lucide-react';
 import API_BASE_URL from '../config';
 
@@ -260,6 +261,13 @@ const TutorDashboard = () => {
                             onClick={() => setActiveTab('documents')}
                         />
                         <SidebarItem 
+                            icon={<Wallet size={20} />} 
+                            label="Wallet & Credits" 
+                            isOpen={sidebarOpen} 
+                            active={activeTab === 'wallet'}
+                            onClick={() => setActiveTab('wallet')}
+                        />
+                        <SidebarItem 
                             icon={<Bell size={20} />} 
                             label="Notifications" 
                             isOpen={sidebarOpen} 
@@ -316,6 +324,11 @@ const TutorDashboard = () => {
 
                 <div className="p-6 max-w-5xl mx-auto">
                     {/* DASHBOARD HOME VIEW */}
+                    {/* WALLET VIEW */}
+                    {activeTab === 'wallet' && (
+                        <WalletSection />
+                    )}
+
                      {activeTab === 'dashboard_home' && (
                         <div className="space-y-6 animate-in fade-in duration-300">
                              <h1 className="text-2xl font-bold text-slate-900">Dashboard Overview</h1>
