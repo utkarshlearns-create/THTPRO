@@ -34,48 +34,45 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-                {/* Generic Links - Hide if Logged In */}
-                {!role && (
-                    <>
-                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Find Tutors</a>
-                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Become a Tutor</a>
-                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">About Us</a>
-                    </>
-                )}
-                
                 {role ? (
-                    <div className="flex items-center gap-6 ml-4">
-                        {/* Wallet Balance (Tutor & Parent) */}
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full text-sm font-semibold text-slate-700">
+                    <div className="flex items-center gap-6 ml-auto">
+                        {/* 1. Wallet Balance */}
+                        <div className="flex items-center gap-2 px-4 py-2 bg-slate-100/80 rounded-full text-indigo-900 font-bold text-sm border border-slate-200/60 shadow-sm">
                              <Wallet size={18} className="text-indigo-600" />
-                             <span>₹0</span>
+                             <span>₹ 2,500</span>
                         </div>
 
-                        {/* Notifications */}
-                        <button className="relative text-slate-500 hover:text-indigo-600 transition-colors">
-                            <Bell size={22} />
-                            <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                        {/* 2. Notification Bell */}
+                        <button className="relative p-2 text-slate-500 hover:text-indigo-600 transition-all hover:bg-slate-100 rounded-full">
+                            <Bell size={24} />
+                            <span className="absolute top-1.5 right-2 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
                         </button>
 
-                        {/* Profile Dropdown Trigger (Simplified as Link/Button for now) */}
+                        {/* 3. Profile Avatar */}
                         <Link 
-                            to={role === 'ADMIN' ? '/admin-dashboard' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'} 
-                            className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-lg transition-colors"
+                            to={role === 'ADMIN' ? '/dashboard/admin' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'} 
+                            className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-full transition-all border border-transparent hover:border-slate-200"
                         >
-                            <div className="h-9 w-9 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold text-sm">
+                            <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md ring-2 ring-white">
                                 {role === 'TEACHER' ? 'T' : role === 'PARENT' ? 'P' : 'A'}
                             </div>
                         </Link>
                     </div>
                 ) : (
-                    <div className="flex items-center gap-4 ml-4">
-                        <Link to="/login" className="text-slate-900 font-semibold hover:text-indigo-600 transition-colors">
-                            Log in
-                        </Link>
-                        <Link to="/signup" className="btn-primary px-6 py-2.5 shadow-lg shadow-indigo-200 hover:shadow-indigo-300">
-                            Get Started
-                        </Link>
-                    </div>
+                    <>
+                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Find Tutors</a>
+                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Become a Tutor</a>
+                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">About Us</a>
+                        
+                        <div className="flex items-center gap-4 ml-4">
+                            <Link to="/login" className="text-slate-900 font-semibold hover:text-indigo-600 transition-colors">
+                                Log in
+                            </Link>
+                            <Link to="/signup" className="btn-primary px-6 py-2.5 shadow-lg shadow-indigo-200 hover:shadow-indigo-300">
+                                Get Started
+                            </Link>
+                        </div>
+                    </>
                 )}
             </div>
 
