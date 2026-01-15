@@ -16,7 +16,8 @@ const Navbar = () => {
   }, [location]);
 
   return (
-    <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100/50 supports-[backdrop-filter]:bg-white/60">
+  return (
+    <nav className={`fixed w-full z-50 transition-colors duration-300 ${ role ? 'bg-slate-50/90 shadow-none' : 'bg-white/80 border-b border-slate-100/50' } backdrop-blur-md supports-[backdrop-filter]:bg-opacity-60`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
             {/* Logo */}
@@ -94,10 +95,13 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-slate-100 absolute w-full left-0 shadow-xl">
             <div className="px-4 pt-2 pb-6 space-y-2">
-                <a href="#" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">Find Tutors</a>
-                <a href="#" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">Become a Tutor</a>
-                <a href="#" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">About Us</a>
-                <div className="border-t border-slate-100 my-2 pt-2">
+                {!role && (
+                    <>
+                        <a href="#" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">Find Tutors</a>
+                        <a href="#" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">Become a Tutor</a>
+                        <a href="#" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">About Us</a>
+                    </>
+                )}
                     {role ? (
                          <>
                             <Link 
