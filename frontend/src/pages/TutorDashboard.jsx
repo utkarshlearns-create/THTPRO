@@ -705,4 +705,88 @@ const BriefcaseIcon = () => (
     </svg>
 );
 
+const WalletSection = () => {
+    const [wallet, setWallet] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchWallet();
+    }, []);
+
+    const fetchWallet = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/wallet/me/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setWallet(data);
+            }
+        } catch (error) {
+            console.error("Error fetching wallet:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) return <div className="p-8 text-center">Loading Wallet...</div>;
+
+    return (
+        <div className="space-y-6 animate-in fade-in duration-300">
+            <h1 className="text-2xl font-bold text-slate-900">My Wallet</h1>
+            
+            {/* Balance Card */}
+            <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-2xl p-8 text-white shadow-lg">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <p className="text-indigo-200 font-medium mb-1">Available Balance</p>
+                        <h2 className="text-4xl font-bold">₹ {wallet?.balance || '0.00'}</h2>
+                    </div>
+                    <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm">
+                        <Wallet size={32} className="text-white" />
+                    </div>
+                </div>
+                <div className="mt-6 flex gap-3">
+                    <button className="px-4 py-2 bg-white text-indigo-700 rounded-lg font-semibold text-sm hover:bg-indigo-50 transition">
+                        Add Credits
+                    </button>
+                    <button className="px-4 py-2 bg-indigo-700 text-white rounded-lg font-semibold text-sm hover:bg-indigo-600 transition border border-indigo-500">
+                        View History
+                    </button>
+                </div>
+            </div>
+
+            {/* Transactions */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-200">
+                    <h3 className="font-semibold text-slate-900">Recent Transactions</h3>
+                </div>
+                <div className="divide-y divide-slate-100">
+                    {wallet?.transactions?.length > 0 ? (
+                        wallet.transactions.map((tx) => (
+                            <div key={tx.id} className="p-4 flex justify-between items-center hover:bg-slate-50">
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-2 rounded-lg ${tx.transaction_type === 'CREDIT' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                        {tx.transaction_type === 'CREDIT' ? <CheckCircle size={18} /> : <FileText size={18} />} 
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-slate-900">{tx.description}</p>
+                                        <p className="text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                <span className={`font-bold ${tx.transaction_type === 'CREDIT' ? 'text-green-600' : 'text-slate-900'}`}>
+                                    {tx.transaction_type === 'CREDIT' ? '+' : '-'} ₹{tx.amount}
+                                </span>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="p-8 text-center text-slate-500">No transactions yet.</div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export default TutorDashboard;
