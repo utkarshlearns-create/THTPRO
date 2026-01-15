@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import ParentDashboard from './pages/ParentDashboard';
 
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
@@ -31,7 +32,7 @@ function App() {
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['PARENT']} />}>
-            <Route path="/dashboard/parent" element={<Dashboard />} />
+            <Route path="/dashboard/parent" element={<ParentDashboard />} />
           </Route>
           {/* Add more routes here as we build them */}
         </Routes>
