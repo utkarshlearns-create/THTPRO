@@ -149,8 +149,61 @@ from django.views import View
 from django.http import JsonResponse
 import traceback
 import sys
+from django.db import transaction
 
 # ... existing imports ...
+
+class DebugTutorSignupView(View):
+    # Bypass DRF permissions
+    def get(self, request):
+        print("DEBUG: Starting Tutor Signup logic check...", file=sys.stderr)
+        
+        phone = "9988776600" 
+        username = "TutorDebug"
+        
+        try:
+            # 1. Cleanup
+            User.objects.filter(phone=phone).delete()
+            User.objects.filter(username=username).delete()
+            print("DEBUG: Cleanup done.", file=sys.stderr)
+
+            # 2. Simulate Signup
+            with transaction.atomic():
+                # Correct usage: User.objects.create_user handles hashing
+                # Frontend sends 'TEACHER' (all caps).
+                # Model definition: TEACHER = 'TEACHER', 'Teacher'
+                user = User.objects.create_user(
+                    username=username,
+                    phone=phone,
+                    password="password123",
+                    role='TEACHER' 
+                )
+                print(f"DEBUG: User created: {user} (Role: {user.role})", file=sys.stderr)
+                
+                # 3. Check Signal Results
+                profile_exists = TutorProfile.objects.filter(user=user).exists()
+                status_exists = TutorStatus.objects.filter(tutor__user=user).exists()
+                
+                print(f"DEBUG: Profile Exists? {profile_exists}", file=sys.stderr)
+                print(f"DEBUG: Status Exists? {status_exists}", file=sys.stderr)
+                
+                # If these fail, we know the signal is broken
+                if not profile_exists:
+                    raise Exception("Signal failed: TutorProfile not created")
+                if not status_exists:
+                    raise Exception("Signal failed: TutorStatus not created")
+
+            return JsonResponse({
+                "message": "Tutor Signup Logic passed!",
+                "user_id": user.id,
+                "profile_exists": profile_exists,
+                "status_exists": status_exists
+            })
+            
+        except Exception as e:
+            tb = traceback.format_exc()
+            print(f"ERROR in DebugTutorSignupView: {tb}", file=sys.stderr)
+            return JsonResponse({"error": str(e), "traceback": tb}, status=500)
 
 
 
