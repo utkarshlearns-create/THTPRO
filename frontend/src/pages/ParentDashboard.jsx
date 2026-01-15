@@ -21,7 +21,43 @@ const ParentDashboard = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [activeTab, setActiveTab] = useState('jobs_posted'); // jobs_posted, tutor_assigned, history, wallet
     const navigate = useNavigate();
-    const [stats, setStats] = useState({ jobs_posted: 0, tutors_hired: 0 });
+    const [stats, setStats] = useState({ jobs_posted: 0, applications_received: 0, assigned_tutor: 'None' });
+    const [latestJob, setLatestJob] = useState(null); // For "Child Info" profile
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchStats();
+    }, []);
+
+    const fetchStats = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            // Fetch Stats
+            const statsRes = await fetch(`${API_BASE_URL}/api/jobs/stats/parent/`, {
+                 headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (statsRes.ok) {
+                const data = await statsRes.json();
+                setStats(data);
+            }
+
+            // Fetch Latest Job for Profile Info (Hack until we have a real profile)
+            const jobsRes = await fetch(`${API_BASE_URL}/api/jobs/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (jobsRes.ok) {
+                const jobsData = await jobsRes.json();
+                if (jobsData.length > 0) {
+                    setLatestJob(jobsData[0]); // Use latest job for profile
+                }
+            }
+
+        } catch (error) {
+            console.error("Error fetching dashboard data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('access');
@@ -46,6 +82,20 @@ const ParentDashboard = () => {
 
                 <nav className="flex-1 overflow-y-auto py-4">
                     <ul className="space-y-1">
+                        <SidebarItem 
+                            icon={<LayoutDashboard size={20} />} 
+                            label="Overview" 
+                            isOpen={sidebarOpen} 
+                            active={activeTab === 'overview'}
+                            onClick={() => setActiveTab('overview')}
+                        />
+                         <SidebarItem 
+                            icon={<User size={20} />} 
+                            label="My Profile" 
+                            isOpen={sidebarOpen} 
+                            active={activeTab === 'profile'}
+                            onClick={() => setActiveTab('profile')}
+                        />
                         <SidebarItem 
                             icon={<Briefcase size={20} />} 
                             label="Jobs Posted" 
@@ -116,6 +166,78 @@ const ParentDashboard = () => {
                 </header>
 
                 <div className="p-6 max-w-5xl mx-auto">
+                    {/* DASHBOARD OVERVIEW */}
+                    {activeTab === 'overview' && (
+                        <div className="space-y-6 animate-in fade-in duration-300">
+                             <h1 className="text-2xl font-bold text-slate-900">Dashboard Overview</h1>
+                             
+                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <StatsCard icon={<Briefcase />} label="Jobs Posted" value={stats.jobs_posted} color="blue" />
+                                <StatsCard icon={<User />} label="Applications" value={stats.applications_received} color="purple" />
+                                <StatsCard icon={<CheckCircle />} label="Assigned Tutor" value={stats.assigned_tutor} color="green" />
+                             </div>
+
+                             <div className="mt-8">
+                                <h2 className="text-xl font-bold text-slate-900 mb-4">Quick Actions</h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                     <button onClick={() => setActiveTab('jobs_posted')} className="p-4 bg-white border border-slate-200 rounded-xl hover:border-indigo-500 hover:shadow-md transition-all text-left group">
+                                        <div className="bg-indigo-50 w-10 h-10 rounded-lg flex items-center justify-center text-indigo-600 mb-3 group-hover:scale-110 transition-transform">
+                                            <Briefcase size={20} />
+                                        </div>
+                                        <h3 className="font-semibold text-slate-900">Post New Job</h3>
+                                        <p className="text-sm text-slate-500 mt-1">Create a new requirement for another subject or child.</p>
+                                     </button>
+                                      <button onClick={() => setActiveTab('wallet')} className="p-4 bg-white border border-slate-200 rounded-xl hover:border-indigo-500 hover:shadow-md transition-all text-left group">
+                                        <div className="bg-green-50 w-10 h-10 rounded-lg flex items-center justify-center text-green-600 mb-3 group-hover:scale-110 transition-transform">
+                                            <Wallet size={20} />
+                                        </div>
+                                        <h3 className="font-semibold text-slate-900">Add Credits</h3>
+                                        <p className="text-sm text-slate-500 mt-1">Recharge your wallet to hire tutors.</p>
+                                     </button>
+                                </div>
+                             </div>
+                        </div>
+                    )}
+
+                    {/* PROFILE VIEW */}
+                    {activeTab === 'profile' && (
+                        <div className="space-y-6 animate-in fade-in duration-300">
+                             <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
+                             
+                             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                <div className="p-6 border-b border-slate-100 flex items-center gap-4">
+                                    <div className="h-16 w-16 bg-indigo-100 rounded-full flex items-center justify-center text-2xl font-bold text-indigo-700">
+                                        PA
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-slate-900">Parent Account</h2>
+                                        <p className="text-slate-500">Managing Education for: {latestJob ? latestJob.student_name : 'No Child Added'}</p>
+                                    </div>
+                                </div>
+                                <div className="p-6">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-4">Student Information</h3>
+                                    {latestJob ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                                            <ProfileField label="Student Name" value={latestJob.student_name} />
+                                            <ProfileField label="Gender" value={latestJob.student_gender} />
+                                            <ProfileField label="Class / Grade" value={latestJob.class_grade} />
+                                            <ProfileField label="Board" value={latestJob.board} />
+                                            <ProfileField label="Primary Subjects" value={latestJob.subjects.join(", ")} />
+                                            <ProfileField label="Location" value={latestJob.locality} />
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg">
+                                            <p>No student details found. Please post a job to add details.</p>
+                                            <button onClick={() => setActiveTab('jobs_posted')} className="mt-4 text-indigo-600 font-medium hover:underline">
+                                                Post Requirement Now
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                             </div>
+                        </div>
+                    )}
+
                     {/* JOBS POSTED VIEW */}
                     {activeTab === 'jobs_posted' && (
                         <div className="space-y-6 animate-in fade-in duration-300">
@@ -136,6 +258,7 @@ const ParentDashboard = () => {
                             <h1 className="text-2xl font-bold text-slate-900">Assigned Tutors</h1>
                             <div className="bg-white p-10 rounded-xl shadow-sm border border-slate-200 text-center">
                                 <p className="text-slate-500">No tutors currently assigned.</p>
+                                <p className="text-sm text-slate-400 mt-2">Hire a tutor from applications to see them here.</p>
                             </div>
                          </div>
                     )}
@@ -336,5 +459,32 @@ const WalletSection = () => {
         </div>
     );
 };
+
+const StatsCard = ({ icon, label, value, color }) => {
+    const colorClasses = {
+        blue: 'bg-blue-50 text-blue-600',
+        purple: 'bg-purple-50 text-purple-600',
+        green: 'bg-green-50 text-green-600',
+    };
+    
+    return (
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
+             <div className={`p-3 rounded-lg ${colorClasses[color] || 'bg-slate-50'}`}>
+                {icon}
+             </div>
+             <div>
+                <p className="text-sm font-medium text-slate-500">{label}</p>
+                <p className="text-2xl font-bold text-slate-900">{value}</p>
+             </div>
+        </div>
+    );
+};
+
+const ProfileField = ({ label, value }) => (
+    <div className="border-b border-slate-100 pb-2 last:border-0">
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">{label}</p>
+        <p className="text-base font-medium text-slate-800">{value || '-'}</p>
+    </div>
+);
 
 export default ParentDashboard;
