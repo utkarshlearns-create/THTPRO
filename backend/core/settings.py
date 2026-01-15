@@ -91,11 +91,17 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgres://postgres:password@localhost:5432/thtpro_db',
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
         conn_max_age=600,
-        ssl_require=not DEBUG  # Force SSL in production
+        ssl_require=False
     )
 }
+
+if 'DATABASE_URL' in os.environ:
+     DATABASES['default'] = dj_database_url.config(
+        conn_max_age=600,
+        ssl_require=True
+    )
 
 
 # Password validation
