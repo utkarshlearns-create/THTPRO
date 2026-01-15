@@ -48,6 +48,7 @@ const Login = () => {
         // Decode to get role
         const decoded = jwtDecode(data.access);
         const role = decoded.role;
+        localStorage.setItem('role', role);
         
         // Redirect based on role
         // Redirect based on role
