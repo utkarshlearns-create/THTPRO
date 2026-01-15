@@ -52,13 +52,13 @@ const Login = () => {
         // Redirect based on role
         // Redirect based on role
         console.log('Login successful, role:', role);
-        if (role === 'TEACHER') {
-            navigate('/dashboard/tutor');
-        } else if (role === 'ADMIN') {
-            navigate('/dashboard/admin');
-        } else {
-            navigate('/dashboard/parent');
-        }
+            if (role === 'ADMIN') {
+                navigate('/admin-dashboard');
+            } else if (role === 'TEACHER') {
+                navigate('/tutor-home'); // Redirect to Tutor Feed
+            } else {
+                navigate('/parent-home'); // Redirect to Parent Wizard Page
+            }
       } else {
         setError(data.detail || 'Invalid phone or password');
       }
