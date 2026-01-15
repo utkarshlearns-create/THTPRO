@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
 
-const ProtectedRoute = ({ allowedRoles }) => {
+const ProtectedRoute = ({ allowedRoles, children }) => {
     const token = localStorage.getItem('access');
 
     if (!token) {
@@ -14,7 +14,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
         const userRole = decoded.role;
 
         if (allowedRoles.includes(userRole)) {
-            return <Outlet />;
+            return children || <Outlet />;
         } else {
             // Role mismatch - redirect based on their actual role to prevent "stuck" states
             // Role mismatch - redirect based on their actual role to prevent "stuck" states
