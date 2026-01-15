@@ -152,29 +152,5 @@ import sys
 
 # ... existing imports ...
 
-class SetupAdminView(View):
-    # Bypass DRF permissions entirely
-    def get(self, request):
-        phone = "9876543210"
-        print("DEBUG: Starting SetupAdminView...", file=sys.stderr)
-        try:
-            # Force cleanup
-            del_count_phone, _ = User.objects.filter(phone=phone).delete()
-            del_count_user, _ = User.objects.filter(username=phone).delete()
-            print(f"DEBUG: Deleted existing users (Phone: {del_count_phone}, Username: {del_count_user})", file=sys.stderr)
-            
-            # Create fresh
-            u = User.objects.create_superuser(
-                phone=phone,
-                password="admin12345",
-                username=phone,
-                role='ADMIN'
-            )
-            print(f"DEBUG: Created superuser {u}", file=sys.stderr)
-            return JsonResponse({"message": f"Superuser {phone} created successfully (Clean Reset)!"})
-        except Exception as e:
-            # Capture full traceback
-            tb = traceback.format_exc()
-            print(f"ERROR in SetupAdminView: {tb}", file=sys.stderr)
-            return JsonResponse({"error": str(e), "traceback": tb}, status=500)
+
 
