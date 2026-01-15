@@ -21,11 +21,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <Link to={role === 'PARENT' ? '/parent-home' : role === 'TEACHER' ? '/tutor-home' : '/'} className="flex items-center gap-2">
-                <img
-                    className="h-10 w-auto" 
-                    src="/logo.png"
-                    alt="The Home Tuitions"
-                />
+                <img className="h-10 w-auto" src="/logo.png" alt="The Home Tuitions" />
                 <span className="font-bold text-xl tracking-tight text-slate-900">
                     The Home <span className="text-indigo-600">Tuitions</span>
                 </span>
@@ -35,19 +31,14 @@ const Navbar = () => {
             <div className="hidden md:flex items-center space-x-8">
                 {role ? (
                     <div className="flex items-center gap-6 ml-auto">
-                        {/* 1. Wallet Balance */}
                         <div className="flex items-center gap-2 px-4 py-2 bg-slate-100/80 rounded-full text-indigo-900 font-bold text-sm border border-slate-200/60 shadow-sm">
                              <Wallet size={18} className="text-indigo-600" />
                              <span>₹ 2,500</span>
                         </div>
-
-                        {/* 2. Notification Bell */}
                         <button className="relative p-2 text-slate-500 hover:text-indigo-600 transition-all hover:bg-slate-100 rounded-full">
                             <Bell size={24} />
                             <span className="absolute top-1.5 right-2 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
                         </button>
-
-                        {/* 3. Profile Avatar */}
                         <Link 
                             to={role === 'ADMIN' ? '/dashboard/admin' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'} 
                             className="flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-full transition-all border border-transparent hover:border-slate-200"
@@ -64,12 +55,8 @@ const Navbar = () => {
                         <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">About Us</a>
                         
                         <div className="flex items-center gap-4 ml-4">
-                            <Link to="/login" className="text-slate-900 font-semibold hover:text-indigo-600 transition-colors">
-                                Log in
-                            </Link>
-                            <Link to="/signup" className="btn-primary px-6 py-2.5 shadow-lg shadow-indigo-200 hover:shadow-indigo-300">
-                                Get Started
-                            </Link>
+                            <Link to="/login" className="text-slate-900 font-semibold hover:text-indigo-600 transition-colors">Log in</Link>
+                            <Link to="/signup" className="btn-primary px-6 py-2.5 shadow-lg shadow-indigo-200 hover:shadow-indigo-300">Get Started</Link>
                         </div>
                     </>
                 )}
@@ -98,35 +85,30 @@ const Navbar = () => {
                         <a href="#" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">About Us</a>
                     </>
                 )}
-                    {role ? (
-                         <>
-                            <Link 
-                                to={role === 'ADMIN' ? '/admin-dashboard' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'}
-                                className="block w-full text-center px-3 py-3 text-indigo-600 font-bold hover:bg-indigo-50 rounded-lg"
-                            >
-                                Go to Dashboard
-                            </Link>
-                            <button
-                                onClick={() => {
-                                    localStorage.removeItem('role');
-                                    window.location.reload();
-                                }}
-                                className="block w-full text-left px-3 py-3 text-slate-500 font-medium hover:bg-slate-50 rounded-lg"
-                            >
-                                Logout
-                            </button>
-                         </>
-                    ) : (
+                {role ? (
                         <>
-                            <Link to="/login" className="block w-full text-center px-3 py-3 text-slate-600 font-bold hover:bg-slate-50 rounded-lg">
-                                Log in
-                            </Link>
-                            <Link to="/signup" className="block w-full text-center px-3 py-3 mt-2 bg-indigo-600 text-white font-bold rounded-lg shadow-md">
-                                Get Started
-                            </Link>
+                        <Link 
+                            to={role === 'ADMIN' ? '/admin-dashboard' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'}
+                            className="block w-full text-center px-3 py-3 text-indigo-600 font-bold hover:bg-indigo-50 rounded-lg"
+                        >
+                            Go to Dashboard
+                        </Link>
+                        <button
+                            onClick={() => {
+                                localStorage.removeItem('role');
+                                window.location.reload();
+                            }}
+                            className="block w-full text-left px-3 py-3 text-slate-500 font-medium hover:bg-slate-50 rounded-lg"
+                        >
+                            Logout
+                        </button>
                         </>
-                    )}
-                </div>
+                ) : (
+                    <>
+                        <Link to="/login" className="block w-full text-center px-3 py-3 text-slate-600 font-bold hover:bg-slate-50 rounded-lg">Log in</Link>
+                        <Link to="/signup" className="block w-full text-center px-3 py-3 mt-2 bg-indigo-600 text-white font-bold rounded-lg shadow-md">Get Started</Link>
+                    </>
+                )}
             </div>
         </div>
       )}
