@@ -18,10 +18,10 @@ const Navbar = () => {
   return (
     <nav className={`fixed w-full z-50 transition-colors duration-300 ${ role ? 'bg-slate-50/90 shadow-none' : 'bg-white/80 border-b border-slate-100/50' } backdrop-blur-md supports-[backdrop-filter]:bg-opacity-60`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-24">
             {/* Logo */}
             <Link to={role === 'PARENT' ? '/parent-home' : role === 'TEACHER' ? '/tutor-home' : '/'} className="flex items-center gap-2">
-                <img className="h-12 w-auto" src="/logo.png" alt="The Home Tuitions" />
+                <img className="h-14 w-auto" src="/logo.png" alt="The Home Tuitions" />
                 <span className="font-bold text-xl tracking-tight text-slate-900">
                     The Home <span className="text-indigo-600">Tuitions</span>
                 </span>
