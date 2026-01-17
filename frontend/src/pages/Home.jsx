@@ -28,12 +28,12 @@ const LandingPage = () => {
       <section className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-indigo-100 shadow-sm mb-8 animate-in fade-in zoom-in duration-500">
-                <span className="flex h-2 w-2 relative">
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white border border-indigo-100 shadow-sm mb-8 animate-in fade-in zoom-in duration-500">
+                <span className="flex h-3 w-3 relative">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-600"></span>
                 </span>
-                <span className="text-sm font-semibold text-indigo-900 tracking-wide uppercase">Lucknow's Premier Tutoring Platform</span>
+                <span className="text-base font-semibold text-indigo-900 tracking-wide uppercase">Lucknow's Premier Tutoring Platform</span>
             </div>
 
             <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight animate-in slide-in-from-bottom-8 duration-700">
