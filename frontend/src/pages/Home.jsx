@@ -61,7 +61,7 @@ const LandingPage = () => {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="px-8 py-6 text-lg rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300"
+                  className="px-8 py-6 text-lg rounded-xl border-2 border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-600 transition-all font-bold"
                 >
                   <Link to="/signup?role=teacher">
                     Become a Tutor
@@ -237,7 +237,7 @@ const LandingPage = () => {
             <div>
               <div className="flex items-center gap-2 mb-6">
                  {/* Logo IN FOOTER */}
-                 <img className="h-12 w-auto brightness-0 invert opacity-90" src="/logo.png" alt="The Home Tuitions" />
+                 <img className="h-14 w-auto brightness-0 invert opacity-90" src="/logo.png" alt="The Home Tuitions" />
               </div>
               <p className="leading-relaxed mb-6">
                 The Home Tuitions is Lucknow's dedicated platform for connecting students with the best home tutors.
