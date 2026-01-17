@@ -236,8 +236,8 @@ const LandingPage = () => {
             
             <div>
               <div className="flex items-center gap-2 mb-6">
-                 {/* Logo Placeholder */}
-                 <span className="text-2xl font-bold text-white tracking-tight">THT PRO</span>
+                 {/* Logo IN FOOTER */}
+                 <img className="h-12 w-auto brightness-0 invert opacity-90" src="/logo.png" alt="The Home Tuitions" />
               </div>
               <p className="leading-relaxed mb-6">
                 The Home Tuitions is Lucknow's dedicated platform for connecting students with the best home tutors.
@@ -304,7 +304,7 @@ const LandingPage = () => {
 // --- Sub Components ---
 
 const FeatureCard = ({ icon, title, desc }) => (
-    <Card className="hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group border-slate-100 bg-slate-50/50 hover:bg-white">
+    <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 group border-slate-100 bg-slate-50/50 hover:bg-indigo-50 cursor-default">
         <CardContent className="p-8">
             <div className="inline-flex items-center justify-center p-3 rounded-xl bg-white border border-slate-200 shadow-sm group-hover:scale-110 transition-transform mb-6 text-indigo-600">
                 {icon}
@@ -318,7 +318,7 @@ const FeatureCard = ({ icon, title, desc }) => (
 )
 
 const SubjectCard = ({ icon, title, sub, highlight = false }) => (
-    <Card className={`transition-all duration-300 cursor-default border group
+    <Card className={`transition-all duration-300 cursor-default border group hover:scale-105 hover:bg-indigo-50
         ${highlight 
             ? 'bg-white border-indigo-100 shadow-md hover:shadow-lg hover:border-indigo-200' 
             : 'bg-white border-slate-200 hover:border-indigo-200 hover:shadow-md'
@@ -326,7 +326,7 @@ const SubjectCard = ({ icon, title, sub, highlight = false }) => (
     `}>
         <CardContent className="p-6 flex flex-col h-full justify-between">
             <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-lg ${highlight ? 'bg-indigo-50' : 'bg-slate-50 group-hover:bg-indigo-50 transition-colors'}`}>
+                <div className={`p-3 rounded-lg ${highlight ? 'bg-indigo-50' : 'bg-slate-50 group-hover:bg-white transition-colors'}`}>
                   {icon}
                 </div>
                 <div>
@@ -335,7 +335,7 @@ const SubjectCard = ({ icon, title, sub, highlight = false }) => (
                 </div>
             </div>
             <div className="mt-4 flex justify-end">
-                <div className={`h-8 w-8 rounded-full flex items-center justify-center transition-colors ${highlight ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600'}`}>
+                <div className={`h-8 w-8 rounded-full flex items-center justify-center transition-colors ${highlight ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-indigo-600'}`}>
                     <ChevronRight className="h-4 w-4" />
                 </div>
             </div>
