@@ -18,10 +18,10 @@ const Navbar = () => {
   return (
     <nav className={`fixed w-full z-50 transition-colors duration-300 ${ role ? 'bg-slate-50/90 shadow-none' : 'bg-white/80 border-b border-slate-100/50' } backdrop-blur-md supports-[backdrop-filter]:bg-opacity-60`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-24">
+        <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <Link to={role === 'PARENT' ? '/parent-home' : role === 'TEACHER' ? '/tutor-home' : '/'} className="flex items-center gap-2">
-                <img className="h-14 w-auto" src="/logo.png" alt="The Home Tuitions" />
+                <img className="h-12 w-auto" src="/logo.png" alt="The Home Tuitions" />
                 <span className="font-bold text-xl tracking-tight text-slate-900">
                     The Home <span className="text-indigo-600">Tuitions</span>
                 </span>
@@ -50,15 +50,16 @@ const Navbar = () => {
                     </div>
                 ) : (
                     <>
+                        <Link to="/" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Home</Link>
                         <Link to="/tutors" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Find Tutors</Link>
                         <Link to="/signup?role=teacher" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Become a Tutor</Link>
                         <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">About Us</a>
                         
                         <div className="flex items-center gap-4 ml-4">
-                            <Button asChild className="shadow-lg shadow-indigo-200 hover:shadow-indigo-300 bg-indigo-600 hover:bg-indigo-700 text-white">
+                            <Button asChild className="shadow-lg shadow-indigo-200 hover:shadow-indigo-300 bg-indigo-600 hover:bg-indigo-700 text-white border-2 border-transparent">
                                 <Link to="/login">Log in</Link>
                             </Button>
-                            <Button asChild className="bg-white text-indigo-600 font-bold hover:bg-white hover:text-indigo-700 border border-indigo-100">
+                            <Button asChild className="bg-white text-indigo-600 font-bold hover:bg-slate-50 border-2 border-indigo-100 hover:border-indigo-200 shadow-sm">
                                 <Link to="/signup">Get Started</Link>
                             </Button>
                         </div>
