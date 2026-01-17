@@ -304,7 +304,7 @@ const LandingPage = () => {
 // --- Sub Components ---
 
 const FeatureCard = ({ icon, title, desc }) => (
-    <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 group border-slate-100 bg-slate-50/50 hover:bg-indigo-50 cursor-default">
+    <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 group border-slate-100 bg-slate-50/50 hover:bg-indigo-100 hover:border-indigo-600 cursor-default">
         <CardContent className="p-8">
             <div className="inline-flex items-center justify-center p-3 rounded-xl bg-white border border-slate-200 shadow-sm group-hover:scale-110 transition-transform mb-6 text-indigo-600">
                 {icon}
@@ -318,10 +318,10 @@ const FeatureCard = ({ icon, title, desc }) => (
 )
 
 const SubjectCard = ({ icon, title, sub, highlight = false }) => (
-    <Card className={`transition-all duration-300 cursor-default border group hover:scale-105 hover:bg-indigo-50
+    <Card className={`transition-all duration-300 cursor-default border group hover:scale-105 hover:bg-indigo-100
         ${highlight 
-            ? 'bg-white border-indigo-100 shadow-md hover:shadow-lg hover:border-indigo-200' 
-            : 'bg-white border-slate-200 hover:border-indigo-200 hover:shadow-md'
+            ? 'bg-white border-indigo-100 shadow-md hover:shadow-lg hover:border-indigo-600' 
+            : 'bg-white border-slate-200 hover:border-indigo-600 hover:shadow-md'
         }
     `}>
         <CardContent className="p-6 flex flex-col h-full justify-between">
