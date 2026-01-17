@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
-import { ArrowRight, CheckCircle, MapPin, Calendar, BookOpen, Clock } from 'lucide-react';
-import API_BASE_URL from '../config';
+import { ArrowRight, CheckCircle, MapPin, Clock, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+
+import API_BASE_URL from '../config';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from './ui/card';
+import { Progress } from './ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 const JobWizard = () => {
     const navigate = useNavigate();
@@ -22,6 +30,11 @@ const JobWizard = () => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
+    
+    // For Select components
+    const handleSelectChange = (name, value) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
     const handleSubjectChange = (subject) => {
         setFormData(prev => {
@@ -38,12 +51,10 @@ const JobWizard = () => {
     const prevStep = () => setStep(prev => prev - 1);
 
     const handleSubmit = async () => {
-        // If not logged in, we should redirect to login but save state (TODO: Implement proper auth flow persistence)
         const token = localStorage.getItem('access');
         const role = localStorage.getItem('role');
 
         if (!token || role !== 'PARENT') {
-            // Ideally redirect to login with return_url
             alert("Please Login as a Parent first!");
             navigate('/login');
             return;
@@ -74,173 +85,256 @@ const JobWizard = () => {
         }
     };
 
+    const variants = {
+        enter: (direction) => ({
+            x: direction > 0 ? 50 : -50,
+            opacity: 0
+        }),
+        center: {
+            zIndex: 1,
+            x: 0,
+            opacity: 1
+        },
+        exit: (direction) => ({
+            zIndex: 0,
+            x: direction < 0 ? 50 : -50,
+            opacity: 0
+        })
+    };
+
     return (
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-auto overflow-hidden border border-indigo-50 relative">
-            <div className="h-2 bg-slate-100 w-full">
-                <div 
-                    className="h-full bg-indigo-600 transition-all duration-500 ease-out"
-                    style={{ width: `${(step / 4) * 100}%` }}
-                />
+        <Card className="w-full max-w-2xl mx-auto border-indigo-50 shadow-xl overflow-hidden">
+             
+            <div className="bg-slate-50/50 p-6 pb-0">
+                <div className="flex justify-between text-sm font-semibold text-slate-500 mb-2">
+                    <span>Step {step} of 4</span>
+                    <span className="text-indigo-600">{Math.round((step / 4) * 100)}% Completed</span>
+                </div>
+                <Progress value={(step / 4) * 100} className="h-2" />
             </div>
 
-            <div className="p-8">
-                {/* STEM 1: Student Details */}
-                {step === 1 && (
-                    <div className="animate-in fade-in slide-in-from-right-8 duration-300">
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Who needs a tutor?</h2>
-                        <p className="text-slate-500 mb-6">Let's start with some basic details about the student.</p>
-                        
-                        <div className="space-y-4">
-                            <div>
-                                <label className="label">Student Name</label>
-                                <input type="text" name="student_name" value={formData.student_name} onChange={handleInputChange} className="input-wiz" placeholder="e.g. Rahul Sharma" autoFocus />
-                            </div>
-                            <div>
-                                <label className="label">Gender</label>
-                                <div className="flex gap-4">
-                                    {['Male', 'Female'].map(g => (
-                                        <button 
-                                            key={g}
-                                            onClick={() => setFormData(prev => ({...prev, student_gender: g}))}
-                                            className={`flex-1 py-3 rounded-lg border-2 font-medium transition-all
-                                            ${formData.student_gender === g ? 'border-indigo-600 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-500 hover:border-indigo-200'}
-                                            `}
-                                        >
-                                            {g}
-                                        </button>
-                                    ))}
+            <CardContent className="p-8 min-h-[400px]">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={step}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {/* STEP 1: Student Details */}
+                        {step === 1 && (
+                            <div className="space-y-6">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-slate-900">Who needs a tutor?</h2>
+                                    <p className="text-slate-500">Let's start with some basic details about the student.</p>
+                                </div>
+                                
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="student_name">Student Name</Label>
+                                        <Input 
+                                            id="student_name" 
+                                            name="student_name" 
+                                            value={formData.student_name} 
+                                            onChange={handleInputChange} 
+                                            placeholder="e.g. Rahul Sharma" 
+                                            autoFocus 
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Gender</Label>
+                                        <div className="flex gap-4">
+                                            {['Male', 'Female'].map(g => (
+                                                <Button
+                                                    key={g}
+                                                    type="button"
+                                                    variant={formData.student_gender === g ? "default" : "outline"}
+                                                    className={`w-full ${formData.student_gender === g ? '' : 'text-slate-500'}`}
+                                                    onClick={() => setFormData(prev => ({...prev, student_gender: g}))}
+                                                >
+                                                    {formData.student_gender === g && <CheckCircle className="mr-2 h-4 w-4" />}
+                                                    {g}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="mt-8 flex justify-end">
-                            <button onClick={nextStep} disabled={!formData.student_name || !formData.student_gender} className="btn-wiz">
-                                Next <ArrowRight size={18} />
-                            </button>
-                        </div>
-                    </div>
-                )}
+                        )}
 
-                {/* STEP 2: Academic Details */}
-                {step === 2 && (
-                    <div className="animate-in fade-in slide-in-from-right-8 duration-300">
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Academic Details</h2>
-                        <p className="text-slate-500 mb-6">What subject or class do you need help with?</p>
-                        
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label className="label">Class/Grade</label>
-                                <select name="class_grade" value={formData.class_grade} onChange={handleInputChange} className="input-wiz">
-                                    <option value="">Select Class</option>
-                                    {[...Array(12)].map((_, i) => (
-                                        <option key={i} value={`Class ${i + 1}`}>Class {i + 1}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="label">Board</label>
-                                <select name="board" value={formData.board} onChange={handleInputChange} className="input-wiz">
-                                    <option value="">Select Board</option>
-                                    <option value="CBSE">CBSE</option>
-                                    <option value="ICSE">ICSE</option>
-                                    <option value="State Board">State Board</option>
-                                    <option value="IGCSE">IGCSE</option>
-                                    <option value="IB">IB</option>
-                                </select>
-                            </div>
-                        </div>
+                        {/* STEP 2: Academic Details */}
+                        {step === 2 && (
+                            <div className="space-y-6">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-slate-900">Academic Details</h2>
+                                    <p className="text-slate-500">What subject or class do you need help with?</p>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Class/Grade</Label>
+                                        <Select name="class_grade" value={formData.class_grade} onValueChange={(val) => handleSelectChange('class_grade', val)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Class" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {[...Array(12)].map((_, i) => (
+                                                    <SelectItem key={i} value={`Class ${i + 1}`}>Class {i + 1}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Board</Label>
+                                        <Select name="board" value={formData.board} onValueChange={(val) => handleSelectChange('board', val)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select Board" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {['CBSE', 'ICSE', 'State Board', 'IGCSE', 'IB'].map(board => (
+                                                    <SelectItem key={board} value={board}>{board}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
 
-                        <div>
-                            <label className="label mb-2 block">Subjects Needed</label>
-                            <div className="flex flex-wrap gap-2">
-                                {['Maths', 'Physics', 'Chemistry', 'Biology', 'English', 'Hindi', 'Commerce', 'Computer'].map(sub => (
-                                    <button 
-                                        key={sub}
-                                        onClick={() => handleSubjectChange(sub)}
-                                        className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors
-                                        ${formData.subjects.includes(sub) ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-300'}
-                                        `}
-                                    >
-                                        {sub}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="mt-8 flex justify-between">
-                            <button onClick={prevStep} className="text-slate-500 font-medium hover:text-slate-800">Back</button>
-                            <button onClick={nextStep} disabled={!formData.class_grade || !formData.board || formData.subjects.length === 0} className="btn-wiz">
-                                Next <ArrowRight size={18} />
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* STEP 3: Location & Time */}
-                {step === 3 && (
-                     <div className="animate-in fade-in slide-in-from-right-8 duration-300">
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Location & Schedule</h2>
-                        <p className="text-slate-500 mb-6">Where and when should the classes happen?</p>
-                        
-                        <div className="space-y-4">
-                            <div>
-                                <label className="label">Locality / Area</label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-3 top-3.5 text-slate-400" size={18} />
-                                    <input type="text" name="locality" value={formData.locality} onChange={handleInputChange} className="input-wiz pl-10" placeholder="e.g. MP Nagar, Zone 2" />
+                                <div className="space-y-2">
+                                    <Label>Subjects Needed</Label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {['Maths', 'Physics', 'Chemistry', 'Biology', 'English', 'Hindi', 'Commerce', 'Computer'].map(sub => (
+                                            <Button
+                                                key={sub}
+                                                type="button"
+                                                variant={formData.subjects.includes(sub) ? "default" : "outline"}
+                                                size="sm"
+                                                onClick={() => handleSubjectChange(sub)}
+                                                className={`rounded-full ${formData.subjects.includes(sub) ? '' : 'text-slate-600 border-slate-200'}`}
+                                            >
+                                                {sub}
+                                            </Button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <label className="label">Preferred Time</label>
-                                <div className="relative">
-                                    <Clock className="absolute left-3 top-3.5 text-slate-400" size={18} />
-                                    <input type="text" name="preferred_time" value={formData.preferred_time} onChange={handleInputChange} className="input-wiz pl-10" placeholder="e.g. Evening 5-7 PM" />
+                        )}
+
+                        {/* STEP 3: Location & Time */}
+                        {step === 3 && (
+                             <div className="space-y-6">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-slate-900">Location & Schedule</h2>
+                                    <p className="text-slate-500">Where and when should the classes happen?</p>
+                                </div>
+                                
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Locality / Area</Label>
+                                        <div className="relative">
+                                            <MapPin className="absolute left-3 top-3.5 text-slate-400 h-4 w-4" />
+                                            <Input 
+                                                name="locality" 
+                                                value={formData.locality} 
+                                                onChange={handleInputChange} 
+                                                className="pl-9" 
+                                                placeholder="e.g. MP Nagar, Zone 2" 
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Preferred Time</Label>
+                                        <div className="relative">
+                                            <Clock className="absolute left-3 top-3.5 text-slate-400 h-4 w-4" />
+                                            <Input 
+                                                name="preferred_time" 
+                                                value={formData.preferred_time} 
+                                                onChange={handleInputChange} 
+                                                className="pl-9" 
+                                                placeholder="e.g. Evening 5-7 PM" 
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
-                        <div className="mt-8 flex justify-between">
-                            <button onClick={prevStep} className="text-slate-500 font-medium hover:text-slate-800">Back</button>
-                            <button onClick={nextStep} disabled={!formData.locality} className="btn-wiz">
-                                Next <ArrowRight size={18} />
-                            </button>
-                        </div>
-                    </div>
+                        {/* STEP 4: Budget & Review */}
+                        {step === 4 && (
+                             <div className="space-y-6">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-slate-900">Almost Done!</h2>
+                                    <p className="text-slate-500">Review your requirements and submit.</p>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    <Label>Budget Range (Monthly)</Label>
+                                    <Input 
+                                        name="budget_range" 
+                                        value={formData.budget_range} 
+                                        onChange={handleInputChange} 
+                                        placeholder="e.g. ₹3000 - ₹5000" 
+                                    />
+                                </div>
+
+                                <Card className="bg-slate-50 border-slate-100">
+                                    <CardContent className="p-4 text-sm text-slate-600 space-y-2">
+                                        <div className="flex justify-between">
+                                            <span className="font-semibold text-slate-900">Student:</span>
+                                            <span>{formData.student_name} ({formData.student_gender})</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="font-semibold text-slate-900">Class:</span>
+                                            <span>{formData.class_grade} ({formData.board})</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="font-semibold text-slate-900">Subjects:</span>
+                                            <span className="text-right">{formData.subjects.join(', ')}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="font-semibold text-slate-900">Location:</span>
+                                            <span>{formData.locality}</span>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        )}
+                    </motion.div>
+                </AnimatePresence>
+            </CardContent>
+
+            <CardFooter className="flex justify-between p-8 pt-0 bg-white">
+                <Button 
+                    variant="ghost" 
+                    onClick={prevStep} 
+                    disabled={step === 1}
+                    className={step === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-500'}
+                >
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                </Button>
+
+                {step < 4 ? (
+                    <Button 
+                        onClick={nextStep} 
+                        disabled={
+                            (step === 1 && (!formData.student_name || !formData.student_gender)) ||
+                            (step === 2 && (!formData.class_grade || !formData.board || formData.subjects.length === 0)) ||
+                            (step === 3 && !formData.locality)
+                        }
+                    >
+                        Next <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                ) : (
+                    <Button 
+                        onClick={handleSubmit} 
+                        disabled={loading}
+                        className="px-8"
+                    >
+                        {loading ? 'Posting...' : 'Post Requirement'}
+                    </Button>
                 )}
-
-                {/* STEP 4: Budget & Review */}
-                {step === 4 && (
-                     <div className="animate-in fade-in slide-in-from-right-8 duration-300">
-                        <h2 className="text-2xl font-bold text-slate-900 mb-2">Almost Done!</h2>
-                        <p className="text-slate-500 mb-6">Review your requirements and submit.</p>
-                        
-                        <div>
-                            <label className="label">Budget Range (Monthly)</label>
-                            <input type="text" name="budget_range" value={formData.budget_range} onChange={handleInputChange} className="input-wiz" placeholder="e.g. ₹3000 - ₹5000" />
-                        </div>
-
-                        <div className="mt-6 bg-slate-50 p-4 rounded-lg border border-slate-100 text-sm text-slate-600 space-y-2">
-                            <p><strong>Student:</strong> {formData.student_name} ({formData.student_gender})</p>
-                            <p><strong>Class:</strong> {formData.class_grade} ({formData.board})</p>
-                            <p><strong>Subjects:</strong> {formData.subjects.join(', ')}</p>
-                            <p><strong>Location:</strong> {formData.locality}</p>
-                        </div>
-
-                        <div className="mt-8 flex justify-between">
-                            <button onClick={prevStep} className="text-slate-500 font-medium hover:text-slate-800">Back</button>
-                            <button onClick={handleSubmit} disabled={loading} className="btn-wiz w-auto px-8">
-                                {loading ? 'Posting...' : 'Post Requirement'}
-                            </button>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            <style>{`
-                .label { @apply block text-sm font-semibold text-slate-700 mb-1.5; }
-                .input-wiz { @apply w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none text-slate-900 placeholder:text-slate-400 font-medium; }
-                .btn-wiz { @apply bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed; }
-            `}</style>
-        </div>
+            </CardFooter>
+        </Card>
     );
 };
 
