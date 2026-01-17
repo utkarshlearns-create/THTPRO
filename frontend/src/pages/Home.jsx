@@ -6,7 +6,6 @@ import {
   MapPin, 
   CreditCard,
   ChevronRight, 
-  CheckCircle,
   ArrowRight,
   Phone,
   MessageCircle,
@@ -19,6 +18,8 @@ import {
   Files,
   Code2
 } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Card, CardContent } from '../components/ui/card';
 
 const LandingPage = () => {
   return (
@@ -27,7 +28,7 @@ const LandingPage = () => {
       <section className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-indigo-100 shadow-sm mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-indigo-100 shadow-sm mb-8 animate-in fade-in zoom-in duration-500">
                 <span className="flex h-2 w-2 relative">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
@@ -35,34 +36,41 @@ const LandingPage = () => {
                 <span className="text-sm font-semibold text-indigo-900 tracking-wide uppercase">Lucknow's Premier Tutoring Platform</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight animate-in slide-in-from-bottom-8 duration-700">
               Unlock Your Child's<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">True Potential.</span>
             </h1>
             
-            <p className="mt-6 text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="mt-6 text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed animate-in slide-in-from-bottom-8 duration-700 delay-150">
               We bridge the gap between ambitious students and expert educators. 
               Get connected with verified, experienced mentors who prioritize your child's growth.
             </p>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-               <Link
-                  to="/parent-home" 
-                  className="btn-primary flex items-center justify-center gap-2 px-8 py-4 text-lg shadow-indigo-200 shadow-lg hover:shadow-indigo-300 hover:-translate-y-1 transition-all"
+            <div className="flex flex-col sm:flex-row justify-center gap-4 animate-in slide-in-from-bottom-8 duration-700 delay-300">
+               <Button 
+                  asChild
+                  size="lg"
+                  className="px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200"
                 >
-                  Find a Tutor
-                  <ChevronRight className="h-5 w-5" />
-                </Link>
-                <Link
-                  to="/signup?role=teacher"
-                  className="inline-flex justify-center items-center px-8 py-4 border border-slate-200 text-lg font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+                  <Link to="/parent-home">
+                    Find a Tutor <ChevronRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+                
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="px-8 py-6 text-lg rounded-xl border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300"
                 >
-                  Become a Tutor
-                </Link>
+                  <Link to="/signup?role=teacher">
+                    Become a Tutor
+                  </Link>
+                </Button>
             </div>
             
             {/* Trust Badges */}
-            <div className="mt-16 pt-8 border-t border-slate-200/60 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-slate-400 grayscale opacity-70">
+            <div className="mt-16 pt-8 border-t border-slate-200/60 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-slate-400 grayscale opacity-70 animate-in fade-in duration-1000 delay-500">
                 {['EduTrust', 'TutorSafe', 'VerifiedPro', 'HomeLearn'].map((brand, i) => (
                     <div key={i} className="flex justify-center items-center font-bold text-xl">{brand}</div>
                 ))}
@@ -209,13 +217,15 @@ const LandingPage = () => {
             Join our network of verified educators and start earning by sharing your knowledge.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-             <Link
-                to="/signup?role=teacher"
-                className="inline-flex items-center justify-center px-8 py-4 bg-white text-indigo-900 text-lg font-bold rounded-xl hover:bg-indigo-50 transition-colors shadow-lg"
-              >
-                Join as a Tutor
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
+               <Button
+                 asChild
+                 size="lg"
+                 className="bg-white text-indigo-900 hover:bg-indigo-50 hover:text-indigo-900 px-8 py-6 text-lg font-bold rounded-xl shadow-lg border-2 border-transparent hover:border-indigo-100"
+               >
+                 <Link to="/signup?role=teacher">
+                   Join as a Tutor <ArrowRight className="ml-2 h-5 w-5" />
+                 </Link>
+               </Button>
           </div>
         </div>
       </section>
@@ -294,27 +304,29 @@ const LandingPage = () => {
 // --- Sub Components ---
 
 const FeatureCard = ({ icon, title, desc }) => (
-    <div className="p-8 rounded-2xl bg-slate-50 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group border border-slate-100">
-        <div className="inline-flex items-center justify-center p-3 rounded-xl bg-white border border-slate-200 shadow-sm group-hover:scale-110 transition-transform mb-6 text-indigo-600">
-            {icon}
-        </div>
-        <h3 className="text-lg font-bold text-slate-900 mb-3">{title}</h3>
-        <p className="text-slate-600 leading-relaxed text-sm">
-            {desc}
-        </p>
-    </div>
+    <Card className="hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group border-slate-100 bg-slate-50/50 hover:bg-white">
+        <CardContent className="p-8">
+            <div className="inline-flex items-center justify-center p-3 rounded-xl bg-white border border-slate-200 shadow-sm group-hover:scale-110 transition-transform mb-6 text-indigo-600">
+                {icon}
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-3">{title}</h3>
+            <p className="text-slate-600 leading-relaxed text-sm">
+                {desc}
+            </p>
+        </CardContent>
+    </Card>
 )
 
 const SubjectCard = ({ icon, title, sub, highlight = false }) => (
-    <div className={`p-6 rounded-xl border transition-all duration-300 cursor-default
+    <Card className={`transition-all duration-300 cursor-default border group
         ${highlight 
             ? 'bg-white border-indigo-100 shadow-md hover:shadow-lg hover:border-indigo-200' 
             : 'bg-white border-slate-200 hover:border-indigo-200 hover:shadow-md'
         }
     `}>
-        <div className="flex flex-col h-full justify-between">
+        <CardContent className="p-6 flex flex-col h-full justify-between">
             <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-lg ${highlight ? 'bg-indigo-50' : 'bg-slate-50'}`}>
+                <div className={`p-3 rounded-lg ${highlight ? 'bg-indigo-50' : 'bg-slate-50 group-hover:bg-indigo-50 transition-colors'}`}>
                   {icon}
                 </div>
                 <div>
@@ -323,24 +335,26 @@ const SubjectCard = ({ icon, title, sub, highlight = false }) => (
                 </div>
             </div>
             <div className="mt-4 flex justify-end">
-                <div className={`h-8 w-8 rounded-full flex items-center justify-center ${highlight ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-400'}`}>
+                <div className={`h-8 w-8 rounded-full flex items-center justify-center transition-colors ${highlight ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600'}`}>
                     <ChevronRight className="h-4 w-4" />
                 </div>
             </div>
-        </div>
-    </div>
+        </CardContent>
+    </Card>
 )
 
 const StepCard = ({ number, title, desc }) => (
-    <div className="relative p-8 rounded-3xl bg-slate-50 border border-slate-100 text-center group hover:bg-white hover:shadow-xl transition-all duration-300">
-        <div className="text-6xl font-black text-indigo-200 mb-6 group-hover:text-indigo-600 transition-colors">
-            {number}
-        </div>
-        <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
-        <p className="text-slate-600 leading-relaxed">
-            {desc}
-        </p>
-    </div>
+    <Card className="relative border-slate-100 bg-slate-50 hover:bg-white hover:shadow-xl transition-all duration-300 group">
+        <CardContent className="p-8 text-center">
+            <div className="text-6xl font-black text-indigo-200 mb-6 group-hover:text-indigo-600 transition-colors">
+                {number}
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
+            <p className="text-slate-600 leading-relaxed">
+                {desc}
+            </p>
+        </CardContent>
+    </Card>
 )
 
 export default LandingPage;

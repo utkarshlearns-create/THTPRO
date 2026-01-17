@@ -1,13 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Bell, Wallet, User } from 'lucide-react';
+import { Button } from './ui/button';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState(null);
   const location = useLocation();
-
-
 
   useEffect(() => {
     // Check role on mount and on every route change (e.g. after login/logout)
@@ -50,13 +50,17 @@ const Navbar = () => {
                     </div>
                 ) : (
                     <>
-                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Find Tutors</a>
-                        <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Become a Tutor</a>
+                        <Link to="/tutors" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Find Tutors</Link>
+                        <Link to="/signup?role=teacher" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">Become a Tutor</Link>
                         <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">About Us</a>
                         
                         <div className="flex items-center gap-4 ml-4">
-                            <Link to="/login" className="text-slate-900 font-semibold hover:text-indigo-600 transition-colors">Log in</Link>
-                            <Link to="/signup" className="btn-primary px-6 py-2.5 shadow-lg shadow-indigo-200 hover:shadow-indigo-300">Get Started</Link>
+                            <Button asChild variant="ghost" className="font-semibold text-slate-900 hover:text-indigo-600 hover:bg-transparent">
+                                <Link to="/login">Log in</Link>
+                            </Button>
+                            <Button asChild className="shadow-lg shadow-indigo-200 hover:shadow-indigo-300">
+                                <Link to="/signup">Get Started</Link>
+                            </Button>
                         </div>
                     </>
                 )}
@@ -80,15 +84,15 @@ const Navbar = () => {
             <div className="px-4 pt-2 pb-6 space-y-2">
                 {!role && (
                     <>
-                        <a href="#" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">Find Tutors</a>
-                        <a href="#" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">Become a Tutor</a>
+                        <Link to="/tutors" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">Find Tutors</Link>
+                        <Link to="/signup?role=teacher" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">Become a Tutor</Link>
                         <a href="#" className="block px-3 py-3 text-slate-600 font-medium hover:bg-slate-50 rounded-lg">About Us</a>
                     </>
                 )}
                 {role ? (
                         <>
                         <Link 
-                            to={role === 'ADMIN' ? '/admin-dashboard' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'}
+                            to={role === 'ADMIN' ? '/dashboard/admin' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'}
                             className="block w-full text-center px-3 py-3 text-indigo-600 font-bold hover:bg-indigo-50 rounded-lg"
                         >
                             Go to Dashboard
@@ -104,10 +108,14 @@ const Navbar = () => {
                         </button>
                         </>
                 ) : (
-                    <>
-                        <Link to="/login" className="block w-full text-center px-3 py-3 text-slate-600 font-bold hover:bg-slate-50 rounded-lg">Log in</Link>
-                        <Link to="/signup" className="block w-full text-center px-3 py-3 mt-2 bg-indigo-600 text-white font-bold rounded-lg shadow-md">Get Started</Link>
-                    </>
+                    <div className="flex flex-col gap-2 mt-4">
+                        <Button asChild variant="outline" className="w-full justify-center">
+                            <Link to="/login">Log in</Link>
+                        </Button>
+                        <Button asChild className="w-full justify-center">
+                            <Link to="/signup">Get Started</Link>
+                        </Button>
+                    </div>
                 )}
             </div>
         </div>
