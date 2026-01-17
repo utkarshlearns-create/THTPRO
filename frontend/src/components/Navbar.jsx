@@ -55,10 +55,10 @@ const Navbar = () => {
                         <a href="#" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">About Us</a>
                         
                         <div className="flex items-center gap-4 ml-4">
-                            <Button asChild variant="ghost" className="font-semibold text-slate-900 hover:text-indigo-600 hover:bg-transparent">
+                            <Button asChild className="shadow-lg shadow-indigo-200 hover:shadow-indigo-300 bg-indigo-600 hover:bg-indigo-700 text-white">
                                 <Link to="/login">Log in</Link>
                             </Button>
-                            <Button asChild className="shadow-lg shadow-indigo-200 hover:shadow-indigo-300">
+                            <Button asChild className="bg-white text-indigo-600 font-bold hover:bg-white hover:text-indigo-700 border border-indigo-100">
                                 <Link to="/signup">Get Started</Link>
                             </Button>
                         </div>
@@ -109,10 +109,10 @@ const Navbar = () => {
                         </>
                 ) : (
                     <div className="flex flex-col gap-2 mt-4">
-                        <Button asChild variant="outline" className="w-full justify-center">
+                        <Button asChild className="w-full justify-center shadow-md bg-indigo-600 hover:bg-indigo-700 text-white">
                             <Link to="/login">Log in</Link>
                         </Button>
-                        <Button asChild className="w-full justify-center">
+                        <Button asChild className="w-full justify-center bg-white text-indigo-600 font-bold hover:bg-white hover:text-indigo-700 border border-indigo-100">
                             <Link to="/signup">Get Started</Link>
                         </Button>
                     </div>
