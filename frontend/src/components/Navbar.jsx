@@ -55,10 +55,10 @@ const Navbar = () => {
                         <a href="#" className="px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:bg-indigo-50 hover:border-indigo-600 hover:text-indigo-600 text-slate-600 font-medium">About Us</a>
                         
                         <div className="flex items-center gap-4 ml-4">
-                            <Button asChild className="shadow-lg shadow-indigo-200 hover:shadow-indigo-300 bg-indigo-600 hover:bg-indigo-700 text-white border-2 border-transparent">
+                            <Button asChild className="shadow-lg shadow-indigo-200 hover:shadow-indigo-300 bg-indigo-600 hover:bg-white hover:text-indigo-600 border-2 border-transparent hover:border-indigo-600 text-white transition-all duration-300">
                                 <Link to="/login">Log in</Link>
                             </Button>
-                            <Button asChild className="bg-white text-indigo-600 font-bold hover:bg-slate-50 border-2 border-indigo-100 hover:border-indigo-200 shadow-sm">
+                            <Button asChild className="bg-white text-indigo-600 font-bold hover:bg-indigo-600 hover:text-white border-2 border-indigo-100 hover:border-transparent shadow-sm transition-all duration-300">
                                 <Link to="/signup">Get Started</Link>
                             </Button>
                         </div>
@@ -109,10 +109,10 @@ const Navbar = () => {
                         </>
                 ) : (
                     <div className="flex flex-col gap-2 mt-4">
-                        <Button asChild className="w-full justify-center shadow-md bg-indigo-600 hover:bg-indigo-700 text-white">
+                        <Button asChild className="w-full justify-center shadow-md bg-indigo-600 hover:bg-white hover:text-indigo-600 border-2 border-transparent hover:border-indigo-600 text-white transition-all duration-300">
                             <Link to="/login">Log in</Link>
                         </Button>
-                        <Button asChild className="w-full justify-center bg-white text-indigo-600 font-bold hover:bg-white hover:text-indigo-700 border border-indigo-100">
+                        <Button asChild className="w-full justify-center bg-white text-indigo-600 font-bold hover:bg-indigo-600 hover:text-white border-2 border-indigo-100 hover:border-transparent shadow-sm transition-all duration-300">
                             <Link to="/signup">Get Started</Link>
                         </Button>
                     </div>
