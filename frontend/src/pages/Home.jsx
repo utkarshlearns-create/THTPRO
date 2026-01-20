@@ -20,6 +20,19 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
+import { motion } from 'framer-motion';
+
+const FadeIn = ({ children, className, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-50px" }}
+    transition={{ duration: 0.6, delay, ease: "easeOut" }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);
 
 const LandingPage = () => {
   return (
@@ -90,7 +103,7 @@ const LandingPage = () => {
 
       {/* Why Choose Us Section */}
       <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <FadeIn className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-sm font-semibold text-indigo-600 tracking-widest uppercase mb-3">Who We Are</h2>
             <p className="text-3xl md:text-4xl font-bold text-slate-900">
@@ -123,32 +136,52 @@ const LandingPage = () => {
                 desc="Premium education at fair rates. No hidden charges or commissions."
               />
           </div>
-        </div>
+        </FadeIn>
       </section>
 
 
 
       {/* Testimonials Section - Wall of Trust */}
       <section className="py-24 bg-[url('/trust-bg.png')] bg-cover bg-center relative overflow-hidden">
-         {/* Overlay for better readability if needed, but keeping it light as per requests usually */}
-         <div className="absolute inset-0 bg-white/60"></div>
+         {/* Overlay */}
+         <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px]"></div>
 
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="max-w-3xl ml-auto text-right mb-16">
-              <h2 className="text-3xl md:text-5xl font-bold text-indigo-900 mb-4 tracking-tight">Wall of Trust and Love</h2>
-              <p className="text-xl text-slate-700 font-medium">Real stories from families who found the perfect tutor.</p>
-            </div>
+            <FadeIn className="flex flex-col md:flex-row gap-12 items-center">
+                <div className="md:w-1/2 text-right md:order-last">
+                    <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm mb-6 animate-pulse">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="h-5 w-5" />
+                        <span className="font-bold text-slate-700">Excellent</span>
+                        <div className="flex text-yellow-500 text-sm">
+                            {[...Array(5)].map((_,i) => <span key={i}>★</span>)}
+                        </div>
+                        <span className="text-slate-500 text-sm font-medium">4.8/5</span>
+                    </div>
+                    <h2 className="text-4xl md:text-6xl font-black text-indigo-950 mb-6 tracking-tight leading-tight">
+                        Loved by <br/>
+                        <span className="text-indigo-600">Lucknow.</span>
+                    </h2>
+                    <p className="text-xl text-slate-800 font-medium leading-relaxed mb-8">
+                        See why thousands of parents trust THT for their child's future.
+                    </p>
+                    <div className="flex justify-end gap-3 text-sm font-semibold text-slate-600">
+                        <span className="flex items-center gap-1"><ShieldCheck className="h-4 w-4 text-green-600"/> Verified Reviews</span>
+                        <span>•</span>
+                        <span>Last updated today</span>
+                    </div>
+                </div>
 
-            {/* Reviews Carousel */}
-            <div className="max-w-4xl ml-auto">
-                 <TestimonialCarousel />
-            </div>
+                {/* Reviews Carousel */}
+                <div className="md:w-1/2 w-full">
+                     <TestimonialCarousel />
+                </div>
+            </FadeIn>
          </div>
       </section>
 
       {/* Subjects Section */}
       <section className="py-24 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <FadeIn className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
               Browse by Subject & Class
@@ -201,7 +234,7 @@ const LandingPage = () => {
               sub="Python, Java, C++" 
               />
           </div>
-        </div>
+        </FadeIn>
       </section>
 
       {/* How It Works Section */}
@@ -401,18 +434,32 @@ const TestimonialCarousel = () => {
 };
 
 const TestimonialCard = ({ quote, author, role, rating }) => (
-    <Card className="border-none shadow-xl bg-white/90 backdrop-blur-md hover:scale-[1.02] transition-all duration-300 mx-auto max-w-2xl">
-        <CardContent className="p-8">
-            <div className="flex gap-1 mb-4">
+    <Card className="border-none shadow-xl bg-white rounded-2xl overflow-hidden mx-auto max-w-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+        <CardContent className="p-6 relative">
+            <div className="absolute top-6 right-6">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" className="h-6 w-6 opacity-80" />
+            </div>
+            
+            <div className="flex items-start gap-4 mb-4">
+                <div className="h-10 w-10 rounded-full bg-orange-600 text-white flex items-center justify-center font-bold text-lg">
+                    {author.charAt(0)}
+                </div>
+                <div>
+                    <h4 className="font-bold text-slate-900 leading-snug">{author}</h4>
+                    <p className="text-xs text-slate-500">{role}</p>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-1 mb-3">
                 {[...Array(5)].map((_, i) => (
-                    <span key={i} className={`text-xl ${i < rating ? 'text-yellow-400' : 'text-slate-200'}`}>★</span>
+                    <span key={i} className={`text-base ${i < rating ? 'text-yellow-400' : 'text-slate-200'}`}>★</span>
                 ))}
+                <span className="text-xs text-slate-400 ml-2">Posted on Google</span>
             </div>
-            <p className="text-slate-700 italic mb-6 leading-relaxed">"{quote}"</p>
-            <div>
-                <h4 className="font-bold text-slate-900">{author}</h4>
-                <p className="text-sm text-indigo-600 font-medium">{role}</p>
-            </div>
+
+            <p className="text-slate-700 text-sm leading-relaxed mb-4 line-clamp-4">
+                "{quote}"
+            </p>
         </CardContent>
     </Card>
 )
