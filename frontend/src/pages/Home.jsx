@@ -128,33 +128,20 @@ const LandingPage = () => {
 
 
 
-      {/* Testimonials Section */}
-      <section className="py-24 bg-indigo-50 relative overflow-hidden">
+      {/* Testimonials Section - Wall of Trust */}
+      <section className="py-24 bg-[url('/trust-bg.png')] bg-cover bg-center relative overflow-hidden">
+         {/* Overlay for better readability if needed, but keeping it light as per requests usually */}
+         <div className="absolute inset-0 bg-white/60"></div>
+
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Wall of Trust and Love</h2>
-              <p className="text-lg text-slate-500">Real stories from families who found the perfect tutor.</p>
+            <div className="max-w-3xl ml-auto text-right mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold text-indigo-900 mb-4 tracking-tight">Wall of Trust and Love</h2>
+              <p className="text-xl text-slate-700 font-medium">Real stories from families who found the perfect tutor.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <TestimonialCard 
-                    quote="Finding a reliable maths tutor was a nightmare until I found THT. The tutor is excellent and my son's grades improved in just 2 months!"
-                    author="Priya Sharma"
-                    role="Parent, Gomti Nagar"
-                    rating={5}
-                />
-                <TestimonialCard 
-                    quote="I love how professional the process is. They verified the tutor's background which gave me peace of mind. Highly recommended."
-                    author="Amit Verma"
-                    role="Parent, Aliganj"
-                    rating={5}
-                />
-                <TestimonialCard 
-                    quote="Great platform for tutors too. I got connected with genuine students near my home without any hassle of commissions."
-                    author="Sanya Gupta"
-                    role="Tutor, Indira Nagar"
-                    rating={4}
-                />
+            {/* Reviews Carousel */}
+            <div className="max-w-4xl ml-auto">
+                 <TestimonialCarousel />
             </div>
          </div>
       </section>
@@ -347,8 +334,74 @@ const LandingPage = () => {
 
 // --- Sub Components ---
 
+const TestimonialCarousel = () => {
+    const testimonials = [
+        {
+            quote: "Finding a reliable maths tutor was a nightmare until I found THT. The tutor is excellent and my son's grades improved in just 2 months!",
+            author: "Priya Sharma",
+            role: "Parent, Gomti Nagar",
+            rating: 5
+        },
+        {
+            quote: "I love how professional the process is. They verified the tutor's background which gave me peace of mind. Highly recommended.",
+            author: "Amit Verma",
+            role: "Parent, Aliganj",
+            rating: 5
+        },
+        {
+            quote: "Great platform for tutors too. I got connected with genuine students near my home without any hassle of commissions.",
+            author: "Sanya Gupta",
+            role: "Tutor, Indira Nagar",
+            rating: 4
+        },
+        {
+            quote: "The flexible timing option is a lifesaver for working parents like us. The tutor adjusts according to our schedule.",
+            author: "Rajesh Singh",
+            role: "Parent, Hazratganj",
+            rating: 5
+        }
+    ];
+
+    const [current, setCurrent] = React.useState(0);
+
+    const next = () => setCurrent((curr) => (curr + 1) % testimonials.length);
+    const prev = () => setCurrent((curr) => (curr - 1 + testimonials.length) % testimonials.length);
+
+    React.useEffect(() => {
+        const timer = setInterval(next, 5000);
+        return () => clearInterval(timer);
+    }, []);
+
+    return (
+        <div className="relative">
+            <div className="overflow-hidden p-4">
+                <div 
+                    className="flex transition-transform duration-500 ease-in-out" 
+                    style={{ transform: `translateX(-${current * 100}%)` }}
+                >
+                    {testimonials.map((t, i) => (
+                        <div key={i} className="w-full flex-shrink-0 px-4">
+                            <TestimonialCard {...t} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+            
+            <div className="flex justify-center gap-2 mt-4">
+                {testimonials.map((_, i) => (
+                    <button 
+                        key={i}
+                        onClick={() => setCurrent(i)}
+                        className={`h-2 w-2 rounded-full transition-all ${current === i ? 'bg-indigo-600 w-4' : 'bg-slate-300'}`}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const TestimonialCard = ({ quote, author, role, rating }) => (
-    <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm hover:scale-105 transition-all duration-300">
+    <Card className="border-none shadow-xl bg-white/90 backdrop-blur-md hover:scale-[1.02] transition-all duration-300 mx-auto max-w-2xl">
         <CardContent className="p-8">
             <div className="flex gap-1 mb-4">
                 {[...Array(5)].map((_, i) => (
