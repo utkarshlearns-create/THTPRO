@@ -332,8 +332,14 @@ const LandingPage = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 bg-[url('/hero-bg.png')] bg-cover bg-center bg-fixed relative">
-        <div className="absolute inset-0 bg-white/95"></div>
+      <section 
+        className="py-24 bg-slate-50 relative" 
+        style={{ 
+            backgroundImage: "radial-gradient(#cbd5e1 1px, transparent 1px)", 
+            backgroundSize: "32px 32px" 
+        }}
+      >
+        <div className="absolute inset-0 bg-white/50"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <FadeIn className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900">How We Work?</h2>
