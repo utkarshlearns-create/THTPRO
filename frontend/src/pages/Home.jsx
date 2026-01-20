@@ -335,11 +335,11 @@ const LandingPage = () => {
       <section 
         className="py-24 bg-slate-50 relative" 
         style={{ 
-            backgroundImage: "radial-gradient(#cbd5e1 1px, transparent 1px)", 
+            backgroundImage: "radial-gradient(#94a3b8 1px, transparent 1px)", 
             backgroundSize: "32px 32px" 
         }}
       >
-        <div className="absolute inset-0 bg-white/50"></div>
+        <div className="absolute inset-0 bg-white/40"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <FadeIn className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900">How We Work?</h2>
@@ -354,11 +354,10 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false }}
-              transition={{ duration: 0.5 }}
               animate={{ y: [0, -10, 0] }}
               transition={{ 
-                y: { repeat: Infinity, duration: 3, ease: "easeInOut" },
-                opacity: { duration: 0.5 } 
+                duration: 0.5,
+                y: { repeat: Infinity, duration: 3, ease: "easeInOut" }
               }}
             >
                 <StepCard 
@@ -372,11 +371,11 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false }}
-              transition={{ duration: 0.5, delay: 0.2 }}
               animate={{ y: [0, -10, 0] }}
               transition={{ 
-                y: { repeat: Infinity, duration: 3, ease: "easeInOut", delay: 1 },
-                opacity: { duration: 0.5, delay: 0.2 }
+                duration: 0.5, 
+                delay: 0.2,
+                y: { repeat: Infinity, duration: 3, ease: "easeInOut", delay: 1 }
               }}
             >
                 <StepCard 
@@ -390,11 +389,11 @@ const LandingPage = () => {
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: false }}
-              transition={{ duration: 0.5, delay: 0.4 }}
               animate={{ y: [0, -10, 0] }}
               transition={{ 
-                 y: { repeat: Infinity, duration: 3, ease: "easeInOut", delay: 2 },
-                 opacity: { duration: 0.5, delay: 0.4 }
+                 duration: 0.5, 
+                 delay: 0.4,
+                 y: { repeat: Infinity, duration: 3, ease: "easeInOut", delay: 2 }
               }}
             >
                 <StepCard 
