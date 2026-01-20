@@ -25,7 +25,8 @@ const LandingPage = () => {
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-24 pb-16 lg:pt-32 lg:pb-24 bg-slate-50">
+      <section className="relative overflow-hidden pt-36 pb-20 lg:pt-44 lg:pb-32 bg-[url('/hero-bg.png')] bg-cover bg-center bg-no-repeat bg-fixed">
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-50/90 via-white/80 to-slate-50/90 backdrop-blur-[2px]"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             
             <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white border border-indigo-100 shadow-sm mb-8 animate-in fade-in zoom-in duration-500">
@@ -61,13 +62,17 @@ const LandingPage = () => {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="px-8 py-6 text-lg rounded-xl border-2 border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-600 transition-all font-bold"
+                  className="px-8 py-6 text-lg rounded-xl border-2 border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:border-indigo-600 hover:text-indigo-600 transition-all font-bold"
                 >
                   <Link to="/signup?role=teacher">
                     Become a Tutor
                   </Link>
                 </Button>
             </div>
+            
+            <p className="mt-8 text-sm font-semibold text-slate-500 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+                ⭐ Trusted by thousands of parents and tutors • Rated 4.8/5
+            </p>
             
             {/* Trust Badges */}
             <div className="mt-16 pt-8 border-t border-slate-200/60 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-slate-400 grayscale opacity-70 animate-in fade-in duration-1000 delay-500">
@@ -114,6 +119,39 @@ const LandingPage = () => {
               />
           </div>
         </div>
+      </section>
+
+
+
+      {/* Testimonials Section */}
+      <section className="py-24 bg-indigo-50 relative overflow-hidden">
+         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">What Parents Say</h2>
+              <p className="text-lg text-slate-500">Real stories from families who found the perfect tutor.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <TestimonialCard 
+                    quote="Finding a reliable maths tutor was a nightmare until I found THT. The tutor is excellent and my son's grades improved in just 2 months!"
+                    author="Priya Sharma"
+                    role="Parent, Gomti Nagar"
+                    rating={5}
+                />
+                <TestimonialCard 
+                    quote="I love how professional the process is. They verified the tutor's background which gave me peace of mind. Highly recommended."
+                    author="Amit Verma"
+                    role="Parent, Aliganj"
+                    rating={5}
+                />
+                <TestimonialCard 
+                    quote="Great platform for tutors too. I got connected with genuine students near my home without any hassle of commissions."
+                    author="Sanya Gupta"
+                    role="Tutor, Indira Nagar"
+                    rating={4}
+                />
+            </div>
+         </div>
       </section>
 
       {/* Subjects Section */}
@@ -302,6 +340,23 @@ const LandingPage = () => {
 };
 
 // --- Sub Components ---
+
+const TestimonialCard = ({ quote, author, role, rating }) => (
+    <Card className="border-none shadow-lg bg-white/80 backdrop-blur-sm hover:scale-105 transition-all duration-300">
+        <CardContent className="p-8">
+            <div className="flex gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                    <span key={i} className={`text-xl ${i < rating ? 'text-yellow-400' : 'text-slate-200'}`}>★</span>
+                ))}
+            </div>
+            <p className="text-slate-700 italic mb-6 leading-relaxed">"{quote}"</p>
+            <div>
+                <h4 className="font-bold text-slate-900">{author}</h4>
+                <p className="text-sm text-indigo-600 font-medium">{role}</p>
+            </div>
+        </CardContent>
+    </Card>
+)
 
 const FeatureCard = ({ icon, title, desc }) => (
     <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 group border-slate-100 bg-slate-50/50 hover:bg-indigo-100 hover:border-indigo-600 cursor-default">
