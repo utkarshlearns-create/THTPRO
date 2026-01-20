@@ -25,7 +25,7 @@ const LandingPage = () => {
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-32 bg-[url('/hero-main.png')] bg-contain bg-right bg-no-repeat bg-white">
+      <section className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-32 bg-[url('/hero-main.png')] bg-cover bg-center bg-no-repeat bg-white">
         <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             
@@ -35,7 +35,7 @@ const LandingPage = () => {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-600"></span>
                     </span>
-                    <span className="text-base font-semibold text-indigo-900 tracking-wide uppercase">Lucknow's Premier Tutoring Platform</span>
+                    <span className="text-base font-semibold text-indigo-900 tracking-wide uppercase">India's Premier Tutoring Platform</span>
                 </div>
 
                 <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight animate-in slide-in-from-bottom-8 duration-700">
