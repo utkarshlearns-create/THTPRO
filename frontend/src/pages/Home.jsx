@@ -28,7 +28,7 @@ const FadeIn = ({ children, className, delay = 0 }) => (
   <motion.div
     initial={{ opacity: 0, y: 40 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
+    viewport={{ once: false, margin: "-50px" }}
     transition={{ duration: 0.6, delay, ease: "easeOut" }}
     className={className}
   >
@@ -171,7 +171,7 @@ const LandingPage = () => {
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: false, margin: "-100px" }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
               <motion.div variants={itemVariants}>
@@ -265,7 +265,7 @@ const LandingPage = () => {
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
+            viewport={{ once: false, margin: "-50px" }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             <motion.div variants={itemVariants}>
@@ -673,7 +673,7 @@ const FAQItem = ({ question, answer, delay }) => {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: false }}
       transition={{ delay, duration: 0.5 }}
       className="border border-slate-700 rounded-2xl bg-slate-800/50 backdrop-blur-sm overflow-hidden"
     >
