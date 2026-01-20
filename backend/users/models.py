@@ -120,3 +120,15 @@ class TutorStatus(models.Model):
     
     def __str__(self):
         return f"{self.tutor.user.username}: {self.status}"
+
+class ContactUnlock(models.Model):
+    parent = models.ForeignKey(User, on_delete=models.CASCADE, related_name='unlocked_contacts')
+    tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='unlocked_by')
+    unlocked_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('parent', 'tutor')
+        ordering = ['-unlocked_at']
+
+    def __str__(self):
+        return f"{self.parent.username} unlocked {self.tutor.user.username}"
