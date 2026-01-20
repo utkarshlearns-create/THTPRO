@@ -34,6 +34,27 @@ const FadeIn = ({ children, className, delay = 0 }) => (
   </motion.div>
 );
 
+// Animation Variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.3,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  },
+};
+
 const LandingPage = () => {
   return (
     <div className="bg-white min-h-screen">
@@ -43,25 +64,45 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             
             <div className="text-left">
-                <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-indigo-50 border border-indigo-100 shadow-sm mb-8 animate-in fade-in zoom-in duration-500">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-indigo-50 border border-indigo-100 shadow-sm mb-8"
+                >
                     <span className="flex h-3 w-3 relative">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-600"></span>
                     </span>
                     <span className="text-base font-semibold text-indigo-900 tracking-wide uppercase">India's Premier Tutoring Platform</span>
-                </div>
+                </motion.div>
 
-                <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight animate-in slide-in-from-bottom-8 duration-700">
+                <motion.h1 
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                  className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight"
+                >
                   Unlock Your Child's<br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">True Potential.</span>
-                </h1>
+                </motion.h1>
                 
-                <p className="mt-6 text-xl text-slate-600 mb-10 leading-relaxed animate-in slide-in-from-bottom-8 duration-700 delay-150 max-w-lg">
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 1, delay: 0.8 }}
+                  className="mt-6 text-xl text-slate-600 mb-10 leading-relaxed max-w-lg"
+                >
                   We bridge the gap between ambitious students and expert educators. 
                   Get connected with verified, experienced mentors who prioritize your child's growth.
-                </p>
+                </motion.p>
 
-                <div className="flex flex-col sm:flex-row gap-4 animate-in slide-in-from-bottom-8 duration-700 delay-300">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 1 }}
+                  className="flex flex-col sm:flex-row gap-4"
+                >
                    <Button 
                       asChild
                       size="lg"
@@ -82,18 +123,28 @@ const LandingPage = () => {
                         Become a Tutor
                       </Link>
                     </Button>
-                </div>
+                </motion.div>
                 
-                <p className="mt-8 text-sm font-semibold text-slate-500 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.2, duration: 0.5 }}
+                  className="mt-8 text-sm font-semibold text-slate-500"
+                >
                     ⭐ Trusted by thousands of parents and tutors • Rated 4.8/5
-                </p>
+                </motion.p>
                 
                 {/* Trust Badges */}
-                <div className="mt-12 pt-8 border-t border-slate-200/60 grid grid-cols-2 md:grid-cols-4 gap-6 text-slate-400 grayscale opacity-70 animate-in fade-in duration-1000 delay-500">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.4, duration: 0.5 }}
+                  className="mt-12 pt-8 border-t border-slate-200/60 grid grid-cols-2 md:grid-cols-4 gap-6 text-slate-400 grayscale opacity-70"
+                >
                     {['EduTrust', 'TutorSafe', 'VerifiedPro', 'HomeLearn'].map((brand, i) => (
                         <div key={i} className="flex justify-start items-center font-bold text-lg">{brand}</div>
                     ))}
-                </div>
+                </motion.div>
             </div>
             
             {/* Right side is intentionally empty to let the background image show */}
@@ -101,10 +152,10 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
+      {/* Why Choose Us Section - Staggered Grid */}
       <section className="py-24 bg-white">
-        <FadeIn className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn className="text-center mb-20">
             <h2 className="text-sm font-semibold text-indigo-600 tracking-widest uppercase mb-3">Who We Are</h2>
             <p className="text-3xl md:text-4xl font-bold text-slate-900">
               Redefining Home Education
@@ -112,31 +163,45 @@ const LandingPage = () => {
             <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto">
               Unlike others, we don't just provide a teacher; we provide a mentor. Every tutor is screened for expertise and safety.
             </p>
-          </div>
+          </FadeIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <FeatureCard 
-                icon={<ShieldCheck className="h-6 w-6 text-indigo-600" />}
-                title="100% Verified"
-                desc="Every tutor's ID and address is thoroughly checked for your safety."
-              />
-              <FeatureCard 
-                icon={<Clock className="h-6 w-6 text-indigo-600" />}
-                title="Flexible Timings"
-                desc="Classes scheduled at your convenience to fit your child's routine."
-              />
-              <FeatureCard 
-                icon={<MapPin className="h-6 w-6 text-indigo-600" />}
-                title="Local Tutors"
-                desc="Find expert teachers from your own locality and neighborhood."
-              />
-              <FeatureCard 
-                icon={<CreditCard className="h-6 w-6 text-indigo-600" />}
-                title="Affordable"
-                desc="Premium education at fair rates. No hidden charges or commissions."
-              />
-          </div>
-        </FadeIn>
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+          >
+              <motion.div variants={itemVariants}>
+                <FeatureCard 
+                  icon={<ShieldCheck className="h-6 w-6 text-indigo-600" />}
+                  title="100% Verified"
+                  desc="Every tutor's ID and address is thoroughly checked for your safety."
+                />
+              </motion.div>
+              <motion.div variants={itemVariants}>
+                <FeatureCard 
+                  icon={<Clock className="h-6 w-6 text-indigo-600" />}
+                  title="Flexible Timings"
+                  desc="Classes scheduled at your convenience to fit your child's routine."
+                />
+              </motion.div>
+              <motion.div variants={itemVariants}>
+                <FeatureCard 
+                  icon={<MapPin className="h-6 w-6 text-indigo-600" />}
+                  title="Local Tutors"
+                  desc="Find expert teachers from your own locality and neighborhood."
+                />
+              </motion.div>
+              <motion.div variants={itemVariants}>
+                <FeatureCard 
+                  icon={<CreditCard className="h-6 w-6 text-indigo-600" />}
+                  title="Affordable"
+                  desc="Premium education at fair rates. No hidden charges or commissions."
+                />
+              </motion.div>
+          </motion.div>
+        </div>
       </section>
 
 
@@ -179,62 +244,84 @@ const LandingPage = () => {
          </div>
       </section>
 
-      {/* Subjects Section */}
+      {/* Subjects Section - Staggered Grid */}
       <section className="py-24 bg-slate-50">
-        <FadeIn className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn className="text-center mb-16">
              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
               Browse by Subject & Class
             </h2>
             <p className="text-lg text-slate-500">Find specialized experts for your specific learning needs.</p>
-          </div>
+          </FadeIn>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <SubjectCard 
-              icon={<Calculator className="h-6 w-6 text-indigo-500" />}
-              title="Mathematics" 
-              sub="Algebra, Calculus & More" 
-            />
-            <SubjectCard 
-              icon={<FlaskConical className="h-6 w-6 text-indigo-500" />}
-              title="Science" 
-              sub="Physics, Chemistry, Bio" 
-            />
-            <SubjectCard 
-              icon={<BookOpenText className="h-6 w-6 text-indigo-500" />}
-              title="English" 
-              sub="Grammar & Literature" 
-            />
-            <SubjectCard 
-              icon={<TrendingUp className="h-6 w-6 text-indigo-500" />}
-              title="Commerce" 
-              sub="Accounts & Economics" 
-            />
-            <SubjectCard 
-              icon={<School className="h-6 w-6 text-orange-500" />}
-              title="Junior Wing" 
-              sub="Class 1 to 5 All Subjects" 
-              highlight 
-            />
-            <SubjectCard 
-              icon={<BookOpen className="h-6 w-6 text-blue-500" />}
-              title="High School" 
-              sub="Class 6 to 10" 
-              highlight 
-            />
-            <SubjectCard 
-              icon={<Files className="h-6 w-6 text-green-500" />}
-              title="Intermediate" 
-              sub="Class 11 & 12 Specialized" 
-              highlight 
-            />
-            <SubjectCard 
-              icon={<Code2 className="h-6 w-6 text-purple-500" />}
-              title="Coding / IT" 
-              sub="Python, Java, C++" 
-              />
-          </div>
-        </FadeIn>
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            <motion.div variants={itemVariants}>
+                <SubjectCard 
+                icon={<Calculator className="h-6 w-6 text-indigo-500" />}
+                title="Mathematics" 
+                sub="Algebra, Calculus & More" 
+                />
+            </motion.div>
+            <motion.div variants={itemVariants}>
+                <SubjectCard 
+                icon={<FlaskConical className="h-6 w-6 text-indigo-500" />}
+                title="Science" 
+                sub="Physics, Chemistry, Bio" 
+                />
+            </motion.div>
+            <motion.div variants={itemVariants}>
+                <SubjectCard 
+                icon={<BookOpenText className="h-6 w-6 text-indigo-500" />}
+                title="English" 
+                sub="Grammar & Literature" 
+                />
+            </motion.div>
+            <motion.div variants={itemVariants}>
+                <SubjectCard 
+                icon={<TrendingUp className="h-6 w-6 text-indigo-500" />}
+                title="Commerce" 
+                sub="Accounts & Economics" 
+                />
+            </motion.div>
+            <motion.div variants={itemVariants}>
+                <SubjectCard 
+                icon={<School className="h-6 w-6 text-orange-500" />}
+                title="Junior Wing" 
+                sub="Class 1 to 5 All Subjects" 
+                highlight 
+                />
+            </motion.div>
+            <motion.div variants={itemVariants}>
+                <SubjectCard 
+                icon={<BookOpen className="h-6 w-6 text-blue-500" />}
+                title="High School" 
+                sub="Class 6 to 10" 
+                highlight 
+                />
+            </motion.div>
+            <motion.div variants={itemVariants}>
+                <SubjectCard 
+                icon={<Files className="h-6 w-6 text-green-500" />}
+                title="Intermediate" 
+                sub="Class 11 & 12 Specialized" 
+                highlight 
+                />
+            </motion.div>
+            <motion.div variants={itemVariants}>
+                <SubjectCard 
+                icon={<Code2 className="h-6 w-6 text-purple-500" />}
+                title="Coding / IT" 
+                sub="Python, Java, C++" 
+                />
+            </motion.div>
+          </motion.div>
+        </div>
       </section>
 
       {/* How It Works Section */}

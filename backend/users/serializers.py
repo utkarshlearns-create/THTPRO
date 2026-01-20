@@ -49,6 +49,33 @@ class TutorProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['user', 'profile_completion_percentage']
 
+    is_unlocked = serializers.SerializerMethodField()
+    contact_info = serializers.SerializerMethodField()
+
+    def get_is_unlocked(self, obj):
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        # If user is the tutor themselves, always unlocked
+        if user == obj.user:
+            return True
+        # Check if ContactUnlock record exists
+        # We need to import ContactUnlock model inside method or at top (it is imported at top in views, but here in serializers?)
+        # Let's check imports.
+        # It's not imported. We need to import it.
+        from .models import ContactUnlock
+        return ContactUnlock.objects.filter(parent=user, tutor=obj).exists()
+
+    def get_contact_info(self, obj):
+        # We can reuse the logic or just check if we have access
+        # For efficiency, we might want to just check is_unlocked logic again or rely on context
+        if self.get_is_unlocked(obj):
+            return {
+                "phone": obj.user.phone,
+                "email": obj.user.email
+            }
+        return None
+
 class UserSerializer(serializers.ModelSerializer):
     tutor_profile = TutorProfileSerializer(read_only=True)
     
