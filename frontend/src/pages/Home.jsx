@@ -16,7 +16,9 @@ import {
   School,
   BookOpen,
   Files,
-  Code2
+  Code2,
+  Plus,
+  Minus
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -386,8 +388,11 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <FAQ />
+
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-400 py-16">
+      <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
             
             <div>
@@ -614,5 +619,85 @@ const StepCard = ({ number, title, desc }) => (
         </CardContent>
     </Card>
 )
+
+const FAQ = () => {
+  const faqs = [
+    {
+      q: "Is the first demo class really free?",
+      a: "Yes! We believe you should be 100% satisfied before you pay. You can take a free demo class with the tutor to understand their teaching style."
+    },
+    {
+      q: "How do you verify your tutors?",
+      a: "Safety is our priority. We discourage unverified tutors. Every 'Verified' tutor on our platform has undergone a standard background check, including ID proof and address verification."
+    },
+    {
+      q: "What if I am not satisfied with the tutor?",
+      a: "No worries at all. You can request a replacement at any time. We will match you with another expert tutor who better fits your learning needs."
+    },
+    {
+      q: "How do I pay the tuition fees?",
+      a: "You pay directly to the tutor or through our secure platform (coming soon). We recommend discussing payment terms clearly with the tutor after the demo class."
+    },
+     {
+      q: "Are there any hidden charges?",
+      a: "Absolutely not. Our platform is transparent. You only pay for the classes you take. There are no registration fees for parents."
+    }
+  ];
+
+  return (
+    <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
+       {/* Decorative element */}
+       <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+       <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+
+       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <FadeIn className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+            <p className="text-slate-400 text-lg">Everything you need to know about finding the perfect tutor.</p>
+          </FadeIn>
+
+          <div className="space-y-4">
+            {faqs.map((faq, i) => (
+              <FAQItem key={i} question={faq.q} answer={faq.a} delay={i * 0.1} />
+            ))}
+          </div>
+       </div>
+    </section>
+  );
+};
+
+const FAQItem = ({ question, answer, delay }) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.5 }}
+      className="border border-slate-700 rounded-2xl bg-slate-800/50 backdrop-blur-sm overflow-hidden"
+    >
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-6 py-5 flex items-center justify-between text-left focus:outline-none"
+      >
+        <span className="font-semibold text-lg text-slate-200">{question}</span>
+        <span className={`p-2 rounded-full bg-slate-700 transition-transform duration-300 ${isOpen ? 'rotate-45' : ''}`}>
+           <Plus className="h-5 w-5 text-indigo-400" />
+        </span>
+      </button>
+      <motion.div 
+        initial={false}
+        animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        className="overflow-hidden"
+      >
+        <div className="px-6 pb-6 text-slate-400 leading-relaxed">
+          {answer}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 export default LandingPage;
