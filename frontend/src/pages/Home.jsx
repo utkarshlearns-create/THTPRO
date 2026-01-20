@@ -335,27 +335,68 @@ const LandingPage = () => {
       <section className="py-24 bg-[url('/hero-bg.png')] bg-cover bg-center bg-fixed relative">
         <div className="absolute inset-0 bg-white/95"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-20">
+          <FadeIn className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900">How We Work?</h2>
             <p className="mt-4 text-lg text-slate-500">Three simple steps to start your learning journey.</p>
-          </div>
+          </FadeIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
-            <StepCard 
-              number="01" 
-              title="Post Requirement" 
-              desc="Fill the form and tell us your class, subject, and area preferences." 
-            />
-            <StepCard 
-              number="02" 
-              title="Get Matched" 
-              desc="We send the best suited tutor profile to you for a free demo class." 
-            />
-            <StepCard 
-              number="03" 
-              title="Start Learning" 
-              desc="If satisfied with the demo, hire the tutor and start your classes." 
-            />
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-12 z-10">
+            {/* Connector Line (Desktop) */}
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 border-t-2 border-dashed border-indigo-200 -z-10 transform -translate-y-1/2"></div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false }}
+              transition={{ duration: 0.5 }}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ 
+                y: { repeat: Infinity, duration: 3, ease: "easeInOut" },
+                opacity: { duration: 0.5 } 
+              }}
+            >
+                <StepCard 
+                number="01" 
+                title="Post Requirement" 
+                desc="Fill the form and tell us your class, subject, and area preferences." 
+                />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ 
+                y: { repeat: Infinity, duration: 3, ease: "easeInOut", delay: 1 },
+                opacity: { duration: 0.5, delay: 0.2 }
+              }}
+            >
+                <StepCard 
+                number="02" 
+                title="Get Matched" 
+                desc="We send the best suited tutor profile to you for a free demo class." 
+                />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: false }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ 
+                 y: { repeat: Infinity, duration: 3, ease: "easeInOut", delay: 2 },
+                 opacity: { duration: 0.5, delay: 0.4 }
+              }}
+            >
+                <StepCard 
+                number="03" 
+                title="Start Learning" 
+                desc="If satisfied with the demo, hire the tutor and start your classes." 
+                />
+            </motion.div>
           </div>
         </div>
       </section>
