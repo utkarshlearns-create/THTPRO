@@ -155,7 +155,7 @@ const LandingPage = () => {
       </section>
 
       {/* Why Choose Us Section - Staggered Grid */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn className="text-center mb-20">
             <h2 className="text-sm font-semibold text-indigo-600 tracking-widest uppercase mb-3">Who We Are</h2>
@@ -252,7 +252,7 @@ const LandingPage = () => {
       </section>
 
       {/* Subjects Section - Staggered Grid */}
-      <section className="py-24 bg-slate-50">
+      <section className="py-24 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn className="text-center mb-16">
              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
