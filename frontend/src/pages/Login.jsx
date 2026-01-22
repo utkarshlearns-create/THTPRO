@@ -26,7 +26,6 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Inside component
       const response = await fetch(`${API_BASE_URL}/api/users/login/`, {
         method: 'POST',
         headers: {
@@ -41,25 +40,21 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Store tokens
         localStorage.setItem('access', data.access);
         localStorage.setItem('refresh', data.refresh);
         
-        // Decode to get role
         const decoded = jwtDecode(data.access);
         const role = decoded.role;
         localStorage.setItem('role', role);
         
-        // Redirect based on role
-        // Redirect based on role
         console.log('Login successful, role:', role);
-            if (role === 'ADMIN') {
-                navigate('/admin-dashboard');
-            } else if (role === 'TEACHER') {
-                navigate('/tutor-home'); // Redirect to Tutor Feed
-            } else {
-                navigate('/parent-home'); // Redirect to Parent Wizard Page
-            }
+        if (role === 'ADMIN') {
+            navigate('/dashboard/admin');
+        } else if (role === 'TEACHER') {
+            navigate('/tutor-home');
+        } else {
+            navigate('/parent-home');
+        }
       } else {
         setError(data.detail || 'Invalid phone or password');
       }
@@ -71,30 +66,55 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
-          <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-            register as a new user
-          </Link>
-        </p>
-      </div>
+    <div className="min-h-screen bg-white flex pt-20 lg:pt-0">
+       {/* Left Panel - Trust & Welcome (Hidden on mobile, visible on lg) */}
+       <div className="hidden lg:flex w-1/2 bg-indigo-50 relative overflow-hidden flex-col justify-center px-12 xl:px-20 pt-24 pb-60">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-[0.6]" 
+                style={{ 
+                    backgroundImage: 'linear-gradient(#c7d2fe 1px, transparent 1px), linear-gradient(to right, #c7d2fe 1px, transparent 1px)', 
+                    backgroundSize: '32px 32px' 
+                }}>
+            </div>
+            
+            <div className="relative z-10 space-y-8 max-w-lg mx-auto text-center lg:text-left">
+                <div>
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-white text-indigo-600 text-sm font-semibold shadow-sm mb-6 border border-indigo-100">
+                            <span className="flex h-2 w-2 rounded-full bg-indigo-600 mr-2"></span>
+                            Welcome Back
+                    </div>
+                    <h1 className="text-4xl font-bold text-slate-900 leading-tight">
+                        Continue Your <span className="text-indigo-600">Success Journey</span>
+                    </h1>
+                    <p className="mt-4 text-lg text-slate-600">
+                        Log in to access your personalized dashboard, manage classes, and track progress securely.
+                    </p>
+                </div>
+            </div>
+        </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+      {/* Right Panel - Login Form */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24 bg-white lg:pt-24">
+        <div className="mx-auto w-full max-w-sm lg:w-96">
+            <div className="mb-10">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900">Sign In</h2>
+                <p className="mt-2 text-sm text-slate-600">
+                    New to The Home Tuitions?{' '}
+                    <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+                        Create an account
+                    </Link>
+                </p>
+            </div>
+
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 text-red-500 text-sm p-3 rounded-md">
-                {error}
-              </div>
+                <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center gap-2 border border-red-100">
+                    <span className="font-bold">Error:</span> {error}
+                </div>
             )}
             
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="phone" className="block text-sm font-semibold text-slate-700">
                 Phone Number
               </label>
               <div className="mt-1">
@@ -105,14 +125,14 @@ const Login = () => {
                   required
                   value={formData.phone}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-colors"
                   placeholder="+91..."
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-semibold text-slate-700">
                 Password
               </label>
               <div className="mt-1 relative">
@@ -124,12 +144,13 @@ const Login = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-colors pr-10"
+                  placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none"
+                  className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 focus:outline-none"
                 >
                   {showPassword ? (
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -149,7 +170,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-lg'}`}
               >
                 {loading ? 'Signing in...' : 'Sign in'}
               </button>
