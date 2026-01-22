@@ -7,8 +7,9 @@ import { Button } from '../components/ui/button'; // Assuming you have these or 
 // Based on previous file content, it used standard <input> and <button>. I will continue with that but enhanced styles.
 
 const Signup = () => {
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const roleParam = searchParams.get('role');
+    const navigate = useNavigate();
     
     const [formData, setFormData] = useState({
         username: '',
@@ -17,6 +18,8 @@ const Signup = () => {
         role: 'PARENT' // Default
     });
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         if (roleParam === 'teacher') {
@@ -26,9 +29,11 @@ const Signup = () => {
         }
     }, [roleParam]);
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+    const handleRoleChange = (newRole) => {
+        setFormData(prev => ({ ...prev, role: newRole }));
+        // Update URL to reflect change
+        setSearchParams({ role: newRole === 'TEACHER' ? 'teacher' : 'parent' });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -62,63 +67,70 @@ const Signup = () => {
 
     const isTeacher = formData.role === 'TEACHER';
 
+    // beneficial content for left panel
+    const content = isTeacher ? {
+        badge: "Join 500+ Top Tutors",
+        headline: <>Share Knowledge & <span className="text-indigo-600">Earn Respect</span></>,
+        subhead: "Teach students from the comfort of your home or nearby.",
+        benefits: [
+            { icon: <ShieldCheck className="w-5 h-5" />, title: "Guaranteed Payments", desc: "Timely payments for your hard work" },
+            { icon: <Clock className="w-5 h-5" />, title: "Flexible Schedule", desc: "Be your own boss, choose your timings" },
+            { icon: <User className="w-5 h-5" />, title: "Zero Commission", desc: "Keep 100% of what you earn (limited time)" }
+        ],
+        colors: { tag: "text-indigo-600", bg: "bg-indigo-50" }
+    } : {
+        badge: "Trusted by 1000+ Parents",
+        headline: <>Unlock Your Child's True Potential with <span className="text-indigo-600">Best Home Tutors</span></>,
+        subhead: "Join India's most trusted tutoring community. Quality education at your doorstep.",
+        benefits: [
+            { icon: <ShieldCheck className="w-5 h-5" />, title: "100% Verified Tutors", desc: "Every tutor goes through a background check" },
+            { icon: <Clock className="w-5 h-5" />, title: "Free Demo Class", desc: "Try before you commit. No questions asked." },
+            { icon: <Shield className="w-5 h-5" />, title: "No Spam Assurance", desc: "Your contact verification is secure with us." }
+        ],
+        colors: { tag: "text-green-600", bg: "bg-green-50" }
+    };
+
     return (
-        <div className="min-h-screen bg-white flex">
+        <div className="min-h-screen bg-white flex pt-20 lg:pt-0">
             {/* Left Panel - Trust & Benefits (Hidden on mobile, visible on lg) */}
-            <div className="hidden lg:flex w-[45%] bg-indigo-50 relative overflow-hidden flex-col justify-center px-12 xl:px-20">
+            <div className="hidden lg:flex w-1/2 bg-indigo-50 relative overflow-hidden flex-col justify-center px-12 xl:px-20 pt-24 pb-60">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-[0.4]" 
                      style={{ backgroundImage: 'radial-gradient(#6366f1 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
                 </div>
                 
-                <div className="relative z-10 space-y-8">
+                <div className="relative z-10 space-y-8 max-w-lg mx-auto">
                     <div>
                         <div className="inline-flex items-center px-3 py-1 rounded-full bg-white text-indigo-600 text-sm font-semibold shadow-sm mb-6 border border-indigo-100">
                              <ShieldCheck className="w-4 h-4 mr-2" />
-                             Trusted by 1000+ Parents
+                             {content.badge}
                         </div>
                         <h1 className="text-4xl font-bold text-slate-900 leading-tight">
-                            Unlock Your Child's True Potential with <span className="text-indigo-600">Best Home Tutors</span>
+                            {content.headline}
                         </h1>
                         <p className="mt-4 text-lg text-slate-600">
-                            Join India's most trusted tutoring community. Quality education at your doorstep.
+                            {content.subhead}
                         </p>
                     </div>
 
                     <div className="space-y-4 bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-indigo-50/50">
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 bg-green-100 rounded-lg text-green-600 mt-1">
-                                <ShieldCheck className="w-5 h-5" />
+                        {content.benefits.map((benefit, idx) => (
+                            <div key={idx} className="flex items-start gap-4">
+                                <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600 mt-1">
+                                    {benefit.icon}
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-slate-900">{benefit.title}</h3>
+                                    <p className="text-sm text-slate-500">{benefit.desc}</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-semibold text-slate-900">100% Verified Tutors</h3>
-                                <p className="text-sm text-slate-500">Every tutor goes through a background check</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 bg-blue-100 rounded-lg text-blue-600 mt-1">
-                                <Clock className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-slate-900">Free Demo Class</h3>
-                                <p className="text-sm text-slate-500">Try before you commit. No questions asked.</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start gap-4">
-                            <div className="p-2 bg-purple-100 rounded-lg text-purple-600 mt-1">
-                                <Shield className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-slate-900">No Spam Assurance</h3>
-                                <p className="text-sm text-slate-500">Your contact verification is secure with us.</p>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </div>
 
             {/* Right Panel - Signup Form */}
-            <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24 bg-white">
+            <div className="w-full lg:w-1/2 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24 bg-white lg:pt-24">
                 <div className="mx-auto w-full max-w-sm lg:w-96">
                     <div className="mb-10">
                         <h2 className="text-3xl font-bold tracking-tight text-slate-900">Create Account</h2>
@@ -134,7 +146,7 @@ const Signup = () => {
                     <div className="grid grid-cols-2 gap-4 mb-8">
                         <button
                             type="button"
-                            onClick={() => setFormData({...formData, role: 'PARENT'})}
+                            onClick={() => handleRoleChange('PARENT')}
                             className={`p-4 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-3 text-center ${
                                 !isTeacher 
                                 ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 shadow-sm' 
@@ -149,7 +161,7 @@ const Signup = () => {
 
                         <button
                             type="button"
-                            onClick={() => setFormData({...formData, role: 'TEACHER'})}
+                            onClick={() => handleRoleChange('TEACHER')}
                             className={`p-4 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-3 text-center ${
                                 isTeacher 
                                 ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 shadow-sm' 
