@@ -61,7 +61,7 @@ const LandingPage = () => {
   return (
     <div className="bg-white min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-32 bg-[url('/hero-main.jpg')] bg-cover bg-no-repeat bg-[center_top] sm:bg-[60%_center] lg:bg-[right_center] bg-white">
+      <section className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-32 bg-[url('/hero-main.jpg')] bg-cover bg-no-repeat bg-[center_top] sm:bg-[30%_center] lg:bg-[20%_center] bg-white">
         <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             
