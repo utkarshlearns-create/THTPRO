@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { User, GraduationCap, CheckCircle, ShieldCheck, Clock, Shield } from 'lucide-react';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import API_BASE_URL from '../config';
-import { Button } from '../components/ui/button'; // Assuming you have these or stick to standard elements if not
-// If Button/Input components aren't set up yet, I'll use standard HTML/Tailwind classes to ensure it works immediately.
-// Based on previous file content, it used standard <input> and <button>. I will continue with that but enhanced styles.
+import { Button } from '../components/ui/button';
+
+// NOTE: Replace with your actual Client ID
+const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE";
 
 const Signup = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -15,11 +17,14 @@ const Signup = () => {
         username: '',
         phone: '',
         password: '',
-        role: 'PARENT' // Default
+        role: 'PARENT', // Default
+        otp: ''
     });
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [signupMethod, setSignupMethod] = useState('password'); // 'password' | 'otp'
+    const [otpSent, setOtpSent] = useState(false);
 
     useEffect(() => {
         if (roleParam === 'teacher') {
@@ -35,26 +40,64 @@ const Signup = () => {
         setSearchParams({ role: newRole === 'TEACHER' ? 'teacher' : 'parent' });
     };
 
+    const handleSendOtp = async (e) => {
+        e.preventDefault();
+        if (!formData.phone) return setError("Please enter your phone number.");
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/users/auth/send-otp/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: formData.phone })
+            });
+            if (res.ok) {
+                setOtpSent(true);
+                setError("");
+                alert("OTP sent to your phone (Check console for mock OTP)");
+            } else {
+                setError("Failed to send OTP.");
+            }
+        } catch { setError("Network error sending OTP."); }
+        finally { setLoading(false); }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
         
         try {
-            const response = await fetch(`${API_BASE_URL}/api/users/signup/`, {
+            let endpoint = '/api/users/signup/';
+            let body = formData;
+
+            if (signupMethod === 'otp') {
+                endpoint = '/api/users/auth/verify-otp/';
+                body = { phone: formData.phone, otp: formData.otp, role: formData.role };
+            }
+
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(body)
             });
             
             if (response.ok) {
-                alert("Account created successfully! Please login.");
-                navigate('/login');
+                const data = await response.json();
+                if (signupMethod === 'otp') {
+                     // Login the user directly
+                     localStorage.setItem('access', data.access);
+                     localStorage.setItem('refresh', data.refresh);
+                     localStorage.setItem('role', data.role);
+                     alert("Account verified! Logging in...");
+                } else {
+                     alert("Account created successfully! Please login.");
+                }
+                setTimeout(() => navigate(signupMethod === 'otp' ? (data.role === 'TEACHER' ? '/tutor-home' : '/parent-home') : '/login'), 500);
             } else {
                 const data = await response.json();
-                const errorMsg = Object.values(data).flat().join(', ') || "Signup failed. Please try again.";
+                const errorMsg = data.detail || (typeof data === 'object' ? Object.values(data).flat().join(', ') : "Signup failed.");
                 setError(errorMsg);
             }
         } catch (err) {
@@ -63,6 +106,29 @@ const Signup = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+      setLoading(true);
+      try {
+          const res = await fetch(`${API_BASE_URL}/api/users/auth/google/`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: credentialResponse.credential, role: formData.role })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            localStorage.setItem('access', data.access);
+            localStorage.setItem('refresh', data.refresh);
+            localStorage.setItem('role', data.role);
+            if (data.role === 'TEACHER') navigate('/tutor-home');
+            else navigate('/parent-home');
+          } else {
+              setError("Google Signup failed.");
+          }
+      } catch {
+          setError("Network Error during Google Signup");
+      } finally { setLoading(false); }
     };
 
     const isTeacher = formData.role === 'TEACHER';
@@ -254,14 +320,68 @@ const Signup = () => {
 
                         <div>
                             <button
-                                type="submit"
+                                type={signupMethod === 'otp' && !otpSent ? 'button' : 'submit'}
+                                onClick={signupMethod === 'otp' && !otpSent ? handleSendOtp : undefined}
                                 disabled={loading}
                                 className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all ${
                                     loading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-lg'
                                 }`}
                             >
-                                {loading ? 'Creating Account...' : 'Create Free Account'}
+                                {loading ? 'Processing...' : (signupMethod === 'otp' ? (otpSent ? 'Verify & Create Account' : 'Send OTP') : 'Create Free Account')}
                             </button>
+
+                            {/* OTP Toggle */}
+                            <div className="text-center mt-3">
+                                {signupMethod === 'password' ? (
+                                    <button type="button" onClick={() => setSignupMethod('otp')} className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">
+                                        Continue with OTP instead
+                                    </button>
+                                ) : (
+                                    <button type="button" onClick={() => setSignupMethod('password')} className="text-sm font-semibold text-slate-500 hover:text-slate-700">
+                                        Use Password
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* OTP Input Conditional */}
+                            {signupMethod === 'otp' && otpSent && (
+                                <div className="mt-4">
+                                    <label className="block text-sm font-semibold text-slate-700">Enter OTP</label>
+                                    <input
+                                        name="otp"
+                                        type="text"
+                                        maxLength="6"
+                                        required
+                                        value={formData.otp}
+                                        onChange={(e) => setFormData({ ...formData, otp: e.target.value })}
+                                        className="block w-full mt-1 rounded-lg border border-slate-300 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        placeholder="XXXXXX"
+                                    />
+                                </div>
+                            )}
+
+                            <div className="relative my-6">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-slate-200"></div>
+                                </div>
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-2 bg-white text-slate-500">Or sign up with</span>
+                                </div>
+                            </div>
+
+                            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                                <div className="flex justify-center">
+                                    <GoogleLogin
+                                        onSuccess={handleGoogleSuccess}
+                                        onError={() => setError('Google Signup Failed')}
+                                        type="standard"
+                                        theme="outline"
+                                        size="large"
+                                        width="350"
+                                        text="continue_with"
+                                    />
+                                </div>
+                            </GoogleOAuthProvider>
                             <p className="mt-4 text-center text-xs text-slate-500">
                                 By signing up, you agree to our <span className="underline cursor-pointer">Terms of Service</span> and <span className="underline cursor-pointer">Privacy Policy</span>.
                             </p>

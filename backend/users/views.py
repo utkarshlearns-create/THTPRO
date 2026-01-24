@@ -6,6 +6,9 @@ from .models import TutorProfile, TutorKYC, TutorStatus
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import get_object_or_404
+from django.core.cache import cache
+from rest_framework_simplejwt.tokens import RefreshToken
+from .utils import generate_otp, send_otp_to_phone, verify_google_token
 
 User = get_user_model()
 
@@ -16,6 +19,94 @@ class SignupView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = UserSerializer
+
+class SendOTPView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        phone = request.data.get('phone')
+        if not phone:
+            return Response({"error": "Phone number is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        otp = generate_otp()
+        cache_key = f"otp_{phone}"
+        cache.set(cache_key, otp, timeout=300) # 5 minutes
+        
+        send_otp_to_phone(phone, otp)
+        
+        return Response({"message": "OTP sent successfully"})
+
+class VerifyOTPView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        phone = request.data.get('phone')
+        otp = request.data.get('otp')
+        role = request.data.get('role', 'PARENT') # Default if new user
+
+        if not phone or not otp:
+            return Response({"error": "Phone and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        cached_otp = cache.get(f"otp_{phone}")
+        
+        if not cached_otp or cached_otp != otp:
+             return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # OTP Verified - Get or Create User
+        try:
+            user = User.objects.get(phone=phone)
+        except User.DoesNotExist:
+            # Create new user
+            username = f"user_{phone}"
+            user = User.objects.create_user(username=username, phone=phone, role=role)
+            user.set_unusable_password()
+            user.save()
+        
+        # Generate Tokens
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'role': user.role
+        })
+
+class GoogleLoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        token = request.data.get('token')
+        role = request.data.get('role', 'PARENT')
+        
+        if not token:
+            return Response({"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        google_data = verify_google_token(token)
+        if not google_data:
+            return Response({"error": "Invalid Google Token"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        email = google_data.get('email')
+        name = google_data.get('name')
+        
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = User.objects.create_user(
+                username=email.split('@')[0],
+                email=email,
+                first_name=name,
+                role=role
+            )
+            user.set_unusable_password()
+            user.save()
+            
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'role': user.role
+        })
 
 class CurrentUserView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
