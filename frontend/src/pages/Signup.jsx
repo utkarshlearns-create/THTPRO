@@ -369,19 +369,25 @@ const Signup = () => {
                                 </div>
                             </div>
 
-                            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                                <div className="flex justify-center">
-                                    <GoogleLogin
-                                        onSuccess={handleGoogleSuccess}
-                                        onError={() => setError('Google Signup Failed')}
-                                        type="standard"
-                                        theme="outline"
-                                        size="large"
-                                        width="350"
-                                        text="continue_with"
-                                    />
+                            {GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_ID_HERE" ? (
+                                <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                                    <div className="flex justify-center">
+                                        <GoogleLogin
+                                            onSuccess={handleGoogleSuccess}
+                                            onError={() => setError('Google Signup Failed')}
+                                            type="standard"
+                                            theme="outline"
+                                            size="large"
+                                            width="350"
+                                            text="continue_with"
+                                        />
+                                    </div>
+                                </GoogleOAuthProvider>
+                            ) : (
+                                <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                                    (Google Login requires valid Client ID)
                                 </div>
-                            </GoogleOAuthProvider>
+                            )}
                             <p className="mt-4 text-center text-xs text-slate-500">
                                 By signing up, you agree to our <span className="underline cursor-pointer">Terms of Service</span> and <span className="underline cursor-pointer">Privacy Policy</span>.
                             </p>

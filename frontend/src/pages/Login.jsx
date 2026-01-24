@@ -281,18 +281,24 @@ const Login = () => {
                 </div>
             </div>
 
-            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                <div className="flex justify-center">
-                    <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={() => setError('Google Login Failed')}
-                        type="standard"
-                        theme="outline"
-                        size="large"
-                        width="350"
-                    />
+            {GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_ID_HERE" ? (
+                <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                    <div className="flex justify-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError('Google Login Failed')}
+                            type="standard"
+                            theme="outline"
+                            size="large"
+                            width="350"
+                        />
+                    </div>
+                </GoogleOAuthProvider>
+            ) : (
+                <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    (Google Login requires valid Client ID)
                 </div>
-            </GoogleOAuthProvider>
+            )}
           </form>
         </div>
       </div>
