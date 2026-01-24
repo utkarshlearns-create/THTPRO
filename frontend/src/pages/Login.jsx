@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+// import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import API_BASE_URL from '../config';
 
 // NOTE: Replace with your actual Client ID from Google Cloud Console
@@ -98,7 +98,7 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+  /* const handleGoogleSuccess = async (credentialResponse) => {
       setLoading(true);
       try {
           const res = await fetch(`${API_BASE_URL}/api/users/auth/google/`, {
@@ -119,7 +119,7 @@ const Login = () => {
       } catch {
           setError("Network Error during Google Login");
       } finally { setLoading(false); }
-  };
+  }; */
 
   return (
     <div className="min-h-screen bg-white flex pt-20 lg:pt-0">
@@ -281,7 +281,7 @@ const Login = () => {
                 </div>
             </div>
 
-            {GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_ID_HERE" ? (
+            {/* {GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_ID_HERE" ? (
                 <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
                     <div className="flex justify-center">
                         <GoogleLogin
@@ -298,7 +298,7 @@ const Login = () => {
                 <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200">
                     (Google Login requires valid Client ID)
                 </div>
-            )}
+            )} */}
           </form>
         </div>
       </div>
