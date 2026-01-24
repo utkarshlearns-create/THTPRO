@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import API_BASE_URL from '../config';
+
+// NOTE: Replace with your actual Client ID from Google Cloud Console
+const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE";
 
 const Login = () => {
   const [formData, setFormData] = useState({
     phone: '',
-    password: ''
+    password: '',
+    otp: ''
   });
+  const [authMethod, setAuthMethod] = useState('password'); // 'password' | 'otp'
+  const [otpSent, setOtpSent] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -20,21 +27,44 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    if (!formData.phone) return setError("Please enter your phone number.");
+    setLoading(true);
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/users/auth/send-otp/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: formData.phone })
+        });
+        if (res.ok) {
+            setOtpSent(true);
+            setError("");
+            alert("OTP sent to your phone (Check console for mock OTP)");
+        } else {
+            setError("Failed to send OTP.");
+        }
+    } catch { setError("Network error sending OTP."); }
+    finally { setLoading(false); }
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
+    const endpoint = authMethod === 'password' ? '/api/users/login/' : '/api/users/auth/verify-otp/';
+    const body = authMethod === 'password' 
+        ? { username: formData.phone, password: formData.password }
+        : { phone: formData.phone, otp: formData.otp };
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users/login/`, {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username: formData.phone,
-          password: formData.password
-        }),
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -43,8 +73,11 @@ const Login = () => {
         localStorage.setItem('access', data.access);
         localStorage.setItem('refresh', data.refresh);
         
-        const decoded = jwtDecode(data.access);
-        const role = decoded.role;
+        let role = data.role;
+        if (!role && data.access) {
+            const decoded = jwtDecode(data.access);
+            role = decoded.role;
+        }
         localStorage.setItem('role', role);
         
         console.log('Login successful, role:', role);
@@ -56,13 +89,36 @@ const Login = () => {
             navigate('/parent-home');
         }
       } else {
-        setError(data.detail || 'Invalid phone or password');
+        setError(data.detail || data.error || 'Login failed');
       }
     } catch (err) {
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+      setLoading(true);
+      try {
+          const res = await fetch(`${API_BASE_URL}/api/users/auth/google/`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: credentialResponse.credential })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            localStorage.setItem('access', data.access);
+            localStorage.setItem('refresh', data.refresh);
+            localStorage.setItem('role', data.role);
+            if (data.role === 'TEACHER') navigate('/tutor-home');
+            else navigate('/parent-home');
+          } else {
+              setError("Google Login failed.");
+          }
+      } catch {
+          setError("Network Error during Google Login");
+      } finally { setLoading(false); }
   };
 
   return (
@@ -131,50 +187,112 @@ const Login = () => {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-colors pr-10"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 focus:outline-none"
-                >
-                  {showPassword ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </div>
+            {authMethod === 'password' ? (
+                <div>
+                <label htmlFor="password" className="block text-sm font-semibold text-slate-700">
+                    Password
+                </label>
+                <div className="mt-1 relative">
+                    <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    required
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-colors pr-10"
+                    placeholder="••••••••"
+                    />
+                    <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 focus:outline-none"
+                    >
+                    {showPassword ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        </svg>
+                    ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    )}
+                    </button>
+                    <div className="text-right mt-1">
+                        <button type="button" onClick={() => setAuthMethod('otp')} className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                             Login with OTP instead
+                        </button>
+                    </div>
+                </div>
+                </div>
+            ) : (
+                <div>
+                     {otpSent ? (
+                         <div>
+                            <label className="block text-sm font-semibold text-slate-700">Enter OTP</label>
+                            <input
+                                name="otp"
+                                type="text"
+                                maxLength="6"
+                                required
+                                value={formData.otp}
+                                onChange={handleChange}
+                                className="block w-full mt-1 rounded-lg border border-slate-300 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                placeholder="XXXXXX"
+                            />
+                             <div className="text-right mt-1">
+                                <button type="button" onClick={() => setAuthMethod('password')} className="text-sm font-medium text-slate-500 hover:text-slate-700">
+                                    Cancel
+                                </button>
+                            </div>
+                         </div>
+                     ) : (
+                         <div className="mt-4">
+                            <p className="text-sm text-slate-600 mb-4">We will send an OTP to your registered number.</p>
+                             <div className="text-right">
+                                <button type="button" onClick={() => setAuthMethod('password')} className="text-sm font-medium text-slate-500 hover:text-slate-700 mr-4">
+                                    Use Password
+                                </button>
+                            </div>
+                         </div>
+                     )}
+                </div>
+            )}
 
             <div>
               <button
-                type="submit"
+                type={authMethod === 'otp' && !otpSent ? 'button' : 'submit'}
+                onClick={authMethod === 'otp' && !otpSent ? handleSendOtp : undefined}
                 disabled={loading}
                 className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-lg'}`}
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? 'Processing...' : (authMethod === 'otp' ? (otpSent ? 'Verify & Login' : 'Send OTP') : 'Sign in')}
               </button>
             </div>
+            
+            <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-slate-500">Or continue with</span>
+                </div>
+            </div>
+
+            <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+                <div className="flex justify-center">
+                    <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={() => setError('Google Login Failed')}
+                        type="standard"
+                        theme="outline"
+                        size="large"
+                        width="350"
+                    />
+                </div>
+            </GoogleOAuthProvider>
           </form>
         </div>
       </div>
