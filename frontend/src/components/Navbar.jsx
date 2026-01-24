@@ -3,17 +3,41 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Bell, Wallet, User } from 'lucide-react';
 import { Button } from './ui/button';
+import API_BASE_URL from '../config';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState(null);
   const location = useLocation();
 
+  const [walletBalance, setWalletBalance] = useState('0.00');
+
   useEffect(() => {
     // Check role on mount and on every route change (e.g. after login/logout)
     const userRole = localStorage.getItem('role');
     setRole(userRole); // Update state even if null (for logout)
+    
+    if (userRole) {
+        fetchWalletBalance();
+    }
   }, [location]);
+
+  const fetchWalletBalance = async () => {
+    try {
+        const token = localStorage.getItem('access');
+        if (!token) return;
+        
+        const response = await fetch(`${API_BASE_URL}/api/wallet/me/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            setWalletBalance(data.balance);
+        }
+    } catch (error) {
+        console.error("Error fetching wallet balance:", error);
+    }
+  };
 
   return (
     <nav className={`fixed w-full z-50 transition-colors duration-300 ${ role ? 'bg-slate-50/90 shadow-none' : 'bg-white/80 border-b border-slate-100/50' } backdrop-blur-md supports-[backdrop-filter]:bg-opacity-60`}>
@@ -33,7 +57,7 @@ const Navbar = () => {
                     <div className="flex items-center gap-6 ml-auto">
                         <div className="flex items-center gap-2 px-4 py-2 bg-slate-100/80 rounded-full text-indigo-900 font-bold text-sm border border-slate-200/60 shadow-sm">
                              <Wallet size={18} className="text-indigo-600" />
-                             <span>₹ 2,500</span>
+                             <span>₹ {walletBalance}</span>
                         </div>
                         <button className="relative p-2 text-slate-500 hover:text-indigo-600 transition-all hover:bg-slate-100 rounded-full">
                             <Bell size={24} />
