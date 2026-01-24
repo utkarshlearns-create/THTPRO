@@ -220,17 +220,38 @@ const ParentDashboard = () => {
                         </div>
                     )}
 
-                    {/* Placeholder for other tabs (implementation can be added similarly) */}
-                    {activeTab !== 'overview' && (
-                        <div className="text-center py-20 bg-white rounded-xl border border-slate-200 shadow-sm animate-in fade-in zoom-in-95 duration-300">
-                            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
-                                {activeTab === 'profile' ? <User size={32} /> : activeTab === 'wallet' ? <Wallet size={32} /> : <Briefcase size={32} />}
-                            </div>
-                            <h2 className="text-2xl font-bold text-slate-900 capitalize">{activeTab.replace('_', ' ')}</h2>
-                            <p className="text-slate-500 mt-2">This section is being redesigned. Switch back to Overview.</p>
-                            <Button className="mt-6" variant="outline" onClick={() => setActiveTab('overview')}>Back to Overview</Button>
+                    {/* JOBS POSTED VIEW */}
+                    {activeTab === 'jobs_posted' && (
+                        <div className="space-y-6 animate-in fade-in duration-300">
+                             <div className="flex justify-between items-center">
+                                <div>
+                                    <h1 className="text-2xl font-bold text-slate-900">Jobs Posted</h1>
+                                    <p className="text-slate-500 text-sm">Manage your active tuition requirements.</p>
+                                </div>
+                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200">
+                                    <Briefcase className="mr-2 h-4 w-4" /> Post New Job
+                                </Button>
+                             </div>
+                             
+                             <JobsList />
                         </div>
                     )}
+
+                    {/* MY PROFILE VIEW */}
+                    {activeTab === 'profile' && <MyProfile latestJob={latestJob} />}
+
+                    {/* TUTOR ASSIGNED VIEW */}
+                    {activeTab === 'tutor_assigned' && <TutorAssigned />}
+
+                    {/* HISTORY VIEW */}
+                    {activeTab === 'history' && <HistorySection />}
+
+                    {/* WALLET VIEW */}
+                    {activeTab === 'wallet' && <WalletSection wallet={wallet} />}
+
+                    {/* NOTIFICATIONS VIEW */}
+                    {activeTab === 'notifications' && <NotificationsSection />}
+
                 </div>
             </main>
         </div>
@@ -279,3 +300,304 @@ const StatItem = ({ label, value, icon, color }) => (
 );
 
 export default ParentDashboard;
+
+const JobsList = () => {
+    const [jobs, setJobs] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchJobs();
+    }, []);
+
+    const fetchJobs = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setJobs(data);
+            }
+        } catch (error) {
+            console.error("Error fetching jobs:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-48 rounded-xl bg-slate-100 animate-pulse"></div>
+            ))}
+        </div>
+    );
+
+    if (jobs.length === 0) {
+        return (
+             <div className="bg-white p-12 rounded-xl shadow-sm border border-slate-200 text-center">
+                <div className="mx-auto w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
+                    <Briefcase size={32} className="text-indigo-500" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">No Jobs Posted Yet</h3>
+                <p className="text-slate-500 mt-2 max-w-sm mx-auto">Post your first tuition requirement to find the best tutors in your locality.</p>
+                <Button className="mt-8 bg-indigo-600 hover:bg-indigo-700">Post Now</Button>
+             </div>
+        );
+    }
+
+    return (
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {jobs.map((job) => (
+                <div key={job.id} className="group relative bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                    {/* Status Badge */}
+                    <div className="absolute top-4 right-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase
+                            ${job.status === 'OPEN' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}
+                        `}>
+                            {job.status}
+                        </span>
+                    </div>
+
+                    <div className="p-6">
+                        <div className="mb-4">
+                             <div className="h-12 w-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 font-bold text-lg mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                {job.subjects && job.subjects[0] ? job.subjects[0].charAt(0) : 'S'}
+                             </div>
+                            <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                                {job.student_name}'s Tuition
+                            </h3>
+                            <p className="text-sm font-medium text-slate-500 mt-1">
+                                {job.class_grade} • {job.board}
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-3 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">
+                                <span className="p-1 rounded bg-white text-indigo-500 shadow-sm"><FileText size={14} /></span>
+                                <span className="font-medium truncate">{job.subjects.join(', ')}</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">
+                                <span className="p-1 rounded bg-white text-emerald-500 shadow-sm"><Clock size={14} /></span>
+                                <span className="font-medium truncate">{job.preferred_time || 'Flexible Time'}</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">
+                                <span className="p-1 rounded bg-white text-amber-500 shadow-sm"><Wallet size={14} /></span>
+                                <span className="font-medium truncate">{job.budget_range}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                        <div className="flex -space-x-2">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">
+                                    ?
+                                </div>
+                            ))}
+                        </div>
+                        <button className="text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 group/btn">
+                            View Details <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
+                        </button>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const MyProfile = ({ latestJob }) => {
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-300">
+            {/* Left Column: Identity */}
+            <Card className="border-slate-200 shadow-sm h-fit">
+                <CardContent className="pt-8 text-center">
+                    <div className="h-24 w-24 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4 ring-4 ring-indigo-50">
+                        PA
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900">Parent Account</h2>
+                    <p className="text-sm text-slate-500 mb-6">Active since Jan 2024</p>
+                    
+                    <div className="space-y-4 text-left">
+                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                            <span className="text-sm font-medium text-slate-600">Verification</span>
+                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full flex items-center gap-1">
+                                <CheckCircle size={12} /> VERIFIED
+                            </span>
+                        </div>
+                         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                            <span className="text-sm font-medium text-slate-600">Location</span>
+                            <span className="text-sm text-slate-900 font-medium">Mumbai, India</span>
+                        </div>
+                    </div>
+
+                    <Button className="w-full mt-6" variant="outline">Edit Basic Info</Button>
+                </CardContent>
+            </Card>
+
+            {/* Right Column: Student Details */}
+            <Card className="lg:col-span-2 border-slate-200 shadow-sm">
+                <CardHeader>
+                    <CardTitle>Student Profile</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {latestJob ? (
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <ProfileField label="Student Name" value={latestJob.student_name} icon={<User size={16} />} />
+                                <ProfileField label="Class / Grade" value={latestJob.class_grade} icon={<Briefcase size={16} />} />
+                                <ProfileField label="Board" value={latestJob.board} icon={<FileText size={16} />} />
+                                <ProfileField label="Gender" value={latestJob.student_gender} icon={<User size={16} />} />
+                            </div>
+                            
+                            <div>
+                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Subjects Required</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {latestJob.subjects.map((sub, i) => (
+                                        <span key={i} className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-indigo-100">
+                                            {sub}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                             <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                                <User size={24} />
+                             </div>
+                            <p className="text-slate-500">No student profile active.</p>
+                            <Button className="mt-4" variant="link">Create Profile via Job Post</Button>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
+    );
+};
+
+const ProfileField = ({ label, value, icon }) => (
+    <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+        <div className="flex items-center gap-2 mb-2 text-slate-400">
+            {icon}
+            <span className="text-xs font-bold uppercase tracking-wider">{label}</span>
+        </div>
+        <p className="text-lg font-semibold text-slate-900">{value}</p>
+    </div>
+);
+
+const TutorAssigned = () => (
+    <div className="space-y-6 animate-in fade-in duration-300">
+         <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-slate-900">Assigned Tutors</h1>
+         </div>
+         <div className="text-center py-20 bg-white rounded-xl border border-slate-200 shadow-sm">
+            <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                <User size={32} className="text-indigo-500" />
+                <span className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center text-white text-xs font-bold">+</span>
+            </div>
+            <h3 className="text-xl font-bold text-slate-900">No Tutors Assigned Yet</h3>
+            <p className="text-slate-500 mt-2 max-w-sm mx-auto">Once you approve an application, your assigned tutor will appear here.</p>
+         </div>
+    </div>
+);
+
+const HistorySection = () => (
+    <div className="space-y-6 animate-in fade-in duration-300">
+        <h1 className="text-2xl font-bold text-slate-900">Activity History</h1>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="p-8 text-center text-slate-500">
+                <History size={48} className="mx-auto text-slate-300 mb-4" />
+                <p>No history available yet.</p>
+            </div>
+        </div>
+    </div>
+);
+
+const WalletSection = ({ wallet }) => (
+    <div className="space-y-6 animate-in fade-in duration-300">
+        <h1 className="text-2xl font-bold text-slate-900">Wallet & Credits</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Balance Card */}
+            <div className="md:col-span-2 bg-gradient-to-br from-indigo-900 to-indigo-700 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32 blur-3xl"></div>
+                <div className="relative z-10">
+                    <p className="text-indigo-200 font-medium mb-2">Available Balance</p>
+                    <h2 className="text-5xl font-bold tracking-tight">₹ {wallet?.balance || '0.00'}</h2>
+                    <div className="mt-8 flex gap-3">
+                        <Button className="bg-white text-indigo-900 hover:bg-indigo-50 font-bold border-0">
+                            + Add Money
+                        </Button>
+                        <Button variant="outline" className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                            View Statement
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick Recharge */}
+            <Card className="border-slate-200 shadow-sm">
+                <CardHeader>
+                    <CardTitle className="text-base">Quick Recharge</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    {[500, 1000, 2000].map(amount => (
+                        <button key={amount} className="w-full flex justify-between items-center p-3 rounded-lg border border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+                            <span className="font-semibold text-slate-700 group-hover:text-indigo-700">₹ {amount}</span>
+                            <span className="text-xs font-bold text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">ADD</span>
+                        </button>
+                    ))}
+                </CardContent>
+            </Card>
+        </div>
+
+        {/* Transactions */}
+        <Card className="border-slate-200 shadow-sm">
+            <CardHeader>
+                <CardTitle>Recent Transactions</CardTitle>
+            </CardHeader>
+            <CardContent>
+                {wallet?.transactions?.length > 0 ? (
+                    <div className="space-y-4">
+                        {wallet.transactions.map((tx) => (
+                             <div key={tx.id} className="flex justify-between items-center p-3 hover:bg-slate-50 rounded-lg transition-colors">
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-full ${tx.transaction_type === 'CREDIT' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                        {tx.transaction_type === 'CREDIT' ? <TrendingUp size={16} /> : <FileText size={16} />}
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-slate-900">{tx.description}</p>
+                                        <p className="text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                <span className={`font-bold ${tx.transaction_type === 'CREDIT' ? 'text-green-600' : 'text-slate-900'}`}>
+                                    {tx.transaction_type === 'CREDIT' ? '+' : '-'} ₹{tx.amount}
+                                </span>
+                             </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-8 text-slate-500">No recent transactions.</div>
+                )}
+            </CardContent>
+        </Card>
+    </div>
+);
+
+const NotificationsSection = () => (
+    <div className="space-y-6 animate-in fade-in duration-300">
+        <h1 className="text-2xl font-bold text-slate-900">Notifications</h1>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+             <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Bell size={24} className="text-slate-400" />
+                </div>
+                <h3 className="text-lg font-medium text-slate-900">All Caught Up!</h3>
+                <p className="text-slate-500 mt-1">You have no new notifications.</p>
+             </div>
+        </div>
+    </div>
+);
+
+
