@@ -50,7 +50,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <Link to={role === 'PARENT' ? '/parent-home' : role === 'TEACHER' ? '/tutor-home' : '/'} className="flex items-center gap-2">
-                <img className="h-12 w-auto" src="/logo.png" alt="The Home Tuitions" />
+                <img className="h-12 w-auto dark:brightness-0 dark:invert" src="/logo.png" alt="The Home Tuitions" />
                 <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
                     The Home <span className="text-indigo-600 dark:text-indigo-400">Tuitions</span>
                 </span>
