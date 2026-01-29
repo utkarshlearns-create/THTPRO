@@ -158,9 +158,9 @@ const Login = () => {
     };
 
   return (
-    <div className="min-h-screen bg-white flex pt-20 lg:pt-0">
+    <div className="min-h-screen bg-white dark:bg-slate-950 flex pt-20 lg:pt-0 transition-colors duration-300">
        {/* Left Panel - Trust & Welcome (Hidden on mobile, visible on lg) */}
-       <div className="hidden lg:flex w-1/2 bg-indigo-50 relative overflow-hidden flex-col justify-center px-12 xl:px-20 pt-24 pb-60">
+       <div className="hidden lg:flex w-1/2 bg-indigo-50 dark:bg-slate-900 relative overflow-hidden flex-col justify-center px-12 xl:px-20 pt-24 pb-60">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-[0.6]" 
                 style={{ 
@@ -171,14 +171,14 @@ const Login = () => {
             
             <div className="relative z-10 space-y-8 max-w-lg mx-auto text-center lg:text-left">
                 <div>
-                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-white text-indigo-600 text-sm font-semibold shadow-sm mb-6 border border-indigo-100">
-                            <span className="flex h-2 w-2 rounded-full bg-indigo-600 mr-2"></span>
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 text-sm font-semibold shadow-sm mb-6 border border-indigo-100 dark:border-slate-700">
+                            <span className="flex h-2 w-2 rounded-full bg-indigo-600 dark:bg-indigo-400 mr-2"></span>
                             Welcome Back
                     </div>
-                    <h1 className="text-4xl font-bold text-slate-900 leading-tight">
-                        Continue Your <span className="text-indigo-600">Success Journey</span>
+                    <h1 className="text-4xl font-bold text-slate-900 dark:text-white leading-tight">
+                        Continue Your <span className="text-indigo-600 dark:text-indigo-400">Success Journey</span>
                     </h1>
-                    <p className="mt-4 text-lg text-slate-600">
+                    <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
                         Log in to access your personalized dashboard, manage classes, and track progress securely.
                     </p>
                 </div>
@@ -186,13 +186,13 @@ const Login = () => {
         </div>
 
       {/* Right Panel - Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24 bg-white lg:pt-24">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24 bg-white dark:bg-slate-950 lg:pt-24 transition-colors duration-300">
         <div className="mx-auto w-full max-w-sm lg:w-96">
             <div className="mb-10">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900">Sign In</h2>
-                <p className="mt-2 text-sm text-slate-600">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Sign In</h2>
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                     New to The Home Tuitions?{' '}
-                    <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+                    <Link to="/signup" className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
                         Create an account
                     </Link>
                 </p>
@@ -200,13 +200,13 @@ const Login = () => {
 
           <form className="space-y-6" onSubmit={handleLogin}>
             {error && (
-                <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center gap-2 border border-red-100">
+                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2 border border-red-100 dark:border-red-900/30">
                     <span className="font-bold">Error:</span> {error}
                 </div>
             )}
             
             <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-slate-700">
+              <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                 Phone Number
               </label>
               <div className="mt-1">
@@ -217,7 +217,7 @@ const Login = () => {
                   required
                   value={formData.phone}
                   onChange={handleChange}
-                  className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-colors"
+                  className="block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-3 text-slate-900 dark:text-white dark:bg-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-colors"
                   placeholder="+91..."
                 />
               </div>
@@ -225,7 +225,7 @@ const Login = () => {
 
             {authMethod === 'password' ? (
                 <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-slate-700">
+                <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Password
                 </label>
                 <div className="mt-1 relative">
@@ -237,13 +237,13 @@ const Login = () => {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="block w-full rounded-lg border border-slate-300 px-4 py-3 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-colors pr-10"
+                    className="block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-3 text-slate-900 dark:text-white dark:bg-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-colors pr-10"
                     placeholder="••••••••"
                     />
                     <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 focus:outline-none"
+                    className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none"
                     >
                     {showPassword ? (
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -257,7 +257,7 @@ const Login = () => {
                     )}
                     </button>
                     <div className="text-right mt-1">
-                        <button type="button" onClick={() => setAuthMethod('otp')} className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                        <button type="button" onClick={() => setAuthMethod('otp')} className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
                              Login with OTP instead
                         </button>
                     </div>
@@ -267,7 +267,7 @@ const Login = () => {
                 <div>
                      {otpSent ? (
                          <div>
-                            <label className="block text-sm font-semibold text-slate-700">Enter OTP</label>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Enter OTP</label>
                             <input
                                 name="otp"
                                 type="text"
@@ -275,20 +275,20 @@ const Login = () => {
                                 required
                                 value={formData.otp}
                                 onChange={handleChange}
-                                className="block w-full mt-1 rounded-lg border border-slate-300 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                className="block w-full mt-1 rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-3 text-slate-900 dark:text-white dark:bg-slate-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 placeholder="XXXXXX"
                             />
                              <div className="text-right mt-1">
-                                <button type="button" onClick={() => setAuthMethod('password')} className="text-sm font-medium text-slate-500 hover:text-slate-700">
+                                <button type="button" onClick={() => setAuthMethod('password')} className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
                                     Cancel
                                 </button>
                             </div>
                          </div>
                      ) : (
                          <div className="mt-4">
-                            <p className="text-sm text-slate-600 mb-4">We will send an OTP to your registered number.</p>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">We will send an OTP to your registered number.</p>
                              <div className="text-right">
-                                <button type="button" onClick={() => setAuthMethod('password')} className="text-sm font-medium text-slate-500 hover:text-slate-700 mr-4">
+                                <button type="button" onClick={() => setAuthMethod('password')} className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 mr-4">
                                     Use Password
                                 </button>
                             </div>
@@ -302,7 +302,7 @@ const Login = () => {
                 type={authMethod === 'otp' && !otpSent ? 'button' : 'submit'}
                 onClick={authMethod === 'otp' && !otpSent ? handleSendOtp : undefined}
                 disabled={loading}
-                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-lg'}`}
+                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-lg'}`}
               >
                 {loading ? 'Processing...' : (authMethod === 'otp' ? (otpSent ? 'Verify & Login' : 'Send OTP') : 'Sign in')}
               </button>
@@ -310,10 +310,10 @@ const Login = () => {
             
             <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-200"></div>
+                    <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-slate-500">Or continue with</span>
+                    <span className="px-2 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400">Or continue with</span>
                 </div>
             </div>
 
@@ -322,7 +322,7 @@ const Login = () => {
                     <GoogleLoginButton onSuccess={handleGoogleSuccess} onError={setError} />
                 </GoogleOAuthProvider>
             ) : (
-                <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <div className="text-center text-sm text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-800">
                     (Google Login requires valid Client ID)
                 </div>
             )}

@@ -59,10 +59,10 @@ const itemVariants = {
 
 const LandingPage = () => {
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-white dark:bg-slate-950 min-h-screen transition-colors duration-300">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-32 bg-[url('/hero-main.jpg')] bg-cover bg-no-repeat bg-[center_top] sm:bg-[20%_center] lg:bg-[60%_center] bg-white">
-        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent"></div>
+      <section className="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-32 bg-[url('/hero-main.jpg')] bg-cover bg-no-repeat bg-[center_top] sm:bg-[20%_center] lg:bg-[60%_center] bg-white dark:bg-slate-900">
+        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-slate-950 dark:via-slate-950/90 dark:to-slate-950/50"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             
             <div className="text-left">
@@ -70,30 +70,30 @@ const LandingPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-indigo-50 border border-indigo-100 shadow-sm mb-8"
+                  className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-900/50 shadow-sm mb-8"
                 >
                     <span className="flex h-3 w-3 relative">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-600"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-600 dark:bg-indigo-400"></span>
                     </span>
-                    <span className="text-base font-semibold text-indigo-900 tracking-wide uppercase">India's Premier Tutoring Platform</span>
+                    <span className="text-base font-semibold text-indigo-900 dark:text-indigo-200 tracking-wide uppercase">India's Premier Tutoring Platform</span>
                 </motion.div>
 
                 <motion.h1 
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.4 }}
-                  className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight"
+                  className="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-8 leading-tight"
                 >
                   Unlock Your Child's<br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">True Potential.</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">True Potential.</span>
                 </motion.h1>
                 
                 <motion.p 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 1, delay: 0.8 }}
-                  className="mt-6 text-xl text-slate-600 mb-10 leading-relaxed max-w-lg"
+                  className="mt-6 text-xl text-slate-600 dark:text-slate-300 mb-10 leading-relaxed max-w-lg"
                 >
                   We bridge the gap between ambitious students and expert educators. 
                   Get connected with verified, experienced mentors who prioritize your child's growth.
@@ -108,7 +108,7 @@ const LandingPage = () => {
                    <Button 
                       asChild
                       size="lg"
-                      className="px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200"
+                      className="px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none"
                     >
                       <Link to="/parent-home">
                         Find a Tutor <ChevronRight className="ml-2 h-5 w-5" />
@@ -119,7 +119,7 @@ const LandingPage = () => {
                       asChild
                       variant="outline"
                       size="lg"
-                      className="px-8 py-6 text-lg rounded-xl border-2 border-slate-200 text-slate-700 bg-white hover:bg-slate-50 hover:border-indigo-600 hover:text-indigo-600 transition-all font-bold"
+                      className="px-8 py-6 text-lg rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-indigo-600 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all font-bold"
                     >
                       <Link to="/signup?role=teacher">
                         Become a Tutor
@@ -131,7 +131,7 @@ const LandingPage = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 1.2, duration: 0.5 }}
-                  className="mt-8 text-sm font-semibold text-slate-500"
+                  className="mt-8 text-sm font-semibold text-slate-500 dark:text-slate-400"
                 >
                     ⭐ Trusted by thousands of parents and tutors • Rated 4.8/5
                 </motion.p>
@@ -141,7 +141,7 @@ const LandingPage = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 1.4, duration: 0.5 }}
-                  className="mt-12 pt-8 border-t border-slate-200/60 grid grid-cols-2 md:grid-cols-4 gap-6 text-slate-400 grayscale opacity-70"
+                  className="mt-12 pt-8 border-t border-slate-200/60 dark:border-slate-800/60 grid grid-cols-2 md:grid-cols-4 gap-6 text-slate-400 dark:text-slate-500 grayscale opacity-70"
                 >
                     {['EduTrust', 'TutorSafe', 'VerifiedPro', 'HomeLearn'].map((brand, i) => (
                         <div key={i} className="flex justify-start items-center font-bold text-lg">{brand}</div>
@@ -155,14 +155,14 @@ const LandingPage = () => {
       </section>
 
       {/* Why Choose Us Section - Staggered Grid */}
-      <section className="py-24 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-slate-50">
+      <section className="py-24 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-slate-50 dark:from-slate-900 dark:via-slate-900/50 dark:to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn className="text-center mb-20">
-            <h2 className="text-sm font-semibold text-indigo-600 tracking-widest uppercase mb-3">Who We Are</h2>
-            <p className="text-3xl md:text-4xl font-bold text-slate-900">
+            <h2 className="text-sm font-semibold text-indigo-600 dark:text-indigo-400 tracking-widest uppercase mb-3">Who We Are</h2>
+            <p className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
               Redefining Home Education
             </p>
-            <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto">
+            <p className="mt-4 text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
               Unlike others, we don't just provide a teacher; we provide a mentor. Every tutor is screened for expertise and safety.
             </p>
           </FadeIn>
@@ -176,28 +176,28 @@ const LandingPage = () => {
           >
               <motion.div variants={itemVariants}>
                 <FeatureCard 
-                  icon={<ShieldCheck className="h-6 w-6 text-indigo-600" />}
+                  icon={<ShieldCheck className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
                   title="100% Verified"
                   desc="Every tutor's ID and address is thoroughly checked for your safety."
                 />
               </motion.div>
               <motion.div variants={itemVariants}>
                 <FeatureCard 
-                  icon={<Clock className="h-6 w-6 text-indigo-600" />}
+                  icon={<Clock className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
                   title="Flexible Timings"
                   desc="Classes scheduled at your convenience to fit your child's routine."
                 />
               </motion.div>
               <motion.div variants={itemVariants}>
                 <FeatureCard 
-                  icon={<MapPin className="h-6 w-6 text-indigo-600" />}
+                  icon={<MapPin className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
                   title="Local Tutors"
                   desc="Find expert teachers from your own locality and neighborhood."
                 />
               </motion.div>
               <motion.div variants={itemVariants}>
                 <FeatureCard 
-                  icon={<CreditCard className="h-6 w-6 text-indigo-600" />}
+                  icon={<CreditCard className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
                   title="Affordable"
                   desc="Premium education at fair rates. No hidden charges or commissions."
                 />
@@ -211,33 +211,33 @@ const LandingPage = () => {
       {/* Testimonials Section - Wall of Trust */}
       <section className="py-24 bg-[url('/trust-bg.png')] bg-cover bg-center relative overflow-hidden">
          {/* Overlay */}
-         <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px]"></div>
+         <div className="absolute inset-0 bg-white/60 dark:bg-slate-950/80 backdrop-blur-[1px]"></div>
 
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <FadeIn className="flex flex-col md:flex-row gap-12 items-center">
                 <div className="md:w-1/2 text-right md:order-last">
-                    <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm mb-6 animate-pulse">
+                    <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-sm mb-6 animate-pulse">
                         <svg className="h-5 w-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.26.81-.58z" fill="#FBBC05"/>
                             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                         </svg>
-                        <span className="font-bold text-slate-700">Excellent</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-200">Excellent</span>
                         <div className="flex text-yellow-500 text-sm">
                             {[...Array(5)].map((_,i) => <span key={i}>★</span>)}
                         </div>
-                        <span className="text-slate-500 text-sm font-medium">4.8/5</span>
+                        <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">4.8/5</span>
                     </div>
-                    <h2 className="text-4xl md:text-6xl font-black text-indigo-950 mb-6 tracking-tight leading-tight">
+                    <h2 className="text-4xl md:text-6xl font-black text-indigo-950 dark:text-indigo-100 mb-6 tracking-tight leading-tight">
                         Loved by <br/>
-                        <span className="text-indigo-600">Parents.</span>
+                        <span className="text-indigo-600 dark:text-indigo-400">Parents.</span>
                     </h2>
-                    <p className="text-xl text-slate-800 font-medium leading-relaxed mb-8">
+                    <p className="text-xl text-slate-800 dark:text-slate-300 font-medium leading-relaxed mb-8">
                         See why thousands of parents trust THT for their child's future.
                     </p>
-                    <div className="flex justify-end gap-3 text-sm font-semibold text-slate-600">
-                        <span className="flex items-center gap-1"><ShieldCheck className="h-4 w-4 text-green-600"/> Verified Reviews</span>
+                    <div className="flex justify-end gap-3 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                        <span className="flex items-center gap-1"><ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-500"/> Verified Reviews</span>
                         <span>•</span>
                         <span>Last updated today</span>
                     </div>
@@ -252,13 +252,13 @@ const LandingPage = () => {
       </section>
 
       {/* Subjects Section - Staggered Grid */}
-      <section className="py-24 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-slate-50">
+      <section className="py-24 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-slate-50 dark:from-slate-900 dark:via-slate-900/50 dark:to-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn className="text-center mb-16">
-             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
               Browse by Subject & Class
             </h2>
-            <p className="text-lg text-slate-500">Find specialized experts for your specific learning needs.</p>
+            <p className="text-lg text-slate-500 dark:text-slate-400">Find specialized experts for your specific learning needs.</p>
           </FadeIn>
           
           <motion.div 
@@ -270,28 +270,28 @@ const LandingPage = () => {
           >
             <motion.div variants={itemVariants}>
                 <SubjectCard 
-                icon={<Calculator className="h-6 w-6 text-indigo-500" />}
+                icon={<Calculator className="h-6 w-6 text-indigo-500 dark:text-indigo-400" />}
                 title="Mathematics" 
                 sub="Algebra, Calculus & More" 
                 />
             </motion.div>
             <motion.div variants={itemVariants}>
                 <SubjectCard 
-                icon={<FlaskConical className="h-6 w-6 text-indigo-500" />}
+                icon={<FlaskConical className="h-6 w-6 text-indigo-500 dark:text-indigo-400" />}
                 title="Science" 
                 sub="Physics, Chemistry, Bio" 
                 />
             </motion.div>
             <motion.div variants={itemVariants}>
                 <SubjectCard 
-                icon={<BookOpenText className="h-6 w-6 text-indigo-500" />}
+                icon={<BookOpenText className="h-6 w-6 text-indigo-500 dark:text-indigo-400" />}
                 title="English" 
                 sub="Grammar & Literature" 
                 />
             </motion.div>
             <motion.div variants={itemVariants}>
                 <SubjectCard 
-                icon={<TrendingUp className="h-6 w-6 text-indigo-500" />}
+                icon={<TrendingUp className="h-6 w-6 text-indigo-500 dark:text-indigo-400" />}
                 title="Commerce" 
                 sub="Accounts & Economics" 
                 />
@@ -333,22 +333,22 @@ const LandingPage = () => {
 
       {/* How It Works Section */}
       <section 
-        className="py-24 bg-slate-50 relative" 
+        className="py-24 bg-slate-50 dark:bg-slate-950 relative" 
         style={{ 
             backgroundImage: "radial-gradient(#94a3b8 1px, transparent 1px)", 
             backgroundSize: "32px 32px" 
         }}
       >
-        <div className="absolute inset-0 bg-white/40"></div>
+        <div className="absolute inset-0 bg-white/40 dark:bg-slate-950/80"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <FadeIn className="text-center mb-20">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900">How We Work?</h2>
-            <p className="mt-4 text-lg text-slate-500">Three simple steps to start your learning journey.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">How We Work?</h2>
+            <p className="mt-4 text-lg text-slate-500 dark:text-slate-400">Three simple steps to start your learning journey.</p>
           </FadeIn>
 
           <div className="relative grid grid-cols-1 md:grid-cols-3 gap-12 z-10">
             {/* Connector Line (Desktop) */}
-            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 border-t-2 border-dashed border-indigo-200 -z-10 transform -translate-y-1/2"></div>
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 border-t-2 border-dashed border-indigo-200 dark:border-indigo-800 -z-10 transform -translate-y-1/2"></div>
             
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -407,7 +407,7 @@ const LandingPage = () => {
       </section>
 
       {/* For Tutors CTA */}
-      <section className="py-20 bg-indigo-900 relative overflow-hidden">
+      <section className="py-20 bg-indigo-900 dark:bg-indigo-950 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute top-0 left-0 w-full h-full opacity-10">
             <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -438,7 +438,7 @@ const LandingPage = () => {
       <FAQ />
 
       {/* Footer */}
-      <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-900">
+      <footer className="bg-slate-950 dark:bg-black text-slate-400 py-16 border-t border-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
             
             <div>
@@ -484,6 +484,7 @@ const LandingPage = () => {
             </div>
         </div>
       </footer>
+
 
       {/* Floating Action Buttons */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-4">
@@ -613,13 +614,13 @@ const TestimonialCard = ({ quote, author, role, rating }) => (
 )
 
 const FeatureCard = ({ icon, title, desc }) => (
-    <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 group border-slate-100 bg-slate-50/50 hover:bg-indigo-100 hover:border-indigo-600 cursor-default">
+    <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 group border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:border-indigo-600 dark:hover:border-indigo-500 cursor-default">
         <CardContent className="p-8">
-            <div className="inline-flex items-center justify-center p-3 rounded-xl bg-white border border-slate-200 shadow-sm group-hover:scale-110 transition-transform mb-6 text-indigo-600">
+            <div className="inline-flex items-center justify-center p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm group-hover:scale-110 transition-transform mb-6 text-indigo-600 dark:text-indigo-400">
                 {icon}
             </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-3">{title}</h3>
-            <p className="text-slate-600 leading-relaxed text-sm">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">{title}</h3>
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
                 {desc}
             </p>
         </CardContent>
@@ -627,24 +628,24 @@ const FeatureCard = ({ icon, title, desc }) => (
 )
 
 const SubjectCard = ({ icon, title, sub, highlight = false }) => (
-    <Card className={`transition-all duration-300 cursor-default border group hover:scale-105 hover:bg-indigo-100
+    <Card className={`transition-all duration-300 cursor-default border group hover:scale-105 hover:bg-indigo-100 dark:hover:bg-indigo-900/20
         ${highlight 
-            ? 'bg-white border-indigo-100 shadow-md hover:shadow-lg hover:border-indigo-600' 
-            : 'bg-white border-slate-200 hover:border-indigo-600 hover:shadow-md'
+            ? 'bg-white dark:bg-slate-800 border-indigo-100 dark:border-indigo-900/50 shadow-md hover:shadow-lg hover:border-indigo-600 dark:hover:border-indigo-500' 
+            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-600 dark:hover:border-indigo-500 hover:shadow-md'
         }
     `}>
         <CardContent className="p-6 flex flex-col h-full justify-between">
             <div className="flex items-start gap-4">
-                <div className={`p-3 rounded-lg ${highlight ? 'bg-indigo-50' : 'bg-slate-50 group-hover:bg-white transition-colors'}`}>
+                <div className={`p-3 rounded-lg ${highlight ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'bg-slate-50 dark:bg-slate-700/50 group-hover:bg-white dark:group-hover:bg-slate-700 transition-colors'}`}>
                   {icon}
                 </div>
                 <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-1">{title}</h4>
-                    <p className="text-sm text-slate-500">{sub}</p>
+                    <h4 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{title}</h4>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{sub}</p>
                 </div>
             </div>
             <div className="mt-4 flex justify-end">
-                <div className={`h-8 w-8 rounded-full flex items-center justify-center transition-colors ${highlight ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-indigo-600'}`}>
+                <div className={`h-8 w-8 rounded-full flex items-center justify-center transition-colors ${highlight ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'bg-slate-50 dark:bg-slate-700/50 text-slate-400 dark:text-slate-500 group-hover:bg-white dark:group-hover:bg-slate-700 group-hover:text-indigo-600 dark:group-hover:text-indigo-400'}`}>
                     <ChevronRight className="h-4 w-4" />
                 </div>
             </div>
@@ -653,13 +654,13 @@ const SubjectCard = ({ icon, title, sub, highlight = false }) => (
 )
 
 const StepCard = ({ number, title, desc }) => (
-    <Card className="relative border-slate-100 bg-slate-50 hover:bg-white hover:shadow-xl transition-all duration-300 group">
+    <Card className="relative border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl dark:hover:shadow-indigo-900/20 transition-all duration-300 group">
         <CardContent className="p-8 text-center">
-            <div className="text-6xl font-black text-indigo-200 mb-6 group-hover:text-indigo-600 transition-colors">
+            <div className="text-6xl font-black text-indigo-200 dark:text-indigo-900/50 mb-6 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                 {number}
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
-            <p className="text-slate-600 leading-relaxed">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{title}</h3>
+            <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                 {desc}
             </p>
         </CardContent>
