@@ -25,25 +25,25 @@ const ParentHome = () => {
   }, []);
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="bg-slate-50 dark:bg-slate-950 min-h-screen pb-20 transition-colors duration-300">
       {/* Navbar Placeholder (or use global Layout) */}
       
       {/* Hero / Wizard Section */}
-      <section className="relative pt-24 pb-16 bg-white rounded-b-[3rem] shadow-sm mb-12">
+      <section className="relative pt-24 pb-16 bg-white dark:bg-slate-900 rounded-b-[3rem] shadow-sm mb-12 border-b border-slate-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">
+                <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
                     Find the Perfect Tutor <br />
-                    <span className="text-indigo-600">In Your Locality</span>
+                    <span className="text-indigo-600 dark:text-indigo-400">In Your Locality</span>
                 </h1>
-                <p className="text-lg text-slate-500 max-w-2xl mx-auto">
+                <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
                     Post your learning requirement and get matched with verified expert tutors nearby.
                 </p>
             </div>
 
             <div className="max-w-3xl mx-auto relative z-10">
-                 <div className="absolute -top-6 -right-6 w-24 h-24 bg-indigo-100 rounded-full blur-xl opacity-60"></div>
-                 <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-pink-100 rounded-full blur-xl opacity-60"></div>
+                 <div className="absolute -top-6 -right-6 w-24 h-24 bg-indigo-100 dark:bg-indigo-900/40 rounded-full blur-xl opacity-60"></div>
+                 <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-pink-100 dark:bg-pink-900/40 rounded-full blur-xl opacity-60"></div>
                  <JobWizard />
             </div>
         </div>
@@ -52,31 +52,31 @@ const ParentHome = () => {
       {/* Featured Tutors Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-slate-900">Top Tutors Near You</h2>
-            <Link to="/tutors" className="text-indigo-600 font-semibold hover:text-indigo-700 flex items-center gap-1">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Top Tutors Near You</h2>
+            <Link to="/tutors" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1">
                 View All <ChevronRight size={18} />
             </Link>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {tutors.map(tutor => (
-                <div key={tutor.id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 hover:shadow-md transition-all group">
+                <div key={tutor.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-900/50 transition-all group">
                     <div className="flex items-center gap-4 mb-4">
-                        <img src={tutor.img} alt={tutor.name} className="w-14 h-14 rounded-full object-cover border-2 border-slate-100" />
+                        <img src={tutor.img} alt={tutor.name} className="w-14 h-14 rounded-full object-cover border-2 border-slate-100 dark:border-slate-700" />
                         <div>
-                            <h3 className="font-bold text-slate-900 leading-tight">{tutor.name}</h3>
-                            <p className="text-sm text-slate-500">{tutor.subject}</p>
+                            <h3 className="font-bold text-slate-900 dark:text-white leading-tight">{tutor.name}</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">{tutor.subject}</p>
                         </div>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-1 text-amber-500 font-bold">
                             <Star size={16} fill="currentColor" /> {tutor.rating}
                         </div>
-                        <div className="flex items-center gap-1 text-slate-400">
+                        <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500">
                             <MapPin size={14} /> {tutor.location}
                         </div>
                     </div>
-                    <button className="w-full mt-4 py-2 rounded-lg bg-indigo-50 text-indigo-700 font-semibold text-sm group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                    <button className="w-full mt-4 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 font-semibold text-sm group-hover:bg-indigo-600 group-hover:text-white dark:group-hover:text-white transition-colors">
                         View Profile
                     </button>
                 </div>
