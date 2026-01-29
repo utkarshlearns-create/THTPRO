@@ -14,8 +14,7 @@ from .views import (
     SendOTPView,
     VerifyOTPView,
     VerifyOTPView,
-    GoogleLoginView,
-    SetupSuperAdminView
+    GoogleLoginView
 )
 
 urlpatterns = [
@@ -32,5 +31,4 @@ urlpatterns = [
     path('kyc/submit/', KYCSubmissionView.as_view(), name='kyc_submission'),
     path('admin/tutors/', AdminTutorListView.as_view(), name='admin_tutor_list'),
     path('admin/tutors/<int:pk>/review/', AdminReviewView.as_view(), name='admin_review'),
-    path('setup-superadmin/<str:secret_key>/', SetupSuperAdminView.as_view(), name='setup_superadmin'),
 ]

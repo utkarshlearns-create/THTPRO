@@ -344,43 +344,4 @@ class DebugTutorSignupView(View):
 
 
 
-class SetupSuperAdminView(View):
-    def get(self, request, secret_key):
-        # Simple security check to prevent random access
-        if secret_key != "setup-superadmin-secret-123":
-            return JsonResponse({"error": "Unauthorized Access"}, status=403)
-            
-        try:
-            # 1. Credentials
-            SECURE_ID = "secure_admin"
-            PASSKEY = "AdminPass123!"
-            
-            # 2. Find or Create User
-            user = None
-            try:
-                user = User.objects.get(phone=SECURE_ID)
-                action = "Updated existing user (by phone)"
-            except User.DoesNotExist:
-                try:
-                    user = User.objects.get(username="superadmin")
-                    user.phone = SECURE_ID
-                    action = "Updated existing user (by username)"
-                except User.DoesNotExist:
-                    user = User(username="superadmin", phone=SECURE_ID)
-                    action = "Created new user"
-            
-            # 3. Set Attributes
-            user.set_password(PASSKEY)
-            user.role = 'SUPERADMIN'
-            user.is_superuser = True
-            user.is_staff = True
-            user.save()
-            
-            return JsonResponse({
-                "message": f"Superadmin setup successful! {action}",
-                "login_url": "/superadmin/login",
-                "secure_id": SECURE_ID,
-                "passkey": PASSKEY
-            })
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+
