@@ -103,28 +103,28 @@ const LandingPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 1 }}
-                  className="flex flex-col sm:flex-row gap-4"
+                  className="flex flex-col gap-6"
                 >
-                   <Button 
-                      asChild
-                      size="lg"
-                      className="px-8 py-6 text-lg rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none"
-                    >
-                      <Link to="/parent-home">
-                        Find a Tutor <ChevronRight className="ml-2 h-5 w-5" />
-                      </Link>
-                    </Button>
-                    
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="lg"
-                      className="px-8 py-6 text-lg rounded-xl border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-indigo-600 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all font-bold"
-                    >
-                      <Link to="/signup?role=teacher">
-                        Become a Tutor
-                      </Link>
-                    </Button>
+                    {/* Search Bar */}
+                    <div className="flex w-full max-w-md items-center space-x-2 bg-white dark:bg-slate-800/80 p-2 rounded-2xl shadow-xl shadow-indigo-100 dark:shadow-none border border-slate-200 dark:border-slate-700 backdrop-blur-sm">
+                        <MapPin className="ml-3 h-5 w-5 text-slate-400" />
+                        <input 
+                            type="text" 
+                            placeholder="Enter your specific locality..." 
+                            className="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder-slate-400 text-sm font-medium h-10"
+                        />
+                        <Button size="lg" className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg">
+                            <Search className="h-4 w-4 md:mr-2" />
+                            <span className="hidden md:inline">Find Tutors</span>
+                        </Button>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                         <span>Or</span>
+                         <Link to="/signup?role=teacher" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                            Become a Tutor
+                        </Link>
+                    </div>
                 </motion.div>
                 
                 <motion.p 
@@ -136,16 +136,25 @@ const LandingPage = () => {
                     ⭐ Trusted by thousands of parents and tutors • Rated 4.8/5
                 </motion.p>
                 
-                {/* Trust Badges */}
+                {/* Stats Ticker */}
                 <motion.div 
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 1.4, duration: 0.5 }}
-                  className="mt-12 pt-8 border-t border-slate-200/60 dark:border-slate-800/60 grid grid-cols-2 md:grid-cols-4 gap-6 text-slate-400 dark:text-slate-500 grayscale opacity-70"
+                  className="mt-8 pt-6 border-t border-slate-200/60 dark:border-slate-800/60 flex flex-wrap gap-8 text-slate-800 dark:text-slate-300"
                 >
-                    {['EduTrust', 'TutorSafe', 'VerifiedPro', 'HomeLearn'].map((brand, i) => (
-                        <div key={i} className="flex justify-start items-center font-bold text-lg">{brand}</div>
-                    ))}
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">5,000+</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Active Tutors</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">12,000+</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Matches Made</span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400">4.8/5</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Average Rating</span>
+                    </div>
                 </motion.div>
             </div>
             
