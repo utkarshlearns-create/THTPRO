@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
-// import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
+import GoogleLoginButton from '../components/GoogleLoginButton';
+import { User, GraduationCap } from 'lucide-react';
 import API_BASE_URL from '../config';
 
 // NOTE: Replace with your actual Client ID from Google Cloud Console
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE";
+// Google Client ID from environment variables
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +21,9 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  // Role Selection Modal State
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [tempGoogleToken, setTempGoogleToken] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -98,28 +104,58 @@ const Login = () => {
     }
   };
 
-  /* const handleGoogleSuccess = async (credentialResponse) => {
+    const handleGoogleSuccess = async (credentialResponse, role = null) => {
       setLoading(true);
+      setError('');
       try {
+          // credentialResponse can be a string (AccessToken) or object (Credential)
+          let token;
+          if (typeof credentialResponse === 'string') {
+              token = credentialResponse;
+          } else if (credentialResponse?.credential) {
+              token = credentialResponse.credential;
+          } else if (credentialResponse?.access_token) {
+               token = credentialResponse.access_token;
+          }
+          
+          if (!token) {
+              throw new Error("No token received from Google");
+          }
+
+          const body = { token };
+          if (role) body.role = role;
+
           const res = await fetch(`${API_BASE_URL}/api/users/auth/google/`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token: credentialResponse.credential })
+              body: JSON.stringify(body)
           });
           const data = await res.json();
+          
           if (res.ok) {
+            if (data.status === 'role_required') {
+                setTempGoogleToken(token); // Save token to reuse after role selection
+                setShowRoleModal(true);
+                setLoading(false);
+                return;
+            }
+
             localStorage.setItem('access', data.access);
             localStorage.setItem('refresh', data.refresh);
             localStorage.setItem('role', data.role);
             if (data.role === 'TEACHER') navigate('/tutor-home');
             else navigate('/parent-home');
           } else {
-              setError("Google Login failed.");
+              setError(data.error || data.detail || "Google Login failed.");
           }
-      } catch {
+      } catch (err) {
+          console.error(err);
           setError("Network Error during Google Login");
-      } finally { setLoading(false); }
-  }; */
+      } finally { 
+          // Only stop loading if we are NOT showing the modal (waiting for user)
+          if (!role && !showRoleModal) setLoading(false);
+      }
+    };
 
   return (
     <div className="min-h-screen bg-white flex pt-20 lg:pt-0">
@@ -162,7 +198,7 @@ const Login = () => {
                 </p>
             </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleLogin}>
             {error && (
                 <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center gap-2 border border-red-100">
                     <span className="font-bold">Error:</span> {error}
@@ -281,27 +317,49 @@ const Login = () => {
                 </div>
             </div>
 
-            {/* {GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_ID_HERE" ? (
+            {GOOGLE_CLIENT_ID ? (
                 <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                    <div className="flex justify-center">
-                        <GoogleLogin
-                            onSuccess={handleGoogleSuccess}
-                            onError={() => setError('Google Login Failed')}
-                            type="standard"
-                            theme="outline"
-                            size="large"
-                            width="350"
-                        />
-                    </div>
+                    <GoogleLoginButton onSuccess={handleGoogleSuccess} onError={setError} />
                 </GoogleOAuthProvider>
             ) : (
                 <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200">
                     (Google Login requires valid Client ID)
                 </div>
-            )} */}
+            )}
           </form>
         </div>
       </div>
+            {/* Role Selection Modal */}
+            {showRoleModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-in fade-in zoom-in duration-200">
+                        <h3 className="text-xl font-bold text-slate-900 mb-2">Finish Setup</h3>
+                        <p className="text-slate-500 mb-6">You are new here! Please select how you want to join.</p>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                            <button
+                                onClick={() => handleGoogleSuccess(tempGoogleToken, 'PARENT')}
+                                className="p-4 rounded-xl border-2 border-indigo-100 hover:border-indigo-600 bg-indigo-50/50 hover:bg-indigo-50 text-indigo-700 transition-all flex flex-col items-center gap-3"
+                            >
+                                <div className="p-2 bg-white rounded-full shadow-sm text-indigo-600">
+                                    <User className="w-6 h-6" />
+                                </div>
+                                <span className="font-semibold text-sm">As Parent</span>
+                            </button>
+
+                            <button
+                                onClick={() => handleGoogleSuccess(tempGoogleToken, 'TEACHER')}
+                                className="p-4 rounded-xl border-2 border-indigo-100 hover:border-indigo-600 bg-indigo-50/50 hover:bg-indigo-50 text-indigo-700 transition-all flex flex-col items-center gap-3"
+                            >
+                                <div className="p-2 bg-white rounded-full shadow-sm text-indigo-600">
+                                    <GraduationCap className="w-6 h-6" />
+                                </div>
+                                <span className="font-semibold text-sm">As Tutor</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
     </div>
   );
 };

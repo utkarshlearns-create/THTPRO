@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+    @apply bg-slate-50 text-slate-900 font-sans antialiased dark:bg-slate-950 dark:text-slate-50;
     font-family: 'Inter', sans-serif;
   }
 }
@@ -17,7 +17,7 @@
   }
 
   .input-field {
-    @apply block w-full px-4 py-3 border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-gray-50 focus:bg-white;
+    @apply block w-full px-4 py-3 border-gray-200 dark:border-slate-800 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-gray-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-900;
   }
 
   .card {

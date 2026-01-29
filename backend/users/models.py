@@ -6,6 +6,7 @@ class User(AbstractUser):
         PARENT = 'PARENT', 'Parent'
         TEACHER = 'TEACHER', 'Teacher'
         ADMIN = 'ADMIN', 'Admin'
+        SUPERADMIN = 'SUPERADMIN', 'Super Admin'
 
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.PARENT)
     phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
