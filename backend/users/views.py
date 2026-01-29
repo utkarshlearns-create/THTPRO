@@ -9,6 +9,8 @@ from django.shortcuts import get_object_or_404
 from django.core.cache import cache
 from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import generate_otp, send_otp_to_phone, verify_google_token
+import sys
+import uuid
 
 User = get_user_model()
 
@@ -19,6 +21,22 @@ class SignupView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        
+        # Generate tokens for auto-login
+        from rest_framework_simplejwt.tokens import RefreshToken
+        refresh = RefreshToken.for_user(user)
+        
+        return Response({
+            "message": "User created successfully",
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "role": user.role
+        }, status=status.HTTP_201_CREATED)
 
 class SendOTPView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -78,29 +96,57 @@ class GoogleLoginView(APIView):
         token = request.data.get('token')
         role = request.data.get('role', 'PARENT')
         
+        print(f"DEBUG: GoogleLoginView received token. Role: {role}", file=sys.stderr)
+
         if not token:
+            print("ERROR: No token provided", file=sys.stderr)
             return Response({"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST)
             
         google_data = verify_google_token(token)
         if not google_data:
-            return Response({"error": "Invalid Google Token"}, status=status.HTTP_400_BAD_REQUEST)
+             # Should not happen with new utils logic but safety check
+            print("ERROR: verify_google_token returned None", file=sys.stderr)
+            return Response({"error": "Invalid Google Token (Unknown Error)"}, status=status.HTTP_400_BAD_REQUEST)
             
+        if 'error' in google_data:
+             return Response({"error": google_data['error']}, status=status.HTTP_400_BAD_REQUEST)
+
         email = google_data.get('email')
-        name = google_data.get('name')
+        email = google_data.get('email')
+        # Ensure name is not None. Fallback to part of email if name is missing.
+        name = google_data.get('name') or google_data.get('given_name') or email.split('@')[0]
         
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            user = User.objects.create_user(
-                username=email.split('@')[0],
-                email=email,
-                first_name=name,
-                role=role
-            )
-            user.set_unusable_password()
-            user.save()
+            # If user does not exist and NO role is provided (Login Flow), ask for it.
+            if not request.data.get('role'):
+                 return Response({
+                     "status": "role_required",
+                     "email": email,
+                     "name": name,
+                     "message": "User not found. Please select a role."
+                 }, status=status.HTTP_200_OK)
+
+            # Create User with provided role (Signup Flow or Second Step of Login)
+            try:
+                base_username = email.split('@')[0]
+                unique_username = f"{base_username}_{uuid.uuid4().hex[:6]}"
+                user = User.objects.create_user(
+                    username=unique_username,
+                    email=email,
+                    first_name=name,
+                    role=role
+                )
+                user.set_unusable_password()
+                user.save()
+            except Exception as e:
+                import traceback
+                print(f"CRITICAL ERROR in GoogleLoginView User Creation: {traceback.format_exc()}", file=sys.stderr)
+                return Response({"error": f"Signup failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
         refresh = RefreshToken.for_user(user)
+        refresh['role'] = user.role
         
         return Response({
             'refresh': str(refresh),

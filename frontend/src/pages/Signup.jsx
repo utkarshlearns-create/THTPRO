@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { User, GraduationCap, CheckCircle, ShieldCheck, Clock, Shield } from 'lucide-react';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
+import GoogleLoginButton from '../components/GoogleLoginButton';
 import API_BASE_URL from '../config';
 import { Button } from '../components/ui/button';
 
 // NOTE: Replace with your actual Client ID
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE";
+// Google Client ID from environment variables
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const Signup = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -85,16 +87,25 @@ const Signup = () => {
             
             if (response.ok) {
                 const data = await response.json();
-                if (signupMethod === 'otp') {
-                     // Login the user directly
-                     localStorage.setItem('access', data.access);
-                     localStorage.setItem('refresh', data.refresh);
-                     localStorage.setItem('role', data.role);
-                     alert("Account verified! Logging in...");
+                console.log("Signup/Verify Response Data:", data); // DEBUG LOG
+                
+                // Auto-login logic for both Password and OTP methods
+                // Check if access token exists
+                if (data.access && data.refresh) {
+                    console.log("Tokens found, logging in...");
+                    localStorage.setItem('access', data.access);
+                    localStorage.setItem('refresh', data.refresh);
+                    localStorage.setItem('role', data.role);
+                    
+                    // Small delay for UX
+                    setTimeout(() => {
+                        navigate(data.role === 'TEACHER' ? '/tutor-home' : '/parent-home');
+                    }, 500);
                 } else {
-                     alert("Account created successfully! Please login.");
+                     // Fallback if no tokens (should not happen with new backend update)
+                     alert("Account created! Please login.");
+                     navigate('/login');
                 }
-                setTimeout(() => navigate(signupMethod === 'otp' ? (data.role === 'TEACHER' ? '/tutor-home' : '/parent-home') : '/login'), 500);
             } else {
                 const data = await response.json();
                 const errorMsg = data.detail || (typeof data === 'object' ? Object.values(data).flat().join(', ') : "Signup failed.");
@@ -111,10 +122,17 @@ const Signup = () => {
     const handleGoogleSuccess = async (credentialResponse) => {
       setLoading(true);
       try {
+          let token;
+          if (typeof credentialResponse === 'string') token = credentialResponse;
+          else if (credentialResponse?.credential) token = credentialResponse.credential;
+          else if (credentialResponse?.access_token) token = credentialResponse.access_token;
+
+          if (!token) throw new Error("No token received");
+
           const res = await fetch(`${API_BASE_URL}/api/users/auth/google/`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token: credentialResponse.credential, role: formData.role })
+              body: JSON.stringify({ token, role: formData.role })
           });
           const data = await res.json();
           if (res.ok) {
@@ -124,7 +142,7 @@ const Signup = () => {
             if (data.role === 'TEACHER') navigate('/tutor-home');
             else navigate('/parent-home');
           } else {
-              setError("Google Signup failed.");
+              setError(data.error || data.detail || "Google Signup failed.");
           }
       } catch {
           setError("Network Error during Google Signup");
@@ -284,6 +302,7 @@ const Signup = () => {
                             </div>
                         </div>
 
+                        {signupMethod === 'password' && (
                         <div>
                             <label htmlFor="password" className="block text-sm font-semibold text-slate-700">
                                 Password
@@ -317,6 +336,7 @@ const Signup = () => {
                                 </button>
                             </div>
                         </div>
+                        )}
 
                         <div>
                             <button
@@ -369,19 +389,9 @@ const Signup = () => {
                                 </div>
                             </div>
 
-                            {GOOGLE_CLIENT_ID !== "YOUR_GOOGLE_CLIENT_ID_HERE" ? (
+                            {GOOGLE_CLIENT_ID ? (
                                 <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                                    <div className="flex justify-center">
-                                        <GoogleLogin
-                                            onSuccess={handleGoogleSuccess}
-                                            onError={() => setError('Google Signup Failed')}
-                                            type="standard"
-                                            theme="outline"
-                                            size="large"
-                                            width="350"
-                                            text="continue_with"
-                                        />
-                                    </div>
+                                    <GoogleLoginButton onSuccess={handleGoogleSuccess} onError={setError} />
                                 </GoogleOAuthProvider>
                             ) : (
                                 <div className="text-center text-sm text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200">
