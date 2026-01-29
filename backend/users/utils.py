@@ -3,6 +3,7 @@ import string
 from django.core.cache import cache
 import requests
 import sys
+from django.conf import settings
 
 def generate_otp():
     """Generates a 6-digit OTP."""
@@ -32,7 +33,6 @@ def verify_google_token(token):
             data = response.json()
             # Check if Audience matches our Client ID
             # This is CRITICAL for security (prevents token reuse from other apps)
-            from django.conf import settings
             if settings.GOOGLE_CLIENT_ID and data.get('aud') != settings.GOOGLE_CLIENT_ID:
                 error_msg = f"Invalid Audience. Expected {settings.GOOGLE_CLIENT_ID}, got {data.get('aud')}"
                 print(f"ERROR: {error_msg}", file=sys.stderr)
