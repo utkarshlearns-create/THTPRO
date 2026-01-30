@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { User, GraduationCap, CheckCircle, ShieldCheck, Clock, Shield } from 'lucide-react';
+import { User, GraduationCap, CheckCircle, ShieldCheck, Clock, Shield, Sparkles, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import GoogleLoginButton from '../components/GoogleLoginButton';
 import API_BASE_URL from '../config';
