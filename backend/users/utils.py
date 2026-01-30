@@ -3,7 +3,10 @@ import string
 from django.core.cache import cache
 import requests
 import sys
+import logging
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 def generate_otp():
     """Generates a 6-digit OTP."""
@@ -14,9 +17,9 @@ def send_otp_to_phone(phone, otp):
     Simulates sending OTP to phone.
     In a real app, integrate an SMS gateway here (e.g., Twilio, SNS).
     """
-    print(f"========================================")
-    print(f"DTO SENT TO {phone}: {otp}")
-    print(f"========================================")
+    logger.info(f"========================================")
+    logger.info(f"OTP SENT TO {phone}: {otp}")
+    logger.info(f"========================================")
     return True
 
 def verify_google_token(token):
@@ -26,7 +29,7 @@ def verify_google_token(token):
     try:
         # Simple verification using Google's token info endpoint
         # For production, use google-auth authentication library for better security and caching
-        print(f"DEBUG: Verifying Google Token: {token[:20]}...", file=sys.stderr)
+        logger.debug(f"Verifying Google Token: {token[:20]}...")
         response = requests.get(f"https://oauth2.googleapis.com/tokeninfo?id_token={token}")
         
         if response.status_code == 200:
@@ -35,13 +38,13 @@ def verify_google_token(token):
             # This is CRITICAL for security (prevents token reuse from other apps)
             if settings.GOOGLE_CLIENT_ID and data.get('aud') != settings.GOOGLE_CLIENT_ID:
                 error_msg = f"Invalid Audience. Expected {settings.GOOGLE_CLIENT_ID}, got {data.get('aud')}"
-                print(f"ERROR: {error_msg}", file=sys.stderr)
+                logger.error(error_msg)
                 return {"error": error_msg}
 
             return data
         
         # If ID Token fails, try Access Token
-        print(f"DEBUG: ID Token failed ({response.status_code}). Trying Access Token verification...", file=sys.stderr)
+        logger.debug(f"ID Token failed ({response.status_code}). Trying Access Token verification...")
         response_access = requests.get(f"https://oauth2.googleapis.com/tokeninfo?access_token={token}")
         
         if response_access.status_code == 200:
@@ -53,16 +56,16 @@ def verify_google_token(token):
                  # Warn but maybe allow if strict ID token check passed (but here ID token failed so we are in fallback).
                  # Let's verify strictly to be safe.
                 error_msg = f"Invalid Audience (Access Token). Expected {settings.GOOGLE_CLIENT_ID}, got {data.get('aud')}"
-                print(f"ERROR: {error_msg}", file=sys.stderr)
+                logger.error(error_msg)
                 return {"error": error_msg}
                 
             return data
         else:
              # Return error from first attempt usually, or combined?
             error_msg = f"Google verification failed: ID Token ({response.status_code}), Access Token ({response_access.status_code})"
-            print(f"ERROR: {error_msg}", file=sys.stderr)
+            logger.error(error_msg)
             return {"error": error_msg}
     except Exception as e:
         error_msg = f"Google verification exception: {str(e)}"
-        print(f"ERROR: {error_msg}", file=sys.stderr)
+        logger.error(error_msg)
         return {"error": error_msg}

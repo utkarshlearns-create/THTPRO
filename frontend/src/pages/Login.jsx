@@ -149,7 +149,6 @@ const Login = () => {
               setError(data.error || data.detail || "Google Login failed.");
           }
       } catch (err) {
-          console.error(err);
           setError("Network Error during Google Login");
       } finally { 
           // Only stop loading if we are NOT showing the modal (waiting for user)

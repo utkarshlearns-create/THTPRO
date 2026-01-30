@@ -26,6 +26,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-produc
 
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 
+# Welcome bonus credits for new wallets (configurable via environment)
+WELCOME_BONUS_CREDITS = int(os.environ.get('WELCOME_BONUS_CREDITS', '500'))
+
 # SECURITY WARNING: don't run with debug turned on in production!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'

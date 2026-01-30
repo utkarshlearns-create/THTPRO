@@ -11,6 +11,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .utils import generate_otp, send_otp_to_phone, verify_google_token
 import sys
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -96,16 +99,16 @@ class GoogleLoginView(APIView):
         token = request.data.get('token')
         role = request.data.get('role', 'PARENT')
         
-        print(f"DEBUG: GoogleLoginView received token. Role: {role}", file=sys.stderr)
+        logger.debug(f"GoogleLoginView received token. Role: {role}")
 
         if not token:
-            print("ERROR: No token provided", file=sys.stderr)
+            logger.error("No token provided")
             return Response({"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST)
             
         google_data = verify_google_token(token)
         if not google_data:
              # Should not happen with new utils logic but safety check
-            print("ERROR: verify_google_token returned None", file=sys.stderr)
+            logger.error("verify_google_token returned None")
             return Response({"error": "Invalid Google Token (Unknown Error)"}, status=status.HTTP_400_BAD_REQUEST)
             
         if 'error' in google_data:
@@ -142,7 +145,7 @@ class GoogleLoginView(APIView):
                 user.save()
             except Exception as e:
                 import traceback
-                print(f"CRITICAL ERROR in GoogleLoginView User Creation: {traceback.format_exc()}", file=sys.stderr)
+                logger.critical(f"Error in GoogleLoginView User Creation: {traceback.format_exc()}")
                 return Response({"error": f"Signup failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
         refresh = RefreshToken.for_user(user)
