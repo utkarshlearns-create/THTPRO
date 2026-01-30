@@ -87,12 +87,10 @@ const Signup = () => {
             
             if (response.ok) {
                 const data = await response.json();
-                console.log("Signup/Verify Response Data:", data); // DEBUG LOG
                 
                 // Auto-login logic for both Password and OTP methods
                 // Check if access token exists
                 if (data.access && data.refresh) {
-                    console.log("Tokens found, logging in...");
                     localStorage.setItem('access', data.access);
                     localStorage.setItem('refresh', data.refresh);
                     localStorage.setItem('role', data.role);
@@ -112,7 +110,6 @@ const Signup = () => {
                 setError(errorMsg);
             }
         } catch (err) {
-            console.error(err);
             setError("Network error. Please try again later.");
         } finally {
             setLoading(false);
