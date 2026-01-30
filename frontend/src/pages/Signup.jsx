@@ -246,7 +246,7 @@ const Signup = () => {
                 </button>
             </div>
 
-          <form className="space-y-5" onSubmit={handleSignup}>
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {error && (
                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2 border border-red-100 dark:border-red-900/30">
                     <AlertTriangle className="h-4 w-4 shrink-0" />
