@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { User, GraduationCap, CheckCircle, ShieldCheck, Clock, Shield, Sparkles, AlertTriangle, Eye, EyeOff } from 'lucide-react';
+import { User, GraduationCap, CheckCircle, ShieldCheck, Clock, Shield, Sparkles, AlertTriangle, Eye, EyeOff, Wallet } from 'lucide-react';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import GoogleLoginButton from '../components/GoogleLoginButton';
 import API_BASE_URL from '../config';
@@ -155,6 +155,47 @@ const Signup = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // Dynamic content configuration
+    const content = role === 'teacher' ? {
+        badge: "Join Active Tutors",
+        title: "Share Your Knowledge, ",
+        highlight: "Earn Respect",
+        desc: "Join India's fastest growing network of home tutors and start earning.",
+        features: [
+            {
+                icon: <Wallet className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />,
+                bg: "bg-indigo-100 dark:bg-indigo-900/50",
+                title: "Zero Commission",
+                desc: "Keep 100% of what you earn from students."
+            },
+            {
+                icon: <Clock className="h-6 w-6 text-green-600 dark:text-green-400" />,
+                bg: "bg-green-100 dark:bg-green-900/50",
+                title: "Flexible Schedule",
+                desc: "Teach at your own preferred timings."
+            }
+        ]
+    } : {
+        badge: "Join 10,000+ Learners",
+        title: "Start Your ",
+        highlight: "Learning Journey",
+        desc: "Get access to verified tutors, smart tracking, and personalized learning plans.",
+        features: [
+            {
+                icon: <ShieldCheck className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />,
+                bg: "bg-indigo-100 dark:bg-indigo-900/50",
+                title: "100% Verified Tutors",
+                desc: "Every tutor is ID checked for safety."
+            },
+            {
+                icon: <Sparkles className="h-6 w-6 text-green-600 dark:text-green-400" />,
+                bg: "bg-green-100 dark:bg-green-900/50",
+                title: "Free Demo Class",
+                desc: "Try before you hire. No commitment."
+            }
+        ]
+    };
+
     return (
     <div className="min-h-screen bg-white dark:bg-slate-950 flex pt-20 lg:pt-0 transition-colors duration-300">
       
@@ -172,13 +213,13 @@ const Signup = () => {
                 <div>
                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 text-sm font-semibold shadow-sm mb-6 border border-indigo-100 dark:border-slate-700">
                             <span className="flex h-2 w-2 rounded-full bg-indigo-600 dark:bg-indigo-400 mr-2"></span>
-                            Join 10,000+ Learners
+                            {content.badge}
                     </div>
                     <h1 className="text-4xl font-bold text-slate-900 dark:text-white leading-tight">
-                        Start Your <span className="text-indigo-600 dark:text-indigo-400">Learning Journey</span> Today
+                        {content.title} <span className="text-indigo-600 dark:text-indigo-400">{content.highlight}</span> Today
                     </h1>
                      <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
-                        Get access to verified tutors, smart tracking, and personalized learning plans.
+                        {content.desc}
                     </p>
                 </div>
 
