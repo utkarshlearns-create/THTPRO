@@ -90,10 +90,40 @@ class TutorKYC(models.Model):
         REJECTED = 'REJECTED', 'Rejected'
 
     tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='kyc_records')
+    
+    # Required Documents
     aadhaar_document = models.ImageField(upload_to='kyc_docs/', blank=True, null=True)
     education_certificate = models.FileField(upload_to='kyc_docs/', blank=True, null=True)
     photo = models.ImageField(upload_to='kyc_docs/', blank=True, null=True)
     
+    # Additional Documents (NEW)
+    pan_document = models.ImageField(upload_to='kyc_docs/', blank=True, null=True)
+    passport_document = models.ImageField(upload_to='kyc_docs/', blank=True, null=True)
+    police_verification = models.FileField(upload_to='kyc_docs/', blank=True, null=True)
+    teaching_certificate = models.FileField(upload_to='kyc_docs/', blank=True, null=True)
+    
+    # Document Verification Flags (NEW)
+    aadhaar_verified = models.BooleanField(default=False)
+    education_verified = models.BooleanField(default=False)
+    photo_verified = models.BooleanField(default=False)
+    pan_verified = models.BooleanField(default=False)
+    
+    # Re-submission Tracking (NEW)
+    documents_to_resubmit = models.JSONField(default=list, blank=True)  # ['aadhaar', 'pan', etc.]
+    admin_feedback = models.TextField(blank=True, null=True)
+    
+    # Admin Assignment (NEW)
+    assigned_admin = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='assigned_kyc_verifications'
+    )
+    assigned_at = models.DateTimeField(null=True, blank=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Existing Fields
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
     rejection_reason = models.TextField(blank=True, null=True)
     submission_count = models.PositiveIntegerField(default=0)
