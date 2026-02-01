@@ -29,14 +29,14 @@ const JobWizard = () => {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        student_name: '',
-        student_gender: '',
         class_grade: '',
         board: '',
         subjects: [],
         locality: '',
         preferred_time: '',
-        budget_range: ''
+        budget_range: '',
+        hourly_rate: '',
+        requirements: ''
     });
 
     const handleInputChange = (e) => {
@@ -67,17 +67,16 @@ const JobWizard = () => {
         const token = localStorage.getItem('access');
         const role = localStorage.getItem('role');
 
-        if (!token || role !== 'PARENT') {
-            // Store data in local storage so they don't lose it after login
+        if (!token || role !== 'TEACHER') {
             localStorage.setItem('pendingJobPost', JSON.stringify(formData));
-            alert("Please Login as a Parent first!");
+            alert("Please Login as a Tutor first!");
             navigate('/login?redirect=post-job');
             return;
         }
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/jobs/`, {
+            const response = await fetch(`${API_BASE_URL}/api/jobs/tutor/create/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -86,16 +85,18 @@ const JobWizard = () => {
                 body: JSON.stringify(formData)
             });
 
+            const data = await response.json();
+            
             if (response.ok) {
                 localStorage.removeItem('pendingJobPost');
-                alert("Requirement Posted! Redirecting to Dashboard...");
-                navigate('/parent-home');
+                alert(`Success! ${data.message}\n\nYour job posting is being reviewed by our team. You'll be notified once it's approved.`);
+                navigate('/tutor-home');
             } else {
-                alert("Failed to post job. Please try again.");
+                alert(data.error || "Failed to post job. Please try again.");
             }
         } catch (error) {
             console.error("Error posting job:", error);
-            alert("Network error.");
+            alert("Network error. Please check your connection.");
         } finally {
             setLoading(false);
         }
@@ -129,17 +130,16 @@ const JobWizard = () => {
             <div className="bg-slate-50/50 dark:bg-slate-800/50 px-8 py-6 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex justify-between items-end mb-4">
                     <div>
-                        <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Step {step} of 4</span>
+                        <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Step {step} of 3</span>
                         <h2 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                            {step === 1 && "Student Profile"}
-                            {step === 2 && "Academic Needs"}
-                            {step === 3 && "Location & Schedule"}
-                            {step === 4 && "Review & Post"}
+                            {step === 1 && "Academic Details"}
+                            {step === 2 && "Location & Availability"}
+                            {step === 3 && "Rate & Review"}
                         </h2>
                     </div>
-                    <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">{Math.round((step / 4) * 100)}%</span>
+                    <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">{Math.round((step / 3) * 100)}%</span>
                 </div>
-                <Progress value={(step / 4) * 100} className="h-1.5 bg-slate-200 dark:bg-slate-700" indicatorClassName="bg-indigo-600 dark:bg-indigo-500" />
+                <Progress value={(step / 3) * 100} className="h-1.5 bg-slate-200 dark:bg-slate-700" indicatorClassName="bg-indigo-600 dark:bg-indigo-500" />
             </div>
 
             <CardContent className="p-8 min-h-[420px] relative">
@@ -154,53 +154,8 @@ const JobWizard = () => {
                         transition={{ duration: 0.3, ease: "easeOut" }}
                         className="w-full"
                     >
-                        {/* STEP 1: Student Details */}
+                        {/* STEP 1: Academic Details */}
                         {step === 1 && (
-                            <div className="space-y-8">
-                                <div className="space-y-4">
-                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Who is this for?</Label>
-                                    <div className="relative">
-                                        <User className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
-                                        <Input 
-                                            name="student_name" 
-                                            value={formData.student_name} 
-                                            onChange={handleInputChange} 
-                                            placeholder="Student's Full Name" 
-                                            className="pl-12 py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-indigo-500 dark:focus:ring-indigo-400" 
-                                            autoFocus 
-                                        />
-                                    </div>
-                                </div>
-                                
-                                <div className="space-y-4">
-                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Gender</Label>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {['Male', 'Female'].map(g => (
-                                            <div 
-                                                key={g}
-                                                onClick={() => setFormData(prev => ({...prev, student_gender: g}))}
-                                                className={`cursor-pointer rounded-xl border-2 p-4 flex flex-col items-center justify-center gap-2 transition-all duration-200 ${
-                                                    formData.student_gender === g 
-                                                    ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 shadow-md transform scale-[1.02]' 
-                                                    : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800 hover:border-indigo-200 dark:hover:border-indigo-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400'
-                                                }`}
-                                            >
-                                                {g === 'Male' ? <User className="h-8 w-8 text-blue-500/80" /> : <User className="h-8 w-8 text-pink-500/80" />}
-                                                <span className="font-semibold">{g}</span>
-                                                {formData.student_gender === g && (
-                                                    <div className="absolute top-2 right-2">
-                                                        <CheckCircle className="h-5 w-5 text-indigo-600 dark:text-indigo-400 fill-indigo-100 dark:fill-indigo-900" />
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* STEP 2: Academic Details */}
-                        {step === 2 && (
                             <div className="space-y-8">
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-3">
@@ -232,13 +187,13 @@ const JobWizard = () => {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Subjects Needed</Label>
+                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Subjects You Can Teach</Label>
                                     <div className="flex flex-wrap gap-3">
                                         {[
                                             { name: 'Maths', icon: Calculator }, 
                                             { name: 'Science', icon: FlaskConical }, 
                                             { name: 'English', icon: BookOpen }, 
-                                            { name: 'Physics', icon: Globe }, // Placeholder icon
+                                            { name: 'Physics', icon: Globe },
                                             { name: 'Chemistry', icon: FlaskConical },
                                             { name: 'Biology', icon: GraduationCap },
                                             { name: 'Computer', icon: Code }, 
@@ -263,11 +218,13 @@ const JobWizard = () => {
                             </div>
                         )}
 
-                        {/* STEP 3: Location & Time */}
-                        {step === 3 && (
+
+
+                        {/* STEP 2: Location & Availability */}
+                        {step === 2 && (
                              <div className="space-y-8">
                                 <div className="space-y-4">
-                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Locality / Area</Label>
+                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Your Locality / Area</Label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <MapPin className="h-5 w-5 text-indigo-500 dark:text-indigo-400 group-focus-within:animate-bounce" />
@@ -282,7 +239,7 @@ const JobWizard = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Preferred Time Slot</Label>
+                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Your Available Time Slots</Label>
                                     <div className="relative group">
                                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <Clock className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
@@ -292,24 +249,49 @@ const JobWizard = () => {
                                             value={formData.preferred_time} 
                                             onChange={handleInputChange} 
                                             className="pl-12 py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-shadow" 
-                                            placeholder="e.g. Evening 5-7 PM" 
+                                            placeholder="e.g. Weekday Evenings 5-8 PM" 
                                         />
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* STEP 4: Budget & Review */}
-                        {step === 4 && (
+                        {/* STEP 3: Rate & Requirements */}
+                        {step === 3 && (
                              <div className="space-y-8">
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Hourly Rate (₹)</Label>
+                                        <Input 
+                                            name="hourly_rate" 
+                                            type="number"
+                                            value={formData.hourly_rate} 
+                                            onChange={handleInputChange} 
+                                            placeholder="e.g. 500" 
+                                            className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700" 
+                                        />
+                                    </div>
+                                    <div className="space-y-4">
+                                        <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Budget Range (Optional)</Label>
+                                        <Input 
+                                            name="budget_range" 
+                                            value={formData.budget_range} 
+                                            onChange={handleInputChange} 
+                                            placeholder="e.g. ₹3000 - ₹5000/month" 
+                                            className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700" 
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="space-y-4">
-                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Monthly Budget (Approx)</Label>
-                                    <Input 
-                                        name="budget_range" 
-                                        value={formData.budget_range} 
-                                        onChange={handleInputChange} 
-                                        placeholder="e.g. ₹3000 - ₹5000" 
-                                        className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700" 
+                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Additional Requirements (Optional)</Label>
+                                    <textarea
+                                        name="requirements"
+                                        value={formData.requirements}
+                                        onChange={handleInputChange}
+                                        rows={4}
+                                        placeholder="Any specific requirements or preferences..."
+                                        className="w-full px-4 py-3 text-base bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 resize-none"
                                     />
                                 </div>
 
@@ -318,20 +300,10 @@ const JobWizard = () => {
                                      
                                      <div className="flex items-center gap-4">
                                          <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                                            <User className="h-5 w-5" />
-                                         </div>
-                                         <div>
-                                             <p className="text-sm text-slate-500 dark:text-slate-400">Student</p>
-                                             <p className="font-semibold text-slate-900 dark:text-white">{formData.student_name} ({formData.student_gender})</p>
-                                         </div>
-                                     </div>
-
-                                     <div className="flex items-center gap-4">
-                                         <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                                             <GraduationCap className="h-5 w-5" />
                                          </div>
                                          <div>
-                                             <p className="text-sm text-slate-500 dark:text-slate-400">Academic</p>
+                                             <p className="text-sm text-slate-500 dark:text-slate-400">Teaching</p>
                                              <p className="font-semibold text-slate-900 dark:text-white">{formData.class_grade} • {formData.board}</p>
                                          </div>
                                      </div>
@@ -343,6 +315,16 @@ const JobWizard = () => {
                                          <div>
                                              <p className="text-sm text-slate-500 dark:text-slate-400">Subjects</p>
                                              <p className="font-semibold text-slate-900 dark:text-white">{formData.subjects.join(', ')}</p>
+                                         </div>
+                                     </div>
+
+                                     <div className="flex items-center gap-4">
+                                         <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                                            <MapPin className="h-5 w-5" />
+                                         </div>
+                                         <div>
+                                             <p className="text-sm text-slate-500 dark:text-slate-400">Location</p>
+                                             <p className="font-semibold text-slate-900 dark:text-white">{formData.locality}</p>
                                          </div>
                                      </div>
                                 </div>
@@ -362,15 +344,14 @@ const JobWizard = () => {
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
 
-                {step < 4 ? (
+                {step < 3 ? (
                     <Button 
                         onClick={nextStep} 
                         size="lg"
                         className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-8 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 transition-all transform hover:-translate-y-0.5"
                         disabled={
-                            (step === 1 && (!formData.student_name || !formData.student_gender)) ||
-                            (step === 2 && (!formData.class_grade || !formData.board || formData.subjects.length === 0)) ||
-                            (step === 3 && !formData.locality)
+                            (step === 1 && (!formData.class_grade || !formData.board || formData.subjects.length === 0)) ||
+                            (step === 2 && !formData.locality)
                         }
                     >
                         Next Step <ArrowRight className="ml-2 h-4 w-4" />
@@ -382,7 +363,7 @@ const JobWizard = () => {
                         size="lg"
                         className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white rounded-xl px-10 shadow-xl shadow-indigo-200 dark:shadow-indigo-900/20 transition-all transform hover:-translate-y-0.5 font-bold"
                     >
-                        {loading ? 'Posting...' : 'Post Requirement'}
+                        {loading ? 'Submitting...' : 'Post Job Opportunity'}
                     </Button>
                 )}
             </CardFooter>
