@@ -12,24 +12,19 @@ from .views import (
     AdminRequestModificationsView,
     
     # Parent endpoints
-    ParentApprovedJobsView,
+    ParentJobListView,
+    JobDetailView,
     
     # Notification endpoints
-    UserNotificationsView,
+    NotificationListView,
     MarkNotificationReadView,
-    UnreadNotificationCountView,
-    
-    # Legacy/existing endpoints
-    JobPostListCreateView,
-    JobPostDetailView,
-    ParentDashboardStatsView
 )
 
 urlpatterns = [
     # Tutor endpoints
     path('tutor/create/', TutorJobCreateView.as_view(), name='tutor-job-create'),
     path('tutor/my-jobs/', TutorJobListView.as_view(), name='tutor-job-list'),
-    path('tutor/applications/', TutorApplicationsView.as_view(), name='tutor-applications'), # Added tutor applications endpoint
+    path('tutor/applications/', TutorApplicationsView.as_view(), name='tutor-applications'),
     
     # Admin endpoints
     path('admin/pending/', AdminPendingJobsView.as_view(), name='admin-pending-jobs'),
@@ -38,15 +33,11 @@ urlpatterns = [
     path('admin/<int:pk>/request-modifications/', AdminRequestModificationsView.as_view(), name='admin-request-modifications'),
     
     # Parent endpoints
-    path('parent/approved/', ParentApprovedJobsView.as_view(), name='parent-approved-jobs'),
+    path('parent/approved/', ParentJobListView.as_view(), name='parent-approved-jobs'),
+    path('', ParentJobListView.as_view(), name='job-list'), # Also serve at root of jobs/
+    path('<int:pk>/', JobDetailView.as_view(), name='job-detail'),
     
     # Notification endpoints
-    path('notifications/', UserNotificationsView.as_view(), name='user-notifications'),
+    path('notifications/', NotificationListView.as_view(), name='user-notifications'),
     path('notifications/<int:pk>/read/', MarkNotificationReadView.as_view(), name='mark-notification-read'),
-    path('notifications/unread-count/', UnreadNotificationCountView.as_view(), name='unread-notification-count'),
-    
-    # Legacy endpoints (backward compatibility)
-    path('', JobPostListCreateView.as_view(), name='job-list-create'),
-    path('<int:pk>/', JobPostDetailView.as_view(), name='job-detail'),
-    path('stats/parent/', ParentDashboardStatsView.as_view(), name='parent-stats'),
 ]
