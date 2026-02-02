@@ -1,4 +1,18 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import EarningsChart from './EarningsChart';
+import EngagementStats from './EngagementStats';
+import PerformanceRadial from './PerformanceRadial';
+import ApplicationFunnel from './ApplicationFunnel';
+import JobMatchList from './JobMatchList';
+import UpcomingClasses from './UpcomingClasses';
+import QuickActions from './QuickActions';
+import TutorRanking from './TutorRanking';
+import KYCStatusCard from './KYCStatusCard';
+import NextStepsChecklist from './NextStepsChecklist';
+import { CircularProgress } from '../../ui/progress';
+import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
+import { Button } from '../../ui/button';
 
 const DashboardHome = ({ user, completionPercentage }) => {
     const navigate = useNavigate();
