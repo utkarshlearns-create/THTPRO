@@ -124,7 +124,11 @@ const TutorDashboard = () => {
             if (response.ok) {
                 setStatus((await response.json()).status);
                 alert("KYC Submitted Successfully!");
-            } else { alert((await response.json()).error || "Upload Failed"); }
+            } else { 
+                const resData = await response.json();
+                console.error("KYC Upload Error:", resData);
+                alert(`Upload Failed: ${resData.error || JSON.stringify(resData)}`); 
+            }
         } catch (error) { alert("Network error."); } 
         finally { setKycUploading(false); }
     };
