@@ -20,6 +20,11 @@ import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
 import { MasterManagement, HRMModule, CRMModule, SupportSystem } from './pages/superadmin/Placeholders';
 
+// KYC Pages
+import TutorKYCPage from './pages/TutorKYCPage';
+import AdminKYCPage from './pages/AdminKYCPage';
+import KYCStatusDashboard from './components/tutor/kyc/KYCStatusDashboard';
+
 // Layout for standard pages that require the generic Navbar
 const StandardLayout = () => {
     return (
@@ -61,10 +66,16 @@ function App() {
               
               <Route element={<ProtectedRoute allowedRoles={['TEACHER']} />}>
                 <Route path="/dashboard/tutor" element={<TutorDashboard />} />
+                <Route path="/tutor/kyc" element={<TutorKYCPage />} />
+                <Route path="/tutor/kyc/status" element={<KYCStatusDashboard />} />
               </Route>
 
               <Route element={<ProtectedRoute allowedRoles={['PARENT']} />}>
                 <Route path="/dashboard/parent" element={<ParentDashboard />} />
+              </Route>
+              
+              <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+                <Route path="/admin/kyc-verifications" element={<AdminKYCPage />} />
               </Route>
           </Route>
 
