@@ -40,7 +40,7 @@ def update_profile_completion(sender, instance, **kwargs):
     
     for field in fields_to_check:
         value = getattr(instance, field)
-        if value:
+        if value is not None:
              # Check for empty lists in JSON fields
             if isinstance(value, list) and len(value) == 0:
                 continue
