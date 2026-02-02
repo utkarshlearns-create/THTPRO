@@ -16,14 +16,29 @@ const TutorHome = () => {
     const [loading, setLoading] = useState(true);
     const [profileStatus, setProfileStatus] = useState({ percent: 0, status: 'SIGNED_UP' });
 
-    // Mock fetching profile status (In real app, fetch from /api/users/profile/ or similar)
+    // Fetch profile status and jobs
     useEffect(() => {
-        // Fetch Jobs
         fetchJobs();
-        // Fetch Status (Mock for now, assumes 50% incomplete)
-        // TODO: Replace with real API call
-        setProfileStatus({ percent: 40, status: 'PROFILE_INCOMPLETE' });
+        fetchProfileStatus();
     }, []);
+
+    const fetchProfileStatus = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/users/profile/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setProfileStatus({ 
+                    percent: data.profile_completion_percentage || 0, 
+                    status: data.status_msg?.status || 'SIGNED_UP' 
+                });
+            }
+        } catch (error) {
+            console.error("Error fetching profile status:", error);
+        }
+    };
 
     const fetchJobs = async () => {
         try {
