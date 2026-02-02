@@ -179,7 +179,7 @@ const MyApplications = () => {
                         {activeFilter === 'ALL' && !searchTerm && (
                             <Button 
                                 variant="sapphire" 
-                                onClick={() => window.location.href = '/tutor-dashboard?tab=tuitions'}
+                                onClick={() => window.location.href = '/dashboard/tutor?tab=tuitions'}
                             >
                                 Browse Jobs
                             </Button>

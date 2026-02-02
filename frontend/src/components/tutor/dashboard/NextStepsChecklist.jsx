@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { CheckCircle2, Circle, ArrowRight, Loader } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import API_BASE_URL from '../../../config';
 
 const NextStepsChecklist = () => {
+    const navigate = useNavigate();
     const [profileData, setProfileData] = useState(null);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -61,7 +63,7 @@ const NextStepsChecklist = () => {
             description: 'Fill in all required information',
             completed: (profileData?.profile_completion_percentage || 0) === 100,
             action: 'Complete Now',
-            link: '/tutor-dashboard?tab=profile'
+            link: '/dashboard/tutor?tab=profile'
         },
         {
             id: 2,
@@ -69,7 +71,7 @@ const NextStepsChecklist = () => {
             description: 'Submit verification documents',
             completed: profileData?.status_msg?.status !== 'SIGNED_UP' && profileData?.status_msg?.status !== 'PROFILE_INCOMPLETE',
             action: 'Upload Documents',
-            link: '/tutor-dashboard?tab=profile&section=verification',
+            link: '/dashboard/tutor?tab=profile&section=verification',
             disabled: (profileData?.profile_completion_percentage || 0) < 100
         },
         {
@@ -87,7 +89,7 @@ const NextStepsChecklist = () => {
             description: 'Start your teaching journey',
             completed: (stats?.total_applications || 0) > 0,
             action: 'Browse Jobs',
-            link: '/tutor-dashboard?tab=tuitions',
+            link: '/dashboard/tutor?tab=tuitions',
             disabled: profileData?.status_msg?.status !== 'APPROVED'
         }
     ];
@@ -175,7 +177,7 @@ const NextStepsChecklist = () => {
                                 {/* Action Button */}
                                 {!isCompleted && !isDisabled && (
                                     <button
-                                        onClick={() => window.location.href = step.link}
+                                        onClick={() => navigate(step.link)}
                                         className={cn(
                                             "flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all",
                                             isCurrent 
@@ -197,6 +199,7 @@ const NextStepsChecklist = () => {
                         );
                     })}
                 </div>
+
 
                 {/* Completion Message */}
                 {completedSteps === totalSteps && (
