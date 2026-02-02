@@ -32,8 +32,7 @@ def update_profile_completion(sender, instance, **kwargs):
         'subjects', 'classes', 'teaching_mode', 'teaching_experience_years', 'expected_fee',
         # Education (4 fields)
         'highest_qualification', 'highest_stream', 'highest_university', 'intermediate_stream',
-        # Media (1 field)
-        'intro_video',
+        # Note: intro_video is optional and not required for 100% completion
     ]
     
     completed = 0
