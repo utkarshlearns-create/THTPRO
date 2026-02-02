@@ -1,19 +1,8 @@
-import React from 'react';
-import EarningsChart from './EarningsChart';
-import EngagementStats from './EngagementStats';
-import PerformanceRadial from './PerformanceRadial';
-import ApplicationFunnel from './ApplicationFunnel';
-import JobMatchList from './JobMatchList';
-import UpcomingClasses from './UpcomingClasses';
-import QuickActions from './QuickActions';
-import TutorRanking from './TutorRanking';
-import KYCStatusCard from './KYCStatusCard';
-import NextStepsChecklist from './NextStepsChecklist';
-import { CircularProgress } from '../../ui/progress';
-import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
-import { Button } from '../../ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardHome = ({ user, completionPercentage }) => {
+    const navigate = useNavigate();
+
     return (
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
              {/* Profile Completion Banner (if not 100%) */}
@@ -30,7 +19,7 @@ const DashboardHome = ({ user, completionPercentage }) => {
                                  </p>
                              </div>
                         </div>
-                        <Button variant="sapphire" onClick={() => window.location.href = '?tab=profile'}>
+                        <Button variant="sapphire" onClick={() => navigate('/dashboard/tutor?tab=profile')}>
                             Complete Now
                         </Button>
                     </CardContent>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { CheckCircle, Clock, XCircle, AlertCircle, FileText, ArrowRight } from 'lucide-react';
@@ -6,6 +7,7 @@ import { cn } from '../../../lib/utils';
 import API_BASE_URL from '../../../config';
 
 const KYCStatusCard = () => {
+    const navigate = useNavigate();
     const [kycStatus, setKycStatus] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -53,7 +55,7 @@ const KYCStatusCard = () => {
                 label: 'Not Submitted',
                 message: 'Upload your KYC documents to get verified',
                 action: 'Upload Documents',
-                actionLink: '/tutor-dashboard?tab=profile&section=verification'
+                actionLink: '/dashboard/tutor?tab=profile&section=verification'
             },
             'SUBMITTED': {
                 icon: Clock,
@@ -73,7 +75,7 @@ const KYCStatusCard = () => {
                 label: 'Verified',
                 message: 'Your account is verified! You can now apply to jobs',
                 action: 'Browse Jobs',
-                actionLink: '/tutor-dashboard?tab=tuitions'
+                actionLink: '/dashboard/tutor?tab=tuitions'
             },
             'REJECTED': {
                 icon: XCircle,
@@ -83,7 +85,7 @@ const KYCStatusCard = () => {
                 label: 'Rejected',
                 message: kycStatus?.admin_feedback || 'Please review feedback and re-upload documents',
                 action: 'Re-upload Documents',
-                actionLink: '/tutor-dashboard?tab=profile&section=verification'
+                actionLink: '/dashboard/tutor?tab=profile&section=verification'
             },
             'RESUBMIT_REQUIRED': {
                 icon: AlertCircle,
@@ -93,7 +95,7 @@ const KYCStatusCard = () => {
                 label: 'Changes Needed',
                 message: kycStatus?.admin_feedback || 'Some documents need to be re-uploaded',
                 action: 'Update Documents',
-                actionLink: '/tutor-dashboard?tab=profile&section=verification'
+                actionLink: '/dashboard/tutor?tab=profile&section=verification'
             }
         };
 
@@ -139,7 +141,7 @@ const KYCStatusCard = () => {
                         </div>
                         <Button 
                             variant="sapphire" 
-                            onClick={() => window.location.href = config.actionLink}
+                            onClick={() => navigate(config.actionLink)}
                             className="flex items-center gap-2"
                         >
                             {config.action}
