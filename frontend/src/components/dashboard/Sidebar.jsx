@@ -8,7 +8,8 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
     const navItems = [
         { id: 'dashboard_home', icon: LayoutDashboard, label: 'Dashboard' },
         { id: 'profile', icon: User, label: 'My Profile' },
-        { id: 'tuitions', icon: BookOpen, label: 'My Classes' },
+        { id: 'applications', icon: FileText, label: 'My Applications' },
+        { id: 'tuitions', icon: BookOpen, label: 'Browse Jobs' },
         { id: 'locations', icon: MapPin, label: 'Locations' },
         { id: 'wallet', icon: Wallet, label: 'Wallet' },
         { id: 'settings', icon: Settings, label: 'Settings' },

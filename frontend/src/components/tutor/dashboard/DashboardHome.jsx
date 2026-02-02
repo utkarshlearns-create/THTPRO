@@ -7,6 +7,8 @@ import JobMatchList from './JobMatchList';
 import UpcomingClasses from './UpcomingClasses';
 import QuickActions from './QuickActions';
 import TutorRanking from './TutorRanking';
+import KYCStatusCard from './KYCStatusCard';
+import NextStepsChecklist from './NextStepsChecklist';
 import { CircularProgress } from '../../ui/progress';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
@@ -35,8 +37,19 @@ const DashboardHome = ({ user, completionPercentage }) => {
                  </Card>
              )}
 
+            {/* Critical Action Widgets */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <NextStepsChecklist />
+                <KYCStatusCard />
+            </div>
+
             {/* Widgets Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                
+                <QuickActions />
+                <ApplicationFunnel />
+
+                {/* Coming Soon Features */}
                 {/* Row 1: Ranking Banner */}
                 <TutorRanking />
 
@@ -44,13 +57,11 @@ const DashboardHome = ({ user, completionPercentage }) => {
                 <EarningsChart />
                 <UpcomingClasses />
 
-                {/* Row 3: Performance, Quick Actions, Stats */}
+                {/* Row 3: Performance, Stats */}
                 <PerformanceRadial />
-                <QuickActions />
                 <EngagementStats />
                 
-                {/* Row 4: Funnel & Jobs */}
-                <ApplicationFunnel />
+                {/* Job Matches */}
                 <JobMatchList />
             </div>
         </div>

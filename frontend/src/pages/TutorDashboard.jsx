@@ -7,6 +7,7 @@ import ProfileEditForm from '../components/tutor/dashboard/ProfileEditForm';
 import KYCUpload from '../components/tutor/dashboard/KYCUpload';
 import WalletSection from '../components/tutor/dashboard/WalletSection';
 import JobMatchList from '../components/tutor/dashboard/JobMatchList';
+import MyApplications from '../components/tutor/dashboard/MyApplications';
 
 const TutorDashboard = () => {
     const [searchParams] = useSearchParams();
@@ -172,10 +173,12 @@ const TutorDashboard = () => {
             
             {activeTab === 'wallet' && <WalletSection />}
 
+            {activeTab === 'applications' && <MyApplications />}
+
             {activeTab === 'tuitions' && (
                 <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Available Tuitions</h1>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Browse Jobs</h1>
                     </div>
                     <JobMatchList />
                      {/* We can add more 'all jobs' list later */}

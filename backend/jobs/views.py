@@ -9,9 +9,11 @@ from .serializers import (
     JobPostSerializer, 
     TutorJobPostSerializer,
     AdminTaskSerializer,
-    NotificationSerializer
+    NotificationSerializer,
+    ApplicationSerializer
 )
 from .utils import assign_job_to_admin, send_notification
+from users.models import TutorProfile
 import logging
 
 logger = logging.getLogger(__name__)
@@ -68,6 +70,49 @@ class TutorJobListView(generics.ListAPIView):
         return JobPost.objects.filter(posted_by=self.request.user).order_by('-created_at')
 
 
+class TutorApplicationsView(APIView):
+    """Get all applications submitted by the tutor"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        if request.user.role != 'TEACHER':
+            return Response({"error": "Only tutors can view applications"}, status=403)
+        
+        try:
+            # Get tutor profile
+            tutor_profile = TutorProfile.objects.get(user=request.user)
+            
+            # Get all applications by this tutor
+            applications = Application.objects.filter(tutor=tutor_profile).select_related('job').order_by('-created_at')
+            
+            # Filter by status if provided
+            status_filter = request.query_params.get('status', None)
+            if status_filter:
+                applications = applications.filter(status=status_filter.upper())
+            
+            serializer = ApplicationSerializer(applications, many=True)
+            
+            # Calculate stats
+            stats = {
+                'total': applications.count(),
+                'applied': applications.filter(status='APPLIED').count(),
+                'shortlisted': applications.filter(status='SHORTLISTED').count(),
+                'hired': applications.filter(status='HIRED').count(),
+                'rejected': applications.filter(status='REJECTED').count(),
+            }
+            
+            return Response({
+                'applications': serializer.data,
+                'stats': stats
+            })
+            
+        except TutorProfile.DoesNotExist:
+            return Response({"error": "Tutor profile not found"}, status=404)
+        except Exception as e:
+            logger.error(f"Error fetching applications: {str(e)}")
+            return Response({"error": str(e)}, status=500)
+
+
 # ==================== ADMIN ENDPOINTS ====================
 
 class AdminPendingJobsView(generics.ListAPIView):
@@ -99,27 +144,25 @@ class AdminApproveJobView(APIView):
         job_post.status = 'APPROVED'
         job_post.save()
         
-        # Update AdminTask
-        AdminTask.objects.filter(job_post=job_post, admin=request.user, status='PENDING').update(
-            status='COMPLETED',
-            completed_at=timezone.now()
-        )
+        # Mark admin task as completed
+        try:
+            task = AdminTask.objects.get(job_post=job_post, admin=request.user, status='PENDING')
+            task.status = 'COMPLETED'
+            task.completed_at = timezone.now()
+            task.save()
+        except AdminTask.DoesNotExist:
+            pass
         
-        # Notify tutor
-        send_notification(
-            user=job_post.posted_by,
-            title="Job Approved! 🎉",
-            message=f"Your job posting for {job_post.class_grade} {', '.join(job_post.subjects)} has been approved and is now visible to parents.",
-            notification_type='JOB_APPROVED',
-            related_job=job_post
-        )
+        # Send notification to tutor
+        if job_post.posted_by:
+            send_notification(
+                user=job_post.posted_by,
+                notification_type='JOB_APPROVED',
+                message=f"Your job post for {job_post.class_grade} has been approved!",
+                related_job=job_post
+            )
         
-        logger.info(f"Job {job_post.id} approved by admin {request.user.username}")
-        
-        return Response({
-            "message": "Job approved successfully",
-            "job_id": job_post.id
-        })
+        return Response({"message": "Job approved successfully", "job_id": job_post.id})
 
 
 class AdminRejectJobView(APIView):
@@ -131,34 +174,31 @@ class AdminRejectJobView(APIView):
             return Response({"error": "Admin access required"}, status=403)
         
         job_post = get_object_or_404(JobPost, pk=pk, assigned_admin=request.user)
-        reason = request.data.get('reason', 'No reason provided')
+        reason = request.data.get('reason', 'Does not meet platform guidelines')
         
         job_post.status = 'REJECTED'
         job_post.rejection_reason = reason
         job_post.save()
         
-        # Update AdminTask
-        AdminTask.objects.filter(job_post=job_post, admin=request.user, status='PENDING').update(
-            status='COMPLETED',
-            completed_at=timezone.now(),
-            notes=reason
-        )
+        # Mark admin task as completed
+        try:
+            task = AdminTask.objects.get(job_post=job_post, admin=request.user, status='PENDING')
+            task.status = 'COMPLETED'
+            task.completed_at = timezone.now()
+            task.save()
+        except AdminTask.DoesNotExist:
+            pass
         
-        # Notify tutor
-        send_notification(
-            user=job_post.posted_by,
-            title="Job Posting Rejected",
-            message=f"Your job posting was rejected. Reason: {reason}",
-            notification_type='JOB_REJECTED',
-            related_job=job_post
-        )
+        # Send notification to tutor
+        if job_post.posted_by:
+            send_notification(
+                user=job_post.posted_by,
+                notification_type='JOB_REJECTED',
+                message=f"Your job post was rejected. Reason: {reason}",
+                related_job=job_post
+            )
         
-        logger.info(f"Job {job_post.id} rejected by admin {request.user.username}")
-        
-        return Response({
-            "message": "Job rejected",
-            "job_id": job_post.id
-        })
+        return Response({"message": "Job rejected", "reason": reason})
 
 
 class AdminRequestModificationsView(APIView):
@@ -170,57 +210,56 @@ class AdminRequestModificationsView(APIView):
             return Response({"error": "Admin access required"}, status=403)
         
         job_post = get_object_or_404(JobPost, pk=pk, assigned_admin=request.user)
-        feedback = request.data.get('feedback', '')
+        feedback = request.data.get('feedback', 'Please review and update your job post')
         
         job_post.status = 'MODIFICATIONS_NEEDED'
         job_post.modification_feedback = feedback
         job_post.save()
         
-        # Notify tutor
-        send_notification(
-            user=job_post.posted_by,
-            title="Modifications Requested",
-            message=f"Please update your job posting. Feedback: {feedback}",
-            notification_type='MODIFICATIONS_REQUESTED',
-            related_job=job_post
-        )
+        # Send notification to tutor
+        if job_post.posted_by:
+            send_notification(
+                user=job_post.posted_by,
+                notification_type='JOB_MODIFICATION_NEEDED',
+                message=f"Modifications needed for your job post. Feedback: {feedback}",
+                related_job=job_post
+            )
         
-        logger.info(f"Modifications requested for job {job_post.id} by admin {request.user.username}")
-        
-        return Response({
-            "message": "Modification request sent",
-            "job_id": job_post.id
-        })
+        return Response({"message": "Modification request sent", "feedback": feedback})
 
 
 # ==================== PARENT ENDPOINTS ====================
 
-class ParentApprovedJobsView(generics.ListAPIView):
-    """Parents see only approved job opportunities"""
+class ParentJobListView(generics.ListAPIView):
+    """List all approved jobs for parents to browse"""
     serializer_class = JobPostSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     
     def get_queryset(self):
-        if self.request.user.role != 'PARENT':
-            return JobPost.objects.none()
-        
-        # Show only approved jobs
+        # Only show approved jobs
         return JobPost.objects.filter(status='APPROVED').order_by('-created_at')
+
+
+class JobDetailView(generics.RetrieveAPIView):
+    """Get details of a specific job"""
+    serializer_class = JobPostSerializer
+    permission_classes = [permissions.AllowAny]
+    queryset = JobPost.objects.filter(status='APPROVED')
 
 
 # ==================== NOTIFICATION ENDPOINTS ====================
 
-class UserNotificationsView(generics.ListAPIView):
-    """Get user's notifications"""
+class NotificationListView(generics.ListAPIView):
+    """List all notifications for the current user"""
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        return Notification.objects.filter(user=self.request.user)[:50]
+        return Notification.objects.filter(user=self.request.user).order_by('-created_at')
 
 
 class MarkNotificationReadView(APIView):
-    """Mark notification as read"""
+    """Mark a notification as read"""
     permission_classes = [permissions.IsAuthenticated]
     
     def put(self, request, pk):
@@ -228,68 +267,3 @@ class MarkNotificationReadView(APIView):
         notification.is_read = True
         notification.save()
         return Response({"message": "Notification marked as read"})
-
-
-class UnreadNotificationCountView(APIView):
-    """Get count of unread notifications"""
-    permission_classes = [permissions.IsAuthenticated]
-    
-    def get(self, request):
-        count = Notification.objects.filter(user=request.user, is_read=False).count()
-        return Response({"unread_count": count})
-
-
-# ==================== EXISTING ENDPOINTS (Keep for compatibility) ====================
-
-class JobPostListCreateView(generics.ListCreateAPIView):
-    """Legacy endpoint - kept for backward compatibility"""
-    serializer_class = JobPostSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        # Parents see approved jobs
-        if self.request.user.role == 'PARENT':
-            return JobPost.objects.filter(status='APPROVED').order_by('-created_at')
-        # Tutors see their own posts
-        elif self.request.user.role == 'TEACHER':
-            return JobPost.objects.filter(posted_by=self.request.user).order_by('-created_at')
-        # Admins see all
-        elif self.request.user.role in ['ADMIN', 'SUPERADMIN']:
-            return JobPost.objects.all().order_by('-created_at')
-        return JobPost.objects.none()
-
-    def perform_create(self, serializer):
-        # This is now deprecated - use TutorJobCreateView instead
-        serializer.save(posted_by=self.request.user, status='PENDING_APPROVAL')
-
-
-class JobPostDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = JobPost.objects.all()
-    serializer_class = JobPostSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class ParentDashboardStatsView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        if user.role != 'PARENT':
-            return Response({"error": "Not a parent"}, status=403)
-        
-        # Stats for parent dashboard
-        jobs = JobPost.objects.filter(parent=user)
-        total_jobs = jobs.count()
-        
-        total_applications = Application.objects.filter(job__parent=user).count()
-        
-        hired_app = Application.objects.filter(job__parent=user, status='HIRED').last()
-        assigned_tutor_name = "None"
-        if hired_app:
-            assigned_tutor_name = hired_app.tutor.user.username
-            
-        return Response({
-            "jobs_posted": total_jobs,
-            "applications_received": total_applications,
-            "assigned_tutor": assigned_tutor_name
-        })
