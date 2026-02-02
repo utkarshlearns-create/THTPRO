@@ -1,37 +1,27 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
-
-const data = [
-  { name: 'Mon', views: 24, applications: 4 },
-  { name: 'Tue', views: 13, applications: 1 },
-  { name: 'Wed', views: 38, applications: 8 },
-  { name: 'Thu', views: 20, applications: 2 },
-  { name: 'Fri', views: 45, applications: 12 },
-  { name: 'Sat', views: 60, applications: 15 },
-  { name: 'Sun', views: 55, applications: 10 },
-];
+import { BarChart2, AlertCircle } from 'lucide-react';
 
 const EngagementStats = () => {
+    // Engagement tracking not yet implemented
     return (
         <Card className="col-span-4 lg:col-span-1">
             <CardHeader>
                 <CardTitle>Engagement</CardTitle>
-                <p className="text-xs text-slate-400">Views vs Applications</p>
+                <p className="text-xs text-slate-400">Profile views & interactions</p>
             </CardHeader>
             <CardContent>
-                <div className="h-[200px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data}>
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} />
-                            <Tooltip 
-                                cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px' }}
-                            />
-                            <Bar dataKey="views" fill="#38bdf8" radius={[4, 4, 0, 0]} /> {/* Sky Blue */}
-                            <Bar dataKey="applications" fill="#6366f1" radius={[4, 4, 0, 0]} /> {/* Indigo */}
-                        </BarChart>
-                    </ResponsiveContainer>
+                <div className="h-[200px] flex flex-col items-center justify-center text-center">
+                    <div className="h-12 w-12 rounded-full bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center mb-3">
+                        <BarChart2 className="h-6 w-6 text-sky-600 dark:text-sky-400" />
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                        Engagement tracking available after profile verification
+                    </p>
+                    <div className="mt-3 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                        <AlertCircle className="h-3 w-3" />
+                        <span>Coming soon</span>
+                    </div>
                 </div>
             </CardContent>
         </Card>
