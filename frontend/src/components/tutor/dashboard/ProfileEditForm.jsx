@@ -4,6 +4,7 @@ import { Button } from '../../ui/button';
 import { Save, User, Briefcase, ShieldCheck } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import KYCUpload from './KYCUpload';
+import MultiSelect from '../../ui/multi-select';
 
 const ProfileEditForm = ({ formData, handleInputChange, handleSubmit, saving, isLocked, activeSection, setActiveSection, kycProps }) => {
     return (
@@ -81,10 +82,17 @@ const ProfileEditForm = ({ formData, handleInputChange, handleSubmit, saving, is
                                                     <option value="Other">Other</option>
                                                 </select>
                                             </FormGroup>
-                                            <FormGroup label="Date of Birth">
-                                                <input type="date" name="dob" value={formData.dob} onChange={handleInputChange} className="input-field" />
+                                            <FormGroup label="Marital Status">
+                                                <select name="marital_status" value={formData.marital_status} onChange={handleInputChange} className="input-field">
+                                                    <option value="">Select Status</option>
+                                                    <option value="Single">Single</option>
+                                                    <option value="Married">Married</option>
+                                                </select>
                                             </FormGroup>
                                         </div>
+                                        <FormGroup label="Date of Birth">
+                                            <input type="date" name="dob" value={formData.dob} onChange={handleInputChange} className="input-field" />
+                                        </FormGroup>
                                     </CardContent>
                                 </Card>
 
@@ -106,6 +114,13 @@ const ProfileEditForm = ({ formData, handleInputChange, handleSubmit, saving, is
                                             <input type="text" name="locality" value={formData.locality} onChange={handleInputChange} className="input-field" placeholder="e.g. Indrapuri, Gopalpura" />
                                         </FormGroup>
                                         <div className="hidden md:block"></div>
+                                        
+                                        <FormGroup label="Local Address">
+                                            <textarea name="local_address" value={formData.local_address} onChange={handleInputChange} rows="2" className="input-field resize-none" placeholder="Current residential address"></textarea>
+                                        </FormGroup>
+                                        <FormGroup label="Permanent Address">
+                                            <textarea name="permanent_address" value={formData.permanent_address} onChange={handleInputChange} rows="2" className="input-field resize-none" placeholder="Permanent address (if different)"></textarea>
+                                        </FormGroup>
                                         <div className="col-span-1 md:col-span-2">
                                             <FormGroup label="About Me">
                                                 <textarea 
@@ -137,6 +152,25 @@ const ProfileEditForm = ({ formData, handleInputChange, handleSubmit, saving, is
                                         </div>
                                     </CardHeader>
                                     <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                             <FormGroup label="Subjects You Teach">
+                                                <MultiSelect 
+                                                    options={['Mathematics', 'Science', 'English', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography', 'Computer Science', 'Economics', 'Accountancy']}
+                                                    value={formData.subjects || []}
+                                                    onChange={(val) => handleInputChange({ target: { name: 'subjects', value: val } })}
+                                                    placeholder="Select Subjects"
+                                                />
+                                            </FormGroup>
+                                            <FormGroup label="Classes You Teach">
+                                                <MultiSelect 
+                                                    options={['Class 1-5', 'Class 6-8', 'Class 9-10', 'Class 11-12', 'Competitive Eras']}
+                                                    value={formData.classes || []}
+                                                    onChange={(val) => handleInputChange({ target: { name: 'classes', value: val } })}
+                                                    placeholder="Select Classes"
+                                                />
+                                            </FormGroup>
+                                        </div>
+
                                         <FormGroup label="Teaching Mode">
                                             <select name="teaching_mode" value={formData.teaching_mode} onChange={handleInputChange} className="input-field">
                                                 <option value="BOTH">Online & Offline</option>
@@ -169,19 +203,34 @@ const ProfileEditForm = ({ formData, handleInputChange, handleSubmit, saving, is
                                             </div>
                                             <div>
                                                 <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">Education Details</CardTitle>
-                                                <p className="text-sm text-slate-500 dark:text-slate-400">Your highest qualification info</p>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400">Your specific qualification info</p>
                                             </div>
                                         </div>
                                     </CardHeader>
-                                    <CardContent className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <FormGroup label="Degree / Stream">
-                                            <input type="text" name="highest_stream" value={formData.highest_stream} onChange={handleInputChange} className="input-field" placeholder="e.g. B.Tech CS" />
+                                    <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <FormGroup label="Highest Qualification">
+                                            <select name="highest_qualification" value={formData.highest_qualification} onChange={handleInputChange} className="input-field">
+                                                <option value="">Select Degree</option>
+                                                <option value="B.Tech">B.Tech</option>
+                                                <option value="B.Sc">B.Sc</option>
+                                                <option value="B.Com">B.Com</option>
+                                                <option value="B.A">B.A</option>
+                                                <option value="M.Tech">M.Tech</option>
+                                                <option value="M.Sc">M.Sc</option>
+                                                <option value="M.Com">M.Com</option>
+                                                <option value="M.A">M.A</option>
+                                                <option value="PhD">PhD</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </FormGroup>
+                                        <FormGroup label="Specialization / Stream">
+                                            <input type="text" name="highest_stream" value={formData.highest_stream} onChange={handleInputChange} className="input-field" placeholder="e.g. Computer Science" />
                                         </FormGroup>
                                         <FormGroup label="University / College">
                                             <input type="text" name="highest_university" value={formData.highest_university} onChange={handleInputChange} className="input-field" placeholder="e.g. IIT Delhi" />
                                         </FormGroup>
-                                        <FormGroup label="Passing Year">
-                                            <input type="number" name="highest_year" value={formData.highest_year} onChange={handleInputChange} className="input-field" placeholder="YYYY" />
+                                         <FormGroup label="Intermediate (12th) Stream">
+                                            <input type="text" name="intermediate_stream" value={formData.intermediate_stream} onChange={handleInputChange} className="input-field" placeholder="e.g. PCM / PCB / Commerce" />
                                         </FormGroup>
                                     </CardContent>
                                 </Card>
