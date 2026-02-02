@@ -24,10 +24,16 @@ def update_profile_completion(sender, instance, **kwargs):
         return
 
     fields_to_check = [
-        'full_name', 'gender', 'dob', 'whatsapp_number', # Personal
-        'local_address', 'locality', # Address
-        'subjects', 'classes', # Teaching details
-        'intro_video', # Media
+        # Personal Information (6 fields)
+        'full_name', 'gender', 'dob', 'whatsapp_number', 'marital_status', 'about_me',
+        # Address (3 fields)
+        'local_address', 'permanent_address', 'locality',
+        # Teaching Details (5 fields)
+        'subjects', 'classes', 'teaching_mode', 'teaching_experience_years', 'expected_fee',
+        # Education (4 fields)
+        'highest_qualification', 'highest_stream', 'highest_university', 'intermediate_stream',
+        # Media (1 field)
+        'intro_video',
     ]
     
     completed = 0
@@ -38,6 +44,9 @@ def update_profile_completion(sender, instance, **kwargs):
         if value:
              # Check for empty lists in JSON fields
             if isinstance(value, list) and len(value) == 0:
+                continue
+            # Check for empty strings
+            if isinstance(value, str) and value.strip() == '':
                 continue
             completed += 1
             
