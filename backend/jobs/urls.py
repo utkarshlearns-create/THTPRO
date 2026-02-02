@@ -3,6 +3,7 @@ from .views import (
     # Tutor endpoints
     TutorJobCreateView,
     TutorJobListView,
+    TutorApplicationsView,
     
     # Admin endpoints
     AdminPendingJobsView,
@@ -28,6 +29,7 @@ urlpatterns = [
     # Tutor endpoints
     path('tutor/create/', TutorJobCreateView.as_view(), name='tutor-job-create'),
     path('tutor/my-jobs/', TutorJobListView.as_view(), name='tutor-job-list'),
+    path('tutor/applications/', TutorApplicationsView.as_view(), name='tutor-applications'), # Added tutor applications endpoint
     
     # Admin endpoints
     path('admin/pending/', AdminPendingJobsView.as_view(), name='admin-pending-jobs'),

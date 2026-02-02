@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import JobPost
+from .models import JobPost, Application
 from .admin_models import AdminTask, Notification
 
 
@@ -23,6 +23,34 @@ class TutorJobPostSerializer(serializers.ModelSerializer):
         ]
 
 
+class ApplicationSerializer(serializers.ModelSerializer):
+    """Serializer for tutor job applications"""
+    job_details = serializers.SerializerMethodField()
+    tutor_name = serializers.CharField(source='tutor.full_name', read_only=True)
+    
+    class Meta:
+        model = Application
+        fields = ['id', 'job', 'job_details', 'tutor', 'tutor_name', 'cover_message', 
+                  'status', 'created_at', 'updated_at']
+        read_only_fields = ('tutor', 'created_at', 'updated_at')
+    
+    def get_job_details(self, obj):
+        """Return job details for the application"""
+        job = obj.job
+        return {
+            'id': job.id,
+            'title': f"{'/'.join(job.subjects)} Tutor for {job.class_grade}",
+            'subjects': job.subjects,
+            'class_grade': job.class_grade,
+            'board': job.board,
+            'locality': job.locality,
+            'budget_range': job.budget_range,
+            'hourly_rate': str(job.hourly_rate) if job.hourly_rate else None,
+            'requirements': job.requirements,
+            'status': job.status,
+        }
+
+
 class AdminTaskSerializer(serializers.ModelSerializer):
     admin_username = serializers.CharField(source='admin.username', read_only=True)
     job_details = JobPostSerializer(source='job_post', read_only=True)
@@ -38,13 +66,3 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = '__all__'
         read_only_fields = ('user', 'created_at')
-
-
-class NotificationSerializer(serializers.ModelSerializer):
-    from .admin_models import Notification
-    
-    class Meta:
-        model = Notification
-        fields = '__all__'
-        read_only_fields = ('user', 'created_at')
-        read_only_fields = ['parent', 'status', 'created_at']
