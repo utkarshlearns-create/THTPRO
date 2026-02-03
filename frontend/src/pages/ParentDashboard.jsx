@@ -236,7 +236,10 @@ const ParentDashboard = () => {
                                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Jobs Posted</h1>
                                     <p className="text-slate-500 dark:text-slate-400 text-sm">Manage your active tuition requirements.</p>
                                 </div>
-                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200">
+                                <Button 
+                                    onClick={() => navigate('/parent-home')}
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200"
+                                >
                                     <Briefcase className="mr-2 h-4 w-4" /> Post New Job
                                 </Button>
                              </div>
@@ -350,7 +353,7 @@ const JobsList = () => {
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white">No Jobs Posted Yet</h3>
                 <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto">Post your first tuition requirement to find the best tutors in your locality.</p>
-                <Button className="mt-8 bg-indigo-600 hover:bg-indigo-700">Post Now</Button>
+                <Button onClick={() => window.location.href = '/parent-home'} className="mt-8 bg-indigo-600 hover:bg-indigo-700">Post Now</Button>
              </div>
         );
     }
@@ -476,7 +479,7 @@ const MyProfile = ({ latestJob }) => {
                                 <User size={24} />
                              </div>
                             <p className="text-slate-500 dark:text-slate-400">No student profile active.</p>
-                            <Button className="mt-4" variant="link">Create Profile via Job Post</Button>
+                            <Button className="mt-4" variant="link" onClick={() => window.location.href = '/parent-home'}>Create Profile via Job Post</Button>
                         </div>
                     )}
                 </CardContent>

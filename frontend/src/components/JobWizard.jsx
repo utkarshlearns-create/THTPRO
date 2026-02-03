@@ -90,7 +90,11 @@ const JobWizard = () => {
             if (response.ok) {
                 localStorage.removeItem('pendingJobPost');
                 alert(`Success! ${data.message}\n\nYour job posting is being reviewed by our team. You'll be notified once it's approved.`);
-                navigate('/tutor-home');
+                if (role === 'TEACHER') {
+                    navigate('/tutor-home');
+                } else {
+                    navigate('/dashboard/parent');
+                }
             } else {
                 alert(data.error || "Failed to post job. Please try again.");
             }
