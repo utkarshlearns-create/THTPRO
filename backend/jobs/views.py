@@ -298,12 +298,29 @@ class NotificationListView(generics.ListAPIView):
         return Notification.objects.filter(user=self.request.user).order_by('-created_at')
 
 
-class MarkNotificationReadView(APIView):
-    """Mark a notification as read"""
+        return Response({"message": "Notification marked as read"})
+
+
+class ParentStatsView(APIView):
+    """Get dashboard stats for parent"""
     permission_classes = [permissions.IsAuthenticated]
     
-    def put(self, request, pk):
-        notification = get_object_or_404(Notification, pk=pk, user=request.user)
-        notification.is_read = True
-        notification.save()
-        return Response({"message": "Notification marked as read"})
+    def get(self, request):
+        if request.user.role != 'PARENT':
+             return Response({"error": "Only parents can view stats"}, status=403)
+             
+        # Calculate stats
+        jobs_posted = JobPost.objects.filter(posted_by=request.user).count()
+        applications_received = Application.objects.filter(job__posted_by=request.user).count()
+        
+        # Logic for assigned tutor (e.g. from accepted applications)
+        assigned_tutor = 'None'
+        hire = Application.objects.filter(job__posted_by=request.user, status='HIRED').first()
+        if hire:
+            assigned_tutor = hire.tutor.full_name
+            
+        return Response({
+            "jobs_posted": jobs_posted,
+            "applications_received": applications_received,
+            "assigned_tutor": assigned_tutor
+        })

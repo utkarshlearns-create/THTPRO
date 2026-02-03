@@ -19,6 +19,9 @@ from .views import (
     # Notification endpoints
     NotificationListView,
     MarkNotificationReadView,
+    
+    # Stats endpoints
+    ParentStatsView,
 )
 
 urlpatterns = [
@@ -37,6 +40,7 @@ urlpatterns = [
     
     # Parent endpoints
     path('parent/approved/', ParentJobListView.as_view(), name='parent-approved-jobs'),
+    path('stats/parent/', ParentStatsView.as_view(), name='parent-stats'),
     path('', ParentJobListView.as_view(), name='job-list'), # Also serve at root of jobs/
     path('<int:pk>/', JobDetailView.as_view(), name='job-detail'),
     
