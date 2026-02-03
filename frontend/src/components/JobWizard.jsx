@@ -67,16 +67,16 @@ const JobWizard = () => {
         const token = localStorage.getItem('access');
         const role = localStorage.getItem('role');
 
-        if (!token || role !== 'TEACHER') {
+        if (!token) {
             localStorage.setItem('pendingJobPost', JSON.stringify(formData));
-            alert("Please Login as a Tutor first!");
+            alert("Please Login to post a job opportunity!");
             navigate('/login?redirect=post-job');
             return;
         }
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/jobs/tutor/create/`, {
+            const response = await fetch(`${API_BASE_URL}/api/jobs/create/`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

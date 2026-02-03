@@ -59,6 +59,46 @@ class TutorJobCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class JobCreateView(APIView):
+    """Allow Parents (and Tutors) to create a job opportunity post"""
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        # Allow both Parents and Teachers (Teachers might post for substitutes, Parents for tutors)
+        if request.user.role not in ['PARENT', 'TEACHER', 'ADMIN', 'SUPERADMIN']:
+             return Response({"error": "You must be logged in as a Parent or Tutor to post a job."}, status=403)
+        
+        # Use the same serializer structure for now
+        serializer = TutorJobPostSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                # Create job post with pending status
+                job_post = serializer.save(
+                    posted_by=request.user,
+                    status='PENDING_APPROVAL'
+                )
+                
+                # Auto-assign to admin with load balancing
+                assigned_admin = assign_job_to_admin(job_post)
+                
+                logger.info(f"Job {job_post.id} created by {request.user.role} {request.user.username} and assigned to {assigned_admin.username}")
+                
+                return Response({
+                    "message": "Job posted successfully! It's being reviewed by our team.",
+                    "job_id": job_post.id,
+                    "status": job_post.status,
+                    "assigned_to": assigned_admin.username
+                }, status=status.HTTP_201_CREATED)
+                
+            except Exception as e:
+                logger.error(f"Error creating job post: {str(e)}")
+                if 'job_post' in locals():
+                    job_post.delete()
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class TutorJobListView(generics.ListAPIView):
     """List tutor's own job posts"""
     serializer_class = JobPostSerializer

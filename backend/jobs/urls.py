@@ -2,6 +2,7 @@ from django.urls import path
 from .views import (
     # Tutor endpoints
     TutorJobCreateView,
+    JobCreateView,
     TutorJobListView,
     TutorApplicationsView,
     
@@ -21,6 +22,8 @@ from .views import (
 )
 
 urlpatterns = [
+    # General endpoints
+    path('create/', JobCreateView.as_view(), name='job-create'),
     # Tutor endpoints
     path('tutor/create/', TutorJobCreateView.as_view(), name='tutor-job-create'),
     path('tutor/my-jobs/', TutorJobListView.as_view(), name='tutor-job-list'),
