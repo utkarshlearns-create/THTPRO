@@ -15,31 +15,38 @@ User = get_user_model()
 def assign_job_to_admin(job_post):
     """
     Assigns a job post to the admin with the least workload.
-    Uses load balancing algorithm.
-    Returns the assigned admin User object.
+    Uses AdminProfile for availability and department tracking.
     """
-    from .admin_models import AdminTask
+    from .admin_models import AdminTask, AdminProfile
     
-    # Get all active admins
-    admins = User.objects.filter(role='ADMIN', is_active=True)
+    # Get active PARENT_OPS or SUPERADMIN admins who are available
+    admin_profiles = AdminProfile.objects.filter(
+        Q(department='PARENT_OPS') | Q(department='SUPERADMIN'),
+        is_available=True,
+        user__is_active=True
+    ).order_by('pending_job_count')
     
-    if not admins.exists():
-        logger.error("No active admins available for job assignment")
-        raise Exception("No active admins available")
+    if not admin_profiles.exists():
+        # Fallback to any active admin if no specific ops are available
+        logger.warning("No PARENT_OPS admins available. Falling back to any admin.")
+        admins = User.objects.filter(role='ADMIN', is_active=True)
+        if not admins.exists():
+            logger.error("No active admins available for job assignment")
+            raise Exception("No active admins available")
+        assigned_admin = random.choice(admins)
+    else:
+        # Pick the one with least job count
+        # (Already sorted by pending_job_count asc)
+        min_count = admin_profiles.first().pending_job_count
+        candidates = admin_profiles.filter(pending_job_count=min_count)
+        chosen_profile = random.choice(candidates)
+        assigned_admin = chosen_profile.user
+        
+        # Increment counter
+        chosen_profile.pending_job_count += 1
+        chosen_profile.save()
     
-    # Count pending tasks for each admin
-    admin_workload = admins.annotate(
-        pending_count=Count('admin_tasks', filter=Q(admin_tasks__status='PENDING'))
-    ).order_by('pending_count')
-    
-    # Get admins with minimum workload
-    min_workload = admin_workload.first().pending_count
-    least_loaded_admins = [a for a in admin_workload if a.pending_count == min_workload]
-    
-    # If multiple admins have same workload, pick randomly (round-robin alternative)
-    assigned_admin = random.choice(least_loaded_admins)
-    
-    logger.info(f"Assigning job {job_post.id} to admin {assigned_admin.username} (workload: {min_workload})")
+    logger.info(f"Assigning job {job_post.id} to admin {assigned_admin.username}")
     
     # Update job post
     job_post.assigned_admin = assigned_admin
@@ -95,38 +102,37 @@ def send_notification(user, title, message, notification_type, related_job=None,
 def assign_kyc_to_admin(kyc_record):
     """
     Assign KYC verification to admin with least total workload.
-    Uses same load balancing algorithm as job assignments.
-    Considers BOTH job approvals AND KYC verifications.
-    
-    Args:
-        kyc_record: TutorKYC instance to assign
-    
-    Returns:
-        User: Assigned admin
+    Uses AdminProfile for availability and department tracking.
     """
-    from .admin_models import AdminTask
+    from .admin_models import AdminTask, AdminProfile
     from users.models import TutorKYC
     
-    # Get all active admins
-    admins = User.objects.filter(role='ADMIN', is_active=True)
+    # Get active TUTOR_OPS or SUPERADMIN admins
+    admin_profiles = AdminProfile.objects.filter(
+        Q(department='TUTOR_OPS') | Q(department='SUPERADMIN'),
+        is_available=True,
+        user__is_active=True
+    ).order_by('pending_kyc_count')
     
-    if not admins.exists():
-        logger.error("No active admins available for KYC assignment")
-        raise Exception("No active admins available")
+    if not admin_profiles.exists():
+        logger.warning("No TUTOR_OPS admins available. Falling back to any admin.")
+        admins = User.objects.filter(role='ADMIN', is_active=True)
+        if not admins.exists():
+             logger.error("No active admins available for KYC assignment")
+             raise Exception("No active admins available")
+        assigned_admin = random.choice(admins)
+    else:
+        # Pick least loaded
+        min_count = admin_profiles.first().pending_kyc_count
+        candidates = admin_profiles.filter(pending_kyc_count=min_count)
+        chosen_profile = random.choice(candidates)
+        assigned_admin = chosen_profile.user
+        
+        # Increment counter
+        chosen_profile.pending_kyc_count += 1
+        chosen_profile.save()
     
-    # Count TOTAL pending tasks (job approvals + KYC verifications)
-    admin_workload = admins.annotate(
-        pending_count=Count('admin_tasks', filter=Q(admin_tasks__status='PENDING'))
-    ).order_by('pending_count')
-    
-    # Get admins with minimum workload
-    min_workload = admin_workload.first().pending_count
-    least_loaded_admins = [a for a in admin_workload if a.pending_count == min_workload]
-    
-    # Random selection among least loaded
-    assigned_admin = random.choice(least_loaded_admins)
-    
-    logger.info(f"Assigning KYC {kyc_record.id} to admin {assigned_admin.username} (workload: {min_workload})")
+    logger.info(f"Assigning KYC {kyc_record.id} to admin {assigned_admin.username}")
     
     # Update KYC record
     kyc_record.assigned_admin = assigned_admin

@@ -15,6 +15,8 @@ from .views import (
     # Parent endpoints
     ParentJobListView,
     JobDetailView,
+    JobApplicationCreateView,
+    JobApplicantsView,
     
     # Notification endpoints
     NotificationListView,
@@ -43,6 +45,10 @@ urlpatterns = [
     path('stats/parent/', ParentStatsView.as_view(), name='parent-stats'),
     path('', ParentJobListView.as_view(), name='job-list'), # Also serve at root of jobs/
     path('<int:pk>/', JobDetailView.as_view(), name='job-detail'),
+    
+    # Job interactions
+    path('<int:pk>/apply/', JobApplicationCreateView.as_view(), name='job-apply'),
+    path('<int:pk>/applicants/', JobApplicantsView.as_view(), name='job-applicants'),
     
     # Notification endpoints
     path('notifications/', NotificationListView.as_view(), name='user-notifications'),

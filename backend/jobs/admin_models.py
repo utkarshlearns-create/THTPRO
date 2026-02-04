@@ -4,6 +4,28 @@ from django.utils import timezone
 
 User = get_user_model()
 
+class AdminProfile(models.Model):
+    """Profile for admins to track workload and department"""
+    DEPARTMENT_CHOICES = (
+        ('PARENT_OPS', 'Parent Operations'), # Handles Job Approvals
+        ('TUTOR_OPS', 'Tutor Operations'),   # Handles KYC
+        ('SUPERADMIN', 'Super Admin'),       # Access to all
+    )
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin_profile')
+    department = models.CharField(max_length=20, choices=DEPARTMENT_CHOICES, default='SUPERADMIN')
+    
+    # Workload counters
+    pending_job_count = models.PositiveIntegerField(default=0)
+    pending_kyc_count = models.PositiveIntegerField(default=0)
+    
+    is_available = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.get_department_display()}"
+
+
 class AdminTask(models.Model):
     """Tracks tasks assigned to admins"""
     TASK_TYPE_CHOICES = (

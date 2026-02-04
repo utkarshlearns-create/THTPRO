@@ -13,6 +13,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['role'] = user.role
         token['phone'] = user.phone
         token['username'] = user.username
+        
+        # Add department if admin
+        if hasattr(user, 'admin_profile'):
+            token['department'] = user.admin_profile.department
+        else:
+            token['department'] = None
 
         return token
 
@@ -22,6 +28,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['role'] = self.user.role
         data['username'] = self.user.username
         data['phone'] = self.user.phone
+        
+        if hasattr(self.user, 'admin_profile'):
+             data['department'] = self.user.admin_profile.department
+        else:
+             data['department'] = None
+             
         return data
 
 

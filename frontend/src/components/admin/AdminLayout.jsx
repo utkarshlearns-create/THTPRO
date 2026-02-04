@@ -3,7 +3,7 @@ import { Menu, X } from 'lucide-react';
 import AdminSidebar from './AdminSidebar';
 import { cn } from '../../lib/utils'; // Assuming cn exists
 
-export default function AdminLayout({ children, activeView, setActiveView }) {
+export default function AdminLayout({ children, activeView, setActiveView, mode }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
     return (
@@ -25,6 +25,7 @@ export default function AdminLayout({ children, activeView, setActiveView }) {
                 }}
                 isOpen={sidebarOpen}
                 toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                mode={mode} // Pass mode
             />
 
             {/* Overlay for mobile sidebar */}
