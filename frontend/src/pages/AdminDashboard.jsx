@@ -23,8 +23,15 @@ const PlaceholderView = ({ title, description }) => (
     </div>
 );
 
-const AdminDashboard = () => {
-    const [activeView, setActiveView] = useState('home');
+const AdminDashboard = ({ mode }) => { // Accept mode prop
+    // Determine default view based on mode
+    const getDefaultView = () => {
+        if (mode === 'parent') return 'jobs-final-leads';
+        if (mode === 'tutor') return 'approve-tutor-list';
+        return 'home';
+    }
+    
+    const [activeView, setActiveView] = useState(getDefaultView());
 
     const renderContent = () => {
         // Dashboard
@@ -67,7 +74,7 @@ const AdminDashboard = () => {
     };
 
     return (
-        <AdminLayout activeView={activeView} setActiveView={setActiveView}>
+        <AdminLayout activeView={activeView} setActiveView={setActiveView} mode={mode}>
             {renderContent()}
         </AdminLayout>
     );

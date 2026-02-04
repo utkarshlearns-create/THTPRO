@@ -13,6 +13,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import ParentHome from './pages/ParentHome';
 import TutorHome from './pages/TutorHome';
 import TutorDashboard from './pages/TutorDashboard';
+import JobSearch from './pages/JobSearch';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import SuperAdminLayout from './layouts/SuperAdminLayout';
@@ -46,7 +47,9 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/about" element={<About />} />
+              <Route path="/about" element={<About />} />
               <Route path="/admin-login" element={<AdminLogin />} />
+              <Route path="/find-jobs" element={<JobSearch />} />
 
               {/* Protected Standard Routes */}
               <Route path="/parent-home" element={
@@ -61,7 +64,9 @@ function App() {
               } />
 
               <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-                <Route path="/dashboard/admin" element={<AdminDashboard />} />
+                <Route path="/dashboard/admin/parent" element={<AdminDashboard mode="parent" />} />
+                <Route path="/dashboard/admin/tutor" element={<AdminDashboard mode="tutor" />} />
+                <Route path="/dashboard/admin" element={<AdminDashboard />} /> {/* Default/Combined View */}
               </Route>
               
               <Route element={<ProtectedRoute allowedRoles={['TEACHER']} />}>

@@ -27,15 +27,26 @@ const AdminLogin = () => {
 
             if (response.ok) {
                 const decoded = jwtDecode(data.access);
-                if (decoded.role !== 'ADMIN') {
+                if (decoded.role !== 'ADMIN' && decoded.role !== 'SUPERADMIN') {
                     setError('Access Denied: You do not have admin privileges.');
                     return;
                 }
 
                 localStorage.setItem('access', data.access);
                 localStorage.setItem('refresh', data.refresh);
+                localStorage.setItem('role', decoded.role); // Store role
+                
+                // Determine redirect based on department
+                const department = data.department;
+                if (department === 'PARENT_OPS') {
+                    navigate('/dashboard/admin/parent');
+                } else if (department === 'TUTOR_OPS') {
+                    navigate('/dashboard/admin/tutor');
+                } else {
+                    navigate('/dashboard/admin');
+                }
+                
                 console.log('Admin login successful, redirecting...');
-                navigate('/dashboard/admin');
             } else {
                 setError(data.detail || 'Invalid credentials');
             }

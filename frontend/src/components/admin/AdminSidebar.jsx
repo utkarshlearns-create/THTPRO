@@ -22,8 +22,12 @@ const MENU_ITEMS = [
         icon: LayoutDashboard,
         id: 'home'
     },
+    // PARENT MANAGEMENT
     {
-        label: 'Post Jobs',
+        header: 'PARENT MANAGEMENT',
+    },
+    {
+        label: 'Post Jobs (Approvals)',
         icon: Briefcase,
         id: 'jobs',
         subItems: [
@@ -34,50 +38,58 @@ const MENU_ITEMS = [
         ]
     },
     {
-        label: 'Notification',
-        icon: Bell,
-        id: 'notifications',
-        subItems: [
-            { label: 'Notification Master', id: 'notifications-master' }
-        ]
-    },
-    {
-        label: 'Parent Package',
+        label: 'Parent Packages',
         icon: Users,
         id: 'parent-package',
         subItems: [
             { label: 'Package Master', id: 'parent-package-master' },
-            { label: 'Pending Purchase List', id: 'parent-pending-purchase' },
-            { label: 'Approved Purchase List', id: 'parent-approved-purchase' },
-            { label: 'Rejected Purchase List', id: 'parent-rejected-purchase' },
+            { label: 'Pending Purchase', id: 'parent-pending-purchase' },
+            { label: 'Approved Purchase', id: 'parent-approved-purchase' },
+            { label: 'Rejected Purchase', id: 'parent-rejected-purchase' },
+        ]
+    },
+    // TUTOR MANAGEMENT
+    {
+        header: 'TUTOR MANAGEMENT',
+    },
+    {
+        label: 'Approve Tutor (KYC)',
+        icon: UserCheck,
+        id: 'approve-tutor',
+        subItems: [
+            { label: 'Pending Verification', id: 'approve-tutor-list' }
         ]
     },
     {
-        label: 'Tutor Package',
+        label: 'Tutor Applications',
+        icon: MousePointer2,
+        id: 'select-tutor',
+        subItems: [
+            { label: 'Applications List', id: 'select-tutor-apply-job' },
+            { label: 'Assigned Jobs', id: 'select-tutor-assigned' }
+        ]
+    },
+    {
+        label: 'Tutor Packages',
         icon: GraduationCap,
         id: 'tutor-package',
         subItems: [
             { label: 'Package Master', id: 'tutor-package-master' },
-            { label: 'Pending Purchase List', id: 'tutor-pending-purchase' },
-            { label: 'Approved Purchase List', id: 'tutor-approved-purchase' },
-            { label: 'Rejected Purchase List', id: 'tutor-rejected-purchase' },
+            { label: 'Pending Purchase', id: 'tutor-pending-purchase' },
+            { label: 'Approved Purchase', id: 'tutor-approved-purchase' },
+            { label: 'Rejected Purchase', id: 'tutor-rejected-purchase' },
         ]
     },
+    // GENERAL
     {
-        label: 'Approve Tutor',
-        icon: UserCheck,
-        id: 'approve-tutor',
-        subItems: [
-            { label: 'Approve Tutor', id: 'approve-tutor-list' }
-        ]
+        header: 'GENERAL',
     },
     {
-        label: 'Select Tutor',
-        icon: MousePointer2,
-        id: 'select-tutor',
+        label: 'Notifications',
+        icon: Bell,
+        id: 'notifications',
         subItems: [
-            { label: 'Apply Job List', id: 'select-tutor-apply-job' },
-            { label: 'Assigned Jobs', id: 'select-tutor-assigned' }
+            { label: 'Notification Master', id: 'notifications-master' }
         ]
     },
     {
@@ -87,7 +99,7 @@ const MENU_ITEMS = [
         subItems: [
             { label: 'Enquiry List', id: 'reports-enquiry' },
             { label: 'Unlocked Job List', id: 'reports-unlocked-jobs' },
-            { label: 'Parent View Tutor History', id: 'reports-parent-view-history' }
+            { label: 'Parent View History', id: 'reports-parent-view-history' }
         ]
     }
 ];
@@ -152,7 +164,30 @@ const NavItem = ({ item, activeView, setActiveView, isOpen }) => {
     );
 };
 
-export default function AdminSidebar({ activeView, setActiveView, isOpen, toggleSidebar }) {
+export default function AdminSidebar({ activeView, setActiveView, isOpen, toggleSidebar, mode }) {
+    // Filter items based on mode
+    const filteredItems = MENU_ITEMS.filter(item => {
+        if (!mode) return true; // Show all if no mode specified
+
+        // Common items
+        if (['home', 'notifications', 'reports'].includes(item.id)) return true;
+        
+        // Header handling - tricky because headers have no ID.
+        // Simplified approach: If header is "PARENT MANAGEMENT" and mode is 'tutor', hide.
+        if (item.header === 'PARENT MANAGEMENT' && mode === 'tutor') return false;
+        if (item.header === 'TUTOR MANAGEMENT' && mode === 'parent') return false;
+        if (item.header === 'GENERAL') return true;
+
+        // Specific section handling
+        if (mode === 'parent') {
+            return ['jobs', 'parent-package'].includes(item.id) || item.header === 'PARENT MANAGEMENT' || item.header === 'GENERAL';
+        }
+        if (mode === 'tutor') {
+            return ['approve-tutor', 'select-tutor', 'tutor-package'].includes(item.id) || item.header === 'TUTOR MANAGEMENT' || item.header === 'GENERAL';
+        }
+        return true;
+    });
+
     return (
         <aside
             className={cn(
@@ -184,19 +219,27 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
             <div className="flex-1 overflow-y-auto py-6 px-3 custom-scrollbar overflow-x-hidden">
                 {isOpen && (
                     <div className="px-3 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        Main Navigation
+                        {mode ? `${mode} Admin` : 'Main Navigation'}
                     </div>
                 )}
                 
                 <div className="space-y-1">
-                    {MENU_ITEMS.map((item) => (
-                         <NavItem 
-                            key={item.id}
-                            item={item}
-                            activeView={activeView}
-                            setActiveView={setActiveView}
-                            isOpen={isOpen}
-                        />
+                    {filteredItems.map((item, index) => (
+                        item.header ? (
+                            isOpen && (
+                                <div key={index} className="px-3 mt-4 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                    {item.header}
+                                </div>
+                            )
+                        ) : (
+                             <NavItem 
+                                key={item.id}
+                                item={item}
+                                activeView={activeView}
+                                setActiveView={setActiveView}
+                                isOpen={isOpen}
+                            />
+                        )
                     ))}
                 </div>
             </div>

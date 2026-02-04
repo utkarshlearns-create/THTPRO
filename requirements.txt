@@ -1,0 +1,631 @@
+THTPRO Platform
+Requirements & Workflow Specification
+A Smart Tutor-Parent Matching Platform
+
+Table of Contents
+ 1. Executive Summary
+ 2. Platform Overview
+ 3. Current Implementation Status
+ 4. Core Workflow Requirements
+ 4.1 Job Posting Workflow
+ 4.2 Tutor Onboarding & KYC Workflow
+ 4.3 Admin Assignment Logic
+ 5. Detailed Feature Specifications
+ 5.1 Job Posting Flow
+ 5.2 Tutor KYC & Profile Approval
+ 5.3 Admin Dashboard
+ 5.4 Job Matching & Assignment
+ 6. Database Schema Requirements
+ 7. API Endpoints Specification
+ 8. Admin Load Balancing Algorithm
+ 9. Additional Features Required
+ 10. Technical Considerations
+ 11. Success Metrics & KPIs
+
+1. Executive Summary
+THTPRO is a tutor-parent matching platform that connects qualified tutors with parents seeking
+educational services. The platform operates on a moderated marketplace model where all job postings
+and tutor profiles are verified by administrators before going live.
+Key Business Model:
+ Parents post teaching requirements (jobs)
+ Admins verify and approve job postings
+ Tutors undergo KYC verification and profile approval
+ Approved tutors can explore and apply for approved jobs
+ Platform takes a commission on successful hirings
+Critical Workflow Requirements:
+ Intelligent load distribution among multiple admins
+ Two-stage verification: Job approval + Tutor approval
+ Automated admin assignment based on workload
+ Real-time status tracking for all submissions
+
+2. Platform Overview
+User Roles:
+Platform Flow:
+The platform follows a moderated marketplace approach where quality control is maintained through
+admin verification at two critical points: when jobs are posted and when tutors join the platform.
+
+3. Current Implementation Status
+Completed Features:
+ Google OAuth authentication integration
+ Role-based login system (Parent, Tutor, Admin, Superadmin)
+ Secret routes for admin and superadmin access
+ Separate dashboards for each role
+ PostgreSQL database on Render
+ React frontend deployed on Vercel
+ Django backend infrastructure
+Pending Features (To Be Implemented):
+ OTP-based phone authentication
+ Job posting workflow with admin approval
+ Tutor KYC and profile verification workflow
+ Automated admin assignment algorithm
+ Payment gateway integration (Razorpay/Stripe)
+ Commission calculation and distribution system
+ Messaging system between parents and tutors
+ Review and rating system
+ Notification system (Email/SMS/Push)
+
+4. Core Workflow Requirements
+4.1 Job Posting Workflow
+Flow Diagram:
+ 1. Parent creates job posting with requirements
+ 2. System automatically assigns job to an available admin
+ 3. Admin receives notification of new job assignment
+ 4. Admin reviews job details and requirements
+ 5. Admin approves or rejects with feedback
+ 6. If approved: Job goes live and becomes visible to verified tutors
+ 7. If rejected: Parent receives feedback and can resubmit
+ 8. Tutors can browse and apply for approved jobs
+Job Posting Requirements:
+ Subject/Topic required
+ Grade/Class level
+ Preferred teaching mode (Online/Offline/Hybrid)
+ Location (if offline)
+ Session frequency (e.g., 3 times per week)
+ Session duration
+ Budget range
+ Start date
+ Additional requirements or notes
+4.2 Tutor Onboarding & KYC Workflow
+Flow Diagram:
+ 1. Tutor registers on platform (Google OAuth or OTP)
+ 2. Tutor completes profile information
+ 3. Tutor uploads KYC documents (ID proof, certificates, photo)
+ 4. System automatically assigns KYC request to an available admin
+ 5. Admin receives notification of new tutor verification request
+ 6. Admin reviews documents and profile information
+ 7. Admin verifies authenticity of certificates and credentials
+ 8. Admin approves or rejects with detailed feedback
+
+ 9. If approved: Tutor account is activated and can browse jobs
+ 10. If rejected: Tutor receives feedback and can resubmit documents
+KYC Document Requirements:
+ Government-issued ID proof (Aadhaar/PAN/Passport/Driver's License)
+ Educational certificates (Highest qualification)
+ Teaching certifications (if any)
+ Professional photo
+ Experience certificates (optional)
+ Background verification consent
+4.3 Admin Assignment Logic (Critical Requirement)
+This is a CORE feature that ensures fair distribution of work among admins and prevents bottlenecks in
+the approval process.
+Assignment Algorithm Requirements:
+The system must implement an intelligent load-balancing algorithm that:
+ Tracks the number of pending reviews assigned to each admin in real-time
+ Automatically assigns new job postings to the admin with the LEAST pending workload
+ Automatically assigns new tutor KYC requests to the admin with the LEAST pending workload
+ Maintains separate queues for job approvals and tutor approvals
+ Updates admin workload count immediately when items are approved/rejected
+ Handles concurrent submissions without duplicate assignments
+ Provides a dashboard showing current workload distribution
+ Allows superadmin to manually reassign if needed
+Example Scenario:
+Initial State:
+When a new job posting arrives:
+ System assigns to Admin B (has least pending jobs: 2)
+When a new tutor KYC request arrives:
+ System assigns to Admin C (has least pending KYC: 2)
+
+5. Detailed Feature Specifications
+5.1 Job Posting Flow - Detailed Breakdown
+Parent Side:
+ Navigate to "Post a Job" section
+ Fill out job requirements form with all mandatory fields
+ Review and submit the job posting
+ Receive confirmation: "Your job posting is under review"
+ Track status in "My Job Postings" dashboard
+ Receive notification when admin approves/rejects
+ If rejected: View admin feedback and edit/resubmit
+ If approved: Job goes live and parent can view tutor applications
+Admin Side:
+ Receive notification: "New job posting assigned to you"
+ Access job review queue in admin dashboard
+ Review job details: subject, requirements, budget, location
+ Check for policy violations or inappropriate content
+ Verify budget is within reasonable range
+ Decision options:
+ APPROVE: Job becomes visible to all verified tutors
+ REJECT: Provide detailed feedback reason
+ REQUEST MODIFICATION: Ask parent to clarify or modify
+Status States for Job Postings:
+ PENDING_REVIEW - Waiting for admin assignment and review
+ UNDER_REVIEW - Admin is currently reviewing
+ APPROVED - Live and visible to tutors
+ REJECTED - Not approved, parent can resubmit
+ MODIFICATION_REQUESTED - Needs changes from parent
+ ACTIVE - Approved and receiving applications
+ FILLED - Parent has hired a tutor
+ CLOSED - Parent closed the posting
+ EXPIRED - Time limit exceeded
+
+5.2 Tutor KYC & Profile Approval - Detailed Breakdown
+Tutor Side:
+ Register using Google OAuth or OTP
+ Complete profile information:
+ Personal details (name, email, phone)
+ Subjects they can teach
+ Qualifications and education
+ Years of experience
+ Teaching mode preference
+ Hourly rate expectations
+ Availability schedule
+ Brief bio/introduction
+ Upload KYC documents
+ Submit for verification
+ Receive confirmation: "Your profile is under review"
+ Track status in tutor dashboard
+ Receive notification when approved/rejected
+ If approved: Can browse and apply for jobs
+ If rejected: View feedback and resubmit
+Admin Side:
+ Receive notification: "New tutor verification request assigned"
+ Access tutor verification queue
+ Review profile completeness and accuracy
+ Verify uploaded documents:
+ Check ID proof authenticity
+ Verify educational certificates
+ Cross-check experience claims if possible
+ Review profile photo professionalism
+ Ensure teaching subjects match qualifications
+ Decision options:
+ APPROVE: Tutor account activated, can browse jobs
+ REJECT: Provide specific reason for rejection
+ REQUEST ADDITIONAL DOCUMENTS: Ask for more proof
+Status States for Tutor Profiles:
+
+ INCOMPLETE - Profile not yet submitted
+ PENDING_REVIEW - Waiting for admin assignment
+ UNDER_REVIEW - Admin is verifying
+ APPROVED - Verified and can browse jobs
+ REJECTED - Not approved, can resubmit
+ DOCUMENTS_REQUESTED - Admin needs more documents
+ SUSPENDED - Account temporarily disabled
+ BANNED - Permanently removed from platform
+5.3 Admin Dashboard Requirements
+The admin dashboard must display:
+Overview Statistics:
+ Total pending job postings assigned to this admin
+ Total pending tutor verifications assigned to this admin
+ Number of approvals today
+ Number of rejections today
+ Average review time
+Job Posting Queue:
+ List of all pending job postings
+ Sortable by submission date, subject, budget
+ Filter by status, date range
+ Quick actions: View Details, Approve, Reject
+Tutor Verification Queue:
+ List of all pending tutor KYC requests
+ Sortable by submission date, subject expertise
+ Filter by status, date range
+ Quick actions: View Profile, View Documents, Approve, Reject
+Recently Reviewed:
+ History of recently approved/rejected items
+ Ability to undo accidental actions within time window
+Notifications:
+ Real-time alerts for new assignments
+ Reminders for items pending >24 hours
+
+ System announcements from superadmin
+5.4 Job Matching & Application Flow
+After jobs are approved and tutors are verified:
+Tutor Job Search:
+ Browse all approved job postings
+ Filter by:
+ Subject
+ Grade level
+ Teaching mode (Online/Offline)
+ Location (for offline)
+ Budget range
+ Session frequency
+ Sort by:
+ Newest first
+ Budget (high to low)
+ Proximity (for offline jobs)
+ View full job details
+ Apply to jobs with personalized message
+ Track application status
+Parent Application Review:
+ Receive notifications when tutors apply
+ View tutor profiles and ratings
+ Review tutor qualifications and experience
+ Read tutor application message
+ Shortlist interesting candidates
+ Initiate chat/interview with shortlisted tutors
+ Select and hire preferred tutor
+ Trigger payment and onboarding process
+
+6. Database Schema Requirements
+Below are the core database models required to implement the workflows described above.
+User Model (Extended):
+ id (Primary Key)
+ email (Unique)
+ phone_number (Unique, for OTP)
+ full_name
+ role (Parent, Tutor, Admin, Superadmin)
+ google_id (for OAuth)
+ is_verified (Email/Phone verified)
+ is_active
+ created_at
+ last_login
+Admin Profile Model:
+ id (Primary Key)
+ user (Foreign Key to User)
+ admin_type (Admin, Superadmin)
+ pending_job_count (Integer, default 0)
+ pending_kyc_count (Integer, default 0)
+ total_jobs_reviewed (Integer)
+ total_tutors_reviewed (Integer)
+ is_available (Boolean)
+ created_at
+Job Posting Model:
+ id (Primary Key)
+ parent (Foreign Key to User)
+ subject
+ grade_level
+ teaching_mode (Online/Offline/Hybrid)
+
+ location (if offline)
+ session_frequency
+ session_duration
+ budget_min
+ budget_max
+ start_date
+ description
+ requirements
+ status (PENDING_REVIEW, APPROVED, REJECTED, etc.)
+ assigned_admin (Foreign Key to Admin, NULL if unassigned)
+ admin_feedback (Text, for rejection reasons)
+ submitted_at
+ reviewed_at
+ approved_at
+ is_active
+Tutor Profile Model:
+ id (Primary Key)
+ user (Foreign Key to User)
+ subjects (JSONField or Many-to-Many)
+ qualifications
+ years_of_experience
+ teaching_modes (Online/Offline/Both)
+ hourly_rate_min
+ hourly_rate_max
+ bio
+ profile_photo (URL)
+ availability_schedule (JSONField)
+ verification_status (PENDING, APPROVED, REJECTED, etc.)
+ assigned_admin (Foreign Key to Admin)
+ admin_feedback
+ submitted_at
+ verified_at
+ average_rating
+ total_sessions_completed
+
+KYC Document Model:
+ id (Primary Key)
+ tutor_profile (Foreign Key)
+ document_type (ID_PROOF, EDUCATION_CERT, PHOTO, etc.)
+ file_url
+ uploaded_at
+ is_verified (Boolean)
+ verified_by (Foreign Key to Admin)
+ verified_at
+Job Application Model:
+ id (Primary Key)
+ job (Foreign Key to Job Posting)
+ tutor (Foreign Key to User)
+ application_message
+ status (APPLIED, SHORTLISTED, ACCEPTED, REJECTED)
+ applied_at
+ parent_response
+
+7. API Endpoints Specification
+Job Posting Endpoints:
+POST /api/jobs/create
+ Description: Parent creates a new job posting
+ Request: Job details (subject, grade, budget, etc.)
+ Response: Job ID, status (PENDING_REVIEW)
+ Logic: Auto-assign to admin with least pending jobs
+GET /api/jobs/my-postings
+ Description: Parent views their posted jobs
+ Response: List of all jobs with current status
+GET /api/admin/jobs/pending
+ Description: Admin views assigned job postings
+ Response: List of jobs pending admin review
+PUT /api/admin/jobs/{id}/approve
+ Description: Admin approves a job posting
+ Request: Optional notes
+ Response: Success message
+ Logic: Update job status, decrement admin pending count
+PUT /api/admin/jobs/{id}/reject
+ Description: Admin rejects a job posting
+ Request: Rejection reason (required)
+ Response: Success message
+ Logic: Update job status, send feedback to parent, decrement admin pending count
+GET /api/tutors/jobs/browse
+ Description: Verified tutors browse approved jobs
+ Query Params: subject, grade, mode, location, budget range
+ Response: Filtered list of approved jobs
+Tutor KYC & Verification Endpoints:
+POST /api/tutors/profile/create
+ Description: Tutor creates/updates profile
+ Request: Profile details + document uploads
+
+ Response: Profile ID, status (PENDING_REVIEW)
+ Logic: Auto-assign to admin with least pending KYC
+GET /api/tutors/profile/status
+ Description: Tutor checks verification status
+ Response: Current status and admin feedback if any
+GET /api/admin/tutors/pending
+ Description: Admin views assigned tutor verifications
+ Response: List of tutors pending verification
+PUT /api/admin/tutors/{id}/approve
+ Description: Admin approves a tutor profile
+ Response: Success message
+ Logic: Update tutor status to APPROVED, decrement admin pending count
+PUT /api/admin/tutors/{id}/reject
+ Description: Admin rejects a tutor profile
+ Request: Rejection reason (required)
+ Response: Success message
+ Logic: Update status, send feedback, decrement admin pending count
+POST /api/tutors/{id}/request-documents
+ Description: Admin requests additional documents
+ Request: List of required documents
+ Response: Success message
+Admin Dashboard Endpoints:
+GET /api/admin/dashboard/stats
+ Description: Get admin workload statistics
+ Response: Pending jobs count, pending KYC count, today's review count
+GET /api/admin/dashboard/queue
+ Description: Get combined review queue
+ Response: Both job postings and tutor KYC in single feed
+GET /api/superadmin/admins/workload
+ Description: Superadmin views all admins' workload
+ Response: List of admins with pending counts
+
+8. Admin Load Balancing Algorithm
+This is a critical component that must be implemented correctly to ensure fair distribution of work and
+prevent admin burnout.
+Algorithm Pseudocode:
+For Job Posting Assignment:
+ Get all active admins from database Filter admins where is_available = True Sort admins by
+pending_job_count ASC Select admin with lowest pending_job_count Assign job to selected admin
+Increment admin.pending_job_count by 1 Send notification to admin Update job status to
+UNDER_REVIEW
+For Tutor KYC Assignment:
+ Get all active admins from database Filter admins where is_available = True Sort admins by
+pending_kyc_count ASC Select admin with lowest pending_kyc_count Assign KYC to selected
+admin Increment admin.pending_kyc_count by 1 Send notification to admin Update tutor status to
+UNDER_REVIEW
+Important Considerations:
+ Use database transactions to prevent race conditions
+ Implement row-level locking when assigning to prevent duplicate assignments
+ Update pending counts atomically (decrement when approved/rejected)
+ Handle edge cases: What if all admins are unavailable?
+ Implement a fallback queue if no admins are available
+ Log all assignment decisions for audit trail
+ Allow superadmin to manually reassign if needed
+ Consider implementing a round-robin approach as alternative
+ Monitor for admins who consistently have higher pending counts (may indicate performance
+issues)
+
+9. Additional Features Required
+9.1 OTP Authentication
+Implementation Requirements:
+ User enters phone number
+ System generates 6-digit OTP
+ Send OTP via SMS (use Twilio/MSG91)
+ OTP valid for 5 minutes
+ Maximum 3 attempts allowed
+ Rate limiting: Max 3 OTPs per phone per hour
+ Store OTP hash in database, not plain text
+ After successful verification, create/login user
+9.2 Payment Integration
+Payment Flow:
+ Parent hires tutor after interview
+ Parent initiates payment for agreed sessions
+ Payment gateway (Razorpay/Stripe) processes payment
+ Platform holds payment in escrow
+ After session completion, both parties confirm
+ Payment released to tutor minus platform commission
+ Commission percentage configured by superadmin
+ Generate invoice for parent and payment receipt for tutor
+ Maintain transaction history
+9.3 Messaging System
+ Real-time chat between parent and shortlisted tutors
+ Message history persistence
+ File sharing capability (for sharing study materials)
+ Read receipts
+ Online/offline status indicators
+ Push notifications for new messages
+ Message encryption for privacy
+
+9.4 Review & Rating System
+ Parents can rate tutors after session completion
+ Rating scale: 1-5 stars
+ Written review (optional but encouraged)
+ Reviews visible on tutor profiles
+ Average rating calculated and displayed prominently
+ Tutors can respond to reviews
+ Flag/report inappropriate reviews
+ Reviews cannot be edited after 24 hours
+9.5 Notification System
+Email Notifications:
+ Welcome email on registration
+ Job posting submitted/approved/rejected
+ Tutor profile submitted/approved/rejected
+ New tutor application received
+ Payment successful
+ Session reminders
+SMS Notifications:
+ OTP codes
+ Booking confirmations
+ Payment alerts
+In-App Notifications:
+ New messages
+ Application status updates
+ Admin assignment alerts
+ Review received
+
+10. Technical Considerations
+10.1 Security Requirements
+ Implement JWT authentication with refresh tokens
+ Use HTTPS for all API communications
+ Encrypt sensitive data in database (payment info, documents)
+ Implement CORS properly for React frontend
+ Add rate limiting to prevent API abuse
+ Sanitize all user inputs to prevent SQL injection
+ Implement CSRF protection
+ Use secure file upload with virus scanning
+ Limit file sizes (max 5MB per document)
+ Store uploaded files in S3/Cloudinary, not local filesystem
+ Implement role-based access control (RBAC)
+ Log all admin actions for audit trail
+ Implement two-factor authentication for admin accounts
+10.2 Performance Optimization
+Database Indexing:
+ Index on job_posting.status
+ Index on tutor_profile.verification_status
+ Index on admin_profile.pending_job_count
+ Index on admin_profile.pending_kyc_count
+ Composite index on (subject, grade_level) for job search
+Caching Strategy:
+ Cache approved job listings (Redis)
+ Cache tutor search results
+ Invalidate cache when jobs are approved/rejected
+Query Optimization:
+ Use select_related() for foreign key queries
+ Paginate all list views (max 20 items per page)
+ Implement lazy loading for images
+
+Background Tasks:
+ Use Celery for sending emails
+ Use Celery for SMS notifications
+ Process payment webhooks asynchronously
+ Generate analytics reports in background
+10.3 Scalability Considerations
+ Use PostgreSQL connection pooling
+ Implement CDN for static assets (images, CSS, JS)
+ Consider Redis for session management
+ Horizontal scaling: Prepare for multiple Django instances
+ Use message queues (RabbitMQ/Redis) for inter-service communication
+ Monitor database query performance regularly
+ Set up proper logging and monitoring (Sentry, New Relic)
+ Implement database replication for read-heavy operations
+
+11. Success Metrics & KPIs
+Track these metrics to measure platform success and identify areas for improvement:
+Admin Efficiency Metrics:
+ Average job approval time (target: < 2 hours)
+ Average tutor verification time (target: < 24 hours)
+ Admin workload balance (standard deviation of pending counts)
+ Rejection rate for jobs (high rate may indicate unclear guidelines)
+ Rejection rate for tutors (high rate may indicate poor marketing)
+ Number of reviews per admin per day
+Platform Health Metrics:
+ Total active jobs
+ Total verified tutors
+ Job-to-tutor ratio (should be balanced)
+ Application rate (applications per job)
+ Hiring success rate (% of jobs that get filled)
+ Average time to hire
+ User retention rate
+ Parent satisfaction score
+ Tutor satisfaction score
+ Platform commission revenue
+Conversion Funnel:
+ Parent Registration → Job Posted: Track conversion rate
+ Job Posted → Job Approved: Track approval rate
+ Job Approved → Applications Received: Track interest level
+ Applications Received → Tutor Hired: Track hiring success
+ Tutor Registration → Profile Submitted: Track completion rate
+ Profile Submitted → Profile Approved: Track approval rate
+ Profile Approved → Job Applications: Track activity level
+ Applications Sent → Hired: Track tutor success rate
+
+Implementation Priority
+Recommended implementation phases:
+Phase 1 (MVP - Core Functionality):
+ Job posting creation and submission
+ Admin assignment algorithm implementation
+ Admin review and approval workflow for jobs
+ Tutor profile creation and KYC upload
+ Admin verification workflow for tutors
+ Basic admin dashboard
+ Job browsing for approved tutors
+ Application submission system
+Phase 2 (Enhanced Features):
+ OTP authentication
+ Payment gateway integration
+ Messaging system
+ Email notifications
+ Basic analytics dashboard
+Phase 3 (Optimization):
+ Review and rating system
+ Advanced search filters
+ SMS notifications
+ Push notifications
+ Performance optimization
+ Advanced analytics and reporting
+
+Final Notes for Antigravity Team
+This document provides a comprehensive specification of the THTPRO platform workflows and
+requirements. The two most critical features that differentiate this platform are:
+1. Intelligent Admin Assignment Algorithm: Ensures fair workload distribution and prevents bottlenecks
+2. Two-Stage Verification: Both job postings AND tutor profiles must be admin-approved before going
+live
+These features ensure quality control, build trust with parents, and maintain high standards for tutors on
+the platform. The automated admin assignment prevents manual errors and ensures scalability as the
+platform grows.
+For questions or clarifications, please contact the project stakeholder.
+Document Version: 1.0
+Last Updated: February 2026
+Prepared For:
+Antigravity Development Team
+Platform:
+THTPRO
+Tech Stack:
+React (Frontend) + Django (Backend) + PostgreSQL (Database)
+Date:
+February 2026
+Role
+Responsibilities
+Parent
+Posts job requirements, reviews tutor applications, hires tutors, makes payments
+Tutor
+Completes KYC, creates profile, browses jobs, applies to opportunities, delivers teaching services
+Admin
+Reviews and approves/rejects job postings, verifies tutor KYC documents, approves tutor profiles
+Superadmin
+Manages admin accounts, monitors platform metrics, handles escalations, configures system settings
+Admin
+Pending Jobs
+Pending KYC
+Admin A
+5
+3
+Admin B
+2
+7
+Admin C
+8
+2
+

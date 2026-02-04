@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
     Users, 
     Zap, 
@@ -23,9 +23,10 @@ import {
     Legend
 } from 'recharts';
 import KPICard from './KPICard';
-import { Card } from '../ui/card'; // Ensure this exists or I will need to mock/create
+import { Card } from '../ui/card';
+import API_BASE_URL from '../../config';
 
-// Dummy Data
+// Dummy Data (Kept for charts)
 const leadData = [
     { name: 'Jan 1', leads: 40 },
     { name: 'Jan 5', leads: 65 },
@@ -48,14 +49,52 @@ const onboardingData = [
     { name: 'Week 4', applied: 90, approved: 60, rejected: 20 },
 ];
 
-const REVENUE_COLORS = ['#6366f1', '#10b981']; // Indigo, Emerald
+const REVENUE_COLORS = ['#6366f1', '#10b981']; 
 
 export default function AnalyticsDashboard() {
+    const [stats, setStats] = useState({
+        total_tutors: 0,
+        total_parents: 0,
+        active_jobs: 0,
+        pending_jobs: 0,
+        pending_kyc: 0,
+        department: 'Loading...'
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const token = localStorage.getItem('access');
+                const response = await fetch(`${API_BASE_URL}/api/jobs/admin/dashboard/stats/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setStats(data);
+                }
+            } catch (error) {
+                console.error("Error fetching admin stats:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
+
+    const totalPending = (stats.pending_jobs || 0) + (stats.pending_kyc || 0);
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Admin Dashboard</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                        {stats.department === 'SUPERADMIN' ? 'Super Admin Dashboard' : 
+                         stats.department === 'PARENT_OPS' ? 'Parent Operations Dashboard' :
+                         stats.department === 'TUTOR_OPS' ? 'Tutor Operations Dashboard' : 'Admin Dashboard'}
+                    </h1>
                     <p className="text-slate-500 dark:text-slate-400">Overview of platform performance and key metrics.</p>
                 </div>
                 <div className="flex gap-2">
@@ -70,29 +109,29 @@ export default function AnalyticsDashboard() {
             {/* KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <KPICard 
-                    title="Total Leads" 
-                    value="1,770" 
+                    title="Total Tutors" 
+                    value={stats.total_tutors?.toLocaleString() || "0"} 
                     icon={Users} 
                     gradient="bg-gradient-to-br from-blue-500 to-violet-600"
                 />
                 <KPICard 
-                    title="Fresh Leads" 
-                    value="89" 
+                    title="Active Jobs" 
+                    value={stats.active_jobs?.toLocaleString() || "0"} 
                     icon={Zap} 
                     gradient="bg-gradient-to-br from-emerald-400 to-green-600"
                     pulse={true}
                 />
                 <KPICard 
-                    title="Rejected Leads" 
-                    value="377" 
-                    icon={XCircle} 
-                    gradient="bg-gradient-to-br from-red-500 to-orange-500"
-                />
-                <KPICard 
-                    title="Future Leads" 
-                    value="43" 
+                    title="Pending Actions" 
+                    value={totalPending?.toLocaleString() || "0"} 
                     icon={Clock} 
                     gradient="bg-gradient-to-br from-amber-400 to-yellow-600"
+                />
+                <KPICard 
+                    title="Total Parents" 
+                    value={stats.total_parents?.toLocaleString() || "0"} 
+                    icon={Users} 
+                    gradient="bg-gradient-to-br from-indigo-400 to-cyan-600"
                 />
             </div>
 

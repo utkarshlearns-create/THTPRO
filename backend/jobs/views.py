@@ -13,7 +13,11 @@ from .serializers import (
     ApplicationSerializer
 )
 from .utils import assign_job_to_admin, send_notification
-from users.models import TutorProfile
+from users.models import TutorProfile, TutorKYC
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+
+User = get_user_model()
 import logging
 
 logger = logging.getLogger(__name__)
@@ -153,7 +157,101 @@ class TutorApplicationsView(APIView):
             return Response({"error": str(e)}, status=500)
 
 
+class JobApplicationCreateView(APIView):
+    """Tutor applies for a job"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role != 'TEACHER':
+            return Response({"error": "Only tutors can apply for jobs"}, status=403)
+        
+        job = get_object_or_404(JobPost, pk=pk)
+        
+        if job.status != 'APPROVED':
+             return Response({"error": "Job is not accepting applications"}, status=400)
+             
+        # Check if already applied
+        try:
+             tutor_profile = TutorProfile.objects.get(user=request.user)
+        except TutorProfile.DoesNotExist:
+             return Response({"error": "Complete your tutor profile first"}, status=400)
+             
+        if Application.objects.filter(job=job, tutor=tutor_profile).exists():
+             return Response({"error": "You have already applied for this job"}, status=400)
+             
+        serializer = ApplicationSerializer(data=request.data)
+        if serializer.is_valid():
+             serializer.save(job=job, tutor=tutor_profile)
+             
+             # Notify Parent
+             if job.posted_by:
+                  send_notification(
+                      user=job.posted_by,
+                      title="New Tutor Application",
+                      message=f"{tutor_profile.full_name} has applied for your {job.class_grade} job!",
+                      notification_type='SYSTEM', # Or NEW_APPLICATION
+                      related_job=job
+                  )
+             
+             return Response({"message": "Application submitted successfully!"}, status=201)
+        return Response(serializer.errors, status=400)
+
+
+class JobApplicantsView(generics.ListAPIView):
+    """Parent views applicants for a specific job"""
+    serializer_class = ApplicationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        job_id = self.kwargs['pk']
+        # Ensure user is owner of job
+        job = get_object_or_404(JobPost, pk=job_id)
+        if job.posted_by != self.request.user:
+             return Application.objects.none() # Or raise permission denied
+             
+        return Application.objects.filter(job=job).select_related('tutor__user').order_by('-created_at')
+
+
 # ==================== ADMIN ENDPOINTS ====================
+
+class AdminDashboardStatsView(APIView):
+    """
+    Get aggregated statistics for Admin Dashboard.
+    Supports department-based stats via 'department' query param or user profile.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role not in ['ADMIN', 'SUPERADMIN']:
+            return Response({"error": "Admin access required"}, status=403)
+        
+        # Base counts
+        total_tutors = TutorProfile.objects.count()
+        total_parents = User.objects.filter(role='PARENT').count()
+        active_jobs = JobPost.objects.filter(status='APPROVED').count()
+        pending_jobs = JobPost.objects.filter(status='PENDING_APPROVAL').count()
+        pending_kyc = TutorKYC.objects.filter(status='SUBMITTED').count()
+        
+        # Check Department
+        department = 'SUPERADMIN'
+        if hasattr(request.user, 'admin_profile'):
+            department = request.user.admin_profile.department
+            
+        # Optional: Revenue calc (placeholder)
+        total_revenue = 0 
+        
+        stats = {
+            "total_tutors": total_tutors,
+            "total_parents": total_parents,
+            "active_jobs": active_jobs,
+            "pending_jobs": pending_jobs,
+            "pending_kyc": pending_kyc,
+            "total_revenue": total_revenue,
+            "department": department
+        }
+        
+        return Response(stats)
+
 
 class AdminPendingJobsView(generics.ListAPIView):
     """Admin views jobs assigned to them for approval"""
@@ -287,6 +385,46 @@ class JobDetailView(generics.RetrieveAPIView):
     queryset = JobPost.objects.filter(status='APPROVED')
 
 
+class JobSearchFilterView(generics.ListAPIView):
+    """
+    Advanced Job Search for Tutors.
+    Filters: subject, grade, location, budget_min, budget_max
+    """
+    serializer_class = JobPostSerializer
+    permission_classes = [permissions.AllowAny] # Generating leads usually public, or Auth required? Tutors usually need to be logged in to apply, but search can be open.
+    
+    def get_queryset(self):
+        queryset = JobPost.objects.filter(status='APPROVED').order_by('-created_at')
+        
+        # Text Search (Subject/Grade/Location)
+        q = self.request.query_params.get('q', None)
+        if q:
+            queryset = queryset.filter(
+                Q(subjects__icontains=q) | 
+                Q(class_grade__icontains=q) |
+                Q(locality__icontains=q)
+            )
+            
+        # Specific Filters
+        subject = self.request.query_params.get('subject', None)
+        if subject:
+             queryset = queryset.filter(subjects__icontains=subject)
+             
+        grade = self.request.query_params.get('grade', None)
+        if grade:
+             queryset = queryset.filter(class_grade__icontains=grade)
+             
+        location = self.request.query_params.get('location', None)
+        if location:
+             queryset = queryset.filter(locality__icontains=location)
+             
+        min_budget = self.request.query_params.get('min_budget', None)
+        if min_budget:
+             queryset = queryset.filter(budget_min__gte=min_budget)
+             
+        return queryset
+
+
 # ==================== NOTIFICATION ENDPOINTS ====================
 
 class NotificationListView(generics.ListAPIView):
@@ -297,7 +435,14 @@ class NotificationListView(generics.ListAPIView):
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user).order_by('-created_at')
 
+class MarkNotificationReadView(APIView):
+    """Mark a notification as read"""
+    permission_classes = [permissions.IsAuthenticated]
 
+    def put(self, request, pk):
+        notification = get_object_or_404(Notification, pk=pk, user=request.user)
+        notification.is_read = True
+        notification.save()
         return Response({"message": "Notification marked as read"})
 
 
