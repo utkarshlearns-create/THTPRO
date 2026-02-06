@@ -421,6 +421,14 @@ class CreateAdminUserView(APIView):
         if not all([username, email, phone, password, department]):
             return Response({"error": "All fields are required."}, status=400)
 
+        if department == 'SUPERADMIN':
+            return Response({"error": "Cannot create Superadmin accounts via this interface."}, status=400)
+
+        # Validate department
+        valid_departments = ['PARENT_OPS', 'TUTOR_OPS']
+        if department not in valid_departments:
+             return Response({"error": f"Invalid department. Choices: {valid_departments}"}, status=400)
+
         if User.objects.filter(username=username).exists():
              return Response({"error": "Username already exists."}, status=400)
         
@@ -429,13 +437,13 @@ class CreateAdminUserView(APIView):
 
         try:
             with transaction.atomic():
-                # 2. Create User
+                # 2. Create User (Always ADMIN)
                 user = User.objects.create_user(
                     username=username,
                     email=email,
                     phone=phone,
                     password=password,
-                    role='ADMIN' if department != 'SUPERADMIN' else 'SUPERADMIN'
+                    role='ADMIN' 
                 )
                 
                 # 3. Create AdminProfile
