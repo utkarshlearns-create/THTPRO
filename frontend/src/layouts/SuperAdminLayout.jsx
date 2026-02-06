@@ -9,15 +9,16 @@ import {
   Search, 
   Bell, 
   Menu, 
-  X,
   ChevronDown
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ThemeToggle from '../components/ui/ThemeToggle';
-import { Button } from '../components/ui/button';
+import CreateAdminModal from '../components/superadmin/CreateAdminModal';
 
 const SuperAdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [showCreateAdmin, setShowCreateAdmin] = useState(false);
   const location = useLocation();
 
   const navItems = [
@@ -119,10 +120,41 @@ const SuperAdminLayout = () => {
                     <span className="absolute top-1.5 right-2 h-2 w-2 bg-red-500 rounded-full"></span>
                 </button>
                 <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2 hidden sm:block"></div>
-                 <div className="hidden sm:flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded-lg transition-colors">
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Admin Panel</span>
-                    <ChevronDown size={16} className="text-slate-400" />
-                </div>
+                
+                 {/* Admin Dropdown */}
+                 <div className="relative">
+                    <button 
+                        onClick={() => setProfileOpen(!profileOpen)}
+                        className="hidden sm:flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded-lg transition-colors"
+                    >
+                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Admin Panel</span>
+                        <ChevronDown size={16} className="text-slate-400" />
+                    </button>
+
+                    {profileOpen && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 py-1 font-medium z-50 animate-in fade-in zoom-in-95 duration-200">
+                            <button 
+                                onClick={() => {
+                                    setShowCreateAdmin(true);
+                                    setProfileOpen(false);
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-brand-gold/10 hover:text-brand-gold transition-colors flex items-center gap-2"
+                            >
+                                <Users size={16} /> Create Admin
+                            </button>
+                             <button 
+                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center gap-2"
+                                onClick={() => {
+                                    localStorage.removeItem('role');
+                                    localStorage.removeItem('access');
+                                    window.location.href = '/superadmin/login';
+                                }}
+                            >
+                                <span className="rotate-180"><Menu size={16} /></span> Sign Out
+                            </button>
+                        </div>
+                    )}
+                 </div>
             </div>
         </header>
 
@@ -130,6 +162,16 @@ const SuperAdminLayout = () => {
         <main className="flex-1 p-6 overflow-x-hidden">
             <Outlet />
         </main>
+
+        {showCreateAdmin && (
+            <CreateAdminModal 
+                onClose={() => setShowCreateAdmin(false)}
+                onSuccess={(data) => {
+                    // Could show toast here
+                    alert('Admin Created Successfully!');
+                }}
+            />
+        )}
 
       </div>
     </div>
