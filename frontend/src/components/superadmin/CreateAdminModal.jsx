@@ -39,7 +39,7 @@ const CreateAdminModal = ({ onClose, onSuccess }) => {
                 if (onSuccess) onSuccess(data);
                 onClose();
             } else {
-                setError(data.error || "Failed to create admin");
+                setError(data.error || data.detail || (typeof data === 'string' ? data : JSON.stringify(data)) || "Failed to create admin");
             }
         } catch (err) {
             setError("Network error. Please try again.");

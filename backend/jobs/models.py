@@ -75,4 +75,4 @@ class Application(models.Model):
         return f"App by {self.tutor.user.username} for {self.job.student_name}"
 
 # Import additional models
-from .admin_models import AdminTask, Notification
+from .admin_models import AdminTask, Notification, AdminProfile
