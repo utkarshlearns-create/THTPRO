@@ -145,7 +145,6 @@ const CreateAdminModal = ({ onClose, onSuccess }) => {
                                 >
                                     <option value="PARENT_OPS">Parent Operations</option>
                                     <option value="TUTOR_OPS">Tutor Operations</option>
-                                    <option value="SUPERADMIN">Super Admin</option>
                                 </select>
                                 <ChevronDown size={14} className="absolute right-3 top-3.5 text-slate-400 pointer-events-none" />
                             </div>
