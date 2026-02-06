@@ -11,7 +11,8 @@ from .views import (
     DebugTutorSignupView,
     SendOTPView,
     VerifyOTPView,
-    GoogleLoginView
+    GoogleLoginView,
+    ContactUnlockView
 )
 
 # NEW: Import KYC views
@@ -31,6 +32,7 @@ urlpatterns = [
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('me/', CurrentUserView.as_view(), name='current_user'),
     path('profile/', TutorProfileView.as_view(), name='tutor_profile'),
+    path('tutor/<int:pk>/unlock/', ContactUnlockView.as_view(), name='tutor_unlock'),
     path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard_stats'),
     
     # Legacy KYC endpoint

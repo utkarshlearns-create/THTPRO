@@ -3,7 +3,7 @@ from .views import (
     # Tutor endpoints
     TutorJobCreateView,
     JobCreateView,
-    TutorJobListView,
+    MyJobPostsView,
     TutorApplicationsView,
     
     # Admin endpoints
@@ -31,7 +31,8 @@ urlpatterns = [
     path('create/', JobCreateView.as_view(), name='job-create'),
     # Tutor endpoints
     path('tutor/create/', TutorJobCreateView.as_view(), name='tutor-job-create'),
-    path('tutor/my-jobs/', TutorJobListView.as_view(), name='tutor-job-list'),
+    path('tutor/my-jobs/', MyJobPostsView.as_view(), name='tutor-job-list'), # Legacy alias
+    path('my-jobs/', MyJobPostsView.as_view(), name='my-job-list'), # Generic endpoint
     path('tutor/applications/', TutorApplicationsView.as_view(), name='tutor-applications'),
     
     # Admin endpoints
