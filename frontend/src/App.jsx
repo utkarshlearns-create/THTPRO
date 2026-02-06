@@ -14,6 +14,8 @@ import ParentHome from './pages/ParentHome';
 import TutorHome from './pages/TutorHome';
 import TutorDashboard from './pages/TutorDashboard';
 import JobSearch from './pages/JobSearch';
+import WalletPage from './pages/WalletPage';
+import MyPostedJobs from './pages/MyPostedJobs';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import SuperAdminLayout from './layouts/SuperAdminLayout';
@@ -55,6 +57,16 @@ function App() {
               <Route path="/parent-home" element={
                 <ProtectedRoute allowedRoles={['PARENT']}>
                   <ParentHome />
+                </ProtectedRoute>
+              } />
+              <Route path="/wallet" element={
+                <ProtectedRoute allowedRoles={['PARENT', 'TEACHER']}>
+                   <WalletPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/my-jobs" element={
+                <ProtectedRoute allowedRoles={['PARENT']}>
+                   <MyPostedJobs />
                 </ProtectedRoute>
               } />
               <Route path="/tutor-home" element={

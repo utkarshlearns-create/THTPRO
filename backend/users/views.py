@@ -2,7 +2,8 @@ from rest_framework import generics, permissions, status, views
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer, TutorProfileSerializer, CustomTokenObtainPairSerializer, TutorKYCSerializer, TutorStatusSerializer
-from .models import TutorProfile, TutorKYC, TutorStatus
+from .models import TutorProfile, TutorKYC, TutorStatus, ContactUnlock
+from wallet.models import Wallet
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.shortcuts import get_object_or_404
@@ -344,6 +345,55 @@ class DebugTutorSignupView(View):
             tb = traceback.format_exc()
             print(f"ERROR in DebugTutorSignupView: {tb}", file=sys.stderr)
             return JsonResponse({"error": str(e), "traceback": tb}, status=500)
+
+
+class ContactUnlockView(APIView):
+    """
+    Unlock a tutor's contact information by spending credits.
+    Cost: 50 Credits (Hardcoded for now)
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role != 'PARENT':
+             return Response({"error": "Only parents can unlock tutor contacts."}, status=403)
+             
+        tutor_profile = get_object_or_404(TutorProfile, pk=pk)
+        
+        # 1. Check if already unlocked
+        if ContactUnlock.objects.filter(parent=request.user, tutor=tutor_profile).exists():
+             return Response({
+                 "message": "Already unlocked",
+                 "phone": tutor_profile.user.phone,
+                 "email": tutor_profile.user.email
+             })
+             
+        # 2. Check Credits
+        UNLOCK_COST = 50
+        wallet, _ = Wallet.objects.get_or_create(user=request.user)
+        
+        if wallet.balance < UNLOCK_COST:
+             return Response({
+                 "error": "Insufficient credits",
+                 "required": UNLOCK_COST,
+                 "current": wallet.balance
+             }, status=402) # Payment Required
+             
+        # 3. Deduct & Unlock (Atomic)
+        try:
+            with transaction.atomic():
+                wallet.debit(UNLOCK_COST, f"Unlocked contact of {tutor_profile.user.username}")
+                ContactUnlock.objects.create(parent=request.user, tutor=tutor_profile)
+                
+            return Response({
+                 "message": "Contact unlocked successfully!",
+                 "phone": tutor_profile.user.phone,
+                 "email": tutor_profile.user.email,
+                 "remaining_balance": wallet.balance
+            })
+            
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 
 
 

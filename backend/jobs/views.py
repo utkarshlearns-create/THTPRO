@@ -103,14 +103,12 @@ class JobCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TutorJobListView(generics.ListAPIView):
-    """List tutor's own job posts"""
+class MyJobPostsView(generics.ListAPIView):
+    """List current user's own job posts (Parent or Tutor)"""
     serializer_class = JobPostSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        if self.request.user.role != 'TEACHER':
-            return JobPost.objects.none()
         return JobPost.objects.filter(posted_by=self.request.user).order_by('-created_at')
 
 
