@@ -12,7 +12,8 @@ from .views import (
     SendOTPView,
     VerifyOTPView,
     GoogleLoginView,
-    ContactUnlockView
+    ContactUnlockView,
+    CreateAdminUserView
 )
 
 # NEW: Import KYC views
@@ -43,6 +44,7 @@ urlpatterns = [
     path('kyc/status/', KYCStatusView.as_view(), name='kyc_status'),
     
     # Admin endpoints
+    path('superadmin/create-admin/', CreateAdminUserView.as_view(), name='create_admin'),
     path('admin/tutors/', AdminTutorListView.as_view(), name='admin_tutor_list'),
     path('admin/tutors/<int:pk>/review/', AdminReviewView.as_view(), name='admin_review'),
     path('admin/kyc/pending/', AdminPendingKYCView.as_view(), name='admin_pending_kyc'),

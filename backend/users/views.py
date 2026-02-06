@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer, TutorProfileSerializer, CustomTokenObtainPairSerializer, TutorKYCSerializer, TutorStatusSerializer
 from .models import TutorProfile, TutorKYC, TutorStatus, ContactUnlock
+from jobs.admin_models import AdminProfile
 from wallet.models import Wallet
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -398,3 +399,55 @@ class ContactUnlockView(APIView):
 
 
 
+
+class CreateAdminUserView(APIView):
+    """
+    Superadmin creates a new Admin user with specific department.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        # 1. Check permissions (Superadmin only)
+        if request.user.role != 'SUPERADMIN':
+            return Response({"error": "Only Superadmins can create new admins."}, status=403)
+
+        data = request.data
+        username = data.get('username')
+        email = data.get('email')
+        phone = data.get('phone')
+        password = data.get('password')
+        department = data.get('department') # PARENT_OPS, TUTOR_OPS, SUPERADMIN
+
+        if not all([username, email, phone, password, department]):
+            return Response({"error": "All fields are required."}, status=400)
+
+        if User.objects.filter(username=username).exists():
+             return Response({"error": "Username already exists."}, status=400)
+        
+        if User.objects.filter(phone=phone).exists():
+             return Response({"error": "Phone already exists."}, status=400)
+
+        try:
+            with transaction.atomic():
+                # 2. Create User
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    phone=phone,
+                    password=password,
+                    role='ADMIN' if department != 'SUPERADMIN' else 'SUPERADMIN'
+                )
+                
+                # 3. Create AdminProfile
+                AdminProfile.objects.create(
+                    user=user,
+                    department=department
+                )
+                
+            return Response({
+                "message": f"Admin {username} created successfully for {department}",
+                "user_id": user.id
+            }, status=201)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
