@@ -265,3 +265,33 @@ class CRMPipelineStatsView(APIView):
             # Unassigned jobs needing attention
             'unassigned_pending': jobs.filter(status='PENDING_APPROVAL', assigned_admin__isnull=True).count(),
         })
+
+
+class AdminApplicationListView(generics.ListAPIView):
+    """
+    List all job applications for Admin/Superadmin.
+    """
+    from .serializers import ApplicationSerializer
+    serializer_class = ApplicationSerializer
+    permission_classes = [IsSuperAdmin] # Or IsAdminUser
+    pagination_class = StandardPagination
+
+    def get_queryset(self):
+        queryset = Application.objects.all().select_related('tutor', 'job').order_by('-created_at')
+        
+        # Filter by Status
+        status = self.request.query_params.get('status')
+        if status and status != 'ALL':
+            queryset = queryset.filter(status=status)
+            
+        # Search (Tutor Name, Job Title)
+        q = self.request.query_params.get('q')
+        if q:
+            queryset = queryset.filter(
+                Q(tutor__user__username__icontains=q) |
+                Q(tutor__user__email__icontains=q) |
+                Q(job__class_grade__icontains=q) |
+                Q(job__subjects__icontains=q)
+            )
+            
+        return queryset

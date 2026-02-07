@@ -44,8 +44,11 @@ from .crm_views import (
     CRMUpdateStatusView,
     CRMAdminListView,
     CRMPipelineStatsView,
+    AdminApplicationListView,
 )
 
+urlpatterns = [
+    # General endpoints
 urlpatterns = [
     # General endpoints
     path('create/', JobCreateView.as_view(), name='job-create'),
@@ -105,5 +108,6 @@ urlpatterns = [
     path('crm/jobs/<int:pk>/status/', CRMUpdateStatusView.as_view(), name='crm-update-status'),
     path('crm/admins/', CRMAdminListView.as_view(), name='crm-admin-list'),
     path('crm/pipeline/', CRMPipelineStatsView.as_view(), name='crm-pipeline-stats'),
+    path('crm/applications/', AdminApplicationListView.as_view(), name='crm-application-list'),
 ]
 

@@ -1,5 +1,6 @@
-import React from 'react';
-import { Search, Filter, Calendar } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Calendar, Loader2 } from 'lucide-react';
+import { Button } from '../../ui/button';
 import { 
     Table, 
     TableBody, 
@@ -9,20 +10,57 @@ import {
     TableRow 
 } from '../../ui/table';
 import Badge from '../../ui/badge';
-
-const MOCK_ASSIGNED = [
-    { job_id: 'JD-4001', parent: 'Meera Reddy', tutor: 'Vikram Singh', subject: 'Mathematics (Cl 9)', start_date: '2024-01-20', status: 'Active' },
-    { job_id: 'JD-4002', parent: 'John Smith', tutor: 'Priya P', subject: 'English (Spoken)', start_date: '2024-01-15', status: 'Active' },
-    { job_id: 'JD-3980', parent: 'Anita Roy', tutor: 'Amit Patel', subject: 'Science (Cl 8)', start_date: '2023-12-10', status: 'Completed' },
-];
+import API_BASE_URL from '../../../config';
+import { toast } from 'react-hot-toast';
 
 export default function AssignedJobsList() {
+    const [jobs, setJobs] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const fetchAssignedJobs = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('access');
+            // Fetch HIRED applications = Assigned/Active Jobs
+            const response = await fetch(`${API_BASE_URL}/api/jobs/crm/applications/?status=HIRED&q=${searchQuery}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setJobs(data.results || data); 
+            }
+        } catch (error) {
+            console.error("Error fetching assigned jobs:", error);
+            toast.error("Failed to load assigned jobs");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const debounce = setTimeout(() => fetchAssignedJobs(), 500);
+        return () => clearTimeout(debounce);
+    }, [searchQuery]);
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Assigned Jobs</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Track active and completed tuitions.</p>
+                    <p className="text-slate-500 dark:text-slate-400">Track active and confirmed tuitions.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input 
+                            type="text" 
+                            placeholder="Search parent, tutor..." 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-64"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -39,23 +77,37 @@ export default function AssignedJobsList() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {MOCK_ASSIGNED.map((job) => (
-                            <TableRow key={job.job_id}>
-                                <TableCell className="font-medium text-slate-900 dark:text-white">{job.job_id}</TableCell>
-                                <TableCell>{job.parent}</TableCell>
-                                <TableCell className="font-medium text-blue-600">{job.tutor}</TableCell>
-                                <TableCell>{job.subject}</TableCell>
-                                <TableCell>
-                                    <div className="flex items-center gap-1.5">
-                                        <Calendar className="h-3 w-3 text-slate-400" />
-                                        {job.start_date}
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant={job.status === 'Active' ? 'success' : 'secondary'}>{job.status}</Badge>
+                        {loading ? (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center py-8">
+                                    <div className="flex justify-center"><Loader2 className="animate-spin text-blue-500" /></div>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        ) : jobs.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                                    No assigned/active jobs found.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            jobs.map((app) => (
+                                <TableRow key={app.id}>
+                                    <TableCell className="font-medium text-slate-900 dark:text-white">JD-{app.job}</TableCell>
+                                    <TableCell>{app.job_details?.parent_name || 'N/A'}</TableCell>
+                                    <TableCell className="font-medium text-blue-600">{app.tutor_name}</TableCell>
+                                    <TableCell>{app.job_details?.subjects?.join(', ') || 'N/A'}</TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-1.5">
+                                            <Calendar className="h-3 w-3 text-slate-400" />
+                                            {new Date(app.updated_at).toLocaleDateString()}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge variant="success">Active</Badge>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
             </div>
