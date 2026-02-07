@@ -12,3 +12,10 @@ class WalletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wallet
         fields = ['balance', 'updated_at', 'transactions']
+
+
+class SubscriptionPackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import SubscriptionPackage
+        model = SubscriptionPackage
+        fields = '__all__'

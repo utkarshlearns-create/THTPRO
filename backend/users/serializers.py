@@ -39,7 +39,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 from .models import TutorProfile
 
-from .models import TutorProfile, TutorKYC, TutorStatus
+from .models import TutorProfile, TutorKYC, TutorStatus, Enquiry
 
 class TutorKYCSerializer(serializers.ModelSerializer):
     class Meta:
@@ -117,3 +117,11 @@ class UserAdminSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'admin_profile'):
             return obj.admin_profile.department
         return None
+
+
+
+class EnquirySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Enquiry
+        fields = '__all__'
+        read_only_fields = ['status', 'created_at']

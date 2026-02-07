@@ -63,3 +63,22 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.transaction_type}: {self.amount} - {self.description}"
+
+
+class SubscriptionPackage(models.Model):
+    """Packages for purchasing credits"""
+    ROLE_CHOICES = (
+        ('PARENT', 'Parent'),
+        ('TUTOR', 'Tutor'),
+    )
+    
+    name = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    credit_amount = models.IntegerField()
+    target_role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    is_active = models.BooleanField(default=True)
+    features = models.JSONField(default=list, blank=True) # List of feature strings
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.credit_amount} Credits) - ₹{self.price}"

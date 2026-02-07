@@ -163,3 +163,24 @@ class ContactUnlock(models.Model):
 
     def __str__(self):
         return f"{self.parent.username} unlocked {self.tutor.user.username}"
+
+
+class Enquiry(models.Model):
+    """General contact/support enquiries"""
+    STATUS_CHOICES = (
+        ('NEW', 'New'),
+        ('IN_PROGRESS', 'In Progress'),
+        ('RESOLVED', 'Resolved'),
+        ('CLOSED', 'Closed'),
+    )
+    
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.subject} - {self.name}"

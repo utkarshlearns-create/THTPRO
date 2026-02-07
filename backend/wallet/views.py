@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.conf import settings
 from .models import Wallet
-from .serializers import WalletSerializer, TransactionSerializer
+from .serializers import WalletSerializer, TransactionSerializer, SubscriptionPackageSerializer
 
 class WalletView(generics.RetrieveAPIView):
     """
@@ -55,3 +55,59 @@ class AddFundsView(APIView):
             })
         except Exception as e:
             return Response({"error": str(e)}, status=400)
+
+
+class SubscriptionPackageListView(generics.ListAPIView):
+    """List all active packages"""
+    serializer_class = SubscriptionPackageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        from .models import SubscriptionPackage
+        queryset = SubscriptionPackage.objects.filter(is_active=True)
+        role = self.request.query_params.get('role')
+        if role:
+            queryset = queryset.filter(target_role=role.upper())
+        return queryset
+
+
+class AdminPackageView(generics.ListCreateAPIView):
+    """Admin view to manage packages"""
+    serializer_class = SubscriptionPackageSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        from .models import SubscriptionPackage
+        return SubscriptionPackage.objects.all()
+
+
+class AdminTransactionListView(generics.ListAPIView):
+    """Admin view to see all transactions"""
+    serializer_class = TransactionSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        from .models import Transaction
+        from django.db.models import Q
+        
+        queryset = Transaction.objects.all().select_related('wallet__user').order_by('-created_at')
+        
+        # Filters
+        user_role = self.request.query_params.get('role')
+        if user_role:
+            queryset = queryset.filter(wallet__user__role=user_role)
+            
+        status = self.request.query_params.get('status')
+        # Transactions don't have status, but we might filter by type
+        if status: # Assuming status maps to type for now or ignored
+             pass
+
+        q = self.request.query_params.get('q')
+        if q:
+            queryset = queryset.filter(
+                Q(wallet__user__username__icontains=q) |
+                Q(wallet__user__email__icontains=q) |
+                Q(description__icontains=q)
+            )
+            
+        return queryset
