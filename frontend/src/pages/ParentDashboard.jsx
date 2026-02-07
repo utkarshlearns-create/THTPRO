@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, 
   User, 
@@ -22,13 +23,27 @@ import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
 import ThemeToggle from '../components/ui/ThemeToggle';
 
+// Skeleton component for loading states
+const Skeleton = ({ className }) => (
+  <div className={`animate-pulse bg-slate-200 dark:bg-slate-700 rounded ${className}`} />
+);
+
 const ParentDashboard = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [searchParams] = useSearchParams();
     const initialTab = searchParams.get('tab') || 'overview';
     const [activeTab, setActiveTab] = useState(initialTab);
     const navigate = useNavigate();
-    const [stats, setStats] = useState({ jobs_posted: 0, applications_received: 0, assigned_tutor: 'None' });
+    const [stats, setStats] = useState({ 
+        jobs_posted: 0, 
+        jobs_this_week: 0,
+        applications_received: 0, 
+        hired_count: 0,
+        assigned_tutor: null,
+        profile_completion: 0,
+        member_since: '',
+        activities: []
+    });
     const [latestJob, setLatestJob] = useState(null);
     const [wallet, setWallet] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -131,66 +146,124 @@ const ParentDashboard = () => {
                                 <p className="text-slate-500 dark:text-slate-400 mt-2">Welcome back! Here's an overview of your tuition activities.</p>
                             </div>
 
-                            {/* Insights Section */}
+                            {/* Insights Section with Stagger Animation */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <InsightCard 
-                                    title="Total Spend" 
-                                    value={`₹ ${wallet?.balance ? (5000 - wallet.balance) : '0'}`} 
-                                    icon={<Wallet className="text-emerald-500" />}
-                                    description="Lifetime investment in education"
-                                    trend="+12% from last month"
-                                    trendColor="text-emerald-600"
-                                />
-                                <InsightCard 
-                                    title="Active Jobs" 
-                                    value={stats.jobs_posted} 
-                                    icon={<Briefcase className="text-indigo-500" />}
-                                    description="Open tuition requirements"
-                                    trend="2 new this week"
-                                    trendColor="text-indigo-600"
-                                />
-                                <InsightCard 
-                                    title="Profile Strength" 
-                                    value="85%" 
-                                    icon={<Zap className="text-amber-500" />}
-                                    description="Complete your profile to attract better tutors"
-                                    progress={85}
-                                />
+                                {loading ? (
+                                    <>
+                                        <Skeleton className="h-36 w-full" />
+                                        <Skeleton className="h-36 w-full" />
+                                        <Skeleton className="h-36 w-full" />
+                                    </>
+                                ) : (
+                                    <>
+                                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                                            <InsightCard 
+                                                title="Wallet Balance" 
+                                                value={`₹ ${wallet?.balance || '0'}`} 
+                                                icon={<Wallet className="text-emerald-500" />}
+                                                description="Available credits for unlocking"
+                                                trend={wallet?.balance > 100 ? "Healthy balance" : "Consider recharging"}
+                                                trendColor={wallet?.balance > 100 ? "text-emerald-600" : "text-amber-600"}
+                                            />
+                                        </motion.div>
+                                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                                            <InsightCard 
+                                                title="Active Jobs" 
+                                                value={stats.jobs_posted} 
+                                                icon={<Briefcase className="text-indigo-500" />}
+                                                description="Open tuition requirements"
+                                                trend={stats.jobs_this_week > 0 ? `${stats.jobs_this_week} new this week` : "Post a job to start"}
+                                                trendColor="text-indigo-600"
+                                            />
+                                        </motion.div>
+                                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                                            <InsightCard 
+                                                title="Profile Strength" 
+                                                value={`${stats.profile_completion}%`} 
+                                                icon={<Zap className="text-amber-500" />}
+                                                description="Complete your profile to attract better tutors"
+                                                progress={stats.profile_completion}
+                                            />
+                                        </motion.div>
+                                    </>
+                                )}
                             </div>
 
-                            {/* Quick Stats Grid */}
+                            {/* Quick Stats Grid with Stagger */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <StatItem label="Wallet Balance" value={`₹ ${wallet?.balance || '0.00'}`} icon={<Wallet size={18} />} color="bg-emerald-100 text-emerald-700" />
-                                <StatItem label="Applications" value={stats.applications_received} icon={<User size={18} />} color="bg-blue-100 text-blue-700" />
-                                <StatItem label="Classes Taken" value="12" icon={<Clock size={18} />} color="bg-violet-100 text-violet-700" />
-                                <StatItem label="Avg. Tutor Rating" value="4.8" icon={<Star size={18} />} color="bg-amber-100 text-amber-700" />
+                                {loading ? (
+                                    <>
+                                        <Skeleton className="h-20 w-full" />
+                                        <Skeleton className="h-20 w-full" />
+                                        <Skeleton className="h-20 w-full" />
+                                        <Skeleton className="h-20 w-full" />
+                                    </>
+                                ) : (
+                                    <>
+                                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}>
+                                            <StatItem label="Applications" value={stats.applications_received} icon={<User size={18} />} color="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" />
+                                        </motion.div>
+                                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }}>
+                                            <StatItem label="Tutors Hired" value={stats.hired_count} icon={<CheckCircle size={18} />} color="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" />
+                                        </motion.div>
+                                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6 }}>
+                                            <StatItem label="Member Since" value={stats.member_since || 'N/A'} icon={<Clock size={18} />} color="bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" />
+                                        </motion.div>
+                                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }}>
+                                            <StatItem label="Assigned Tutor" value={stats.assigned_tutor?.name || 'None'} icon={<Star size={18} />} color="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" />
+                                        </motion.div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Recent Activity & Actions */}
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                <Card className="lg:col-span-2 border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+                                <Card className="lg:col-span-2 border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 hover:shadow-lg transition-shadow">
                                     <CardHeader>
                                         <CardTitle className="text-slate-900 dark:text-white">Recent Activity</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="space-y-6">
-                                            {[1, 2, 3].map((_, i) => (
-                                                <div key={i} className="flex items-start gap-4 pb-6 border-b border-slate-100 last:border-0 last:pb-0">
-                                                    <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 text-slate-500 dark:text-slate-400">
-                                                        {i === 0 ? <CheckCircle size={18} className="text-green-500"/> : i === 1 ? <User size={18} className="text-blue-500"/> : <Wallet size={18} className="text-amber-500"/>}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium text-slate-900 dark:text-white">{i === 0 ? 'Tutor Assigned' : i === 1 ? 'New Application Received' : 'Wallet Recharged'}</p>
-                                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                                                            {i === 0 ? 'Rahul Sharma was assigned for Mathematics Class 10.' : i === 1 ? 'Priya Singh applied for your English requirement.' : 'You added ₹ 500 to your wallet.'}
-                                                        </p>
-                                                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">{i + 1} day ago</p>
-                                                    </div>
+                                            {loading ? (
+                                                <>
+                                                    <Skeleton className="h-16 w-full" />
+                                                    <Skeleton className="h-16 w-full" />
+                                                    <Skeleton className="h-16 w-full" />
+                                                </>
+                                            ) : stats.activities?.length > 0 ? (
+                                                stats.activities.map((activity, i) => (
+                                                    <motion.div 
+                                                        key={i} 
+                                                        initial={{ opacity: 0, x: -20 }} 
+                                                        animate={{ opacity: 1, x: 0 }} 
+                                                        transition={{ delay: 0.1 * i }}
+                                                        className="flex items-start gap-4 pb-6 border-b border-slate-100 dark:border-slate-800 last:border-0 last:pb-0"
+                                                    >
+                                                        <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 text-slate-500 dark:text-slate-400">
+                                                            {activity.icon === 'briefcase' ? <Briefcase size={18} className="text-indigo-500"/> : 
+                                                             activity.icon === 'user' ? <User size={18} className="text-blue-500"/> : 
+                                                             <Wallet size={18} className="text-amber-500"/>}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-medium text-slate-900 dark:text-white">{activity.title}</p>
+                                                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{activity.description}</p>
+                                                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+                                                                {new Date(activity.timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                                                            </p>
+                                                        </div>
+                                                    </motion.div>
+                                                ))
+                                            ) : (
+                                                <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+                                                    <Briefcase className="mx-auto mb-3 h-8 w-8 opacity-50" />
+                                                    <p>No recent activity yet.</p>
+                                                    <p className="text-sm mt-1">Post a job to get started!</p>
                                                 </div>
-                                            ))}
+                                            )}
                                         </div>
                                     </CardContent>
                                 </Card>
+
 
                                 <div className="space-y-6">
                                      <Card className="border-indigo-100 bg-indigo-50/50 shadow-none">
@@ -249,7 +322,7 @@ const ParentDashboard = () => {
                     )}
 
                     {/* MY PROFILE VIEW */}
-                    {activeTab === 'profile' && <MyProfile latestJob={latestJob} />}
+                    {activeTab === 'profile' && <MyProfile latestJob={latestJob} stats={stats} />}
 
                     {/* TUTOR ASSIGNED VIEW */}
                     {activeTab === 'tutor_assigned' && <TutorAssigned />}
@@ -418,17 +491,21 @@ const JobsList = () => {
     );
 };
 
-const MyProfile = ({ latestJob }) => {
+const MyProfile = ({ latestJob, stats }) => {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-300">
             {/* Left Column: Identity */}
-            <Card className="border-slate-200 dark:border-slate-800 shadow-sm h-fit bg-white dark:bg-slate-900">
+            <Card className="border-slate-200 dark:border-slate-800 shadow-sm h-fit bg-white dark:bg-slate-900 hover:shadow-lg transition-shadow">
                 <CardContent className="pt-8 text-center">
-                    <div className="h-24 w-24 bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4 ring-4 ring-indigo-50 dark:ring-indigo-900/10">
+                    <motion.div 
+                        initial={{ scale: 0.9, opacity: 0 }} 
+                        animate={{ scale: 1, opacity: 1 }} 
+                        className="h-24 w-24 bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4 ring-4 ring-indigo-50 dark:ring-indigo-900/10"
+                    >
                         PA
-                    </div>
+                    </motion.div>
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Parent Account</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Active since Jan 2024</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Active since {stats?.member_since || 'N/A'}</p>
                     
                     <div className="space-y-4 text-left">
                         <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">

@@ -445,25 +445,96 @@ class MarkNotificationReadView(APIView):
 
 
 class ParentStatsView(APIView):
-    """Get dashboard stats for parent"""
+    """Get enhanced dashboard stats for parent including activity feed"""
     permission_classes = [permissions.IsAuthenticated]
     
     def get(self, request):
         if request.user.role != 'PARENT':
              return Response({"error": "Only parents can view stats"}, status=403)
-             
-        # Calculate stats
-        jobs_posted = JobPost.objects.filter(posted_by=request.user).count()
-        applications_received = Application.objects.filter(job__posted_by=request.user).count()
         
-        # Logic for assigned tutor (e.g. from accepted applications)
-        assigned_tutor = 'None'
-        hire = Application.objects.filter(job__posted_by=request.user, status='HIRED').first()
-        if hire:
-            assigned_tutor = hire.tutor.full_name
-            
+        from datetime import timedelta
+        from wallet.models import Transaction
+        
+        user = request.user
+        now = timezone.now()
+        week_ago = now - timedelta(days=7)
+        month_ago = now - timedelta(days=30)
+        
+        # === Core Stats ===
+        jobs_posted = JobPost.objects.filter(parent=user).count()
+        jobs_this_week = JobPost.objects.filter(parent=user, created_at__gte=week_ago).count()
+        jobs_last_month = JobPost.objects.filter(parent=user, created_at__gte=month_ago, created_at__lt=week_ago).count()
+        
+        applications_received = Application.objects.filter(job__parent=user).count()
+        hired_count = Application.objects.filter(job__parent=user, status='HIRED').count()
+        
+        # === Assigned Tutor ===
+        assigned_tutor = None
+        hire = Application.objects.filter(job__parent=user, status='HIRED').select_related('tutor__user').first()
+        if hire and hire.tutor:
+            assigned_tutor = {
+                "name": hire.tutor.full_name or hire.tutor.user.username,
+                "subject": hire.job.subjects[0] if hire.job.subjects else "General",
+            }
+        
+        # === Profile Completion (simplified) ===
+        profile_fields_filled = sum([
+            bool(user.username),
+            bool(user.email),
+            bool(user.phone),
+        ])
+        profile_completion = int((profile_fields_filled / 3) * 100)
+        
+        # === Recent Activity Feed ===
+        activities = []
+        
+        # Recent job postings
+        recent_jobs = JobPost.objects.filter(parent=user).order_by('-created_at')[:3]
+        for job in recent_jobs:
+            activities.append({
+                "type": "job_posted",
+                "title": f"Posted: {job.class_grade} - {', '.join(job.subjects[:2])}",
+                "description": f"Job posted for {job.student_name or 'your student'}",
+                "timestamp": job.created_at.isoformat(),
+                "icon": "briefcase"
+            })
+        
+        # Recent applications received
+        recent_apps = Application.objects.filter(job__parent=user).select_related('tutor__user').order_by('-created_at')[:3]
+        for app in recent_apps:
+            activities.append({
+                "type": "application_received",
+                "title": f"New Application from {app.tutor.full_name or app.tutor.user.username}",
+                "description": f"Applied for {app.job.class_grade}",
+                "timestamp": app.created_at.isoformat(),
+                "icon": "user"
+            })
+        
+        # Recent wallet transactions
+        try:
+            wallet_transactions = Transaction.objects.filter(wallet__user=user).order_by('-created_at')[:2]
+            for tx in wallet_transactions:
+                activities.append({
+                    "type": "wallet",
+                    "title": f"Wallet {tx.transaction_type}",
+                    "description": f"₹{tx.amount} - {tx.description}",
+                    "timestamp": tx.created_at.isoformat(),
+                    "icon": "wallet"
+                })
+        except:
+            pass
+        
+        # Sort activities by timestamp
+        activities.sort(key=lambda x: x['timestamp'], reverse=True)
+        activities = activities[:5]  # Limit to 5 most recent
+        
         return Response({
             "jobs_posted": jobs_posted,
+            "jobs_this_week": jobs_this_week,
             "applications_received": applications_received,
-            "assigned_tutor": assigned_tutor
+            "hired_count": hired_count,
+            "assigned_tutor": assigned_tutor,
+            "profile_completion": profile_completion,
+            "member_since": user.date_joined.strftime("%b %Y"),
+            "activities": activities,
         })
