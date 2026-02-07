@@ -1,8 +1,6 @@
 import React from 'react';
 
-export const MasterManagement = () => (
-    <div className="p-8"><h1 className="text-2xl font-bold">Master Management</h1><p>Tables for Class, Location, etc. coming soon.</p></div>
-);
+// MasterManagement now has its own file at MasterManagement.jsx
 
 export const HRMModule = () => (
     <div className="p-8"><h1 className="text-2xl font-bold">HRM Module</h1><p>Employee Directory coming soon.</p></div>

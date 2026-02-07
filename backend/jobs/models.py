@@ -74,5 +74,71 @@ class Application(models.Model):
     def __str__(self):
         return f"App by {self.tutor.user.username} for {self.job.student_name}"
 
+
+# ==================== MASTER DATA MODELS ====================
+
+class Subject(models.Model):
+    """Master list of subjects for dropdowns"""
+    name = models.CharField(max_length=100, unique=True)
+    icon = models.CharField(max_length=50, blank=True)  # e.g., lucide icon name
+    category = models.CharField(max_length=50, default='Academic')  # Academic, Competitive, etc.
+    is_active = models.BooleanField(default=True)
+    order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        return self.name
+
+
+class Board(models.Model):
+    """Education boards (CBSE, ICSE, State Boards, etc.)"""
+    name = models.CharField(max_length=100, unique=True)
+    short_name = models.CharField(max_length=20, blank=True)  # e.g., "CBSE"
+    is_active = models.BooleanField(default=True)
+    order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        return self.name
+
+
+class ClassLevel(models.Model):
+    """Class levels (Class 1-12, Competitive exams, etc.)"""
+    name = models.CharField(max_length=100, unique=True)  # e.g., "Class 10", "JEE Advanced"
+    category = models.CharField(max_length=50, default='School')  # School, Competitive, Language
+    order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        return self.name
+
+
+class Location(models.Model):
+    """Locations/Cities for tuition services"""
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100, blank=True)
+    pincode = models.CharField(max_length=10, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['city']
+        unique_together = ('city', 'pincode')
+
+    def __str__(self):
+        return f"{self.city}" + (f" - {self.pincode}" if self.pincode else "")
+
+
 # Import additional models
 from .admin_models import AdminTask, Notification, AdminProfile
+
