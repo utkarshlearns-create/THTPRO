@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import API_BASE_URL from '../config';
+import { clearAuthState } from '../utils/auth';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -97,8 +98,7 @@ const JobWizard = () => {
                 }
             } else if (response.status === 401) {
                 alert("Your session has expired. Please login again.");
-                localStorage.removeItem('access');
-                localStorage.removeItem('refresh');
+                clearAuthState();
                 navigate('/login');
             } else {
                 // Handle different error formats (string or object)

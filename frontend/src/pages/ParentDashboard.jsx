@@ -18,6 +18,7 @@ import {
   Zap
 } from 'lucide-react';
 import API_BASE_URL from '../config';
+import { clearAuthState } from '../utils/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
@@ -82,8 +83,7 @@ const ParentDashboard = () => {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('access');
-        localStorage.removeItem('role');
+        clearAuthState();
         navigate('/login');
     };
 

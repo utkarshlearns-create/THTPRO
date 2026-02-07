@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Bell, Wallet, User } from 'lucide-react';
 import { Button } from './ui/button';
 import API_BASE_URL from '../config';
+import { clearAuthState } from '../utils/auth';
 import ThemeToggle from './ui/ThemeToggle';
 
 const Navbar = () => {
@@ -129,7 +130,7 @@ const Navbar = () => {
                         </Link>
                         <button
                             onClick={() => {
-                                localStorage.removeItem('role');
+                                clearAuthState();
                                 window.location.reload();
                             }}
                             className="block w-full text-left px-3 py-3 text-slate-500 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg"
