@@ -23,7 +23,8 @@ import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
 import HRMModule from './pages/superadmin/HRMModule';
 import MasterManagement from './pages/superadmin/MasterManagement';
-import { CRMModule, SupportSystem } from './pages/superadmin/Placeholders';
+import CRMModule from './pages/superadmin/CRMModule';
+import { SupportSystem } from './pages/superadmin/Placeholders';
 
 // KYC Pages
 import TutorKYCPage from './pages/TutorKYCPage';

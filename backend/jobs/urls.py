@@ -36,6 +36,16 @@ from .master_views import (
     SeedMasterDataView,
 )
 
+# CRM views
+from .crm_views import (
+    CRMJobListView,
+    CRMJobDetailView,
+    CRMAssignAdminView,
+    CRMUpdateStatusView,
+    CRMAdminListView,
+    CRMPipelineStatsView,
+)
+
 urlpatterns = [
     # General endpoints
     path('create/', JobCreateView.as_view(), name='job-create'),
@@ -87,5 +97,13 @@ urlpatterns = [
     
     # Seed data (one-time)
     path('master/seed/', SeedMasterDataView.as_view(), name='seed-master-data'),
+    
+    # ==================== CRM ENDPOINTS (Superadmin) ====================
+    path('crm/jobs/', CRMJobListView.as_view(), name='crm-job-list'),
+    path('crm/jobs/<int:pk>/', CRMJobDetailView.as_view(), name='crm-job-detail'),
+    path('crm/jobs/<int:pk>/assign/', CRMAssignAdminView.as_view(), name='crm-assign-admin'),
+    path('crm/jobs/<int:pk>/status/', CRMUpdateStatusView.as_view(), name='crm-update-status'),
+    path('crm/admins/', CRMAdminListView.as_view(), name='crm-admin-list'),
+    path('crm/pipeline/', CRMPipelineStatsView.as_view(), name='crm-pipeline-stats'),
 ]
 
