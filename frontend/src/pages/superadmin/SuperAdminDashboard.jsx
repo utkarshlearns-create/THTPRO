@@ -185,11 +185,58 @@ const SuperAdminDashboard = () => {
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Analytics Overview</h1>
           <p className="text-slate-500 dark:text-slate-400">Real-time insights into your agency's performance.</p>
         </div>
-        <div className="flex gap-2">
+      <div className="flex gap-2">
             <Button variant="outline" onClick={fetchAnalytics} disabled={loading}>
               {loading ? 'Loading...' : 'Refresh'}
             </Button>
-            <button className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg shadow-amber-600/20 hover:bg-amber-700 transition-colors">
+            <button 
+                onClick={() => {
+                    // Generate downloadable report
+                    const reportDate = new Date().toLocaleDateString('en-IN', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    const report = `
+THT ADMIN - ANALYTICS REPORT
+Generated: ${reportDate}
+================================
+
+KEY PERFORMANCE INDICATORS
+--------------------------
+Total Leads: ${analytics.total_leads}
+Fresh Leads: ${analytics.fresh_leads}
+Rejected Leads: ${analytics.rejected_leads}
+Confirmed Tuitions: ${analytics.confirmed_tuitions}
+Total Revenue: ₹${analytics.total_revenue.toLocaleString()}
+Pending Jobs: ${analytics.pending_jobs}
+
+USER STATISTICS
+---------------
+Total Parents: ${analytics.total_parents}
+Total Tutors: ${analytics.total_tutors}
+Total Admins: ${analytics.total_admins}
+
+KYC STATUS
+----------
+Pending KYC: ${analytics.pending_kyc}
+Verified Tutors: ${analytics.verified_kyc}
+
+================================
+THT Pro - Tutoring Platform
+                    `.trim();
+                    
+                    const blob = new Blob([report], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `tht_analytics_report_${new Date().toISOString().split('T')[0]}.txt`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                }}
+                className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg shadow-amber-600/20 hover:bg-amber-700 transition-colors flex items-center gap-2"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 Download Report
             </button>
         </div>

@@ -9,10 +9,13 @@ import {
     GraduationCap, 
     CheckCircle, 
     XCircle,
-    Download
+    Download,
+    Edit,
+    FileDown
 } from 'lucide-react';
 import API_BASE_URL from '../../config';
 import CreateAdminModal from '../../components/superadmin/CreateAdminModal';
+import EditUserModal from '../../components/superadmin/EditUserModal';
 
 const HRMModule = () => {
     const [users, setUsers] = useState([]);
@@ -21,14 +24,11 @@ const HRMModule = () => {
     const [roleFilter, setRoleFilter] = useState('ALL');
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [showCreateModal, setShowCreateModal] = useState(false);
-
-    // Pagination (Simple client-side or server-side? Server is better but let's do simple first fetch)
-    // The backend is paginated by default DRF? generics.ListAPIView uses default pagination if set.
-    // Let's assume generic list for now.
+    const [editingUser, setEditingUser] = useState(null);
 
     useEffect(() => {
         fetchUsers();
-    }, [roleFilter, statusFilter]); // Re-fetch when filters change
+    }, [roleFilter, statusFilter]);
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -50,7 +50,6 @@ const HRMModule = () => {
             }
 
             const data = await response.json();
-            // Handle pagination if data.results exists, else use data
             setUsers(data.results || data); 
         } catch (error) {
             console.error("Failed to fetch users", error);
@@ -75,7 +74,6 @@ const HRMModule = () => {
             });
             
             if (response.ok) {
-                // Update local state
                 setUsers(users.map(u => u.id === userId ? { ...u, is_active: !currentStatus } : u));
             } else {
                 alert("Failed to update status");
@@ -83,6 +81,28 @@ const HRMModule = () => {
          } catch (error) {
              console.error("Error updating status", error);
          }
+    };
+
+    const exportToCSV = () => {
+        const headers = ['ID', 'Username', 'Email', 'Phone', 'Role', 'Status', 'Joined'];
+        const rows = users.map(u => [
+            u.id,
+            u.username,
+            u.email || '',
+            u.phone || '',
+            u.role,
+            u.is_active ? 'Active' : 'Inactive',
+            new Date(u.date_joined).toLocaleDateString()
+        ]);
+        
+        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
     };
 
     const getRoleBadge = (role, department) => {
@@ -110,8 +130,11 @@ const HRMModule = () => {
                     >
                         <Shield size={18} /> Create Admin
                     </button>
-                    <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2">
-                        <Download size={18} /> Export
+                    <button 
+                        onClick={exportToCSV}
+                        className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2"
+                    >
+                        <FileDown size={18} /> Export CSV
                     </button>
                 </div>
             </div>
@@ -224,6 +247,13 @@ const HRMModule = () => {
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button 
+                                                    onClick={() => setEditingUser(user)}
+                                                    className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
+                                                    title="Edit User"
+                                                >
+                                                    <Edit size={16} />
+                                                </button>
+                                                <button 
                                                     onClick={() => toggleUserStatus(user.id, user.is_active)}
                                                     className={`p-1.5 rounded-lg border transition-colors ${
                                                         user.is_active 
@@ -234,10 +264,6 @@ const HRMModule = () => {
                                                 >
                                                     {user.is_active ? <XCircle size={16} /> : <CheckCircle size={16} />}
                                                 </button>
-                                                {/* Edit/View Profile Placeholder */}
-                                                {/* <button className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50">
-                                                    <MoreVertical size={16} />
-                                                </button> */}
                                             </div>
                                         </td>
                                     </tr>
@@ -252,8 +278,17 @@ const HRMModule = () => {
                 <CreateAdminModal 
                     onClose={() => setShowCreateModal(false)} 
                     onSuccess={() => {
-                        fetchUsers(); // Refresh list
-                        // Toast success
+                        fetchUsers();
+                    }} 
+                />
+            )}
+
+            {editingUser && (
+                <EditUserModal 
+                    user={editingUser}
+                    onClose={() => setEditingUser(null)} 
+                    onSuccess={() => {
+                        fetchUsers();
                     }} 
                 />
             )}
@@ -262,3 +297,4 @@ const HRMModule = () => {
 };
 
 export default HRMModule;
+

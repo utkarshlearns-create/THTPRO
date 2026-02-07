@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Database, 
@@ -9,17 +9,22 @@ import {
   Search, 
   Bell, 
   Menu, 
-  ChevronDown
+  ChevronDown,
+  LogOut
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import CreateAdminModal from '../components/superadmin/CreateAdminModal';
+import NotificationDropdown from '../components/superadmin/NotificationDropdown';
 
 const SuperAdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showCreateAdmin, setShowCreateAdmin] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { icon: <LayoutDashboard size={20} />, label: 'Analytics Hub', path: '/superadmin' },
@@ -103,22 +108,43 @@ const SuperAdminLayout = () => {
                 </button>
                 
                 {/* Global Search */}
-                <div className="relative hidden md:block w-96">
+                <form 
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        if (searchQuery.trim()) {
+                            navigate(`/superadmin/hrm?q=${encodeURIComponent(searchQuery)}`);
+                        }
+                    }}
+                    className="relative hidden md:block w-96"
+                >
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input 
                         type="text" 
-                        placeholder="Search leads, employees, or invoices..." 
+                        placeholder="Search users by name, email, or phone..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-gold/50 text-sm transition-all"
                     />
-                </div>
+                </form>
             </div>
 
             <div className="flex items-center gap-4">
                 <ThemeToggle />
-                <button className="relative p-2 text-slate-500 hover:text-brand-gold transition-colors">
-                    <Bell size={20} />
-                    <span className="absolute top-1.5 right-2 h-2 w-2 bg-red-500 rounded-full"></span>
-                </button>
+                
+                {/* Notification Bell */}
+                <div className="relative">
+                    <button 
+                        onClick={() => setNotificationsOpen(!notificationsOpen)}
+                        className="relative p-2 text-slate-500 hover:text-brand-gold transition-colors"
+                    >
+                        <Bell size={20} />
+                        <span className="absolute top-1.5 right-2 h-2 w-2 bg-red-500 rounded-full animate-pulse"></span>
+                    </button>
+                    <NotificationDropdown 
+                        isOpen={notificationsOpen} 
+                        onClose={() => setNotificationsOpen(false)} 
+                    />
+                </div>
                 <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2 hidden sm:block"></div>
                 
                  {/* Admin Dropdown */}

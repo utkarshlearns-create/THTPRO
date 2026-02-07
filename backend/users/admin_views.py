@@ -72,6 +72,48 @@ class UserStatusView(APIView):
             return Response({"error": "User not found"}, status=404)
 
 
+class UserUpdateView(APIView):
+    """
+    Superadmin: Update user details (username, email, phone, role, department).
+    """
+    permission_classes = [IsSuperAdmin]
+
+    def patch(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+            
+            # Prevent editing yourself to prevent lockouts
+            if user == request.user and 'role' in request.data:
+                if request.data['role'] != 'SUPERADMIN':
+                    return Response({"error": "Cannot change your own role."}, status=400)
+            
+            # Update allowed fields
+            allowed_fields = ['username', 'email', 'phone', 'role', 'department']
+            for field in allowed_fields:
+                if field in request.data:
+                    setattr(user, field, request.data[field])
+            
+            user.save()
+            
+            return Response({
+                "message": f"User {user.username} updated successfully.",
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "phone": user.phone,
+                    "role": user.role,
+                    "department": getattr(user, 'department', None),
+                    "is_active": user.is_active
+                }
+            })
+            
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+
 class SuperAdminAnalyticsView(APIView):
     """
     Superadmin: Get comprehensive analytics for dashboard.
