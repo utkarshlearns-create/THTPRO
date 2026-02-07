@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import API_BASE_URL from '../config';
+import { clearAuthState } from '../utils/auth';
 import TutorDashboardLayout from '../components/dashboard/TutorDashboardLayout';
 import DashboardHome from '../components/tutor/dashboard/DashboardHome';
 import ProfileEditForm from '../components/tutor/dashboard/ProfileEditForm';
@@ -74,6 +75,7 @@ const TutorDashboard = () => {
                 setFormData(prev => ({ ...prev, ...data }));
                 if (data.status_msg) setStatus(data.status_msg.status);
             } else if (response.status === 401) {
+                clearAuthState();
                 navigate('/login');
             }
         } catch (error) { console.error("Error fetching profile:", error); } 
