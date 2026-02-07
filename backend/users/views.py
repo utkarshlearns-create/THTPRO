@@ -230,10 +230,42 @@ class KYCSubmissionView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AdminTutorListView(generics.ListAPIView):
-    # Retrieve all tutors for admin dashboard
-    queryset = TutorProfile.objects.all()
+    """
+    Retrieve all tutors for admin dashboard with filtering.
+    """
     serializer_class = TutorProfileSerializer
-    permission_classes = [permissions.IsAdminUser] # Ensure only admin
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        from .models import TutorStatus
+        from django.db.models import Q
+        
+        queryset = TutorProfile.objects.all().order_by('-user__date_joined')
+        
+        # Filter by Status
+        status_param = self.request.query_params.get('status')
+        if status_param:
+            if status_param == 'PENDING':
+                # Custom group for "Pending Approval"
+                queryset = queryset.filter(status_record__status__in=[
+                    TutorStatus.State.KYC_SUBMITTED, 
+                    TutorStatus.State.UNDER_REVIEW,
+                    TutorStatus.State.SIGNED_UP
+                ])
+            else:
+                queryset = queryset.filter(status_record__status=status_param)
+                
+        # Search
+        q = self.request.query_params.get('q')
+        if q:
+            queryset = queryset.filter(
+                Q(user__first_name__icontains=q) |
+                Q(user__email__icontains=q) |
+                Q(user__phone__icontains=q) |
+                Q(subjects__icontains=q)
+            )
+            
+        return queryset
 
 class AdminReviewView(APIView):
     permission_classes = [permissions.IsAdminUser]

@@ -48,6 +48,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
             'hourly_rate': str(job.hourly_rate) if job.hourly_rate else None,
             'requirements': job.requirements,
             'status': job.status,
+            'student_name': job.student_name,
+            'parent_name': job.parent.username if job.parent else "N/A",  
         }
 
 
