@@ -95,8 +95,26 @@ const JobWizard = () => {
                 } else {
                     navigate('/dashboard/parent');
                 }
+            } else if (response.status === 401) {
+                alert("Your session has expired. Please login again.");
+                localStorage.removeItem('access');
+                localStorage.removeItem('refresh');
+                navigate('/login');
             } else {
-                alert(data.error || "Failed to post job. Please try again.");
+                // Handle different error formats (string or object)
+                let errorMessage = data.error || data.detail || "Failed to post job. Please try again.";
+                
+                if (!errorMessage && typeof data === 'object') {
+                    // Convert validation errors dict to string
+                    const messages = Object.entries(data).map(([key, msgs]) => {
+                         const msgText = Array.isArray(msgs) ? msgs.join(', ') : JSON.stringify(msgs);
+                         return `${key}: ${msgText}`;
+                    });
+                    if (messages.length > 0) {
+                        errorMessage = messages.join('\n');
+                    }
+                }
+                alert(errorMessage);
             }
         } catch (error) {
             console.error("Error posting job:", error);

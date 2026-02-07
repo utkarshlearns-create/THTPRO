@@ -13,8 +13,10 @@ from .views import (
     VerifyOTPView,
     GoogleLoginView,
     ContactUnlockView,
+    ContactUnlockView,
     CreateAdminUserView
 )
+from .debug_views import DebugTokenView
 
 # NEW: Import KYC views
 from .kyc_views import (
@@ -25,6 +27,7 @@ from .kyc_views import (
 )
 
 urlpatterns = [
+    path('debug-token/', DebugTokenView.as_view(), name='debug_token'),
     path('debug-tutor/', DebugTutorSignupView.as_view(), name='debug-tutor'),
     path('signup/', SignupView.as_view(), name='signup'),
     path('auth/send-otp/', SendOTPView.as_view(), name='send_otp'),
