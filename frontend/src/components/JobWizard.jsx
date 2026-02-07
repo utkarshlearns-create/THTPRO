@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     ArrowRight, 
     ArrowLeft, 
@@ -11,7 +11,8 @@ import {
     Code, 
     Globe, 
     Calculator,
-    FlaskConical
+    FlaskConical,
+    Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,10 +26,35 @@ import { Card, CardContent, CardFooter } from './ui/card';
 import { Progress } from './ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
+// Icon mapping for subjects
+const iconMap = {
+    'Calculator': Calculator,
+    'FlaskConical': FlaskConical,
+    'BookOpen': BookOpen,
+    'Atom': Globe,
+    'Dna': GraduationCap,
+    'Globe': Globe,
+    'Code': Code,
+    'Landmark': BookOpen,
+    'Map': Globe,
+    'TrendingUp': Calculator,
+    'GraduationCap': GraduationCap,
+    'Stethoscope': FlaskConical,
+    'Award': GraduationCap,
+    'BarChart': Calculator,
+};
+
 const JobWizard = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [masterDataLoading, setMasterDataLoading] = useState(true);
+    
+    // Master data from API
+    const [subjects, setSubjects] = useState([]);
+    const [boards, setBoards] = useState([]);
+    const [classLevels, setClassLevels] = useState([]);
+    
     const [formData, setFormData] = useState({
         class_grade: '',
         board: '',
@@ -39,6 +65,47 @@ const JobWizard = () => {
         hourly_rate: '',
         requirements: ''
     });
+
+    // Fetch master data on mount
+    useEffect(() => {
+        const fetchMasterData = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/jobs/master/`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setSubjects(data.subjects || []);
+                    setBoards(data.boards || []);
+                    setClassLevels(data.class_levels || []);
+                }
+            } catch (error) {
+                console.error('Error fetching master data:', error);
+                // Fallback to defaults if API fails
+                setSubjects([
+                    { id: 1, name: 'Maths', icon: 'Calculator' },
+                    { id: 2, name: 'Science', icon: 'FlaskConical' },
+                    { id: 3, name: 'English', icon: 'BookOpen' },
+                    { id: 4, name: 'Physics', icon: 'Atom' },
+                    { id: 5, name: 'Chemistry', icon: 'FlaskConical' },
+                    { id: 6, name: 'Biology', icon: 'Dna' },
+                    { id: 7, name: 'Computer', icon: 'Code' },
+                    { id: 8, name: 'Commerce', icon: 'TrendingUp' }
+                ]);
+                setBoards([
+                    { id: 1, name: 'CBSE', short_name: 'CBSE' },
+                    { id: 2, name: 'ICSE', short_name: 'ICSE' },
+                    { id: 3, name: 'State Board', short_name: 'State' },
+                    { id: 4, name: 'IGCSE', short_name: 'IGCSE' },
+                    { id: 5, name: 'IB', short_name: 'IB' }
+                ]);
+                setClassLevels([
+                    ...Array.from({ length: 12 }, (_, i) => ({ id: i + 1, name: `Class ${i + 1}` }))
+                ]);
+            } finally {
+                setMasterDataLoading(false);
+            }
+        };
+        fetchMasterData();
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -179,64 +246,67 @@ const JobWizard = () => {
                         {/* STEP 1: Academic Details */}
                         {step === 1 && (
                             <div className="space-y-8">
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-3">
-                                        <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Class/Grade</Label>
-                                        <Select name="class_grade" value={formData.class_grade} onValueChange={(val) => handleSelectChange('class_grade', val)}>
-                                            <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
-                                                <SelectValue placeholder="Select" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {[...Array(12)].map((_, i) => (
-                                                    <SelectItem key={i} value={`Class ${i + 1}`}>Class {i + 1}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                {masterDataLoading ? (
+                                    <div className="flex items-center justify-center py-12">
+                                        <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+                                        <span className="ml-2 text-slate-500">Loading options...</span>
                                     </div>
-                                    <div className="space-y-3">
-                                        <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Board</Label>
-                                        <Select name="board" value={formData.board} onValueChange={(val) => handleSelectChange('board', val)}>
-                                            <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
-                                                <SelectValue placeholder="Select" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {['CBSE', 'ICSE', 'State Board', 'IGCSE', 'IB'].map(board => (
-                                                    <SelectItem key={board} value={board}>{board}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
+                                ) : (
+                                    <>
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div className="space-y-3">
+                                                <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Class/Grade</Label>
+                                                <Select name="class_grade" value={formData.class_grade} onValueChange={(val) => handleSelectChange('class_grade', val)}>
+                                                    <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                                                        <SelectValue placeholder="Select" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {classLevels.map((level) => (
+                                                            <SelectItem key={level.id} value={level.name}>{level.name}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Board</Label>
+                                                <Select name="board" value={formData.board} onValueChange={(val) => handleSelectChange('board', val)}>
+                                                    <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                                                        <SelectValue placeholder="Select" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {boards.map(board => (
+                                                            <SelectItem key={board.id} value={board.short_name || board.name}>{board.short_name || board.name}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
 
-                                <div className="space-y-4">
-                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Subjects You Can Teach</Label>
-                                    <div className="flex flex-wrap gap-3">
-                                        {[
-                                            { name: 'Maths', icon: Calculator }, 
-                                            { name: 'Science', icon: FlaskConical }, 
-                                            { name: 'English', icon: BookOpen }, 
-                                            { name: 'Physics', icon: Globe },
-                                            { name: 'Chemistry', icon: FlaskConical },
-                                            { name: 'Biology', icon: GraduationCap },
-                                            { name: 'Computer', icon: Code }, 
-                                            { name: 'Commerce', icon: User }
-                                        ].map((sub) => (
-                                            <button
-                                                key={sub.name}
-                                                type="button"
-                                                onClick={() => handleSubjectChange(sub.name)}
-                                                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                                                    formData.subjects.includes(sub.name)
-                                                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/50 transform scale-105'
-                                                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-slate-700'
-                                                }`}
-                                            >
-                                                {sub.name}
-                                                {formData.subjects.includes(sub.name) && <CheckCircle className="h-3 w-3 ml-1 fill-white" />}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
+                                        <div className="space-y-4">
+                                            <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Subjects You Can Teach</Label>
+                                            <div className="flex flex-wrap gap-3">
+                                                {subjects.map((sub) => {
+                                                    const IconComponent = iconMap[sub.icon] || BookOpen;
+                                                    return (
+                                                        <button
+                                                            key={sub.id}
+                                                            type="button"
+                                                            onClick={() => handleSubjectChange(sub.name)}
+                                                            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                                                                formData.subjects.includes(sub.name)
+                                                                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/50 transform scale-105'
+                                                                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                                            }`}
+                                                        >
+                                                            {sub.name}
+                                                            {formData.subjects.includes(sub.name) && <CheckCircle className="h-3 w-3 ml-1 fill-white" />}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         )}
 
