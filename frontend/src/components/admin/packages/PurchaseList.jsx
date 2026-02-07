@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Filter, CheckCircle, XCircle, Eye, CreditCard } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, CheckCircle, XCircle, Eye, CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { 
     Table, 
@@ -10,34 +10,59 @@ import {
     TableRow 
 } from '../../ui/table';
 import Badge from '../../ui/badge';
-
-// Mock Data for Purchases
-const MOCK_PURCHASES = [
-    { id: 'TXN-1001', user: 'Rajesh Kumar', role: 'Parent', package: 'Basic Plan', amount: '₹999', txn_id: 'UPI-1234567890', date: '2024-01-25', status: 'Pending' },
-    { id: 'TXN-1002', user: 'Vikram Singh', role: 'Tutor', package: 'Pro Tutor', amount: '₹1499', txn_id: 'UPI-0987654321', date: '2024-01-24', status: 'Approved' },
-    { id: 'TXN-1003', user: 'Priya Sharma', role: 'Parent', package: 'Gold Plan', amount: '₹2499', txn_id: 'CARD-11223344', date: '2024-01-24', status: 'Rejected' },
-    { id: 'TXN-1004', user: 'Amit Patel', role: 'Tutor', package: 'Starter Tutor', amount: '₹499', txn_id: 'UPI-55667788', date: '2024-01-25', status: 'Pending' },
-    { id: 'TXN-1005', user: 'Sneha Gupta', role: 'Parent', package: 'Platinum Plan', amount: '₹4999', txn_id: 'NET-99887766', date: '2024-01-23', status: 'Approved' },
-    { id: 'TXN-1006', user: 'Rahul Dravid', role: 'Tutor', package: 'Elite Tutor', amount: '₹2999', txn_id: 'UPI-33445566', date: '2024-01-22', status: 'Rejected' },
-    { id: 'TXN-1007', user: 'Anjali Menon', role: 'Parent', package: 'Basic Plan', amount: '₹999', txn_id: 'UPI-77889900', date: '2024-01-25', status: 'Pending' },
-];
+import API_BASE_URL from '../../../config';
+import { format } from 'date-fns';
+import { toast } from 'react-hot-toast';
 
 const getStatusVariant = (status) => {
     switch (status) {
+        case 'Success': return 'success';
         case 'Approved': return 'success';
         case 'Rejected': return 'destructive';
         default: return 'warning';
     }
 };
 
-export default function PurchaseList({ role, status }) {
+export default function PurchaseList({ role, status }) { // role: Parent/Tutor, status: Pending/Approved/etc
+    const [transactions, setTransactions] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
-    const filteredPurchases = MOCK_PURCHASES.filter(p => 
-        p.role === role && 
-        p.status === status &&
-        (p.user.toLowerCase().includes(searchTerm.toLowerCase()) || p.id.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const fetchTransactions = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('access');
+            // We fetch all transactions for the role
+            const response = await fetch(`${API_BASE_URL}/api/wallet/admin/transactions/?role=${role.toUpperCase()}&q=${searchTerm}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                // If status is 'Pending', and we only have completed transactions, we filter them out (empty list)
+                // If status is 'Approved' or 'History', we show them.
+                // Assuming 'Pending' means manual requests which we don't have yet.
+                // So for Pending, it will be empty.
+                // For 'History' or 'Approved', we show all transactions.
+                
+                let filtered = data;
+                if (status === 'Pending') {
+                    filtered = []; 
+                } 
+                
+                setTransactions(filtered);
+            }
+        } catch (error) {
+            console.error("Error fetching transactions:", error);
+            toast.error("Failed to load transactions");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const debounce = setTimeout(() => fetchTransactions(), 500);
+        return () => clearTimeout(debounce);
+    }, [searchTerm, role, status]);
 
     return (
         <div className="space-y-6">
@@ -64,66 +89,60 @@ export default function PurchaseList({ role, status }) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Req ID</TableHead>
-                            <TableHead>User Name</TableHead>
-                            <TableHead>Package</TableHead>
+                            <TableHead>ID</TableHead>
+                            <TableHead>User</TableHead>
+                            <TableHead>Description</TableHead>
                             <TableHead>Amount</TableHead>
-                            <TableHead>Transaction ID</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredPurchases.length > 0 ? (
-                            filteredPurchases.map((txn) => (
+                        {loading ? (
+                             <TableRow>
+                                <TableCell colSpan={7} className="text-center py-8">
+                                    <div className="flex justify-center"><Loader2 className="animate-spin text-blue-500" /></div>
+                                </TableCell>
+                            </TableRow>
+                        ) : transactions.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={7} className="h-24 text-center text-slate-500">
+                                    No {status.toLowerCase()} purchases found for {role}s.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            transactions.map((txn) => (
                                 <TableRow key={txn.id}>
                                     <TableCell className="font-medium text-slate-900 dark:text-white">{txn.id}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <div className="h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-400">
-                                                {txn.user.charAt(0)}
+                                                {txn.wallet?.user?.username?.charAt(0) || 'U'}
                                             </div>
-                                            {txn.user}
+                                            {txn.wallet?.user?.username || 'Unknown User'}
                                         </div>
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-1.5">
                                             <CreditCard className="h-3 w-3 text-slate-400" />
-                                            {txn.package}
+                                            {txn.description}
                                         </div>
                                     </TableCell>
-                                    <TableCell className="font-medium">{txn.amount}</TableCell>
-                                    <TableCell className="text-xs text-slate-500 font-mono">{txn.txn_id}</TableCell>
-                                    <TableCell>{txn.date}</TableCell>
+                                    <TableCell className="font-medium text-green-600">+{txn.amount}</TableCell>
+                                    <TableCell>{txn.created_at ? format(new Date(txn.created_at), 'dd MMM yyyy') : '-'}</TableCell>
                                     <TableCell>
-                                        <Badge variant={getStatusVariant(txn.status)}>{txn.status}</Badge>
+                                        <Badge variant="success">Success</Badge>
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-2">
                                             <Button size="sm" variant="outline" className="h-8 w-8 p-0" title="View Details">
                                                 <Eye size={14} />
                                             </Button>
-                                            {status === 'Pending' && (
-                                                <>
-                                                    <Button size="sm" className="h-8 w-8 p-0 bg-green-600 hover:bg-green-700 text-white" title="Approve">
-                                                        <CheckCircle size={14} />
-                                                    </Button>
-                                                    <Button size="sm" className="h-8 w-8 p-0 bg-red-600 hover:bg-red-700 text-white" title="Reject">
-                                                        <XCircle size={14} />
-                                                    </Button>
-                                                </>
-                                            )}
                                         </div>
                                     </TableCell>
                                 </TableRow>
                             ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={8} className="h-24 text-center text-slate-500">
-                                    No {status.toLowerCase()} purchases found for {role}s.
-                                </TableCell>
-                            </TableRow>
                         )}
                     </TableBody>
                 </Table>

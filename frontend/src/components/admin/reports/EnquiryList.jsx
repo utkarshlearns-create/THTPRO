@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Filter, MessageSquare } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, MessageSquare, Loader2 } from 'lucide-react';
 import { 
     Table, 
     TableBody, 
@@ -9,14 +9,37 @@ import {
     TableRow 
 } from '../../ui/table';
 import Badge from '../../ui/badge';
-
-const MOCK_ENQUIRIES = [
-    { id: 'ENQ-901', name: 'Rahul Sharma', email: 'rahul@example.com', subject: 'General Query', message: 'How do I upgrade my plan?', date: '2024-01-26', status: 'New' },
-    { id: 'ENQ-902', name: 'Priya Patel', email: 'priya@example.com', subject: 'Payment Issue', message: 'Transaction failed but money deducted.', date: '2024-01-25', status: 'In Progress' },
-    { id: 'ENQ-903', name: 'Amit Singh', email: 'amit@example.com', subject: 'Feedback', message: 'Great app experience!', date: '2024-01-24', status: 'Resolved' },
-];
+import API_BASE_URL from '../../../config';
+import { format } from 'date-fns';
+import { toast } from 'react-hot-toast';
 
 export default function EnquiryList() {
+    const [enquiries, setEnquiries] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchEnquiries = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/users/admin/enquiries/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setEnquiries(data);
+            }
+        } catch (error) {
+            console.error("Error fetching enquiries:", error);
+            toast.error("Failed to load enquiries");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEnquiries();
+    }, []);
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -39,30 +62,44 @@ export default function EnquiryList() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {MOCK_ENQUIRIES.map((enq) => (
-                            <TableRow key={enq.id}>
-                                <TableCell className="font-medium text-slate-900 dark:text-white">{enq.id}</TableCell>
-                                <TableCell>
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-medium">{enq.name}</span>
-                                        <span className="text-xs text-slate-500">{enq.email}</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell>{enq.subject}</TableCell>
-                                <TableCell>
-                                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 max-w-xs truncate">
-                                        <MessageSquare size={14} />
-                                        <span className="truncate">{enq.message}</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell>{enq.date}</TableCell>
-                                <TableCell>
-                                    <Badge variant={enq.status === 'Resolved' ? 'success' : enq.status === 'New' ? 'destructive' : 'warning'}>
-                                        {enq.status}
-                                    </Badge>
+                        {loading ? (
+                             <TableRow>
+                                <TableCell colSpan={6} className="text-center py-8">
+                                    <div className="flex justify-center"><Loader2 className="animate-spin text-blue-500" /></div>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        ) : enquiries.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={6} className="h-24 text-center text-slate-500">
+                                    No enquiries found.
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            enquiries.map((enq) => (
+                                <TableRow key={enq.id}>
+                                    <TableCell className="font-medium text-slate-900 dark:text-white">{enq.id}</TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-medium">{enq.name}</span>
+                                            <span className="text-xs text-slate-500">{enq.email}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>{enq.subject}</TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 max-w-xs truncate">
+                                            <MessageSquare size={14} />
+                                            <span className="truncate">{enq.message}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>{enq.created_at ? format(new Date(enq.created_at), 'dd MMM yyyy') : '-'}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={enq.status === 'RESOLVED' ? 'success' : enq.status === 'NEW' ? 'destructive' : 'warning'}>
+                                            {enq.status}
+                                        </Badge>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
             </div>

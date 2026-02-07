@@ -24,8 +24,10 @@ from .kyc_views import (
     KYCDocumentUploadView,
     KYCStatusView,
     AdminPendingKYCView,
+    AdminPendingKYCView,
     AdminKYCVerifyView
 )
+from .views import EnquiryCreateView, AdminEnquiryListView, AdminEnquiryUpdateView
 
 urlpatterns = [
     path('debug-token/', DebugTokenView.as_view(), name='debug_token'),
@@ -59,4 +61,9 @@ urlpatterns = [
     path('admin/tutors/<int:pk>/review/', AdminReviewView.as_view(), name='admin_review'),
     path('admin/kyc/pending/', AdminPendingKYCView.as_view(), name='admin_pending_kyc'),
     path('admin/kyc/<int:pk>/verify/', AdminKYCVerifyView.as_view(), name='admin_kyc_verify'),
+    
+    # Enquiries
+    path('contact/', EnquiryCreateView.as_view(), name='enquiry_create'),
+    path('admin/enquiries/', AdminEnquiryListView.as_view(), name='admin_enquiry_list'),
+    path('admin/enquiries/<int:pk>/', AdminEnquiryUpdateView.as_view(), name='admin_enquiry_update'),
 ]

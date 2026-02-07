@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, status, views
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserSerializer, TutorProfileSerializer, CustomTokenObtainPairSerializer, TutorKYCSerializer, TutorStatusSerializer
+from .serializers import UserSerializer, TutorProfileSerializer, CustomTokenObtainPairSerializer, TutorKYCSerializer, TutorStatusSerializer, EnquirySerializer
 from .models import TutorProfile, TutorKYC, TutorStatus, ContactUnlock
 from jobs.admin_models import AdminProfile
 from wallet.models import Wallet
@@ -491,3 +491,38 @@ class CreateAdminUserView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+
+
+class EnquiryCreateView(generics.CreateAPIView):
+    """Public endpoint for 'Contact Us' form"""
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = [] # Explicitly disable auth
+    serializer_class = EnquirySerializer # Need to import locally or ensure imported
+
+    def get_serializer_class(self):
+        from .serializers import EnquirySerializer
+        return EnquirySerializer
+
+class AdminEnquiryListView(generics.ListAPIView):
+    """Admin view for enquiries"""
+    permission_classes = [permissions.IsAdminUser]
+    
+    def get_serializer_class(self):
+        from .serializers import EnquirySerializer
+        return EnquirySerializer
+
+    def get_queryset(self):
+        from .models import Enquiry
+        return Enquiry.objects.all().order_by('-created_at')
+
+class AdminEnquiryUpdateView(generics.UpdateAPIView):
+    """Admin view to update enquiry status"""
+    permission_classes = [permissions.IsAdminUser]
+    
+    def get_serializer_class(self):
+        from .serializers import EnquirySerializer
+        return EnquirySerializer
+        
+    def get_queryset(self):
+        from .models import Enquiry
+        return Enquiry.objects.all()

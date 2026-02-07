@@ -49,8 +49,6 @@ from .crm_views import (
 
 urlpatterns = [
     # General endpoints
-urlpatterns = [
-    # General endpoints
     path('create/', JobCreateView.as_view(), name='job-create'),
     # Tutor endpoints
     path('tutor/create/', TutorJobCreateView.as_view(), name='tutor-job-create'),
