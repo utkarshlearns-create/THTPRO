@@ -21,7 +21,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import SuperAdminLayout from './layouts/SuperAdminLayout';
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
 import SuperAdminLogin from './pages/superadmin/SuperAdminLogin';
-import { MasterManagement, HRMModule, CRMModule, SupportSystem } from './pages/superadmin/Placeholders';
+import HRMModule from './pages/superadmin/HRMModule';
+import { MasterManagement, CRMModule, SupportSystem } from './pages/superadmin/Placeholders';
 
 // KYC Pages
 import TutorKYCPage from './pages/TutorKYCPage';
