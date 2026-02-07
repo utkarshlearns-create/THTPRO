@@ -103,3 +103,17 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+class UserAdminSerializer(serializers.ModelSerializer):
+    """Serializer for Admin/Superadmin to view user details"""
+    department = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'phone', 'role', 'is_active', 'date_joined', 'last_login', 'department']
+        read_only_fields = fields
+
+    def get_department(self, obj):
+        if hasattr(obj, 'admin_profile'):
+            return obj.admin_profile.department
+        return None

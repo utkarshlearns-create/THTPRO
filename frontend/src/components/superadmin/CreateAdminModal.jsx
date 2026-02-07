@@ -38,8 +38,25 @@ const CreateAdminModal = ({ onClose, onSuccess }) => {
             if (response.ok) {
                 if (onSuccess) onSuccess(data);
                 onClose();
+            } else if (response.status === 401) {
+                 alert("Your session has expired. Please login again.");
+                 localStorage.removeItem('access');
+                 window.location.href = '/login'; // Force redirect
+                 onClose();
             } else {
-                setError(data.error || data.detail || (typeof data === 'string' ? data : JSON.stringify(data)) || "Failed to create admin");
+                 let errorMessage = data.error || data.detail || "Failed to create admin";
+                 
+                 if (!errorMessage && typeof data === 'object') {
+                     // Convert validation errors dict to string
+                     const messages = Object.entries(data).map(([key, msgs]) => {
+                          const msgText = Array.isArray(msgs) ? msgs.join(', ') : JSON.stringify(msgs);
+                          return `${key}: ${msgText}`;
+                     });
+                     if (messages.length > 0) {
+                         errorMessage = messages.join('\n');
+                     }
+                 }
+                 setError(errorMessage);
             }
         } catch (err) {
             setError("Network error. Please try again.");

@@ -17,6 +17,7 @@ from .views import (
     CreateAdminUserView
 )
 from .debug_views import DebugTokenView
+from .admin_views import UserManagementView, UserStatusView
 
 # NEW: Import KYC views
 from .kyc_views import (
@@ -48,6 +49,8 @@ urlpatterns = [
     
     # Admin endpoints
     path('superadmin/create-admin/', CreateAdminUserView.as_view(), name='create_admin'),
+    path('superadmin/users/', UserManagementView.as_view(), name='superadmin_users'),
+    path('superadmin/users/<int:pk>/status/', UserStatusView.as_view(), name='superadmin_user_status'),
     path('admin/tutors/', AdminTutorListView.as_view(), name='admin_tutor_list'),
     path('admin/tutors/<int:pk>/review/', AdminReviewView.as_view(), name='admin_review'),
     path('admin/kyc/pending/', AdminPendingKYCView.as_view(), name='admin_pending_kyc'),
