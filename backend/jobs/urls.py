@@ -47,6 +47,7 @@ from .crm_views import (
     AdminApplicationListView,
 )
 
+# URL Patterns
 urlpatterns = [
     # General endpoints
     path('create/', JobCreateView.as_view(), name='job-create'),
