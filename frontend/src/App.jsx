@@ -15,6 +15,7 @@ import TutorHome from './pages/TutorHome';
 import TutorDashboard from './pages/TutorDashboard';
 import JobSearch from './pages/JobSearch';
 import WalletPage from './pages/WalletPage';
+import UserPackagesPage from './pages/UserPackagesPage';
 import MyPostedJobs from './pages/MyPostedJobs';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -67,6 +68,11 @@ function App() {
               <Route path="/wallet" element={
                 <ProtectedRoute allowedRoles={['PARENT', 'TEACHER']}>
                    <WalletPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/packages" element={
+                <ProtectedRoute allowedRoles={['PARENT', 'TEACHER']}>
+                   <UserPackagesPage />
                 </ProtectedRoute>
               } />
               <Route path="/my-jobs" element={
