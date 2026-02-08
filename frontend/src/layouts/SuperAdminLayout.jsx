@@ -42,6 +42,15 @@ const SuperAdminLayout = () => {
         { label: 'Parent Packages', path: '/superadmin/packages/parent' },
       ]
     },
+    { 
+      icon: <Users size={20} />, 
+      label: 'Admin Performance', 
+      path: '/superadmin/performance',
+      subItems: [
+        { label: 'Parent Admins', path: '/superadmin/performance/parent-admins' },
+        { label: 'Tutor Admins', path: '/superadmin/performance/tutor-admins' },
+      ]
+    },
     { icon: <Headphones size={20} />, label: 'Support System', path: '/superadmin/support' },
   ];
 
