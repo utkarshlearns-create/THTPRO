@@ -25,6 +25,7 @@ import HRMModule from './pages/superadmin/HRMModule';
 import MasterManagement from './pages/superadmin/MasterManagement';
 import CRMModule from './pages/superadmin/CRMModule';
 import { SupportSystem } from './pages/superadmin/Placeholders';
+import PackageMaster from './pages/superadmin/PackageMaster';
 
 // KYC Pages
 import TutorKYCPage from './pages/TutorKYCPage';
@@ -108,6 +109,7 @@ function App() {
                   <Route path="masters" element={<MasterManagement />} />
                   <Route path="hrm" element={<HRMModule />} />
                   <Route path="crm" element={<CRMModule />} />
+                  <Route path="packages" element={<PackageMaster />} />
                   <Route path="support" element={<SupportSystem />} />
               </Route>
           </Route>

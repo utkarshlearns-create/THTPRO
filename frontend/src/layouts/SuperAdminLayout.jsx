@@ -10,7 +10,8 @@ import {
   Bell, 
   Menu, 
   ChevronDown,
-  LogOut
+  LogOut,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ThemeToggle from '../components/ui/ThemeToggle';
@@ -31,6 +32,7 @@ const SuperAdminLayout = () => {
     { icon: <Database size={20} />, label: 'Master Management', path: '/superadmin/masters' },
     { icon: <Users size={20} />, label: 'HRM Module', path: '/superadmin/hrm' },
     { icon: <Briefcase size={20} />, label: 'CRM & Leads', path: '/superadmin/crm' },
+    { icon: <CreditCard size={20} />, label: 'Package Master', path: '/superadmin/packages' },
     { icon: <Headphones size={20} />, label: 'Support System', path: '/superadmin/support' },
   ];
 
