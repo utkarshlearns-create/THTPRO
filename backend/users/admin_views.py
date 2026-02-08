@@ -272,12 +272,10 @@ class AdminPerformanceView(APIView):
         admin_performance = []
         
         for admin in admins_query:
-            # Get department from AdminProfile
+            # Get department from AdminProfile (same pattern as UserAdminSerializer)
             admin_dept = 'N/A'
-            try:
+            if hasattr(admin, 'admin_profile') and admin.admin_profile:
                 admin_dept = admin.admin_profile.department
-            except AdminProfile.DoesNotExist:
-                pass
             
             # Calculate metrics based on department
             metrics = {
