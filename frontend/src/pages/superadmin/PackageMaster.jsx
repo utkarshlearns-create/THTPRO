@@ -14,10 +14,12 @@ import {
 import Badge from '../../components/ui/badge';
 import API_BASE_URL from '../../config';
 import { toast } from 'react-hot-toast';
+import CreatePackageModal from '../../components/superadmin/CreatePackageModal';
 
 export default function PackageMaster({ role }) {
     const [packages, setPackages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showCreateModal, setShowCreateModal] = useState(false);
     const navigate = useNavigate();
 
     const fetchPackages = async () => {
@@ -48,25 +50,48 @@ export default function PackageMaster({ role }) {
         fetchPackages();
     }, [role]);
 
+    const handleDeletePackage = async (pkgId) => {
+        if (!window.confirm('Are you sure you want to delete this package?')) return;
+        
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/wallet/admin/packages/${pkgId}/`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                toast.success('Package deleted successfully');
+                fetchPackages();
+            } else {
+                toast.error('Failed to delete package');
+            }
+        } catch (error) {
+            toast.error('Failed to delete package');
+        }
+    };
+
     // Determine display info based on role
     const displayConfig = {
         TUTOR: {
             title: 'Tutor Packages',
             subtitle: 'Manage subscription packages for Tutors.',
             icon: <GraduationCap className="text-blue-500" size={24} />,
-            accentColor: 'blue'
+            accentColor: 'blue',
+            buttonClass: 'bg-blue-600 hover:bg-blue-700'
         },
         PARENT: {
             title: 'Parent Packages',
             subtitle: 'Manage subscription packages for Parents.',
             icon: <Users className="text-emerald-500" size={24} />,
-            accentColor: 'emerald'
+            accentColor: 'emerald',
+            buttonClass: 'bg-emerald-600 hover:bg-emerald-700'
         },
         default: {
             title: 'Package Master',
             subtitle: 'Select a package type from the sidebar.',
             icon: <CreditCard className="text-amber-500" size={24} />,
-            accentColor: 'amber'
+            accentColor: 'amber',
+            buttonClass: 'bg-amber-600 hover:bg-amber-700'
         }
     };
 
@@ -135,7 +160,10 @@ export default function PackageMaster({ role }) {
                         </div>
                     </div>
                 </div>
-                <Button className={`bg-${config.accentColor}-600 hover:bg-${config.accentColor}-700 text-white shadow-lg`}>
+                <Button 
+                    className={`${config.buttonClass} text-white shadow-lg`}
+                    onClick={() => setShowCreateModal(true)}
+                >
                     <Plus size={16} className="mr-2" /> Add New Package
                 </Button>
             </div>
@@ -170,7 +198,12 @@ export default function PackageMaster({ role }) {
                                         <div className="flex flex-col items-center gap-2 text-slate-500">
                                             <CreditCard size={32} className="text-slate-300" />
                                             <span>No {role?.toLowerCase()} packages found.</span>
-                                            <Button size="sm" variant="outline" className="mt-2">
+                                            <Button 
+                                                size="sm" 
+                                                variant="outline" 
+                                                className="mt-2"
+                                                onClick={() => setShowCreateModal(true)}
+                                            >
                                                 <Plus size={14} className="mr-1" /> Create First Package
                                             </Button>
                                         </div>
@@ -202,7 +235,13 @@ export default function PackageMaster({ role }) {
                                                 <Button size="sm" variant="outline" className="h-8 w-8 p-0" title="Edit">
                                                     <Edit size={14} />
                                                 </Button>
-                                                <Button size="sm" variant="outline" className="h-8 w-8 p-0 text-red-500 hover:text-red-700" title="Delete">
+                                                <Button 
+                                                    size="sm" 
+                                                    variant="outline" 
+                                                    className="h-8 w-8 p-0 text-red-500 hover:text-red-700" 
+                                                    title="Delete"
+                                                    onClick={() => handleDeletePackage(pkg.id)}
+                                                >
                                                     <Trash2 size={14} />
                                                 </Button>
                                             </div>
@@ -214,6 +253,15 @@ export default function PackageMaster({ role }) {
                     </Table>
                 </CardContent>
             </Card>
+
+            {/* Create Package Modal */}
+            {showCreateModal && (
+                <CreatePackageModal
+                    onClose={() => setShowCreateModal(false)}
+                    onSuccess={fetchPackages}
+                    defaultRole={role}
+                />
+            )}
         </div>
     );
 }
