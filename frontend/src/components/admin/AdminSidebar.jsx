@@ -37,17 +37,7 @@ const MENU_ITEMS = [
             { label: 'Approve Jobs', id: 'jobs-approve' },
         ]
     },
-    {
-        label: 'Parent Packages',
-        icon: Users,
-        id: 'parent-package',
-        subItems: [
-            { label: 'Package Master', id: 'parent-package-master' },
-            { label: 'Pending Purchase', id: 'parent-pending-purchase' },
-            { label: 'Approved Purchase', id: 'parent-approved-purchase' },
-            { label: 'Rejected Purchase', id: 'parent-rejected-purchase' },
-        ]
-    },
+
     // TUTOR MANAGEMENT
     {
         header: 'TUTOR MANAGEMENT',
@@ -69,17 +59,7 @@ const MENU_ITEMS = [
             { label: 'Assigned Jobs', id: 'select-tutor-assigned' }
         ]
     },
-    {
-        label: 'Tutor Packages',
-        icon: GraduationCap,
-        id: 'tutor-package',
-        subItems: [
-            { label: 'Package Master', id: 'tutor-package-master' },
-            { label: 'Pending Purchase', id: 'tutor-pending-purchase' },
-            { label: 'Approved Purchase', id: 'tutor-approved-purchase' },
-            { label: 'Rejected Purchase', id: 'tutor-rejected-purchase' },
-        ]
-    },
+
     // GENERAL
     {
         header: 'GENERAL',
