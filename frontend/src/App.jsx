@@ -110,6 +110,8 @@ function App() {
                   <Route path="hrm" element={<HRMModule />} />
                   <Route path="crm" element={<CRMModule />} />
                   <Route path="packages" element={<PackageMaster />} />
+                  <Route path="packages/tutor" element={<PackageMaster role="TUTOR" />} />
+                  <Route path="packages/parent" element={<PackageMaster role="PARENT" />} />
                   <Route path="support" element={<SupportSystem />} />
               </Route>
           </Route>

@@ -24,6 +24,7 @@ const SuperAdminLayout = () => {
   const [showCreateAdmin, setShowCreateAdmin] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedMenus, setExpandedMenus] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -32,9 +33,21 @@ const SuperAdminLayout = () => {
     { icon: <Database size={20} />, label: 'Master Management', path: '/superadmin/masters' },
     { icon: <Users size={20} />, label: 'HRM Module', path: '/superadmin/hrm' },
     { icon: <Briefcase size={20} />, label: 'CRM & Leads', path: '/superadmin/crm' },
-    { icon: <CreditCard size={20} />, label: 'Package Master', path: '/superadmin/packages' },
+    { 
+      icon: <CreditCard size={20} />, 
+      label: 'Package Master', 
+      path: '/superadmin/packages',
+      subItems: [
+        { label: 'Tutor Packages', path: '/superadmin/packages/tutor' },
+        { label: 'Parent Packages', path: '/superadmin/packages/parent' },
+      ]
+    },
     { icon: <Headphones size={20} />, label: 'Support System', path: '/superadmin/support' },
   ];
+
+  const toggleMenu = (label) => {
+    setExpandedMenus(prev => ({ ...prev, [label]: !prev[label] }));
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 flex">
@@ -59,23 +72,69 @@ const SuperAdminLayout = () => {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
             {navItems.map((item) => {
-                const isActive = location.pathname === item.path;
+                const hasSubItems = item.subItems && item.subItems.length > 0;
+                const isExpanded = expandedMenus[item.label];
+                const isActive = location.pathname === item.path || (hasSubItems && item.subItems.some(sub => location.pathname === sub.path));
+                
                 return (
-                    <Link 
-                        key={item.path} 
-                        to={item.path}
-                        className={cn(
-                            "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group",
-                            isActive 
-                                ? "bg-brand-gold text-white shadow-lg shadow-brand-gold/20" 
-                                : "text-slate-400 hover:bg-white/10 hover:text-white"
+                    <div key={item.path}>
+                        {hasSubItems ? (
+                            <>
+                                <button
+                                    onClick={() => toggleMenu(item.label)}
+                                    className={cn(
+                                        "w-full flex items-center justify-between gap-3 px-3 py-3 rounded-lg transition-all duration-200 group",
+                                        isActive 
+                                            ? "bg-brand-gold/20 text-brand-gold" 
+                                            : "text-slate-400 hover:bg-white/10 hover:text-white"
+                                    )}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className={cn("flex-shrink-0 transition-colors", isActive ? "text-brand-gold" : "text-slate-400 group-hover:text-white")}>
+                                            {item.icon}
+                                        </span>
+                                        {sidebarOpen && <span className="font-medium whitespace-nowrap">{item.label}</span>}
+                                    </div>
+                                    {sidebarOpen && (
+                                        <ChevronDown size={16} className={cn("transition-transform", isExpanded && "rotate-180")} />
+                                    )}
+                                </button>
+                                {isExpanded && sidebarOpen && (
+                                    <div className="ml-8 mt-1 space-y-1 border-l border-slate-700 pl-3">
+                                        {item.subItems.map(sub => (
+                                            <Link
+                                                key={sub.path}
+                                                to={sub.path}
+                                                className={cn(
+                                                    "block px-3 py-2 rounded-lg text-sm transition-colors",
+                                                    location.pathname === sub.path
+                                                        ? "bg-brand-gold text-white font-medium"
+                                                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                                                )}
+                                            >
+                                                {sub.label}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <Link 
+                                to={item.path}
+                                className={cn(
+                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group",
+                                    isActive 
+                                        ? "bg-brand-gold text-white shadow-lg shadow-brand-gold/20" 
+                                        : "text-slate-400 hover:bg-white/10 hover:text-white"
+                                )}
+                            >
+                                <span className={cn("flex-shrink-0 transition-colors", isActive ? "text-white" : "text-slate-400 group-hover:text-white")}>
+                                    {item.icon}
+                                </span>
+                                {sidebarOpen && <span className="font-medium whitespace-nowrap">{item.label}</span>}
+                            </Link>
                         )}
-                    >
-                        <span className={cn("flex-shrink-0 transition-colors", isActive ? "text-white" : "text-slate-400 group-hover:text-white")}>
-                            {item.icon}
-                        </span>
-                        {sidebarOpen && <span className="font-medium whitespace-nowrap">{item.label}</span>}
-                    </Link>
+                    </div>
                 );
             })}
         </nav>
