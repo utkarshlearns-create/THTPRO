@@ -255,14 +255,15 @@ class AdminPerformanceView(APIView):
         from django.db.models import Count
         from datetime import timedelta
         from jobs.models import JobPost, Application
+        from jobs.admin_models import AdminProfile
         from users.models import TutorKYC
 
         department = request.query_params.get('department')  # PARENT_OPS or TUTOR_OPS
         
-        # Get admins by department
-        admins_query = User.objects.filter(role='ADMIN', is_active=True)
+        # Get admins by department through AdminProfile relationship
+        admins_query = User.objects.filter(role='ADMIN', is_active=True).select_related('admin_profile')
         if department:
-            admins_query = admins_query.filter(department=department)
+            admins_query = admins_query.filter(admin_profile__department=department)
         
         now = timezone.now()
         this_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -271,12 +272,19 @@ class AdminPerformanceView(APIView):
         admin_performance = []
         
         for admin in admins_query:
+            # Get department from AdminProfile
+            admin_dept = 'N/A'
+            try:
+                admin_dept = admin.admin_profile.department
+            except AdminProfile.DoesNotExist:
+                pass
+            
             # Calculate metrics based on department
             metrics = {
                 'id': admin.id,
                 'username': admin.username,
                 'email': admin.email,
-                'department': getattr(admin, 'department', 'N/A'),
+                'department': admin_dept,
                 'date_joined': admin.date_joined.isoformat(),
             }
             
