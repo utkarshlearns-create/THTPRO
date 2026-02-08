@@ -242,3 +242,82 @@ class SuperAdminAnalyticsView(APIView):
             "revenue_weekly": revenue_weekly,
         })
 
+
+class AdminPerformanceView(APIView):
+    """
+    Superadmin: Get performance metrics for Admin users.
+    Can filter by department: PARENT_OPS or TUTOR_OPS
+    """
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        from django.utils import timezone
+        from django.db.models import Count
+        from datetime import timedelta
+        from jobs.models import JobPost, Application
+        from users.models import TutorKYC
+
+        department = request.query_params.get('department')  # PARENT_OPS or TUTOR_OPS
+        
+        # Get admins by department
+        admins_query = User.objects.filter(role='ADMIN', is_active=True)
+        if department:
+            admins_query = admins_query.filter(department=department)
+        
+        now = timezone.now()
+        this_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        this_week = now - timedelta(days=7)
+        
+        admin_performance = []
+        
+        for admin in admins_query:
+            # Calculate metrics based on department
+            metrics = {
+                'id': admin.id,
+                'username': admin.username,
+                'email': admin.email,
+                'department': getattr(admin, 'department', 'N/A'),
+                'date_joined': admin.date_joined.isoformat(),
+            }
+            
+            # For Parent Ops: Track jobs handled, approved, rejected
+            if not department or department == 'PARENT_OPS':
+                # Jobs assigned to this admin
+                assigned_jobs = JobPost.objects.filter(assigned_admin=admin)
+                metrics['jobs_assigned'] = assigned_jobs.count()
+                metrics['jobs_approved'] = assigned_jobs.filter(status='APPROVED').count()
+                metrics['jobs_rejected'] = assigned_jobs.filter(status='REJECTED').count()
+                metrics['jobs_pending'] = assigned_jobs.filter(status='PENDING_APPROVAL').count()
+                metrics['jobs_this_month'] = assigned_jobs.filter(created_at__gte=this_month).count()
+                metrics['jobs_this_week'] = assigned_jobs.filter(created_at__gte=this_week).count()
+            
+            # For Tutor Ops: Track KYC verifications
+            if not department or department == 'TUTOR_OPS':
+                # KYC records verified by this admin
+                kyc_verified = TutorKYC.objects.filter(verified_by=admin)
+                metrics['kyc_approved'] = kyc_verified.filter(status='APPROVED').count()
+                metrics['kyc_rejected'] = kyc_verified.filter(status='REJECTED').count()
+                metrics['kyc_this_month'] = kyc_verified.filter(updated_at__gte=this_month).count()
+                metrics['kyc_this_week'] = kyc_verified.filter(updated_at__gte=this_week).count()
+            
+            admin_performance.append(metrics)
+        
+        # Summary stats
+        summary = {
+            'total_admins': admins_query.count(),
+            'department': department or 'ALL',
+        }
+        
+        if department == 'PARENT_OPS' or not department:
+            summary['total_jobs_handled'] = sum(a.get('jobs_assigned', 0) for a in admin_performance)
+            summary['total_jobs_approved'] = sum(a.get('jobs_approved', 0) for a in admin_performance)
+            summary['total_jobs_rejected'] = sum(a.get('jobs_rejected', 0) for a in admin_performance)
+        
+        if department == 'TUTOR_OPS' or not department:
+            summary['total_kyc_verified'] = sum(a.get('kyc_approved', 0) + a.get('kyc_rejected', 0) for a in admin_performance)
+            summary['total_kyc_approved'] = sum(a.get('kyc_approved', 0) for a in admin_performance)
+        
+        return Response({
+            'summary': summary,
+            'admins': admin_performance
+        })

@@ -26,6 +26,7 @@ import MasterManagement from './pages/superadmin/MasterManagement';
 import CRMModule from './pages/superadmin/CRMModule';
 import { SupportSystem } from './pages/superadmin/Placeholders';
 import PackageMaster from './pages/superadmin/PackageMaster';
+import AdminPerformance from './pages/superadmin/AdminPerformance';
 
 // KYC Pages
 import TutorKYCPage from './pages/TutorKYCPage';
@@ -112,6 +113,9 @@ function App() {
                   <Route path="packages" element={<PackageMaster />} />
                   <Route path="packages/tutor" element={<PackageMaster role="TUTOR" />} />
                   <Route path="packages/parent" element={<PackageMaster role="PARENT" />} />
+                  <Route path="performance" element={<AdminPerformance />} />
+                  <Route path="performance/parent-admins" element={<AdminPerformance department="PARENT_OPS" />} />
+                  <Route path="performance/tutor-admins" element={<AdminPerformance department="TUTOR_OPS" />} />
                   <Route path="support" element={<SupportSystem />} />
               </Route>
           </Route>
