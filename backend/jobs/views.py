@@ -109,7 +109,7 @@ class MyJobPostsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        return JobPost.objects.filter(posted_by=self.request.user).order_by('-created_at')
+        return JobPost.objects.filter(posted_by=self.request.user).select_related('posted_by', 'assigned_admin').order_by('-created_at')
 
 
 class TutorApplicationsView(APIView):
@@ -264,7 +264,7 @@ class AdminPendingJobsView(generics.ListAPIView):
         return JobPost.objects.filter(
             assigned_admin=self.request.user,
             status='PENDING_APPROVAL'
-        ).order_by('-created_at')
+        ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
 
 
 class AdminApproveJobView(APIView):
@@ -373,7 +373,7 @@ class ParentJobListView(generics.ListAPIView):
     
     def get_queryset(self):
         # Only show approved jobs
-        return JobPost.objects.filter(status='APPROVED').order_by('-created_at')
+        return JobPost.objects.filter(status='APPROVED').select_related('posted_by', 'assigned_admin').order_by('-created_at')
 
 
 class JobDetailView(generics.RetrieveAPIView):
@@ -392,7 +392,7 @@ class JobSearchFilterView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny] # Generating leads usually public, or Auth required? Tutors usually need to be logged in to apply, but search can be open.
     
     def get_queryset(self):
-        queryset = JobPost.objects.filter(status='APPROVED').order_by('-created_at')
+        queryset = JobPost.objects.filter(status='APPROVED').select_related('posted_by', 'assigned_admin').order_by('-created_at')
         
         # Text Search (Subject/Grade/Location)
         q = self.request.query_params.get('q', None)
