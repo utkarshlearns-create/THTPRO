@@ -1,5 +1,6 @@
+"use client";
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import EarningsChart from './EarningsChart';
 import EngagementStats from './EngagementStats';
 import PerformanceRadial from './PerformanceRadial';
@@ -15,7 +16,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
 
 const DashboardHome = ({ user, completionPercentage }) => {
-    const navigate = useNavigate();
+    const router = useRouter();
 
     return (
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -33,7 +34,7 @@ const DashboardHome = ({ user, completionPercentage }) => {
                                  </p>
                              </div>
                         </div>
-                        <Button variant="sapphire" onClick={() => navigate('/dashboard/tutor?tab=profile')}>
+                        <Button variant="sapphire" onClick={() => router.push('/dashboard/tutor?tab=profile')}>
                             Complete Now
                         </Button>
                     </CardContent>
@@ -72,3 +73,6 @@ const DashboardHome = ({ user, completionPercentage }) => {
 };
 
 export default DashboardHome;
+
+
+

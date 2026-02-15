@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { cn } from '../../lib/utils';
 
@@ -61,3 +62,4 @@ const Progress = ({ value, className, indicatorClassName }) => (
 );
 
 export { CircularProgress, Progress };
+

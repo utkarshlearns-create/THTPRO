@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { Search, Filter, Eye, MoreVertical } from 'lucide-react';
 import { 
@@ -118,3 +119,4 @@ export default function FinalLeadsList() {
         </div>
     );
 }
+

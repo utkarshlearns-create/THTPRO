@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { Send, Bell, History } from 'lucide-react';
 import { Button } from '../../ui/button';
@@ -117,3 +118,4 @@ export default function NotificationMaster() {
         </div>
     );
 }
+

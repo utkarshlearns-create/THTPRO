@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { Search, Filter, Eye, ArchiveRestore } from 'lucide-react';
 import { 
@@ -112,3 +113,4 @@ export default function CloseLeadsList() {
         </div>
     );
 }
+

@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Search, Unlock } from 'lucide-react';
 import { 
@@ -59,3 +60,4 @@ export default function UnlockedJobsList() {
         </div>
     );
 }
+

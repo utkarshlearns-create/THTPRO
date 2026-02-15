@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, MessageSquare, Loader2 } from 'lucide-react';
 import { 
@@ -106,3 +107,4 @@ export default function EnquiryList() {
         </div>
     );
 }
+

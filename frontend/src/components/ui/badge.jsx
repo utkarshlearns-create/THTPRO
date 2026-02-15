@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { cn } from '../../lib/utils';
 
@@ -22,3 +23,4 @@ export default function Badge({ className, variant = "default", children, ...pro
         </div>
     );
 }
+

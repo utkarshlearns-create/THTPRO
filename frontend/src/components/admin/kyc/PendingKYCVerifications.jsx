@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Edit, Clock, User, FileText, Image as ImageIcon, Download, Eye, ZoomIn } from 'lucide-react';
 import API_BASE_URL from '../../../config';
@@ -477,3 +478,4 @@ const ActionModal = ({ action, kyc, onClose, onSubmit }) => {
 };
 
 export default PendingKYCVerifications;
+

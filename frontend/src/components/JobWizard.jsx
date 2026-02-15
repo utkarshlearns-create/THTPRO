@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { 
     ArrowRight, 
@@ -14,7 +15,7 @@ import {
     FlaskConical,
     Loader2
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import API_BASE_URL from '../config';
@@ -45,7 +46,7 @@ const iconMap = {
 };
 
 const JobWizard = () => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [masterDataLoading, setMasterDataLoading] = useState(true);
@@ -138,7 +139,7 @@ const JobWizard = () => {
         if (!token) {
             localStorage.setItem('pendingJobPost', JSON.stringify(formData));
             alert("Please Login to post a job opportunity!");
-            navigate('/login?redirect=post-job');
+            router.push('/login?redirect=post-job');
             return;
         }
 
@@ -159,14 +160,14 @@ const JobWizard = () => {
                 localStorage.removeItem('pendingJobPost');
                 alert(`Success! ${data.message}\n\nYour job posting is being reviewed by our team. You'll be notified once it's approved.`);
                 if (role === 'TEACHER') {
-                    navigate('/tutor-home');
+                    router.push('/tutor-home');
                 } else {
-                    navigate('/dashboard/parent');
+                    router.push('/dashboard/parent');
                 }
             } else if (response.status === 401) {
                 alert("Your session has expired. Please login again.");
                 clearAuthState();
-                navigate('/login');
+                router.push('/login');
             } else {
                 // Handle different error formats (string or object)
                 let errorMessage = data.error || data.detail || "Failed to post job. Please try again.";
@@ -464,3 +465,6 @@ const JobWizard = () => {
 };
 
 export default JobWizard;
+
+
+

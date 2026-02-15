@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, CheckCircle, XCircle, Eye, User, Award, Loader2 } from 'lucide-react';
 import { Button } from '../../ui/button';
@@ -193,3 +194,4 @@ export default function ApproveTutorList() {
         </div>
     );
 }
+

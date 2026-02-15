@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Eye, User } from 'lucide-react';
 import { 
@@ -64,3 +65,4 @@ export default function ParentViewHistory() {
         </div>
     );
 }
+

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { cn } from '../../../lib/utils';
@@ -105,3 +106,4 @@ const ApplicationFunnel = () => {
 };
 
 export default ApplicationFunnel;
+

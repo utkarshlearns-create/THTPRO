@@ -1,9 +1,10 @@
+"use client";
 import React from 'react';
 import { MapPin, Clock, Banknote, BookOpen } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 const JobCard = ({ job }) => {
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -54,7 +55,7 @@ const JobCard = ({ job }) => {
                 </div>
                 
                 <button 
-                    onClick={() => navigate(`/jobs/${job.id}`)}
+                    onClick={() => router.push(`/jobs/${job.id}`)}
                     className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-medium rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
                 >
                     View Details
@@ -65,3 +66,6 @@ const JobCard = ({ job }) => {
 };
 
 export default JobCard;
+
+
+

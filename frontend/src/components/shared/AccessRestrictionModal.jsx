@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
@@ -68,3 +69,4 @@ const AccessRestrictionModal = ({ isOpen, onClose, onProceed, title, message, be
 };
 
 export default AccessRestrictionModal;
+

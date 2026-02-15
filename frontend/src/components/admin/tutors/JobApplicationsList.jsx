@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Briefcase, Loader2 } from 'lucide-react';
 import { Button } from '../../ui/button';
@@ -122,3 +123,4 @@ export default function JobApplicationsList() {
         </div>
     );
 }
+

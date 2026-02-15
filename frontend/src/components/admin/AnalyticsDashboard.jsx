@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from 'react';
 import { 
     Users, 
@@ -222,3 +223,4 @@ export default function AnalyticsDashboard() {
         </div>
     );
 }
+

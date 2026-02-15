@@ -1,5 +1,7 @@
+"use client";
 import React, { useState } from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
   Database, 
@@ -18,15 +20,15 @@ import ThemeToggle from '../components/ui/ThemeToggle';
 import CreateAdminModal from '../components/superadmin/CreateAdminModal';
 import NotificationDropdown from '../components/superadmin/NotificationDropdown';
 
-const SuperAdminLayout = () => {
+const SuperAdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showCreateAdmin, setShowCreateAdmin] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedMenus, setExpandedMenus] = useState({});
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const navItems = [
     { icon: <LayoutDashboard size={20} />, label: 'Analytics Hub', path: '/superadmin' },
@@ -83,7 +85,7 @@ const SuperAdminLayout = () => {
             {navItems.map((item) => {
                 const hasSubItems = item.subItems && item.subItems.length > 0;
                 const isExpanded = expandedMenus[item.label];
-                const isActive = location.pathname === item.path || (hasSubItems && item.subItems.some(sub => location.pathname === sub.path));
+                const isActive = pathname === item.path || (hasSubItems && item.subItems.some(sub => pathname === sub.path));
                 
                 return (
                     <div key={item.path}>
@@ -116,7 +118,7 @@ const SuperAdminLayout = () => {
                                                 to={sub.path}
                                                 className={cn(
                                                     "block px-3 py-2 rounded-lg text-sm transition-colors",
-                                                    location.pathname === sub.path
+                                                    pathname === sub.path
                                                         ? "bg-brand-gold text-white font-medium"
                                                         : "text-slate-400 hover:text-white hover:bg-white/5"
                                                 )}
@@ -128,8 +130,7 @@ const SuperAdminLayout = () => {
                                 )}
                             </>
                         ) : (
-                            <Link 
-                                to={item.path}
+                            <Link href={item.path}
                                 className={cn(
                                     "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group",
                                     isActive 
@@ -182,7 +183,7 @@ const SuperAdminLayout = () => {
                     onSubmit={(e) => {
                         e.preventDefault();
                         if (searchQuery.trim()) {
-                            navigate(`/superadmin/hrm?q=${encodeURIComponent(searchQuery)}`);
+                            router.push(`/superadmin/hrm?q=${encodeURIComponent(searchQuery)}`);
                         }
                     }}
                     className="relative hidden md:block w-96"
@@ -256,7 +257,7 @@ const SuperAdminLayout = () => {
 
         {/* Page Content */}
         <main className="flex-1 p-6 overflow-x-hidden">
-            <Outlet />
+            {children}
         </main>
 
         {showCreateAdmin && (
@@ -275,3 +276,7 @@ const SuperAdminLayout = () => {
 };
 
 export default SuperAdminLayout;
+
+
+
+

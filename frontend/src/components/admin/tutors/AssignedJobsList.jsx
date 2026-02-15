@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Calendar, Loader2 } from 'lucide-react';
 import { Button } from '../../ui/button';
@@ -114,3 +115,4 @@ export default function AssignedJobsList() {
         </div>
     );
 }
+

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Search, CheckCircle, XCircle, Eye, Loader2 } from 'lucide-react';
 import { 
@@ -176,3 +177,4 @@ export default function ApproveJobs() {
         </div>
     );
 }
+

@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
 
@@ -25,3 +26,4 @@ const VerificationBadge = ({ size = 'sm', showText = true }) => {
 };
 
 export default VerificationBadge;
+

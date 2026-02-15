@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Edit, Clock, MapPin, BookOpen, GraduationCap, IndianRupee } from 'lucide-react';
 import API_BASE_URL from '../../../config';
@@ -302,3 +303,4 @@ const PendingJobApprovals = () => {
 };
 
 export default PendingJobApprovals;
+

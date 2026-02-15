@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 
 const TeacherDashboard = () => {
@@ -35,3 +36,4 @@ const TeacherDashboard = () => {
 };
 
 export default TeacherDashboard;
+

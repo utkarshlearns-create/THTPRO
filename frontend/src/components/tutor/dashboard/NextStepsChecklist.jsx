@@ -1,12 +1,13 @@
+"use client";
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { CheckCircle2, Circle, ArrowRight, Loader } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import API_BASE_URL from '../../../config';
 
 const NextStepsChecklist = () => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const [profileData, setProfileData] = useState(null);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -177,7 +178,7 @@ const NextStepsChecklist = () => {
                                 {/* Action Button */}
                                 {!isCompleted && !isDisabled && (
                                     <button
-                                        onClick={() => navigate(step.link)}
+                                        onClick={() => router.push(step.link)}
                                         className={cn(
                                             "flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all",
                                             isCurrent 
@@ -218,3 +219,6 @@ const NextStepsChecklist = () => {
 };
 
 export default NextStepsChecklist;
+
+
+

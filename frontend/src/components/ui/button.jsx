@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { cn } from '../../lib/utils';
 
@@ -33,3 +34,4 @@ const Button = React.forwardRef(({ className, variant = "default", size = "defau
 Button.displayName = "Button";
 
 export { Button };
+
