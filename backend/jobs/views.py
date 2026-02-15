@@ -69,8 +69,8 @@ class JobCreateView(APIView):
     
     def post(self, request):
         # Allow both Parents and Teachers (Teachers might post for substitutes, Parents for tutors)
-        if request.user.role not in ['PARENT', 'TEACHER', 'ADMIN', 'SUPERADMIN']:
-             return Response({"error": "You must be logged in as a Parent or Tutor to post a job."}, status=403)
+        if request.user.role not in ['PARENT', 'TEACHER', 'ADMIN', 'SUPERADMIN', 'INSTITUTION']:
+             return Response({"error": "You must be logged in as a Parent, Tutor, or Institution to post a job."}, status=403)
         
         # Use the same serializer structure for now
         serializer = TutorJobPostSerializer(data=request.data)
@@ -101,6 +101,24 @@ class JobCreateView(APIView):
                 return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AdminInstitutionJobListView(generics.ListAPIView):
+    """
+    List all pending jobs posted by Institutions for Admin approval.
+    """
+    serializer_class = JobPostSerializer
+    permission_classes = [permissions.IsAuthenticated] # Should be Admin/Superadmin
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+            return JobPost.objects.none()
+            
+        return JobPost.objects.filter(
+            status='PENDING_APPROVAL',
+            posted_by__role='INSTITUTION'
+        ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
+
 
 
 class MyJobPostsView(generics.ListAPIView):

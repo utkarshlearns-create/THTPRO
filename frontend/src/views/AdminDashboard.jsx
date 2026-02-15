@@ -10,6 +10,7 @@ import NotificationMaster from '../components/admin/notifications/NotificationMa
 import ParentPackageMaster from '../components/admin/packages/ParentPackageMaster';
 import TutorPackageMaster from '../components/admin/packages/TutorPackageMaster';
 import PurchaseList from '../components/admin/packages/PurchaseList';
+import InstituteJobApprovals from '../components/admin/institutions/InstituteJobApprovals';
 import ApproveTutorList from '../components/admin/tutors/ApproveTutorList';
 import JobApplicationsList from '../components/admin/tutors/JobApplicationsList';
 import AssignedJobsList from '../components/admin/tutors/AssignedJobsList';
@@ -57,7 +58,11 @@ const AdminDashboard = ({ mode }) => { // Accept mode prop
         if (activeView === 'tutor-package-master') return <TutorPackageMaster />;
         if (activeView === 'tutor-pending-purchase') return <PurchaseList role="Tutor" status="Pending" />;
         if (activeView === 'tutor-approved-purchase') return <PurchaseList role="Tutor" status="Approved" />;
+        if (activeView === 'tutor-approved-purchase') return <PurchaseList role="Tutor" status="Approved" />;
         if (activeView === 'tutor-rejected-purchase') return <PurchaseList role="Tutor" status="Rejected" />;
+
+        // Institute Management
+        if (activeView === 'institute-jobs-approve') return <InstituteJobApprovals />;
 
         // Approve Tutor
         if (activeView === 'approve-tutor-list') return <ApproveTutorList />;
