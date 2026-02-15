@@ -112,6 +112,11 @@ const MENU_ITEMS = [
         ]
     },
     {
+        label: 'Enquiries',
+        icon: Users,
+        id: 'enquiries'
+    },
+    {
         label: 'Reports',
         icon: FileText,
         id: 'reports',
@@ -207,7 +212,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
                    item.header === 'GENERAL';
         }
         if (mode === 'tutor') {
-            return ['approve-tutor', 'select-tutor', 'tutor-package'].includes(item.id) || item.header === 'TUTOR MANAGEMENT' || item.header === 'GENERAL';
+            return ['approve-tutor', 'select-tutor', 'tutor-package', 'enquiries'].includes(item.id) || item.header === 'TUTOR MANAGEMENT' || item.header === 'GENERAL';
         }
         return true;
     });
