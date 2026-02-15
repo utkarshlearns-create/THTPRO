@@ -20,6 +20,13 @@ import { cn } from '../lib/utils';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import CreateAdminModal from '../components/superadmin/CreateAdminModal';
 import NotificationDropdown from '../components/superadmin/NotificationDropdown';
+import ErrorBoundary from '../components/ErrorBoundary';
+
+const SafeSidebar = ({ children }) => (
+    <ErrorBoundary>
+        {children}
+    </ErrorBoundary>
+);
 
 const SuperAdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -71,6 +78,8 @@ const SuperAdminLayout = ({ children }) => {
           sidebarOpen ? "w-64" : "w-20"
         )}
       >
+        <ErrorBoundary>
+
         {/* Brand */}
         <div className="h-16 flex items-center justify-center border-b border-slate-700/50">
            {sidebarOpen ? (
@@ -165,6 +174,7 @@ const SuperAdminLayout = ({ children }) => {
                  )}
              </div>
         </div>
+        </ErrorBoundary>
       </aside>
 
       {/* Main Content Wrapper */}
