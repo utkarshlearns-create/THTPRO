@@ -13,7 +13,8 @@ import {
     ChevronDown,
     ChevronRight,
     Circle,
-    Package
+    Package,
+    Building2
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import ThemeToggle from '../ui/ThemeToggle';
@@ -82,6 +83,19 @@ const MENU_ITEMS = [
             { label: 'Pending Requests', id: 'tutor-pending-purchase' },
             { label: 'Approved History', id: 'tutor-approved-purchase' },
             { label: 'Rejected History', id: 'tutor-rejected-purchase' }
+        ]
+    },
+
+    // INSTITUTE MANAGEMENT
+    {
+        header: 'INSTITUTE MANAGEMENT',
+    },
+    {
+        label: 'Institute Jobs',
+        icon: Building2,
+        id: 'institute-jobs',
+        subItems: [
+            { label: 'Job Approvals', id: 'institute-jobs-approve' }
         ]
     },
 
