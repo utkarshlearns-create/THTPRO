@@ -142,3 +142,31 @@ class Location(models.Model):
 # Import additional models
 from .admin_models import AdminTask, Notification, AdminProfile
 
+
+class InstituteJob(models.Model):
+    STATUS_CHOICES = (
+        ('OPEN', 'Open'),
+        ('CLOSED', 'Closed'),
+    )
+    
+    JOB_TYPE_CHOICES = (
+        ('FULL_TIME', 'Full Time'),
+        ('PART_TIME', 'Part Time'),
+        ('CONTRACT', 'Contract'),
+        ('GUEST_LECTURE', 'Guest Lecture'),
+    )
+
+    institution = models.ForeignKey(User, on_delete=models.CASCADE, related_name='institute_jobs')
+    title = models.CharField(max_length=255)
+    subject = models.CharField(max_length=100)
+    class_level = models.CharField(max_length=100) # e.g., "Class 11-12"
+    requirements = models.TextField()
+    salary_range = models.CharField(max_length=100, blank=True, null=True)
+    job_type = models.CharField(max_length=20, choices=JOB_TYPE_CHOICES, default='FULL_TIME')
+    start_date = models.DateField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='OPEN')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} at {self.institution.institution_profile.institution_name if hasattr(self.institution, 'institution_profile') else self.institution.username}"

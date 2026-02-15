@@ -531,3 +531,49 @@ class AdminEnquiryUpdateView(generics.UpdateAPIView):
     def get_queryset(self):
         from .models import Enquiry
         return Enquiry.objects.all()
+
+from .models import User, TutorProfile, TutorKYC, TutorStatus, Enquiry, InstitutionProfile
+from .serializers import (
+    UserSerializer, TutorProfileSerializer, TutorKYCSerializer,
+    CustomTokenObtainPairSerializer, UserAdminSerializer, EnquirySerializer, InstitutionProfileSerializer
+)
+
+# ... existing code ...
+
+class InstitutionProfileView(generics.RetrieveUpdateAPIView):
+    """
+    Retrieve or update the authenticated user's institution profile.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = InstitutionProfileSerializer
+
+    def get_object(self):
+        if self.request.user.role != 'INSTITUTION':
+            raise permissions.PermissionDenied("User is not an institution.")
+        
+        # Ensure profile exists
+        profile, created = InstitutionProfile.objects.get_or_create(user=self.request.user)
+        return profile
+
+class InstitutionTutorListView(generics.ListAPIView):
+    """
+    List active tutors for institutions to browse.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = TutorProfileSerializer
+    
+    def get_queryset(self):
+        # Only ACTIVE tutors
+        queryset = TutorProfile.objects.filter(status_record__status='ACTIVE')
+        
+        # Simple Search
+        q = self.request.query_params.get('q')
+        if q:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(user__first_name__icontains=q) |
+                Q(subjects__icontains=q) |
+                Q(about__icontains=q)
+            )
+            
+        return queryset

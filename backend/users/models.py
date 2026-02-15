@@ -195,9 +195,12 @@ class InstitutionProfile(models.Model):
     """Profile for Institution users (Schools, Coaching Centers)"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='institution_profile')
     institution_name = models.CharField(max_length=255)
+    established_year = models.PositiveIntegerField(blank=True, null=True)
     address = models.TextField(blank=True)
     contact_person = models.CharField(max_length=100)
+    logo = models.ImageField(upload_to='institution_logos/', blank=True, null=True)
     website = models.URLField(blank=True)
+    about = models.TextField(blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

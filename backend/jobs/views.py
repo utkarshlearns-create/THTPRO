@@ -619,3 +619,60 @@ class ParentStatsView(APIView):
             "member_since": user.date_joined.strftime("%b %Y"),
             "activities": activities,
         })
+
+from .models import JobPost, Application, InstituteJob
+from .serializers import JobPostSerializer, TutorJobPostSerializer, ApplicationSerializer, AdminTaskSerializer, NotificationSerializer, InstituteJobSerializer
+
+# ... existing code ...
+
+class ParentStatsView(APIView):
+    # ... existing code ...
+        return Response({
+            "jobs_posted": jobs_posted,
+            "jobs_this_week": jobs_this_week,
+            "applications_received": applications_received,
+            "hired_count": hired_count,
+            "assigned_tutor": assigned_tutor,
+            "profile_completion": profile_completion,
+            "member_since": user.date_joined.strftime("%b %Y"),
+            "activities": activities,
+        })
+
+class InstituteJobViewSet(viewsets.ModelViewSet):
+    """
+    CRUD for Institute Jobs.
+    Institutions can create/update their own jobs.
+    Everyone can list/retrieve OPEN jobs.
+    """
+    serializer_class = InstituteJobSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def get_queryset(self):
+        # If action is list/retrieve, show all OPEN jobs
+        # unless filtering by 'my_jobs' for institution
+        queryset = InstituteJob.objects.all().order_by('-created_at')
+        
+        if self.action in ['list', 'retrieve']:
+             # Public view: only OPEN jobs
+             mode = self.request.query_params.get('mode')
+             if mode == 'my_jobs' and self.request.user.is_authenticated and self.request.user.role == 'INSTITUTION':
+                 return queryset.filter(institution=self.request.user)
+             
+             return queryset.filter(status='OPEN')
+             
+        return queryset
+
+    def perform_create(self, serializer):
+        if self.request.user.role != 'INSTITUTION':
+             raise permissions.PermissionDenied("Only Institutions can post jobs.")
+        serializer.save(institution=self.request.user)
+
+    def perform_update(self, serializer):
+        if self.request.user != serializer.instance.institution:
+            raise permissions.PermissionDenied("You can only edit your own jobs.")
+        serializer.save()
+            
+    def perform_destroy(self, instance):
+        if self.request.user != instance.institution:
+            raise permissions.PermissionDenied("You can only delete your own jobs.")
+        instance.delete()

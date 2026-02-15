@@ -52,7 +52,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
             {/* Logo */}
-            <Link href={role === 'PARENT' ? '/parent-home' : role === 'TEACHER' ? '/tutor-home' : '/'} className="flex items-center gap-2">
+            <Link href={role === 'PARENT' ? '/parent-home' : role === 'TEACHER' ? '/tutor-home' : role === 'INSTITUTION' ? '/institution-home' : '/'} className="flex items-center gap-2">
                 <img className="h-12 w-auto dark:brightness-0 dark:invert" src="/logo.png" alt="The Home Tuitions" />
                 <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
                     The Home <span className="text-indigo-600 dark:text-indigo-400">Tuitions</span>
@@ -64,19 +64,19 @@ const Navbar = () => {
                 <ThemeToggle />
                 {role ? (
                     <div className="flex items-center gap-6 ml-auto">
-                        <Link href={role === 'TEACHER' ? '/dashboard/tutor?tab=wallet' : '/dashboard/parent?tab=wallet'} className="flex items-center gap-2 px-4 py-2 bg-slate-100/80 dark:bg-slate-800/80 rounded-full text-indigo-900 dark:text-indigo-100 font-bold text-sm border border-slate-200/60 dark:border-slate-700/60 shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <Link href={role === 'TEACHER' ? '/dashboard/tutor?tab=wallet' : role === 'INSTITUTION' ? '/dashboard/institution?tab=wallet' : '/dashboard/parent?tab=wallet'} className="flex items-center gap-2 px-4 py-2 bg-slate-100/80 dark:bg-slate-800/80 rounded-full text-indigo-900 dark:text-indigo-100 font-bold text-sm border border-slate-200/60 dark:border-slate-700/60 shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                              <Wallet size={18} className="text-indigo-600 dark:text-indigo-400" />
                              <span>₹ {walletBalance}</span>
                         </Link>
-                        <Link href={role === 'TEACHER' ? '/dashboard/tutor?tab=notifications' : '/dashboard/parent?tab=notifications'} className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+                        <Link href={role === 'TEACHER' ? '/dashboard/tutor?tab=notifications' : role === 'INSTITUTION' ? '/dashboard/institution?tab=notifications' : '/dashboard/parent?tab=notifications'} className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
                             <Bell size={24} />
                             <span className="absolute top-1.5 right-2 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
                         </Link>
-                        <Link href={role === 'ADMIN' ? '/dashboard/admin' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'} 
+                        <Link href={role === 'ADMIN' ? '/dashboard/admin' : role === 'TEACHER' ? '/dashboard/tutor' : role === 'INSTITUTION' ? '/dashboard/institution' : '/dashboard/parent'} 
                             className="flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded-full transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
                         >
                             <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md ring-2 ring-white dark:ring-slate-800">
-                                {role === 'TEACHER' ? 'T' : role === 'PARENT' ? 'P' : 'A'}
+                                {role === 'TEACHER' ? 'T' : role === 'PARENT' ? 'P' : role === 'INSTITUTION' ? 'I' : 'A'}
                             </div>
                         </Link>
                     </div>
