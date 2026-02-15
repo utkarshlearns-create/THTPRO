@@ -108,6 +108,8 @@ class AdminInstitutionJobListView(generics.ListAPIView):
     """
     serializer_class = JobPostSerializer
     permission_classes = [permissions.IsAuthenticated] # Should be Admin/Superadmin
+    pagination_class = None
+
 
     def get_queryset(self):
         user = self.request.user

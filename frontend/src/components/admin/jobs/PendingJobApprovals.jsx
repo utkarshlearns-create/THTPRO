@@ -49,7 +49,7 @@ const PendingJobApprovals = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setPendingJobs(data);
+                setPendingJobs(Array.isArray(data) ? data : data.results || []);
             }
         } catch (error) {
             console.error('Error fetching pending jobs:', error);
@@ -67,7 +67,7 @@ const PendingJobApprovals = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setTutors(data);
+                setTutors(Array.isArray(data) ? data : data.results || []);
             }
         } catch (error) {
             console.error("Error searching tutors:", error);
