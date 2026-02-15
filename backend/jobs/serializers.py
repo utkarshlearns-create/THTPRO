@@ -1,5 +1,30 @@
 from rest_framework import serializers
-from .models import JobPost, Application
+
+from .models import JobPost, Application, InstituteJob
+
+# ... existing imports ...
+
+# ... existing classes ...
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
+        read_only_fields = ('user', 'created_at')
+
+class InstituteJobSerializer(serializers.ModelSerializer):
+    institution_name = serializers.ReadOnlyField(source='institution.institution_profile.institution_name')
+    
+    class Meta:
+        model = InstituteJob
+        fields = '__all__'
+        read_only_fields = ['institution', 'status', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        # assign institution from context
+        validated_data['institution'] = self.context['request'].user
+        return super().create(validated_data)
+
 from .admin_models import AdminTask, Notification
 
 

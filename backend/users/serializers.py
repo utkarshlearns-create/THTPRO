@@ -39,7 +39,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 from .models import TutorProfile
 
-from .models import TutorProfile, TutorKYC, TutorStatus, Enquiry
+from .models import TutorProfile, TutorKYC, TutorStatus, Enquiry, InstitutionProfile
 
 class TutorKYCSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,21 +88,43 @@ class TutorProfileSerializer(serializers.ModelSerializer):
             }
         return None
 
+
+class InstitutionProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InstitutionProfile
+        fields = '__all__'
+        read_only_fields = ['user', 'is_verified', 'created_at']
+
 class UserSerializer(serializers.ModelSerializer):
     tutor_profile = TutorProfileSerializer(read_only=True)
+    institution_profile = InstitutionProfileSerializer(read_only=True)
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'role', 'phone', 'password', 'tutor_profile']
+        fields = ['id', 'username', 'email', 'first_name', 'role', 'phone', 'password', 'tutor_profile', 'institution_profile']
         extra_kwargs = {'password': {'write_only': True}, 'first_name': {'required': False}}
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
-        instance = self.Meta.model(**validated_data)
-        if password is not None:
-            instance.set_password(password)
-        instance.save()
-        return instance
+        user = User.objects.create(**validated_data)
+        if password:
+            user.set_password(password)
+            user.save()
+            
+        # Create profile based on role
+        if user.role == 'TEACHER':
+            TutorProfile.objects.create(user=user)
+            # Also create status record
+            from .models import TutorStatus
+            TutorStatus.objects.create(tutor=user.tutor_profile)
+        elif user.role == 'INSTITUTION':
+            InstitutionProfile.objects.create(
+                user=user,
+                institution_name=user.first_name or "New Institution", # Default name
+                contact_person=user.first_name or "",
+            )
+            
+        return user
 
 class UserAdminSerializer(serializers.ModelSerializer):
     """Serializer for Admin/Superadmin to view user details"""
@@ -117,8 +139,6 @@ class UserAdminSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'admin_profile'):
             return obj.admin_profile.department
         return None
-
-
 
 class EnquirySerializer(serializers.ModelSerializer):
     class Meta:

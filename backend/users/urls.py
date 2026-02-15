@@ -14,7 +14,9 @@ from .views import (
     GoogleLoginView,
     ContactUnlockView,
     ContactUnlockView,
-    CreateAdminUserView
+    CreateAdminUserView,
+    InstitutionProfileView,
+    InstitutionTutorListView
 )
 from .debug_views import DebugTokenView
 from .admin_views import UserManagementView, UserStatusView, UserUpdateView, SuperAdminAnalyticsView, AdminPerformanceView
@@ -41,6 +43,8 @@ urlpatterns = [
     path('profile/', TutorProfileView.as_view(), name='tutor_profile'),
     path('tutor/<int:pk>/unlock/', ContactUnlockView.as_view(), name='tutor_unlock'),
     path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard_stats'),
+    path('institution/profile/', InstitutionProfileView.as_view(), name='institution_profile'),
+    path('institution/tutors/', InstitutionTutorListView.as_view(), name='institution_tutor_list'),
     
     # Legacy KYC endpoint
     path('kyc/submit/', KYCSubmissionView.as_view(), name='kyc_submission'),

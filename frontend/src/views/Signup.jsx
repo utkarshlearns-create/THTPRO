@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { User, GraduationCap, CheckCircle, ShieldCheck, Clock, Shield, Sparkles, AlertTriangle, Eye, EyeOff, Wallet } from 'lucide-react';
+import { User, GraduationCap, Building, CheckCircle, ShieldCheck, Clock, Shield, Sparkles, AlertTriangle, Eye, EyeOff, Wallet } from 'lucide-react';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import GoogleLoginButton from '../components/GoogleLoginButton';
 import API_BASE_URL from '../config';
@@ -103,8 +103,13 @@ const Signup = () => {
                     localStorage.setItem('role', data.role);
                     
                     // Small delay for UX
+                    localStorage.setItem('role', data.role);
+                    
+                    // Small delay for UX
                     setTimeout(() => {
-                        router.push(data.role === 'TEACHER' ? '/tutor-home' : '/parent-home');
+                        if (data.role === 'TEACHER') router.push('/tutor-home');
+                        else if (data.role === 'INSTITUTION') router.push('/dashboard/institution');
+                        else router.push('/parent-home');
                     }, 500);
                 } else {
                      // Fallback if no tokens (should not happen with new backend update)
@@ -144,6 +149,7 @@ const Signup = () => {
             localStorage.setItem('refresh', data.refresh);
             localStorage.setItem('role', data.role);
             if (data.role === 'TEACHER') router.push('/tutor-home');
+            else if (data.role === 'INSTITUTION') router.push('/dashboard/institution');
             else router.push('/parent-home');
           } else {
               setError(data.error || data.detail || "Google Signup failed.");
@@ -177,6 +183,25 @@ const Signup = () => {
                 bg: "bg-green-100 dark:bg-green-900/50",
                 title: "Flexible Schedule",
                 desc: "Teach at your own preferred timings."
+            }
+        ]
+    } : role === 'institution' ? {
+        badge: "For Schools & Coaching",
+        title: "Hire Best Tutors for ",
+        highlight: "Your Institute",
+        desc: "Connect with qualified tutors for your school or coaching center requirements.",
+        features: [
+             {
+                icon: <Building className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />,
+                bg: "bg-indigo-100 dark:bg-indigo-900/50",
+                title: "Dedicated Dashboard",
+                desc: "Manage all your job postings and applications in one place."
+            },
+            {
+                icon: <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />,
+                bg: "bg-green-100 dark:bg-green-900/50",
+                title: "Verified Profiles",
+                desc: "Access a pool of pre-verified, high-quality tutors."
             }
         ]
     } : {
@@ -264,30 +289,42 @@ const Signup = () => {
             </div>
 
             {/* Role Selection Tabs */}
-            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl mb-8">
+            <div className="grid grid-cols-3 gap-2 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl mb-8">
                 <button
                     type="button"
                     onClick={() => handleRoleChange('PARENT')}
-                     className={`flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                     className={`flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
                         role === 'parent'
                             ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700'
                             : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
                     }`}
                 >
                     <User className="h-4 w-4" />
-                    I'm a Parent
+                    Parent
                 </button>
                  <button
                     type="button"
                     onClick={() => handleRoleChange('TEACHER')}
-                    className={`flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                    className={`flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
                         role === 'teacher'
                              ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700'
                             : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
                     }`}
                 >
                     <GraduationCap className="h-4 w-4" />
-                    I'm a Tutor
+                    Tutor
+                </button>
+                <button
+                    type="button"
+                    onClick={() => handleRoleChange('INSTITUTION')}
+                    className={`flex items-center justify-center gap-2 py-2.5 text-xs sm:text-sm font-semibold rounded-lg transition-all ${
+                        role === 'institution'
+                             ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700'
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
+                    }`}
+                >
+                    <Building className="h-4 w-4" />
+                   Institute
                 </button>
             </div>
 

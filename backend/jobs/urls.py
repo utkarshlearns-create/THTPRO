@@ -27,6 +27,9 @@ from .views import (
     
     # Stats endpoints
     ParentStatsView,
+    
+    # Institution endpoints
+    InstituteJobViewSet,
 )
 
 # Master data views
@@ -107,6 +110,11 @@ urlpatterns = [
     # Seed data (one-time)
     path('master/seed/', SeedMasterDataView.as_view(), name='seed-master-data'),
     
+
+    # Institution endpoints
+    path('institution/jobs/', InstituteJobViewSet.as_view({'get': 'list', 'post': 'create'}), name='institution-job-list'),
+    path('institution/jobs/<int:pk>/', InstituteJobViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='institution-job-detail'),
+
     # ==================== CRM ENDPOINTS (Superadmin) ====================
     path('crm/jobs/', CRMJobListView.as_view(), name='crm-job-list'),
     path('crm/jobs/<int:pk>/', CRMJobDetailView.as_view(), name='crm-job-detail'),
