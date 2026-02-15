@@ -111,3 +111,44 @@ class AdminTransactionListView(generics.ListAPIView):
             )
             
         return queryset
+
+
+class RevokeCreditsView(APIView):
+    """
+    Superadmin: Revoke (deduct) credits from a user's wallet.
+    Useful for correcting mistakes or penalizing users.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role != 'SUPERADMIN':
+            return Response({"error": "Only Superadmin can revoke credits"}, status=403)
+            
+        from django.shortcuts import get_object_or_404
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        target_user = get_object_or_404(User, pk=pk)
+        amount = request.data.get('amount')
+        reason = request.data.get('reason', 'Admin Correction')
+        
+        try:
+            amount = float(amount)
+            if amount <= 0:
+                raise ValueError
+        except (TypeError, ValueError):
+            return Response({"error": "Invalid amount"}, status=400)
+            
+        wallet, _ = Wallet.objects.get_or_create(user=target_user)
+        
+        try:
+            new_balance = wallet.debit(amount, f"REVOKED BY ADMIN: {reason}")
+            
+            return Response({
+                "message": f"Successfully revoked {amount} credits",
+                "user": target_user.username,
+                "new_balance": new_balance,
+                "reason": reason
+            })
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)

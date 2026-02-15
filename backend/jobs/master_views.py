@@ -112,106 +112,126 @@ class SeedMasterDataView(APIView):
     permission_classes = [IsSuperAdmin]
 
     def post(self, request):
+        import logging
+        logger = logging.getLogger(__name__)
+        
         created = {'subjects': 0, 'boards': 0, 'class_levels': 0, 'locations': 0}
+        skipped = {'subjects': 0, 'boards': 0, 'class_levels': 0, 'locations': 0}
+        
+        try:
+            # Seed Subjects
+            default_subjects = [
+                ('Mathematics', 'Calculator', 'Academic'),
+                ('Physics', 'Atom', 'Academic'),
+                ('Chemistry', 'FlaskConical', 'Academic'),
+                ('Biology', 'Dna', 'Academic'),
+                ('English', 'BookOpen', 'Academic'),
+                ('Hindi', 'Globe', 'Academic'),
+                ('Computer Science', 'Code', 'Academic'),
+                ('History', 'Landmark', 'Academic'),
+                ('Geography', 'Map', 'Academic'),
+                ('Economics', 'TrendingUp', 'Academic'),
+                ('Accountancy', 'Calculator', 'Academic'),
+                ('JEE Mains', 'GraduationCap', 'Competitive'),
+                ('JEE Advanced', 'GraduationCap', 'Competitive'),
+                ('NEET', 'Stethoscope', 'Competitive'),
+                ('UPSC', 'Award', 'Competitive'),
+                ('CAT', 'BarChart', 'Competitive'),
+            ]
+            for idx, (name, icon, category) in enumerate(default_subjects):
+                obj, was_created = Subject.objects.get_or_create(
+                    name=name, defaults={'icon': icon, 'category': category, 'order': idx}
+                )
+                if was_created:
+                    created['subjects'] += 1
+                else:
+                    skipped['subjects'] += 1
 
-        # Seed Subjects
-        default_subjects = [
-            ('Mathematics', 'Calculator', 'Academic'),
-            ('Physics', 'Atom', 'Academic'),
-            ('Chemistry', 'FlaskConical', 'Academic'),
-            ('Biology', 'Dna', 'Academic'),
-            ('English', 'BookOpen', 'Academic'),
-            ('Hindi', 'Globe', 'Academic'),
-            ('Computer Science', 'Code', 'Academic'),
-            ('History', 'Landmark', 'Academic'),
-            ('Geography', 'Map', 'Academic'),
-            ('Economics', 'TrendingUp', 'Academic'),
-            ('Accountancy', 'Calculator', 'Academic'),
-            ('JEE Mains', 'GraduationCap', 'Competitive'),
-            ('JEE Advanced', 'GraduationCap', 'Competitive'),
-            ('NEET', 'Stethoscope', 'Competitive'),
-            ('UPSC', 'Award', 'Competitive'),
-            ('CAT', 'BarChart', 'Competitive'),
-        ]
-        for idx, (name, icon, category) in enumerate(default_subjects):
-            obj, was_created = Subject.objects.get_or_create(
-                name=name, defaults={'icon': icon, 'category': category, 'order': idx}
-            )
-            if was_created:
-                created['subjects'] += 1
+            # Seed Boards
+            default_boards = [
+                ('Central Board of Secondary Education', 'CBSE'),
+                ('Indian Certificate of Secondary Education', 'ICSE'),
+                ('Maharashtra State Board', 'MSBSHSE'),
+                ('Karnataka State Board', 'KSEEB'),
+                ('Tamil Nadu State Board', 'TNBSE'),
+                ('Uttar Pradesh Board', 'UP Board'),
+                ('West Bengal Board', 'WBBSE'),
+                ('International Baccalaureate', 'IB'),
+                ('Cambridge IGCSE', 'IGCSE'),
+            ]
+            for idx, (name, short_name) in enumerate(default_boards):
+                obj, was_created = Board.objects.get_or_create(
+                    name=name, defaults={'short_name': short_name, 'order': idx}
+                )
+                if was_created:
+                    created['boards'] += 1
+                else:
+                    skipped['boards'] += 1
 
-        # Seed Boards
-        default_boards = [
-            ('Central Board of Secondary Education', 'CBSE'),
-            ('Indian Certificate of Secondary Education', 'ICSE'),
-            ('Maharashtra State Board', 'MSBSHSE'),
-            ('Karnataka State Board', 'KSEEB'),
-            ('Tamil Nadu State Board', 'TNBSE'),
-            ('Uttar Pradesh Board', 'UP Board'),
-            ('West Bengal Board', 'WBBSE'),
-            ('International Baccalaureate', 'IB'),
-            ('Cambridge IGCSE', 'IGCSE'),
-        ]
-        for idx, (name, short_name) in enumerate(default_boards):
-            obj, was_created = Board.objects.get_or_create(
-                name=name, defaults={'short_name': short_name, 'order': idx}
-            )
-            if was_created:
-                created['boards'] += 1
+            # Seed Class Levels
+            default_class_levels = [
+                ('Nursery', 'Pre-School'),
+                ('LKG', 'Pre-School'),
+                ('UKG', 'Pre-School'),
+                ('Class 1', 'School'),
+                ('Class 2', 'School'),
+                ('Class 3', 'School'),
+                ('Class 4', 'School'),
+                ('Class 5', 'School'),
+                ('Class 6', 'School'),
+                ('Class 7', 'School'),
+                ('Class 8', 'School'),
+                ('Class 9', 'School'),
+                ('Class 10', 'School'),
+                ('Class 11', 'School'),
+                ('Class 12', 'School'),
+                ('Undergraduate', 'College'),
+                ('Postgraduate', 'College'),
+            ]
+            for idx, (name, category) in enumerate(default_class_levels):
+                obj, was_created = ClassLevel.objects.get_or_create(
+                    name=name, defaults={'category': category, 'order': idx}
+                )
+                if was_created:
+                    created['class_levels'] += 1
+                else:
+                    skipped['class_levels'] += 1
 
-        # Seed Class Levels
-        default_class_levels = [
-            ('Nursery', 'Pre-School'),
-            ('LKG', 'Pre-School'),
-            ('UKG', 'Pre-School'),
-            ('Class 1', 'School'),
-            ('Class 2', 'School'),
-            ('Class 3', 'School'),
-            ('Class 4', 'School'),
-            ('Class 5', 'School'),
-            ('Class 6', 'School'),
-            ('Class 7', 'School'),
-            ('Class 8', 'School'),
-            ('Class 9', 'School'),
-            ('Class 10', 'School'),
-            ('Class 11', 'School'),
-            ('Class 12', 'School'),
-            ('Undergraduate', 'College'),
-            ('Postgraduate', 'College'),
-        ]
-        for idx, (name, category) in enumerate(default_class_levels):
-            obj, was_created = ClassLevel.objects.get_or_create(
-                name=name, defaults={'category': category, 'order': idx}
-            )
-            if was_created:
-                created['class_levels'] += 1
+            # Seed Locations (Major Indian cities)
+            default_locations = [
+                ('Mumbai', 'Maharashtra'),
+                ('Delhi', 'Delhi'),
+                ('Bangalore', 'Karnataka'),
+                ('Hyderabad', 'Telangana'),
+                ('Chennai', 'Tamil Nadu'),
+                ('Kolkata', 'West Bengal'),
+                ('Pune', 'Maharashtra'),
+                ('Ahmedabad', 'Gujarat'),
+                ('Jaipur', 'Rajasthan'),
+                ('Lucknow', 'Uttar Pradesh'),
+                ('Chandigarh', 'Punjab'),
+                ('Kochi', 'Kerala'),
+                ('Indore', 'Madhya Pradesh'),
+                ('Bhopal', 'Madhya Pradesh'),
+                ('Nagpur', 'Maharashtra'),
+            ]
+            for city, state in default_locations:
+                obj, was_created = Location.objects.get_or_create(
+                    city=city, defaults={'state': state}
+                )
+                if was_created:
+                    created['locations'] += 1
+                else:
+                    skipped['locations'] += 1
 
-        # Seed Locations (Major Indian cities)
-        default_locations = [
-            ('Mumbai', 'Maharashtra'),
-            ('Delhi', 'Delhi'),
-            ('Bangalore', 'Karnataka'),
-            ('Hyderabad', 'Telangana'),
-            ('Chennai', 'Tamil Nadu'),
-            ('Kolkata', 'West Bengal'),
-            ('Pune', 'Maharashtra'),
-            ('Ahmedabad', 'Gujarat'),
-            ('Jaipur', 'Rajasthan'),
-            ('Lucknow', 'Uttar Pradesh'),
-            ('Chandigarh', 'Punjab'),
-            ('Kochi', 'Kerala'),
-            ('Indore', 'Madhya Pradesh'),
-            ('Bhopal', 'Madhya Pradesh'),
-            ('Nagpur', 'Maharashtra'),
-        ]
-        for city, state in default_locations:
-            obj, was_created = Location.objects.get_or_create(
-                city=city, defaults={'state': state}
-            )
-            if was_created:
-                created['locations'] += 1
-
-        return Response({
-            'message': 'Master data seeded successfully',
-            'created': created
-        })
+            logger.info(f"Master Seed Data: Created={created}, Skipped={skipped}")
+            
+            return Response({
+                'message': 'Master data seeding completed',
+                'created': created,
+                'skipped': skipped
+            })
+            
+        except Exception as e:
+            logger.error(f"Error seeding master data: {str(e)}")
+            return Response({"error": str(e)}, status=500)

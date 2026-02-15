@@ -1,306 +1,300 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { 
+    BarChart, 
+    Bar, 
+    XAxis, 
+    YAxis, 
+    CartesianGrid, 
+    Tooltip, 
+    ResponsiveContainer,
+    Legend
+} from 'recharts';
+import { 
+    Trophy, 
+    TrendingUp, 
     Users, 
-    Briefcase, 
-    GraduationCap, 
     CheckCircle, 
     XCircle,
     Clock,
-    TrendingUp,
-    Loader2,
-    ArrowLeft,
-    Shield
+    Target,
+    Award
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import API_BASE_URL from '../../config';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '../../components/ui/table';
-import Badge from '../../components/ui/badge';
-import API_BASE_URL from '../../config';
-import { motion } from 'framer-motion';
 
-// Stat Card Component
-const StatCard = ({ title, value, icon, color, index }) => (
-    <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.1 }}
-    >
-        <Card className={`border-l-4 ${color} bg-white dark:bg-slate-900 shadow-sm`}>
-            <CardContent className="p-4">
-                <div className="flex justify-between items-center">
-                    <div>
-                        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">{title}</p>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{value}</h3>
-                    </div>
-                    <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                        {icon}
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-    </motion.div>
-);
-
-export default function AdminPerformance({ department }) {
-    const [data, setData] = useState({ summary: {}, admins: [] });
+const AdminPerformance = () => {
+    const [activeTab, setActiveTab] = useState('PARENT_OPS');
+    const [performanceData, setPerformanceData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const router = useRouter();
+    const [error, setError] = useState(null);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+    useEffect(() => {
+        fetchPerformance();
+    }, [refreshTrigger]);
 
     const fetchPerformance = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('access');
-            const url = department 
-                ? `${API_BASE_URL}/api/users/superadmin/admin-performance/?department=${department}`
-                : `${API_BASE_URL}/api/users/superadmin/admin-performance/`;
-            const response = await fetch(url, {
+            const response = await fetch(`${API_BASE_URL}/api/users/superadmin/performance/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+
             if (response.ok) {
-                const result = await response.json();
-                setData(result);
+                const data = await response.json();
+                setPerformanceData(data);
+            } else {
+                setError("Failed to fetch performance data");
             }
-        } catch (error) {
-            console.error("Error fetching admin performance:", error);
+        } catch (err) {
+            setError("Network error");
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchPerformance();
-    }, [department]);
+    if (loading && !performanceData) return <div className="p-8 text-center text-slate-500">Loading performance metrics...</div>;
+    if (error && !performanceData) return <div className="p-8 text-center text-red-500">{error}</div>;
 
-    // Config based on department
-    const config = {
-        PARENT_OPS: {
-            title: 'Parent Admin Performance',
-            subtitle: 'Track work progress of Parent Operations team.',
-            icon: <Briefcase className="text-blue-500" size={24} />,
-            color: 'blue'
-        },
-        TUTOR_OPS: {
-            title: 'Tutor Admin Performance',
-            subtitle: 'Track work progress of Tutor Operations team.',
-            icon: <GraduationCap className="text-emerald-500" size={24} />,
-            color: 'emerald'
-        },
-        default: {
-            title: 'Admin Performance',
-            subtitle: 'Select a department to view performance.',
-            icon: <Shield className="text-amber-500" size={24} />,
-            color: 'amber'
-        }
-    };
+    const topPerformers = performanceData?.top_performers || {};
+    const parentOpsData = performanceData?.parent_ops || [];
+    const tutorOpsData = performanceData?.tutor_ops || [];
 
-    const currentConfig = config[department] || config.default;
-
-    // Selection screen if no department
-    if (!department) {
-        return (
-            <div className="space-y-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Admin Performance</h1>
-                    <p className="text-slate-500 dark:text-slate-400">View work progress of your admin teams.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card 
-                        className="cursor-pointer hover:shadow-lg hover:border-blue-400 transition-all border-2 border-transparent"
-                        onClick={() => router.push('/superadmin/performance/parent-admins')}
-                    >
-                        <CardContent className="p-8 flex flex-col items-center text-center gap-4">
-                            <div className="p-4 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                                <Briefcase className="text-blue-500" size={40} />
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Parent Admins</h3>
-                                <p className="text-sm text-slate-500">View job handling & approval metrics</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card 
-                        className="cursor-pointer hover:shadow-lg hover:border-emerald-400 transition-all border-2 border-transparent"
-                        onClick={() => router.push('/superadmin/performance/tutor-admins')}
-                    >
-                        <CardContent className="p-8 flex flex-col items-center text-center gap-4">
-                            <div className="p-4 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
-                                <GraduationCap className="text-emerald-500" size={40} />
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Tutor Admins</h3>
-                                <p className="text-sm text-slate-500">View KYC verification metrics</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-        );
-    }
-
-    const { summary, admins } = data;
-
-    // Stats for Parent Ops
-    const parentOpsStats = [
-        { title: 'Total Admins', value: summary.total_admins || 0, icon: <Users className="text-blue-500" />, color: 'border-blue-500' },
-        { title: 'Jobs Handled', value: summary.total_jobs_handled || 0, icon: <Briefcase className="text-amber-500" />, color: 'border-amber-500' },
-        { title: 'Jobs Approved', value: summary.total_jobs_approved || 0, icon: <CheckCircle className="text-emerald-500" />, color: 'border-emerald-500' },
-        { title: 'Jobs Rejected', value: summary.total_jobs_rejected || 0, icon: <XCircle className="text-red-500" />, color: 'border-red-500' },
-    ];
-
-    // Stats for Tutor Ops
-    const tutorOpsStats = [
-        { title: 'Total Admins', value: summary.total_admins || 0, icon: <Users className="text-emerald-500" />, color: 'border-emerald-500' },
-        { title: 'KYC Verified', value: summary.total_kyc_verified || 0, icon: <Shield className="text-blue-500" />, color: 'border-blue-500' },
-        { title: 'KYC Approved', value: summary.total_kyc_approved || 0, icon: <CheckCircle className="text-green-500" />, color: 'border-green-500' },
-    ];
-
-    const stats = department === 'PARENT_OPS' ? parentOpsStats : tutorOpsStats;
+    const currentData = activeTab === 'PARENT_OPS' ? parentOpsData : tutorOpsData;
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center gap-4">
-                    <button 
-                        onClick={() => router.push('/superadmin/performance')}
-                        className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                    >
-                        <ArrowLeft size={20} className="text-slate-500" />
-                    </button>
-                    <div className="flex items-center gap-3">
-                        {currentConfig.icon}
-                        <div>
-                            <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{currentConfig.title}</h1>
-                            <p className="text-slate-500 dark:text-slate-400">{currentConfig.subtitle}</p>
-                        </div>
-                    </div>
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <TrendingUp className="text-brand-gold" /> Admin Performance
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400">Track key metrics and identify top performers.</p>
                 </div>
-                <Button variant="outline" onClick={fetchPerformance} disabled={loading}>
-                    {loading ? <Loader2 className="animate-spin" size={16} /> : 'Refresh'}
+                <Button variant="outline" onClick={() => setRefreshTrigger(prev => prev + 1)}>
+                    Refresh
                 </Button>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {stats.map((stat, index) => (
-                    <StatCard key={stat.title} {...stat} index={index} />
-                ))}
+            {/* Top Performers Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Card className="bg-gradient-to-br from-yellow-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-900/10 border-amber-200 dark:border-amber-800">
+                    <CardContent className="p-6 flex items-center gap-4">
+                        <div className="h-16 w-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm text-yellow-500">
+                            <Trophy size={32} />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Top Converter</p>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+                                {topPerformers.top_converter?.name || 'N/A'}
+                            </h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-300">
+                                {topPerformers.top_converter?.conversion_rate}% Conversion
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/10 border-blue-200 dark:border-blue-800">
+                    <CardContent className="p-6 flex items-center gap-4">
+                        <div className="h-16 w-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm text-blue-500">
+                            <Target size={32} />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Highest Volume</p>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+                                {topPerformers.top_volume?.name || 'N/A'}
+                            </h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-300">
+                                {topPerformers.top_volume?.kyc_processed || topPerformers.top_volume?.assigned_leads || 0} Tasks
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-900/20 dark:to-green-900/10 border-emerald-200 dark:border-emerald-800">
+                    <CardContent className="p-6 flex items-center gap-4">
+                        <div className="h-16 w-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm text-emerald-500">
+                            <Award size={32} />
+                        </div>
+                        <div>
+                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Most Active</p>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
+                                {topPerformers.most_efficient?.name || 'N/A'}
+                            </h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-300">
+                                Active Now
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
 
-            {/* Admins Table */}
-            <Card className="border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900">
-                <CardHeader>
-                    <CardTitle>Individual Admin Performance</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Admin</TableHead>
-                                {department === 'PARENT_OPS' && (
+            {/* Tabs */}
+            <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800">
+                <button
+                    onClick={() => setActiveTab('PARENT_OPS')}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'PARENT_OPS' 
+                        ? 'border-brand-gold text-brand-gold' 
+                        : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                    }`}
+                >
+                    Parent Operations
+                </button>
+                <button
+                    onClick={() => setActiveTab('TUTOR_OPS')}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === 'TUTOR_OPS' 
+                        ? 'border-brand-gold text-brand-gold' 
+                        : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                    }`}
+                >
+                    Tutor Operations
+                </button>
+            </div>
+
+            {/* Performance Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2 border-slate-200 dark:border-slate-800">
+                    <CardHeader>
+                        <CardTitle>Performance Comparison</CardTitle>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={currentData}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.3} />
+                                <XAxis dataKey="username" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+                                <Tooltip 
+                                    contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
+                                />
+                                <Legend />
+                                {activeTab === 'PARENT_OPS' ? (
                                     <>
-                                        <TableHead>Jobs Assigned</TableHead>
-                                        <TableHead>Approved</TableHead>
-                                        <TableHead>Rejected</TableHead>
-                                        <TableHead>This Week</TableHead>
+                                        <Bar dataKey="assigned_leads" name="Assigned" fill="#94a3b8" radius={[4, 4, 0, 0]} barSize={20} />
+                                        <Bar dataKey="converted_leads" name="Converted" fill="#d97706" radius={[4, 4, 0, 0]} barSize={20} />
+                                    </>
+                                ) : (
+                                    <>
+                                        <Bar dataKey="kyc_processed" name="KYC Processed" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
+                                        <Bar dataKey="interviews_conducted" name="Interviews" fill="#8b5cf6" radius={[4, 4, 0, 0]} barSize={20} />
                                     </>
                                 )}
-                                {department === 'TUTOR_OPS' && (
-                                    <>
-                                        <TableHead>KYC Approved</TableHead>
-                                        <TableHead>KYC Rejected</TableHead>
-                                        <TableHead>This Week</TableHead>
-                                    </>
-                                )}
-                                <TableHead>Joined</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {loading ? (
-                                <TableRow>
-                                    <TableCell colSpan={department === 'PARENT_OPS' ? 6 : 5} className="text-center py-12">
-                                        <div className="flex flex-col items-center gap-2">
-                                            <Loader2 className="animate-spin text-amber-500" size={32} />
-                                            <span className="text-slate-500">Loading performance data...</span>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ) : admins.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={department === 'PARENT_OPS' ? 6 : 5} className="h-32 text-center">
-                                        <div className="flex flex-col items-center gap-2 text-slate-500">
-                                            <Users size={32} className="text-slate-300" />
-                                            <span>No admins found for this department.</span>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+
+                <Card className="border-slate-200 dark:border-slate-800">
+                    <CardHeader>
+                        <CardTitle>Leaderboard</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {currentData.length === 0 ? (
+                                <p className="text-slate-500 text-sm">No data available</p>
                             ) : (
-                                admins.map((admin) => (
-                                    <TableRow key={admin.id}>
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold">
-                                                    {admin.username?.substring(0, 2).toUpperCase()}
-                                                </div>
-                                                <div>
-                                                    <p className="font-semibold text-slate-900 dark:text-white">{admin.username}</p>
-                                                    <p className="text-xs text-slate-500">{admin.email}</p>
-                                                </div>
+                                currentData
+                                    .sort((a, b) => {
+                                        if (activeTab === 'PARENT_OPS') return (b.conversion_rate || 0) - (a.conversion_rate || 0);
+                                        return (b.kyc_processed || 0) - (a.kyc_processed || 0);
+                                    })
+                                    .slice(0, 5)
+                                    .map((admin, index) => (
+                                        <div key={admin.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                            <div className={`
+                                                h-8 w-8 rounded-full flex items-center justify-center font-bold text-sm
+                                                ${index === 0 ? 'bg-yellow-100 text-yellow-700' : 
+                                                  index === 1 ? 'bg-slate-100 text-slate-700' : 
+                                                  index === 2 ? 'bg-orange-100 text-orange-700' : 'bg-slate-50 text-slate-500'}
+                                            `}>
+                                                {index + 1}
                                             </div>
-                                        </TableCell>
-                                        {department === 'PARENT_OPS' && (
-                                            <>
-                                                <TableCell>
-                                                    <Badge variant="outline">{admin.jobs_assigned || 0}</Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge className="bg-emerald-100 text-emerald-700">{admin.jobs_approved || 0}</Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge className="bg-red-100 text-red-700">{admin.jobs_rejected || 0}</Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge className="bg-blue-100 text-blue-700">{admin.jobs_this_week || 0}</Badge>
-                                                </TableCell>
-                                            </>
-                                        )}
-                                        {department === 'TUTOR_OPS' && (
-                                            <>
-                                                <TableCell>
-                                                    <Badge className="bg-emerald-100 text-emerald-700">{admin.kyc_approved || 0}</Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge className="bg-red-100 text-red-700">{admin.kyc_rejected || 0}</Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge className="bg-blue-100 text-blue-700">{admin.kyc_this_week || 0}</Badge>
-                                                </TableCell>
-                                            </>
-                                        )}
-                                        <TableCell className="text-sm text-slate-500">
-                                            {new Date(admin.date_joined).toLocaleDateString()}
-                                        </TableCell>
-                                    </TableRow>
-                                ))
+                                            <div className="flex-1">
+                                                <p className="font-semibold text-sm">{admin.username}</p>
+                                                <p className="text-xs text-slate-500">
+                                                    {activeTab === 'PARENT_OPS' 
+                                                        ? `${admin.conversion_rate || 0}% Conversion` 
+                                                        : `${admin.kyc_processed || 0} Processed`}
+                                                </p>
+                                            </div>
+                                            {index === 0 && <Trophy size={16} className="text-yellow-500" />}
+                                        </div>
+                                    ))
                             )}
-                        </TableBody>
-                    </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Detailed Table */}
+            <Card className="border-slate-200 dark:border-slate-800">
+                <CardHeader>
+                    <CardTitle>Detailed Metrics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                            <thead>
+                                <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold">
+                                    <th className="p-3">Admin</th>
+                                    {activeTab === 'PARENT_OPS' ? (
+                                        <>
+                                            <th className="p-3">Assigned Leads</th>
+                                            <th className="p-3">Converted</th>
+                                            <th className="p-3">Conversion Rate</th>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <th className="p-3">KYC Processed</th>
+                                            <th className="p-3">Interviews</th>
+                                            <th className="p-3">Approval Rate</th>
+                                        </>
+                                    )}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                {currentData.length === 0 ? (
+                                    <tr><td colSpan="4" className="p-4 text-center text-slate-500">No data</td></tr>
+                                ) : (
+                                    currentData.map(admin => (
+                                        <tr key={admin.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                            <td className="p-3 font-medium">{admin.username}</td>
+                                            {activeTab === 'PARENT_OPS' ? (
+                                                <>
+                                                    <td className="p-3">{admin.assigned_leads || 0}</td>
+                                                    <td className="p-3">{admin.converted_leads || 0}</td>
+                                                    <td className="p-3">
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                                            (admin.conversion_rate || 0) >= 30 ? 'bg-green-100 text-green-700' : 
+                                                            (admin.conversion_rate || 0) >= 15 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                                                        }`}>
+                                                            {admin.conversion_rate || 0}%
+                                                        </span>
+                                                    </td>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <td className="p-3">{admin.kyc_processed || 0}</td>
+                                                    <td className="p-3">{admin.interviews_conducted || 0}</td>
+                                                    <td className="p-3">{admin.approval_rate || '0%'}</td>
+                                                </>
+                                            )}
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </CardContent>
             </Card>
         </div>
     );
-}
+};
 
-
-
+export default AdminPerformance;

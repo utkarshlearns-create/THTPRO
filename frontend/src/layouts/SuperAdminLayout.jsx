@@ -13,7 +13,8 @@ import {
   Menu, 
   ChevronDown,
   LogOut,
-  CreditCard
+  CreditCard,
+  Building2
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ThemeToggle from '../components/ui/ThemeToggle';
@@ -34,6 +35,7 @@ const SuperAdminLayout = ({ children }) => {
     { icon: <LayoutDashboard size={20} />, label: 'Analytics Hub', path: '/superadmin' },
     { icon: <Database size={20} />, label: 'Master Management', path: '/superadmin/masters' },
     { icon: <Users size={20} />, label: 'HRM Module', path: '/superadmin/hrm' },
+    { icon: <Building2 size={20} />, label: 'Institutions', path: '/superadmin/institutions' },
     { icon: <Briefcase size={20} />, label: 'CRM & Leads', path: '/superadmin/crm' },
     { 
       icon: <CreditCard size={20} />, 

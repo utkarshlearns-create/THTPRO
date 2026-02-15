@@ -9,6 +9,7 @@ class AdminProfile(models.Model):
     DEPARTMENT_CHOICES = (
         ('PARENT_OPS', 'Parent Operations'), # Handles Job Approvals
         ('TUTOR_OPS', 'Tutor Operations'),   # Handles KYC
+        ('INSTITUTION_OPS', 'Institution Operations'), # Handles Institutions
         ('SUPERADMIN', 'Super Admin'),       # Access to all
     )
     

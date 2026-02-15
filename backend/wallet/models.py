@@ -70,6 +70,7 @@ class SubscriptionPackage(models.Model):
     ROLE_CHOICES = (
         ('PARENT', 'Parent'),
         ('TUTOR', 'Tutor'),
+        ('INSTITUTION', 'Institution'),
     )
     
     name = models.CharField(max_length=100)

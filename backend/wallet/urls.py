@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import WalletView, TransactionListView, AddFundsView, SubscriptionPackageListView, AdminPackageView, AdminTransactionListView
+from .views import WalletView, TransactionListView, AddFundsView, SubscriptionPackageListView, AdminPackageView, AdminTransactionListView, RevokeCreditsView
 
 urlpatterns = [
     path('me/', WalletView.as_view(), name='wallet-detail'),
@@ -12,4 +12,5 @@ urlpatterns = [
     
     # Admin Transactions
     path('admin/transactions/', AdminTransactionListView.as_view(), name='admin-transaction-list'),
+    path('admin/users/<int:pk>/revoke/', RevokeCreditsView.as_view(), name='admin-revoke-credits'),
 ]

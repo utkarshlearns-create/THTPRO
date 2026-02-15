@@ -7,6 +7,7 @@ class User(AbstractUser):
         TEACHER = 'TEACHER', 'Teacher'
         ADMIN = 'ADMIN', 'Admin'
         SUPERADMIN = 'SUPERADMIN', 'Super Admin'
+        INSTITUTION = 'INSTITUTION', 'Institution'
 
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.PARENT)
     phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
@@ -184,3 +185,16 @@ class Enquiry(models.Model):
     
     def __str__(self):
         return f"{self.subject} - {self.name}"
+
+class InstitutionProfile(models.Model):
+    """Profile for Institution users (Schools, Coaching Centers)"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='institution_profile')
+    institution_name = models.CharField(max_length=255)
+    address = models.TextField(blank=True)
+    contact_person = models.CharField(max_length=100)
+    website = models.URLField(blank=True)
+    is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.institution_name
