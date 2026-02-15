@@ -9,7 +9,7 @@ const CreateAdminModal = ({ onClose, onSuccess }) => {
         email: '',
         phone: '',
         password: '',
-        department: 'PARENT_OPS'
+        department: 'COUNSELLOR'
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -161,9 +161,8 @@ const CreateAdminModal = ({ onClose, onSuccess }) => {
                                     onChange={handleChange}
                                     className="w-full pl-9 pr-4 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-gold/50 text-sm appearance-none"
                                 >
-                                    <option value="PARENT_OPS">Parent Operations</option>
+                                    <option value="COUNSELLOR">Counsellor</option>
                                     <option value="TUTOR_OPS">Tutor Operations</option>
-                                    <option value="INSTITUTION_OPS">Institution Operations</option>
                                 </select>
                                 <ChevronDown size={14} className="absolute right-3 top-3.5 text-slate-400 pointer-events-none" />
                             </div>

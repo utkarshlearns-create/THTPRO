@@ -162,8 +162,7 @@ const EditUserModal = ({ user, onClose, onSuccess }) => {
                                         onChange={handleChange}
                                         className="w-full px-4 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-gold/50 text-sm"
                                     >
-                                        <option value="">Select</option>
-                                        <option value="PARENT_OPS">Parent Operations</option>
+                                        <option value="COUNSELLOR">Counsellor</option>
                                         <option value="TUTOR_OPS">Tutor Operations</option>
                                     </select>
                                 </div>

@@ -12,7 +12,8 @@ import {
     LogOut,
     ChevronDown,
     ChevronRight,
-    Circle
+    Circle,
+    Package
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import ThemeToggle from '../ui/ThemeToggle';
@@ -39,6 +40,18 @@ const MENU_ITEMS = [
         ]
     },
 
+    {
+        label: 'Parent Packages',
+        icon: Package,
+        id: 'parent-package',
+        subItems: [
+            { label: 'Package Master', id: 'parent-package-master' },
+            { label: 'Pending Requests', id: 'parent-pending-purchase' },
+            { label: 'Approved History', id: 'parent-approved-purchase' },
+            { label: 'Rejected History', id: 'parent-rejected-purchase' }
+        ]
+    },
+
     // TUTOR MANAGEMENT
     {
         header: 'TUTOR MANAGEMENT',
@@ -58,6 +71,17 @@ const MENU_ITEMS = [
         subItems: [
             { label: 'Applications List', id: 'select-tutor-apply-job' },
             { label: 'Assigned Jobs', id: 'select-tutor-assigned' }
+        ]
+    },
+    {
+        label: 'Tutor Packages',
+        icon: Package,
+        id: 'tutor-package',
+        subItems: [
+            { label: 'Package Master', id: 'tutor-package-master' },
+            { label: 'Pending Requests', id: 'tutor-pending-purchase' },
+            { label: 'Approved History', id: 'tutor-approved-purchase' },
+            { label: 'Rejected History', id: 'tutor-rejected-purchase' }
         ]
     },
 
@@ -156,11 +180,11 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
         // Header handling - tricky because headers have no ID.
         // Simplified approach: If header is "PARENT MANAGEMENT" and mode is 'tutor', hide.
         if (item.header === 'PARENT MANAGEMENT' && mode === 'tutor') return false;
-        if (item.header === 'TUTOR MANAGEMENT' && mode === 'parent') return false;
+        if (item.header === 'TUTOR MANAGEMENT' && mode === 'counsellor') return false;
         if (item.header === 'GENERAL') return true;
 
         // Specific section handling
-        if (mode === 'parent') {
+        if (mode === 'counsellor') {
             return ['jobs', 'parent-package'].includes(item.id) || item.header === 'PARENT MANAGEMENT' || item.header === 'GENERAL';
         }
         if (mode === 'tutor') {

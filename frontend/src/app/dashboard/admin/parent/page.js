@@ -4,12 +4,12 @@ import Navbar from '@/components/Navbar';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminDashboard from '@/views/AdminDashboard';
 
-export default function AdminParentDashboardPage() {
+export default function AdminCounsellorDashboardPage() {
     return (
         <>
             <Navbar />
             <ProtectedRoute allowedRoles={['ADMIN']}>
-                <AdminDashboard mode="parent" />
+                <AdminDashboard mode="counsellor" />
             </ProtectedRoute>
         </>
     );

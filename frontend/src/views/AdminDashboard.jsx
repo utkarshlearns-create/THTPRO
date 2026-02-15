@@ -27,7 +27,7 @@ const PlaceholderView = ({ title, description }) => (
 const AdminDashboard = ({ mode }) => { // Accept mode prop
     // Determine default view based on mode
     const getDefaultView = () => {
-        if (mode === 'parent') return 'jobs-final-leads';
+        if (mode === 'counsellor') return 'jobs-final-leads';
         if (mode === 'tutor') return 'approve-tutor-list';
         return 'home';
     }

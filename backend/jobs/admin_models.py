@@ -7,9 +7,8 @@ User = get_user_model()
 class AdminProfile(models.Model):
     """Profile for admins to track workload and department"""
     DEPARTMENT_CHOICES = (
-        ('PARENT_OPS', 'Parent Operations'), # Handles Job Approvals
+        ('COUNSELLOR', 'Counsellor'),        # Handles Job Approvals & Parent Support
         ('TUTOR_OPS', 'Tutor Operations'),   # Handles KYC
-        ('INSTITUTION_OPS', 'Institution Operations'), # Handles Institutions
         ('SUPERADMIN', 'Super Admin'),       # Access to all
     )
     

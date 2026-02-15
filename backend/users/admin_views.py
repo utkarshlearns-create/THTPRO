@@ -258,7 +258,7 @@ class AdminPerformanceView(APIView):
         from jobs.admin_models import AdminProfile
         from users.models import TutorKYC
 
-        department = request.query_params.get('department')  # PARENT_OPS or TUTOR_OPS
+        department = request.query_params.get('department')  # COUNSELLOR or TUTOR_OPS
         
         # Get admins by department through AdminProfile relationship
         admins_query = User.objects.filter(role='ADMIN', is_active=True).select_related('admin_profile')
@@ -286,8 +286,8 @@ class AdminPerformanceView(APIView):
                 'date_joined': admin.date_joined.isoformat(),
             }
             
-            # === PARENT_OPS Metrics ===
-            if not department or department == 'PARENT_OPS':
+            # === COUNSELLOR Metrics ===
+            if not department or department == 'COUNSELLOR':
                 assigned_jobs = JobPost.objects.filter(assigned_admin=admin)
                 jobs_count = assigned_jobs.count()
                 jobs_closed = assigned_jobs.filter(status__in=['CLOSED', 'ASSIGNED']).count() # jobs successfully assigned to tutor
@@ -333,10 +333,10 @@ class AdminPerformanceView(APIView):
         top_kpi_user = None
         
         if admin_performance:
-            # Sort by conversion rate for Top Performer (Parent Ops)
-            parent_ops_admins = [a for a in admin_performance if a.get('department') == 'PARENT_OPS']
-            if parent_ops_admins:
-                top_converter = max(parent_ops_admins, key=lambda x: x.get('conversion_rate', 0))
+            # Sort by conversion rate for Top Performer (Counsellor)
+            counsellor_admins = [a for a in admin_performance if a.get('department') == 'COUNSELLOR']
+            if counsellor_admins:
+                top_converter = max(counsellor_admins, key=lambda x: x.get('conversion_rate', 0))
 
             # Sort by volume for Tutor Ops
             tutor_ops_admins = [a for a in admin_performance if a.get('department') == 'TUTOR_OPS']
@@ -347,7 +347,7 @@ class AdminPerformanceView(APIView):
         summary = {
             'total_admins': admins_query.count(),
             'department': department or 'ALL',
-            'top_performer_parent_ops': top_converter,
+            'top_performer_counsellor': top_converter,
             'top_performer_tutor_ops': top_kpi_user,
         }
         

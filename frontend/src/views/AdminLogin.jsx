@@ -39,7 +39,7 @@ const AdminLogin = () => {
                 
                 // Determine redirect based on department
                 const department = data.department;
-                if (department === 'PARENT_OPS') {
+                if (department === 'COUNSELLOR') {
                     router.push('/dashboard/admin/parent');
                 } else if (department === 'TUTOR_OPS') {
                     router.push('/dashboard/admin/tutor');
