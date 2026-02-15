@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Edit, Clock, MapPin, BookOpen, GraduationCap, IndianRupee } from 'lucide-react';
+import { CheckCircle, XCircle, Edit, Clock, MapPin, BookOpen, UserPlus, Search } from 'lucide-react';
 import API_BASE_URL from '../../../config';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Button } from '../../ui/button';
@@ -13,11 +13,31 @@ const PendingJobApprovals = () => {
     const [rejectionReason, setRejectionReason] = useState('');
     const [modificationFeedback, setModificationFeedback] = useState('');
     const [showModal, setShowModal] = useState(false);
-    const [modalType, setModalType] = useState(''); // 'approve', 'reject', 'modify'
+    const [modalType, setModalType] = useState(''); // 'approve', 'reject', 'modify', 'assign'
+    
+    // Assignment state
+    const [tutorSearch, setTutorSearch] = useState('');
+    const [tutors, setTutors] = useState([]);
+    const [selectedTutor, setSelectedTutor] = useState(null);
+    const [searchingTutors, setSearchingTutors] = useState(false);
 
     useEffect(() => {
         fetchPendingJobs();
     }, []);
+
+    // Debounce search
+    useEffect(() => {
+        if (modalType === 'assign') {
+            const delayDebounceFn = setTimeout(() => {
+                if (tutorSearch.length >= 2) {
+                    searchTutors();
+                } else if (tutorSearch.length === 0) {
+                    setTutors([]);
+                }
+            }, 500);
+            return () => clearTimeout(delayDebounceFn);
+        }
+    }, [tutorSearch, modalType]);
 
     const fetchPendingJobs = async () => {
         const token = localStorage.getItem('access');
@@ -35,6 +55,24 @@ const PendingJobApprovals = () => {
             console.error('Error fetching pending jobs:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const searchTutors = async () => {
+        setSearchingTutors(true);
+        const token = localStorage.getItem('access');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/tutors/?q=${tutorSearch}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setTutors(data);
+            }
+        } catch (error) {
+            console.error("Error searching tutors:", error);
+        } finally {
+            setSearchingTutors(false);
         }
     };
 
@@ -114,10 +152,46 @@ const PendingJobApprovals = () => {
         }
     };
 
+    const handleAssignTutor = async (jobId) => {
+        if (!selectedTutor) return;
+        const token = localStorage.getItem('access');
+        setActionLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/jobs/admin/${jobId}/assign-tutor/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tutor_id: selectedTutor.id })
+            });
+            if (response.ok) {
+                alert(`Job assigned to ${selectedTutor.user.first_name || selectedTutor.user.username}`);
+                fetchPendingJobs();
+                setShowModal(false);
+                setSelectedTutor(null);
+                setTutorSearch('');
+            } else {
+                const err = await response.json();
+                alert(err.error || 'Failed to assign tutor');
+            }
+        } catch (error) {
+            console.error('Error assigning tutor:', error);
+            alert('Failed to assign tutor');
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const openModal = (job, type) => {
         setSelectedJob(job);
         setModalType(type);
         setShowModal(true);
+        if (type === 'assign') {
+            setTutorSearch('');
+            setTutors([]);
+            setSelectedTutor(null);
+        }
     };
 
     if (loading) {
@@ -133,7 +207,7 @@ const PendingJobApprovals = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Pending Job Approvals</h2>
-                    <p className="text-slate-500 dark:text-slate-400">Review and approve tutor job postings</p>
+                    <p className="text-slate-500 dark:text-slate-400">Review, approve, or manually assign tutors to jobs</p>
                 </div>
                 <div className="bg-indigo-100 dark:bg-indigo-900/30 px-4 py-2 rounded-full">
                     <span className="text-indigo-700 dark:text-indigo-300 font-semibold">{pendingJobs.length} Pending</span>
@@ -180,7 +254,6 @@ const PendingJobApprovals = () => {
                                     </div>
                                     {job.hourly_rate && (
                                         <div className="flex items-center gap-2">
-                                            <IndianRupee className="h-4 w-4 text-slate-400" />
                                             <span className="text-sm text-slate-600 dark:text-slate-300">₹{job.hourly_rate}/hr</span>
                                         </div>
                                     )}
@@ -203,6 +276,13 @@ const PendingJobApprovals = () => {
                                     >
                                         <CheckCircle className="h-4 w-4 mr-2" />
                                         Approve
+                                    </Button>
+                                    <Button
+                                        onClick={() => openModal(job, 'assign')}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    >
+                                        <UserPlus className="h-4 w-4 mr-2" />
+                                        Assign Tutor
                                     </Button>
                                     <Button
                                         onClick={() => openModal(job, 'reject')}
@@ -228,17 +308,69 @@ const PendingJobApprovals = () => {
             {/* Modal */}
             {showModal && selectedJob && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-slate-900 rounded-lg max-w-md w-full p-6 space-y-4">
+                    <div className="bg-white dark:bg-slate-900 rounded-lg max-w-md w-full p-6 space-y-4 overflow-y-auto max-h-[90vh]">
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                             {modalType === 'approve' && 'Approve Job Posting'}
                             {modalType === 'reject' && 'Reject Job Posting'}
                             {modalType === 'modify' && 'Request Modifications'}
+                            {modalType === 'assign' && 'Manual Tutor Assignment'}
                         </h3>
 
                         {modalType === 'approve' && (
                             <p className="text-slate-600 dark:text-slate-300">
                                 Are you sure you want to approve this job posting? It will become visible to parents.
                             </p>
+                        )}
+
+                        {modalType === 'assign' && (
+                            <div className="space-y-4">
+                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                    Search for a tutor to assign to this job. This will approve the job and mark it as assigned.
+                                </p>
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <input
+                                        type="text"
+                                        placeholder="Search by name, email, or subject..."
+                                        value={tutorSearch}
+                                        onChange={(e) => setTutorSearch(e.target.value)}
+                                        className="w-full pl-9 pr-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    />
+                                    {searchingTutors && (
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            <div className="animate-spin h-4 w-4 border-b-2 border-blue-500 rounded-full"></div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    {tutors.length === 0 ? (
+                                        <div className="p-4 text-center text-sm text-slate-500">
+                                            {tutorSearch ? 'No tutors found' : 'Start typing to search'}
+                                        </div>
+                                    ) : (
+                                        tutors.map(tutor => (
+                                            <div 
+                                                key={tutor.id}
+                                                onClick={() => setSelectedTutor(tutor)}
+                                                className={`p-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 border-b last:border-0 flex justify-between items-center ${selectedTutor?.id === tutor.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}
+                                            >
+                                                <div>
+                                                    <div className="font-medium text-slate-900 dark:text-white">
+                                                        {tutor.user.first_name || tutor.user.username}
+                                                    </div>
+                                                    <div className="text-xs text-slate-500">{tutor.user.email}</div>
+                                                </div>
+                                                {selectedTutor?.id === tutor.id && <CheckCircle className="h-4 w-4 text-blue-500" />}
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                                {selectedTutor && (
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm text-blue-800 dark:text-blue-200">
+                                        Selected: <strong>{selectedTutor.user.first_name || selectedTutor.user.username}</strong>
+                                    </div>
+                                )}
+                            </div>
                         )}
 
                         {modalType === 'reject' && (
@@ -278,6 +410,8 @@ const PendingJobApprovals = () => {
                                     setShowModal(false);
                                     setRejectionReason('');
                                     setModificationFeedback('');
+                                    setTutorSearch('');
+                                    setSelectedTutor(null);
                                 }}
                                 disabled={actionLoading}
                             >
@@ -288,9 +422,15 @@ const PendingJobApprovals = () => {
                                     if (modalType === 'approve') handleApprove(selectedJob.id);
                                     else if (modalType === 'reject') handleReject(selectedJob.id);
                                     else if (modalType === 'modify') handleRequestModifications(selectedJob.id);
+                                    else if (modalType === 'assign') handleAssignTutor(selectedJob.id);
                                 }}
-                                disabled={actionLoading || (modalType === 'reject' && !rejectionReason) || (modalType === 'modify' && !modificationFeedback)}
-                                className={modalType === 'approve' ? 'bg-green-600 hover:bg-green-700' : ''}
+                                disabled={
+                                    actionLoading || 
+                                    (modalType === 'reject' && !rejectionReason) || 
+                                    (modalType === 'modify' && !modificationFeedback) ||
+                                    (modalType === 'assign' && !selectedTutor)
+                                }
+                                className={modalType === 'approve' ? 'bg-green-600 hover:bg-green-700' : modalType === 'assign' ? 'bg-blue-600 hover:bg-blue-700' : ''}
                             >
                                 {actionLoading ? 'Processing...' : 'Confirm'}
                             </Button>
