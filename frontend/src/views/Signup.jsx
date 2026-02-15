@@ -18,7 +18,7 @@ const Signup = () => {
     const router = useRouter();
     
     const [formData, setFormData] = useState({
-        username: '',
+        name: '',
         phone: '',
         password: '',
         role: 'PARENT', // Default
@@ -40,8 +40,6 @@ const Signup = () => {
 
     const handleRoleChange = (newRole) => {
         setFormData(prev => ({ ...prev, role: newRole }));
-        // Update URL to reflect change
-        setSearchParams({ role: newRole === 'TEACHER' ? 'teacher' : 'parent' });
     };
 
     const handleSendOtp = async (e) => {
@@ -72,7 +70,14 @@ const Signup = () => {
         
         try {
             let endpoint = '/api/users/signup/';
-            let body = formData;
+            // Backend expects username (used for login). We set username=phone so users login with phone.
+            let body = {
+                username: formData.phone,
+                phone: formData.phone,
+                password: formData.password,
+                role: formData.role,
+                first_name: formData.name,
+            };
 
             if (signupMethod === 'otp') {
                 endpoint = '/api/users/auth/verify-otp/';
@@ -262,7 +267,7 @@ const Signup = () => {
             <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl mb-8">
                 <button
                     type="button"
-                    onClick={() => handleRoleChange('parent')}
+                    onClick={() => handleRoleChange('PARENT')}
                      className={`flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-lg transition-all ${
                         role === 'parent'
                             ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700'
@@ -274,7 +279,7 @@ const Signup = () => {
                 </button>
                  <button
                     type="button"
-                    onClick={() => handleRoleChange('teacher')}
+                    onClick={() => handleRoleChange('TEACHER')}
                     className={`flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-lg transition-all ${
                         role === 'teacher'
                              ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700'
