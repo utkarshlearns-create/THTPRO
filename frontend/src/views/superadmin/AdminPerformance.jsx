@@ -24,12 +24,18 @@ import API_BASE_URL from '../../config';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 
-const AdminPerformance = () => {
-    const [activeTab, setActiveTab] = useState('PARENT_OPS');
+const AdminPerformance = ({ department }) => {
+    const [activeTab, setActiveTab] = useState(department || 'PARENT_OPS');
     const [performanceData, setPerformanceData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+    useEffect(() => {
+        if (department) {
+            setActiveTab(department);
+        }
+    }, [department]);
 
     useEffect(() => {
         fetchPerformance();
@@ -71,7 +77,8 @@ const AdminPerformance = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <TrendingUp className="text-brand-gold" /> Admin Performance
+                        <TrendingUp className="text-brand-gold" /> 
+                        {department ? (department === 'PARENT_OPS' ? 'Parent Ops Performance' : 'Tutor Ops Performance') : 'Admin Performance'}
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400">Track key metrics and identify top performers.</p>
                 </div>
@@ -134,29 +141,31 @@ const AdminPerformance = () => {
                 </Card>
             </div>
 
-            {/* Tabs */}
-            <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800">
-                <button
-                    onClick={() => setActiveTab('PARENT_OPS')}
-                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                        activeTab === 'PARENT_OPS' 
-                        ? 'border-brand-gold text-brand-gold' 
-                        : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                    }`}
-                >
-                    Parent Operations
-                </button>
-                <button
-                    onClick={() => setActiveTab('TUTOR_OPS')}
-                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                        activeTab === 'TUTOR_OPS' 
-                        ? 'border-brand-gold text-brand-gold' 
-                        : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-                    }`}
-                >
-                    Tutor Operations
-                </button>
-            </div>
+            {/* Tabs - Only show active tab if department is NOT provided, or if user wants to see all */}
+            {!department && (
+                <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800">
+                    <button
+                        onClick={() => setActiveTab('PARENT_OPS')}
+                        className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                            activeTab === 'PARENT_OPS' 
+                            ? 'border-brand-gold text-brand-gold' 
+                            : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                        }`}
+                    >
+                        Parent Operations
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('TUTOR_OPS')}
+                        className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                            activeTab === 'TUTOR_OPS' 
+                            ? 'border-brand-gold text-brand-gold' 
+                            : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                        }`}
+                    >
+                        Tutor Operations
+                    </button>
+                </div>
+            )}
 
             {/* Performance Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
