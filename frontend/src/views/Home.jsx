@@ -25,6 +25,7 @@ import {
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { motion } from 'framer-motion';
+import ContactPopup from '../components/home/ContactPopup';
 
 const FadeIn = ({ children, className, delay = 0 }) => (
   <motion.div
@@ -200,14 +201,14 @@ const LandingPage = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                 </div>
                 <div className="p-6 text-center">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">I'm a Parent</h3>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">I'm a Parent/Student</h3>
                   <p className="text-sm font-semibold text-pink-600 dark:text-pink-400 italic mb-2">Find Your Perfect Tutor</p>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">Connect with expert tutors for all subjects</p>
                   <Link 
                     href="/signup?role=parent" 
                     className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold text-sm rounded-full shadow-lg shadow-pink-200 dark:shadow-none transition-all duration-300 hover:scale-105"
                   >
-                    Register as Parent <ArrowRight className="h-4 w-4" />
+                    Register as Parent/Student <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
               </div>
@@ -549,6 +550,9 @@ const LandingPage = () => {
 
       {/* FAQ Section */}
       <FAQ />
+
+      {/* Contact Popup */}
+      <ContactPopup />
 
       {/* Footer */}
       <footer className="bg-slate-950 dark:bg-black text-slate-400 py-16 border-t border-slate-900">
