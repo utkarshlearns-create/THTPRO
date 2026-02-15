@@ -24,48 +24,41 @@ def send_otp_to_phone(phone, otp):
 
 def verify_google_token(token):
     """
-    Verifies the Google ID token with Google's public keys.
+    Verifies the Google token (ID token or Access Token) and returns user info.
     """
     try:
-        # Simple verification using Google's token info endpoint
-        # For production, use google-auth authentication library for better security and caching
         logger.debug(f"Verifying Google Token: {token[:20]}...")
+        
+        # Strategy 1: Try as ID Token first
         response = requests.get(f"https://oauth2.googleapis.com/tokeninfo?id_token={token}")
         
         if response.status_code == 200:
             data = response.json()
-            # Check if Audience matches our Client ID
-            # This is CRITICAL for security (prevents token reuse from other apps)
+            # Check audience matches our Client ID (critical security check)
             if settings.GOOGLE_CLIENT_ID and data.get('aud') != settings.GOOGLE_CLIENT_ID:
                 error_msg = f"Invalid Audience. Expected {settings.GOOGLE_CLIENT_ID}, got {data.get('aud')}"
                 logger.error(error_msg)
                 return {"error": error_msg}
-
             return data
         
-        # If ID Token fails, try Access Token
-        logger.debug(f"ID Token failed ({response.status_code}). Trying Access Token verification...")
-        response_access = requests.get(f"https://oauth2.googleapis.com/tokeninfo?access_token={token}")
+        # Strategy 2: Try as Access Token - use userinfo endpoint (returns email, name, picture)
+        logger.debug(f"ID Token failed ({response.status_code}). Trying as Access Token via userinfo API...")
+        userinfo_response = requests.get(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            headers={"Authorization": f"Bearer {token}"}
+        )
         
-        if response_access.status_code == 200:
-            data = response_access.json()
-            # Access tokens from Google usually have 'audience' or 'azp' field, but strict aud check is mostly for ID tokens.
-            # However, if we have a GOOGLE_CLIENT_ID, we should try to verify it if present.
-            if settings.GOOGLE_CLIENT_ID and data.get('aud') and data.get('aud') != settings.GOOGLE_CLIENT_ID:
-                 # Note: Sometimes access tokens have different aud logic, but for simple sign-in it usually matches.
-                 # Warn but maybe allow if strict ID token check passed (but here ID token failed so we are in fallback).
-                 # Let's verify strictly to be safe.
-                error_msg = f"Invalid Audience (Access Token). Expected {settings.GOOGLE_CLIENT_ID}, got {data.get('aud')}"
-                logger.error(error_msg)
-                return {"error": error_msg}
-                
+        if userinfo_response.status_code == 200:
+            data = userinfo_response.json()
+            logger.debug(f"Google userinfo response: {data}")
+            # userinfo returns: sub, name, given_name, family_name, picture, email, email_verified
             return data
         else:
-             # Return error from first attempt usually, or combined?
-            error_msg = f"Google verification failed: ID Token ({response.status_code}), Access Token ({response_access.status_code})"
+            error_msg = f"Google verification failed: ID Token ({response.status_code}), UserInfo ({userinfo_response.status_code})"
             logger.error(error_msg)
             return {"error": error_msg}
     except Exception as e:
         error_msg = f"Google verification exception: {str(e)}"
         logger.error(error_msg)
         return {"error": error_msg}
+

@@ -117,7 +117,9 @@ class GoogleLoginView(APIView):
              return Response({"error": google_data['error']}, status=status.HTTP_400_BAD_REQUEST)
 
         email = google_data.get('email')
-        email = google_data.get('email')
+        if not email:
+            logger.error(f"No email in Google response. Keys: {list(google_data.keys())}")
+            return Response({"error": "Could not retrieve email from Google. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
         # Ensure name is not None. Fallback to part of email if name is missing.
         name = google_data.get('name') or google_data.get('given_name') or email.split('@')[0]
         
