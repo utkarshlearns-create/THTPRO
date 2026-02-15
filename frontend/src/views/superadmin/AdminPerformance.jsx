@@ -39,7 +39,7 @@ const AdminPerformance = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('access');
-            const response = await fetch(`${API_BASE_URL}/api/users/superadmin/performance/`, {
+            const response = await fetch(`${API_BASE_URL}/api/users/superadmin/admin-performance/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
