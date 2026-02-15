@@ -176,10 +176,15 @@ class Enquiry(models.Model):
     )
     
     name = models.CharField(max_length=100)
-    email = models.EmailField()
+    email = models.EmailField(blank=True, null=True) # Optional for quick popup
     phone = models.CharField(max_length=20, blank=True)
-    subject = models.CharField(max_length=200)
-    message = models.TextField()
+    subject = models.CharField(max_length=200, default='General Enquiry')
+    message = models.TextField(blank=True, null=True)
+    
+    # New fields for Contact Popup
+    role = models.CharField(max_length=50, blank=True, null=True) # Parent, Tutor, Institution
+    location = models.CharField(max_length=255, blank=True, null=True)
+
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
     created_at = models.DateTimeField(auto_now_add=True)
     
