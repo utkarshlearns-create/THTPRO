@@ -93,7 +93,7 @@ export default function AnalyticsDashboard() {
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                         {stats.department === 'SUPERADMIN' ? 'Super Admin Dashboard' : 
-                         stats.department === 'PARENT_OPS' ? 'Parent Operations Dashboard' :
+                         stats.department === 'COUNSELLOR' ? 'Counsellor Dashboard' :
                          stats.department === 'TUTOR_OPS' ? 'Tutor Operations Dashboard' : 'Admin Dashboard'}
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400">Overview of platform performance and key metrics.</p>

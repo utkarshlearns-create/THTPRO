@@ -109,7 +109,7 @@ const HRMModule = () => {
     const getRoleBadge = (role, department) => {
         switch(role) {
             case 'SUPERADMIN': return <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-bold flex items-center gap-1"><Shield size={12}/> Super Admin</span>;
-            case 'ADMIN': return <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold flex items-center gap-1"><Shield size={12}/> {department === 'PARENT_OPS' ? 'Parent Ops' : department === 'TUTOR_OPS' ? 'Tutor Ops' : 'Admin'}</span>;
+            case 'ADMIN': return <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold flex items-center gap-1"><Shield size={12}/> {department === 'COUNSELLOR' ? 'Counsellor' : department === 'TUTOR_OPS' ? 'Tutor Ops' : 'Admin'}</span>;
             case 'TEACHER': return <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold flex items-center gap-1"><GraduationCap size={12}/> Tutor</span>;
             case 'PARENT': return <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold flex items-center gap-1"><User size={12}/> Parent</span>;
             default: return <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold">{role}</span>;

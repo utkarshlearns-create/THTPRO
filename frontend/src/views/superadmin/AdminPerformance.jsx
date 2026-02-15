@@ -25,7 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Button } from '../../components/ui/button';
 
 const AdminPerformance = ({ department }) => {
-    const [activeTab, setActiveTab] = useState(department || 'PARENT_OPS');
+    const [activeTab, setActiveTab] = useState(department || 'COUNSELLOR');
     const [performanceData, setPerformanceData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -65,11 +65,13 @@ const AdminPerformance = ({ department }) => {
     if (loading && !performanceData) return <div className="p-8 text-center text-slate-500">Loading performance metrics...</div>;
     if (error && !performanceData) return <div className="p-8 text-center text-red-500">{error}</div>;
 
-    const topPerformers = performanceData?.top_performers || {};
-    const parentOpsData = performanceData?.parent_ops || [];
-    const tutorOpsData = performanceData?.tutor_ops || [];
+    const summary = performanceData?.summary || {};
+    const admins = performanceData?.admins || [];
 
-    const currentData = activeTab === 'PARENT_OPS' ? parentOpsData : tutorOpsData;
+    const counsellorData = admins.filter(a => a.department === 'COUNSELLOR');
+    const tutorOpsData = admins.filter(a => a.department === 'TUTOR_OPS');
+
+    const currentData = activeTab === 'COUNSELLOR' ? counsellorData : tutorOpsData;
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -78,7 +80,7 @@ const AdminPerformance = ({ department }) => {
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         <TrendingUp className="text-brand-gold" /> 
-                        {department ? (department === 'PARENT_OPS' ? 'Parent Ops Performance' : 'Tutor Ops Performance') : 'Admin Performance'}
+                        {department ? (department === 'COUNSELLOR' ? 'Counsellor Performance' : 'Tutor Ops Performance') : 'Admin Performance'}
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400">Track key metrics and identify top performers.</p>
                 </div>
@@ -97,10 +99,10 @@ const AdminPerformance = ({ department }) => {
                         <div>
                             <p className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Top Converter</p>
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
-                                {topPerformers.top_converter?.name || 'N/A'}
+                                {summary.top_performer_counsellor?.username || 'N/A'}
                             </h3>
                             <p className="text-sm text-slate-600 dark:text-slate-300">
-                                {topPerformers.top_converter?.conversion_rate}% Conversion
+                                {summary.top_performer_counsellor?.conversion_rate || 0}% Conversion
                             </p>
                         </div>
                     </CardContent>
@@ -114,10 +116,10 @@ const AdminPerformance = ({ department }) => {
                         <div>
                             <p className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Highest Volume</p>
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
-                                {topPerformers.top_volume?.name || 'N/A'}
+                                {summary.top_performer_tutor_ops?.username || 'N/A'}
                             </h3>
                             <p className="text-sm text-slate-600 dark:text-slate-300">
-                                {topPerformers.top_volume?.kyc_processed || topPerformers.top_volume?.assigned_leads || 0} Tasks
+                                {summary.top_performer_tutor_ops?.kyc_processed || 0} Tasks
                             </p>
                         </div>
                     </CardContent>
@@ -131,10 +133,10 @@ const AdminPerformance = ({ department }) => {
                         <div>
                             <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Most Active</p>
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
-                                {topPerformers.most_efficient?.name || 'N/A'}
+                                {summary.total_admins || 0}
                             </h3>
                             <p className="text-sm text-slate-600 dark:text-slate-300">
-                                Active Now
+                                Total Admins
                             </p>
                         </div>
                     </CardContent>
@@ -145,14 +147,14 @@ const AdminPerformance = ({ department }) => {
             {!department && (
                 <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800">
                     <button
-                        onClick={() => setActiveTab('PARENT_OPS')}
+                        onClick={() => setActiveTab('COUNSELLOR')}
                         className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                            activeTab === 'PARENT_OPS' 
+                            activeTab === 'COUNSELLOR' 
                             ? 'border-brand-gold text-brand-gold' 
                             : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                         }`}
                     >
-                        Parent Operations
+                        Counsellors
                     </button>
                     <button
                         onClick={() => setActiveTab('TUTOR_OPS')}
@@ -183,10 +185,10 @@ const AdminPerformance = ({ department }) => {
                                     contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
                                 />
                                 <Legend />
-                                {activeTab === 'PARENT_OPS' ? (
+                                {activeTab === 'COUNSELLOR' ? (
                                     <>
-                                        <Bar dataKey="assigned_leads" name="Assigned" fill="#94a3b8" radius={[4, 4, 0, 0]} barSize={20} />
-                                        <Bar dataKey="converted_leads" name="Converted" fill="#d97706" radius={[4, 4, 0, 0]} barSize={20} />
+                                        <Bar dataKey="jobs_assigned" name="Assigned" fill="#94a3b8" radius={[4, 4, 0, 0]} barSize={20} />
+                                        <Bar dataKey="jobs_converted" name="Converted" fill="#d97706" radius={[4, 4, 0, 0]} barSize={20} />
                                     </>
                                 ) : (
                                     <>
@@ -210,7 +212,7 @@ const AdminPerformance = ({ department }) => {
                             ) : (
                                 currentData
                                     .sort((a, b) => {
-                                        if (activeTab === 'PARENT_OPS') return (b.conversion_rate || 0) - (a.conversion_rate || 0);
+                                        if (activeTab === 'COUNSELLOR') return (b.conversion_rate || 0) - (a.conversion_rate || 0);
                                         return (b.kyc_processed || 0) - (a.kyc_processed || 0);
                                     })
                                     .slice(0, 5)
@@ -227,7 +229,7 @@ const AdminPerformance = ({ department }) => {
                                             <div className="flex-1">
                                                 <p className="font-semibold text-sm">{admin.username}</p>
                                                 <p className="text-xs text-slate-500">
-                                                    {activeTab === 'PARENT_OPS' 
+                                                    {activeTab === 'COUNSELLOR' 
                                                         ? `${admin.conversion_rate || 0}% Conversion` 
                                                         : `${admin.kyc_processed || 0} Processed`}
                                                 </p>
@@ -252,7 +254,7 @@ const AdminPerformance = ({ department }) => {
                             <thead>
                                 <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold">
                                     <th className="p-3">Admin</th>
-                                    {activeTab === 'PARENT_OPS' ? (
+                                    {activeTab === 'COUNSELLOR' ? (
                                         <>
                                             <th className="p-3">Assigned Leads</th>
                                             <th className="p-3">Converted</th>
@@ -274,10 +276,10 @@ const AdminPerformance = ({ department }) => {
                                     currentData.map(admin => (
                                         <tr key={admin.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                             <td className="p-3 font-medium">{admin.username}</td>
-                                            {activeTab === 'PARENT_OPS' ? (
+                                            {activeTab === 'COUNSELLOR' ? (
                                                 <>
-                                                    <td className="p-3">{admin.assigned_leads || 0}</td>
-                                                    <td className="p-3">{admin.converted_leads || 0}</td>
+                                                    <td className="p-3">{admin.jobs_assigned || 0}</td>
+                                                    <td className="p-3">{admin.jobs_converted || 0}</td>
                                                     <td className="p-3">
                                                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
                                                             (admin.conversion_rate || 0) >= 30 ? 'bg-green-100 text-green-700' : 

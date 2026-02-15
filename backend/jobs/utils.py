@@ -19,16 +19,16 @@ def assign_job_to_admin(job_post):
     """
     from .admin_models import AdminTask, AdminProfile
     
-    # Get active PARENT_OPS or SUPERADMIN admins who are available
+    # Get active COUNSELLOR or SUPERADMIN admins who are available
     admin_profiles = AdminProfile.objects.filter(
-        Q(department='PARENT_OPS') | Q(department='SUPERADMIN'),
+        Q(department='COUNSELLOR') | Q(department='SUPERADMIN'),
         is_available=True,
         user__is_active=True
     ).order_by('pending_job_count')
     
     if not admin_profiles.exists():
         # Fallback to any active admin if no specific ops are available
-        logger.warning("No PARENT_OPS admins available. Falling back to any admin.")
+        logger.warning("No COUNSELLOR admins available. Falling back to any admin.")
         admins = User.objects.filter(role='ADMIN', is_active=True)
         if not admins.exists():
             logger.error("No active admins available for job assignment")
