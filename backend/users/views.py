@@ -98,45 +98,46 @@ class GoogleLoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        token = request.data.get('token')
-        role = request.data.get('role', 'PARENT')
-        
-        logger.debug(f"GoogleLoginView received token. Role: {role}")
-
-        if not token:
-            logger.error("No token provided")
-            return Response({"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        google_data = verify_google_token(token)
-        if not google_data:
-             # Should not happen with new utils logic but safety check
-            logger.error("verify_google_token returned None")
-            return Response({"error": "Invalid Google Token (Unknown Error)"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        if 'error' in google_data:
-             return Response({"error": google_data['error']}, status=status.HTTP_400_BAD_REQUEST)
-
-        email = google_data.get('email')
-        if not email:
-            logger.error(f"No email in Google response. Keys: {list(google_data.keys())}")
-            return Response({"error": "Could not retrieve email from Google. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
-        # Ensure name is not None. Fallback to part of email if name is missing.
-        name = google_data.get('name') or google_data.get('given_name') or email.split('@')[0]
-        
+        import traceback
         try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            # If user does not exist and NO role is provided (Login Flow), ask for it.
-            if not request.data.get('role'):
-                 return Response({
-                     "status": "role_required",
-                     "email": email,
-                     "name": name,
-                     "message": "User not found. Please select a role."
-                 }, status=status.HTTP_200_OK)
+            token = request.data.get('token')
+            role = request.data.get('role', 'PARENT')
+            
+            logger.info(f"GoogleLoginView: token={'yes' if token else 'no'}, role={role}")
 
-            # Create User with provided role (Signup Flow or Second Step of Login)
+            if not token:
+                return Response({"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST)
+                
+            google_data = verify_google_token(token)
+            logger.info(f"GoogleLoginView: google_data keys={list(google_data.keys()) if google_data else 'None'}")
+            
+            if not google_data:
+                return Response({"error": "Invalid Google Token"}, status=status.HTTP_400_BAD_REQUEST)
+                
+            if 'error' in google_data:
+                logger.error(f"GoogleLoginView: Google returned error: {google_data['error']}")
+                return Response({"error": google_data['error']}, status=status.HTTP_400_BAD_REQUEST)
+
+            email = google_data.get('email')
+            if not email:
+                logger.error(f"GoogleLoginView: No email. Full response: {google_data}")
+                return Response({"error": "Could not retrieve email from Google."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            name = google_data.get('name') or google_data.get('given_name') or email.split('@')[0]
+            logger.info(f"GoogleLoginView: email={email}, name={name}")
+            
             try:
+                user = User.objects.get(email=email)
+                logger.info(f"GoogleLoginView: Found existing user {user.id}")
+            except User.DoesNotExist:
+                if not request.data.get('role'):
+                    return Response({
+                        "status": "role_required",
+                        "email": email,
+                        "name": name,
+                        "message": "User not found. Please select a role."
+                    }, status=status.HTTP_200_OK)
+
                 base_username = email.split('@')[0]
                 unique_username = f"{base_username}_{uuid.uuid4().hex[:6]}"
                 user = User.objects.create_user(
@@ -147,19 +148,20 @@ class GoogleLoginView(APIView):
                 )
                 user.set_unusable_password()
                 user.save()
-            except Exception as e:
-                import traceback
-                logger.critical(f"Error in GoogleLoginView User Creation: {traceback.format_exc()}")
-                return Response({"error": f"Signup failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                logger.info(f"GoogleLoginView: Created new user {user.id} with role {role}")
+                
+            refresh = RefreshToken.for_user(user)
+            refresh['role'] = user.role
             
-        refresh = RefreshToken.for_user(user)
-        refresh['role'] = user.role
-        
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'role': user.role
-        })
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'role': user.role
+            })
+        except Exception as e:
+            tb = traceback.format_exc()
+            logger.critical(f"GoogleLoginView UNHANDLED ERROR: {tb}")
+            return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class CurrentUserView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
