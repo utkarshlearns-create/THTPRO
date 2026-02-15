@@ -64,7 +64,8 @@ const MasterManagement = () => {
       });
       if (response.ok) {
         const result = await response.json();
-        setData(result);
+        // Handle paginated response (result.results) or plain array
+        setData(Array.isArray(result) ? result : (result.results || []));
       } else {
         setError('Failed to load data');
       }

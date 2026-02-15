@@ -27,8 +27,9 @@ export default function TutorPackageMaster() {
             });
             if (response.ok) {
                 const data = await response.json();
-                // Filter for TUTOR
-                const tutorPackages = data.filter(p => p.target_role === 'TUTOR');
+                // Handle paginated response (data.results) or plain array
+                const items = Array.isArray(data) ? data : (data.results || []);
+                const tutorPackages = items.filter(p => p.target_role === 'TUTOR');
                 setPackages(tutorPackages);
             }
         } catch (error) {

@@ -27,8 +27,9 @@ export default function ParentPackageMaster() {
             });
             if (response.ok) {
                 const data = await response.json();
-                // Filter for PARENT
-                const parentPackages = data.filter(p => p.target_role === 'PARENT');
+                // Handle paginated response (data.results) or plain array
+                const items = Array.isArray(data) ? data : (data.results || []);
+                const parentPackages = items.filter(p => p.target_role === 'PARENT');
                 setPackages(parentPackages);
             }
         } catch (error) {

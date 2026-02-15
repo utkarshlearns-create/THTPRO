@@ -35,8 +35,9 @@ export default function PackageMaster({ role }) {
             });
             if (response.ok) {
                 const data = await response.json();
-                // If role is specified, filter on client side as backup
-                const filtered = role ? data.filter(pkg => pkg.target_role === role) : data;
+                // Handle paginated response (data.results) or plain array
+                const items = Array.isArray(data) ? data : (data.results || []);
+                const filtered = role ? items.filter(pkg => pkg.target_role === role) : items;
                 setPackages(filtered);
             }
         } catch (error) {
