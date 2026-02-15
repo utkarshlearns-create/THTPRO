@@ -126,7 +126,7 @@ const SuperAdminLayout = ({ children }) => {
                                         {item.subItems.map(sub => (
                                             <Link
                                                 key={sub.path}
-                                                to={sub.path}
+                                                href={sub.path}
                                                 className={cn(
                                                     "block px-3 py-2 rounded-lg text-sm transition-colors",
                                                     pathname === sub.path
