@@ -85,9 +85,11 @@ const MasterManagement = () => {
       });
       if (response.ok) {
         const result = await response.json();
-        setSuccessMessage(`Seeded: ${result.created.subjects} subjects, ${result.created.boards} boards, ${result.created.class_levels} classes, ${result.created.locations} locations`);
+        const createdMsg = `Created: ${result.created.subjects} subjects, ${result.created.boards} boards, ${result.created.class_levels} classes, ${result.created.locations} locations.`;
+        const skippedMsg = `Skipped: ${result.skipped.subjects} subjects, ${result.skipped.boards} boards, ${result.skipped.class_levels} classes, ${result.skipped.locations} locations.`;
+        setSuccessMessage(`${createdMsg} ${skippedMsg}`);
         fetchData();
-        setTimeout(() => setSuccessMessage(''), 5000);
+        setTimeout(() => setSuccessMessage(''), 8000);
       }
     } catch (err) {
       setError('Failed to seed data');

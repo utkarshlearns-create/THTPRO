@@ -462,7 +462,7 @@ class CreateAdminUserView(APIView):
             return Response({"error": "Cannot create Superadmin accounts via this interface."}, status=400)
 
         # Validate department
-        valid_departments = ['PARENT_OPS', 'TUTOR_OPS']
+        valid_departments = ['PARENT_OPS', 'TUTOR_OPS', 'INSTITUTION_OPS']
         if department not in valid_departments:
              return Response({"error": f"Invalid department. Choices: {valid_departments}"}, status=400)
 
