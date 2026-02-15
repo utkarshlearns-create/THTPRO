@@ -160,6 +160,7 @@ class GoogleLoginView(APIView):
             })
         except Exception as e:
             tb = traceback.format_exc()
+            print(f"GoogleLoginView UNHANDLED ERROR: {tb}", file=sys.stderr)
             logger.critical(f"GoogleLoginView UNHANDLED ERROR: {tb}")
             return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
