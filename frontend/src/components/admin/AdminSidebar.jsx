@@ -185,7 +185,8 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
 
         // Specific section handling
         if (mode === 'counsellor') {
-            return ['jobs', 'parent-package'].includes(item.id) || item.header === 'PARENT MANAGEMENT' || item.header === 'GENERAL';
+            // Removed 'parent-package' as per user request
+            return ['jobs'].includes(item.id) || item.header === 'PARENT MANAGEMENT' || item.header === 'GENERAL';
         }
         if (mode === 'tutor') {
             return ['approve-tutor', 'select-tutor', 'tutor-package'].includes(item.id) || item.header === 'TUTOR MANAGEMENT' || item.header === 'GENERAL';
