@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 
 const ParentDashboard = () => {
@@ -44,3 +45,4 @@ const ParentDashboard = () => {
 };
 
 export default ParentDashboard;
+

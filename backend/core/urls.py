@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 def home(request):
-    return JsonResponse({"message": "THTPRO Backend Running", "status": "active"})
+    return JsonResponse({"message": "THTPRO Backend Running", "status": "active", "version": "v1.1"})
 
 def health_check(request):
     return JsonResponse({"status": "ok"})

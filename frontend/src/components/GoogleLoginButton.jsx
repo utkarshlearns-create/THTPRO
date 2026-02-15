@@ -1,3 +1,4 @@
+"use client";
 import React, { useRef, useEffect } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 
@@ -64,3 +65,4 @@ const GoogleLoginButton = ({ onSuccess, onError }) => {
 };
 
 export default GoogleLoginButton;
+

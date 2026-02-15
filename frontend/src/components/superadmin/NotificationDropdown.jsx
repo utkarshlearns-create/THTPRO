@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { 
     Bell, 
@@ -176,3 +177,4 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
 };
 
 export default NotificationDropdown;
+

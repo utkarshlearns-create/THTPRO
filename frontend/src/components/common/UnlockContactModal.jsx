@@ -1,13 +1,14 @@
+"use client";
 import React, { useState } from 'react';
 import { Lock, Unlock, AlertCircle, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import API_BASE_URL from '../../config';
 
 const UnlockContactModal = ({ tutor, onClose, onUnlockSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [insufficientFunds, setInsufficientFunds] = useState(false);
-    const navigate = useNavigate();
+    const router = useRouter();
 
     const UNLOCK_COST = 50; // Hardcoded to match backend
 
@@ -64,7 +65,7 @@ const UnlockContactModal = ({ tutor, onClose, onUnlockSuccess }) => {
                                 You need <strong>{UNLOCK_COST} credits</strong> to unlock this contact, but your wallet balance is low.
                             </p>
                             <button
-                                onClick={() => navigate('/wallet')}
+                                onClick={() => router.push('/wallet')}
                                 className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20"
                             >
                                 Add Funds to Wallet
@@ -117,3 +118,6 @@ const UnlockContactModal = ({ tutor, onClose, onUnlockSuccess }) => {
 };
 
 export default UnlockContactModal;
+
+
+

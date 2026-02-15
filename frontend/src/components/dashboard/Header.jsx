@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Bell, Menu, Sparkles, Gem, Sun, Moon } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -61,3 +62,4 @@ const Header = ({ sidebarOpen, setSidebarOpen, user }) => {
 };
 
 export default Header;
+

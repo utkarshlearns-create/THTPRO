@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { LayoutDashboard, User, FileText, Wallet, Bell, LogOut, Settings, HelpCircle, MapPin, BookOpen, ChevronLeft, ChevronRight, Menu, Sun, Moon } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -126,3 +127,4 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
 };
 
 export default Sidebar;
+

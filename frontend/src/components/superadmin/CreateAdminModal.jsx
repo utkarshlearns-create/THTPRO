@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { X, UserPlus, Shield, Mail, Phone, Lock, User } from 'lucide-react';
 import API_BASE_URL from '../../config';
@@ -211,3 +212,4 @@ function ChevronDown({ className, size }) {
 }
 
 export default CreateAdminModal;
+

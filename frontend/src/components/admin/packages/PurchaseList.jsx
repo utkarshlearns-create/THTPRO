@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, CheckCircle, XCircle, Eye, CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '../../ui/button';
@@ -150,3 +151,4 @@ export default function PurchaseList({ role, status }) { // role: Parent/Tutor, 
         </div>
     );
 }
+

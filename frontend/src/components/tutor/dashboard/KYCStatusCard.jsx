@@ -1,5 +1,6 @@
+"use client";
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { CheckCircle, Clock, XCircle, AlertCircle, FileText, ArrowRight } from 'lucide-react';
@@ -7,7 +8,7 @@ import { cn } from '../../../lib/utils';
 import API_BASE_URL from '../../../config';
 
 const KYCStatusCard = () => {
-    const navigate = useNavigate();
+    const router = useRouter();
     const [kycStatus, setKycStatus] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -141,7 +142,7 @@ const KYCStatusCard = () => {
                         </div>
                         <Button 
                             variant="sapphire" 
-                            onClick={() => navigate(config.actionLink)}
+                            onClick={() => router.push(config.actionLink)}
                             className="flex items-center gap-2"
                         >
                             {config.action}
@@ -209,3 +210,6 @@ const KYCStatusCard = () => {
 };
 
 export default KYCStatusCard;
+
+
+

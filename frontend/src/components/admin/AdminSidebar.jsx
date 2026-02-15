@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import {
     LayoutDashboard,
@@ -264,3 +265,4 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
         </aside>
     );
 }
+

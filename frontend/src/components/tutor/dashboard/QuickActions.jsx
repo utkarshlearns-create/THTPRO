@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Card, CardContent } from '../../ui/card';
 import { ClipboardList, CalendarDays, Zap, HelpCircle } from 'lucide-react';
@@ -35,3 +36,4 @@ const QuickActions = () => {
 };
 
 export default QuickActions;
+

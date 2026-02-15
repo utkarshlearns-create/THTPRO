@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, CheckCircle, XCircle, FileText, Image as ImageIcon, AlertCircle } from 'lucide-react';
@@ -314,3 +315,4 @@ const KYCDocumentUpload = () => {
 };
 
 export default KYCDocumentUpload;
+

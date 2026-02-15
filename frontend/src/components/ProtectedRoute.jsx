@@ -1,33 +1,52 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { jwtDecode } from "jwt-decode";
 
-const ProtectedRoute = ({ allowedRoles, children, loginPath = "/login" }) => {
-    const token = localStorage.getItem('access');
+export default function ProtectedRoute({ allowedRoles, children, loginPath = "/login" }) {
+    const router = useRouter();
 
-    if (!token) {
-        return <Navigate to={loginPath} replace />;
-    }
+    useEffect(() => {
+        const token = localStorage.getItem('access');
 
-    try {
-        const decoded = jwtDecode(token);
-        // Fallback to localStorage if role is missing in token (during migration/fixes)
-        const userRole = decoded.role || localStorage.getItem('role');
-
-        if (allowedRoles.includes(userRole) || allowedRoles.includes(userRole.toUpperCase())) {
-            return children || <Outlet />;
-        } else {
-            // Role mismatch - redirect based on their actual role to prevent "stuck" states
-            if (userRole === 'TEACHER') return <Navigate to="/tutor-home" replace />;
-            if (userRole === 'ADMIN') return <Navigate to="/dashboard/admin" replace />;
-            if (userRole === 'SUPERADMIN') return <Navigate to="/superadmin" replace />;
-            return <Navigate to="/parent-home" replace />;
+        if (!token) {
+            router.replace(loginPath);
+            return;
         }
-    } catch (error) {
-        // Invalid token
-        localStorage.clear();
-        return <Navigate to={loginPath} replace />;
-    }
-};
 
-export default ProtectedRoute;
+        try {
+            const decoded = jwtDecode(token);
+            const userRole = decoded.role || localStorage.getItem('role');
+
+            if (!allowedRoles.includes(userRole) && !allowedRoles.includes(userRole?.toUpperCase())) {
+                // Role mismatch - redirect based on their actual role
+                if (userRole === 'TEACHER') router.replace('/tutor-home');
+                else if (userRole === 'ADMIN') router.replace('/dashboard/admin');
+                else if (userRole === 'SUPERADMIN') router.replace('/superadmin');
+                else router.replace('/parent-home');
+            }
+        } catch (error) {
+            localStorage.clear();
+            router.replace(loginPath);
+        }
+    }, [allowedRoles, loginPath, router]);
+
+    // Check synchronously for rendering
+    if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('access');
+        if (!token) return null;
+
+        try {
+            const decoded = jwtDecode(token);
+            const userRole = decoded.role || localStorage.getItem('role');
+            if (allowedRoles.includes(userRole) || allowedRoles.includes(userRole?.toUpperCase())) {
+                return children;
+            }
+        } catch {
+            return null;
+        }
+    }
+
+    return null;
+}

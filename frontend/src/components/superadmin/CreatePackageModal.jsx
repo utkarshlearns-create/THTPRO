@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import { X, Loader2, Package, CreditCard } from 'lucide-react';
 import { Button } from '../ui/button';
@@ -221,3 +222,4 @@ export default function CreatePackageModal({ onClose, onSuccess, defaultRole = '
         </div>
     );
 }
+

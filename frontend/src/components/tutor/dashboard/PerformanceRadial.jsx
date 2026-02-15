@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Star, AlertCircle } from 'lucide-react';
@@ -31,3 +32,4 @@ const PerformanceRadial = () => {
 };
 
 export default PerformanceRadial;
+

@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { Card, CardContent } from '../../ui/card';
 import { Trophy, AlertCircle } from 'lucide-react';
@@ -27,3 +28,4 @@ const TutorRanking = () => {
 };
 
 export default TutorRanking;
+

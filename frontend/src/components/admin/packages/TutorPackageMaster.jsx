@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Plus, GraduationCap, Edit, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '../../ui/button';
@@ -113,3 +114,4 @@ export default function TutorPackageMaster() {
         </div>
     );
 }
+

@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { cn } from '../../lib/utils';
 import { motion } from 'framer-motion';
@@ -34,3 +35,4 @@ export default function KPICard({ title, value, icon: Icon, gradient, pulse }) {
         </motion.div>
     );
 }
+
