@@ -116,7 +116,7 @@ const LandingPage = () => {
                             placeholder="Enter your specific locality..." 
                             className="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-white placeholder-slate-400 text-sm font-medium h-10"
                         />
-                        <Button size="lg" className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg">
+                        <Button size="lg" className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg whitespace-nowrap">
                             <Search className="h-4 w-4 md:mr-2" />
                             <span className="hidden md:inline">Find Tutors</span>
                         </Button>
@@ -540,7 +540,7 @@ const LandingPage = () => {
                  size="lg"
                  className="bg-white text-indigo-900 hover:bg-indigo-50 hover:text-indigo-900 px-8 py-6 text-lg font-bold rounded-xl shadow-lg border-2 border-transparent hover:border-indigo-100"
                >
-                 <Link href="/signup?role=teacher">
+                 <Link href="/signup?role=teacher" className="flex items-center">
                    Join as a Tutor <ArrowRight className="ml-2 h-5 w-5" />
                  </Link>
                </Button>
