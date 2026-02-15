@@ -34,9 +34,8 @@ export const getUserRole = () => {
 /**
  * Handle 401 Unauthorized response.
  * Clears auth state and redirects to login.
- * @param {Function} navigate - React Router navigate function
  */
-export const handleUnauthorized = (navigate) => {
+export const handleUnauthorized = () => {
     clearAuthState();
-    navigate('/login');
+    window.location.href = '/login';
 };
