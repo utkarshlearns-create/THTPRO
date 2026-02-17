@@ -2,12 +2,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Navbar from '../../components/Navbar';
-import Footer from '../../components/Footer';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { LayoutDashboard, Briefcase, PlusCircle, Search, Settings, User, LogOut } from 'lucide-react';
-import PostJob from '../../components/institution/PostJob';
-import BrowseTutors from '../../components/institution/BrowseTutors';
-import API_BASE_URL from '../../config';
+import PostJob from '../components/institution/PostJob';
+import BrowseTutors from '../components/institution/BrowseTutors';
+import API_BASE_URL from '../config';
 
 const InstitutionDashboard = () => {
     const router = useRouter();
