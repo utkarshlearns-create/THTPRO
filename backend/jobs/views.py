@@ -3,14 +3,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from .models import JobPost, Application
+from .models import JobPost, Application, InstituteJob
 from .admin_models import AdminTask, Notification
 from .serializers import (
     JobPostSerializer, 
     TutorJobPostSerializer,
     AdminTaskSerializer,
     NotificationSerializer,
-    ApplicationSerializer
+    ApplicationSerializer,
+    InstituteJobSerializer
 )
 from .utils import assign_job_to_admin, send_notification
 from users.models import TutorProfile, TutorKYC
@@ -620,23 +621,6 @@ class ParentStatsView(APIView):
             "activities": activities,
         })
 
-from .models import JobPost, Application, InstituteJob
-from .serializers import JobPostSerializer, TutorJobPostSerializer, ApplicationSerializer, AdminTaskSerializer, NotificationSerializer, InstituteJobSerializer
-
-# ... existing code ...
-
-class ParentStatsView(APIView):
-    # ... existing code ...
-        return Response({
-            "jobs_posted": jobs_posted,
-            "jobs_this_week": jobs_this_week,
-            "applications_received": applications_received,
-            "hired_count": hired_count,
-            "assigned_tutor": assigned_tutor,
-            "profile_completion": profile_completion,
-            "member_since": user.date_joined.strftime("%b %Y"),
-            "activities": activities,
-        })
 
 class InstituteJobViewSet(viewsets.ModelViewSet):
     """
