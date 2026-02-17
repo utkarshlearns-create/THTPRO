@@ -149,6 +149,21 @@ class GoogleLoginView(APIView):
                 user.set_unusable_password()
                 user.save()
                 logger.info(f"GoogleLoginView: Created new user {user.id} with role {role}")
+
+                # CRITICAL: Create associated profiles (Same logic as UserSerializer)
+                if role == 'TEACHER':
+                    if not hasattr(user, 'tutor_profile'):
+                        TutorProfile.objects.create(user=user)
+                        TutorStatus.objects.create(tutor=user.tutor_profile)
+                        logger.info(f"GoogleLoginView: Created TutorProfile & Status for {user.id}")
+                elif role == 'INSTITUTION':
+                    if not hasattr(user, 'institution_profile'):
+                        InstitutionProfile.objects.create(
+                            user=user,
+                            institution_name=name or "New Institution",
+                            contact_person=name or "",
+                        )
+                        logger.info(f"GoogleLoginView: Created InstitutionProfile for {user.id}")
                 
             refresh = RefreshToken.for_user(user)
             refresh['role'] = user.role

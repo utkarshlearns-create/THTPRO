@@ -6,11 +6,7 @@ from .models import JobPost, Application, InstituteJob
 
 # ... existing classes ...
 
-class NotificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Notification
-        fields = '__all__'
-        read_only_fields = ('user', 'created_at')
+
 
 class InstituteJobSerializer(serializers.ModelSerializer):
     institution_name = serializers.ReadOnlyField(source='institution.institution_profile.institution_name')
