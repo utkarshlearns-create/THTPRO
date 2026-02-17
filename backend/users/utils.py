@@ -30,7 +30,7 @@ def verify_google_token(token):
         logger.debug(f"Verifying Google Token: {token[:20]}...")
         
         # Strategy 1: Try as ID Token first
-        response = requests.get(f"https://oauth2.googleapis.com/tokeninfo?id_token={token}")
+        response = requests.get(f"https://oauth2.googleapis.com/tokeninfo?id_token={token}", timeout=10)
         
         if response.status_code == 200:
             data = response.json()
@@ -45,7 +45,8 @@ def verify_google_token(token):
         logger.debug(f"ID Token failed ({response.status_code}). Trying as Access Token via userinfo API...")
         userinfo_response = requests.get(
             "https://www.googleapis.com/oauth2/v3/userinfo",
-            headers={"Authorization": f"Bearer {token}"}
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=10
         )
         
         if userinfo_response.status_code == 200:
