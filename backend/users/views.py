@@ -143,7 +143,7 @@ class GoogleLoginView(APIView):
                 user = User.objects.create_user(
                     username=unique_username,
                     email=email,
-                    first_name=name,
+                    first_name=name or email.split('@')[0], # Fallback if name is empty
                     role=role
                 )
                 user.set_unusable_password()
