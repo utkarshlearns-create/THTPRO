@@ -5,6 +5,9 @@ const nextConfig = {
   // 301 redirects convert POST → GET, breaking mutations (login, signup, etc.)
   skipTrailingSlashRedirect: true,
 
+  // Output to 'dist' to satisfy Vercel's current configuration
+  distDir: 'dist',
+
   // Proxy API requests to Django backend
   async rewrites() {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
