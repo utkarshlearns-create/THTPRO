@@ -16,7 +16,9 @@ from .views import (
     ContactUnlockView,
     CreateAdminUserView,
     InstitutionProfileView,
-    InstitutionTutorListView
+    InstitutionTutorListView,
+    PublicTutorSearchView,
+    PublicTutorDetailView
 )
 from .debug_views import DebugTokenView
 from .admin_views import UserManagementView, UserStatusView, UserUpdateView, SuperAdminAnalyticsView, AdminPerformanceView
@@ -45,6 +47,8 @@ urlpatterns = [
     path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard_stats'),
     path('institution/profile/', InstitutionProfileView.as_view(), name='institution_profile'),
     path('institution/tutors/', InstitutionTutorListView.as_view(), name='institution_tutor_list'),
+    path('tutors/search/', PublicTutorSearchView.as_view(), name='public_tutor_search'),
+    path('tutors/<int:pk>/', PublicTutorDetailView.as_view(), name='public_tutor_detail'),
     
     # Legacy KYC endpoint
     path('kyc/submit/', KYCSubmissionView.as_view(), name='kyc_submission'),

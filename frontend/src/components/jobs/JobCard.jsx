@@ -38,7 +38,7 @@ const JobCard = ({ job }) => {
                     ))}
                 </div>
                 <p className="text-slate-600 dark:text-slate-300 text-sm line-clamp-2">
-                    {job.description || "No description provided."}
+                    {job.requirements || "No details provided."}
                 </p>
             </div>
 
@@ -46,7 +46,7 @@ const JobCard = ({ job }) => {
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center text-slate-700 dark:text-slate-300 font-semibold text-sm">
                         <Banknote size={16} className="mr-1.5 text-emerald-500" />
-                        ₹{job.budget_min} - ₹{job.budget_max}/mo
+                        {job.budget_range || (job.hourly_rate ? `₹${job.hourly_rate}/hr` : 'Negotiable')}
                     </div>
                     <div className="flex items-center text-slate-400 text-xs">
                         <Clock size={12} className="mr-1.5" />

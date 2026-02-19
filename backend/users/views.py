@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, status, views
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserSerializer, TutorProfileSerializer, CustomTokenObtainPairSerializer, TutorKYCSerializer, TutorStatusSerializer, EnquirySerializer
+from .serializers import UserSerializer, TutorProfileSerializer, CustomTokenObtainPairSerializer, TutorKYCSerializer, TutorStatusSerializer, EnquirySerializer, PublicTutorProfileSerializer
 from .models import TutorProfile, TutorKYC, TutorStatus, ContactUnlock
 from jobs.admin_models import AdminProfile
 from wallet.models import Wallet
@@ -592,3 +592,90 @@ class InstitutionTutorListView(generics.ListAPIView):
             )
             
         return queryset
+
+class PublicTutorSearchView(generics.ListAPIView):
+    """
+    Public API for searching tutors.
+    Allows filtering by Subject, Class, Locality, Mode.
+    """
+    permission_classes = [permissions.IsAuthenticated] # Or AllowAny if public
+    serializer_class = PublicTutorProfileSerializer
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+    
+    def get_queryset(self):
+        # Only ACTIVE tutors
+        queryset = TutorProfile.objects.filter(status_record__status='ACTIVE')
+        
+        # Check if any filters are applied
+        params = self.request.query_params
+        has_filters = any(k in params for k in ['q', 'subject', 'class', 'grade', 'locality', 'mode'])
+        
+        if not has_filters:
+             # Randomize validation
+             queryset = queryset.order_by('?')
+        else:
+             # Default sort if filters exist
+             queryset = queryset.order_by('-profile_completion_percentage', '-teaching_experience_years')
+        
+        # 1. Text Search (Name, About)
+        q = self.request.query_params.get('q')
+        if q:
+            from django.db.models import Q
+            queryset = queryset.filter(
+                Q(user__first_name__icontains=q) |
+                Q(full_name__icontains=q) |
+                Q(about_me__icontains=q) |
+                Q(subjects__icontains=q)
+            )
+            
+        # 2. Subject Filter (JSON list or string)
+        subject = self.request.query_params.get('subject')
+        if subject:
+            # For JSONField list, we can use icontains or specific JSON lookup if DB supports it.
+            # SQLite supports JSON, PostgreSQL does too.
+            # Using simple icontains on the JSON string representation is a hack but works for simple lists.
+            queryset = queryset.filter(subjects__icontains=subject)
+            
+        # 3. Class/Grade Filter
+        grade = self.request.query_params.get('class') or self.request.query_params.get('grade')
+        if grade:
+             # Fix: Imported data might have grades in 'subjects' JSON list to (e.g. "Class 10", "6th - 10th")
+             # So we check both 'classes' (if populated) and 'subjects'
+             from django.db.models import Q
+             queryset = queryset.filter(
+                 Q(classes__icontains=grade) | 
+                 Q(subjects__icontains=grade)
+             )
+             
+        # 4. Locality Filter
+        locality = self.request.query_params.get('locality')
+        if locality:
+             queryset = queryset.filter(locality__icontains=locality)
+             
+        # 5. Mode Filter
+        mode = self.request.query_params.get('mode')
+        if mode and mode in ['HOME', 'ONLINE', 'BOTH']:
+             # If user wants Home, show Home or Both.
+             # If user wants Online, show Online or Both.
+             if mode == 'HOME':
+                 queryset = queryset.filter(teaching_mode='BOTH')
+                 
+        return queryset
+
+class PublicTutorDetailView(generics.RetrieveAPIView):
+    """
+    Get public details of a single tutor.
+    Exposes contact info only if unlocked.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PublicTutorProfileSerializer
+    queryset = TutorProfile.objects.filter(status_record__status='ACTIVE')
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context

@@ -61,6 +61,8 @@ class TutorProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['user', 'profile_completion_percentage']
 
+
+
     is_unlocked = serializers.SerializerMethodField()
     contact_info = serializers.SerializerMethodField()
 
@@ -86,6 +88,75 @@ class TutorProfileSerializer(serializers.ModelSerializer):
                 "phone": obj.user.phone,
                 "email": obj.user.email
             }
+        return None
+
+
+class PublicTutorProfileSerializer(serializers.ModelSerializer):
+    """
+    Limited serializer for public/search view.
+    Excludes sensitive info like Phone/WhatsApp/Full Address unless unlocked.
+    """
+    name = serializers.SerializerMethodField()
+    subjects = serializers.ListField(read_only=True) # Ensure JSON parsed
+    classes = serializers.ListField(read_only=True)
+    image = serializers.SerializerMethodField()
+    is_unlocked = serializers.SerializerMethodField()
+    contact_info = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = TutorProfile
+        fields = [
+            'id', 'name', 'gender', 'about_me', 
+            'subjects', 'classes', 'locality', 'teaching_mode', 
+            'teaching_experience_years', 'expected_fee', 
+            'highest_qualification', 'is_bed', 'is_tet', 
+            'profile_completion_percentage', 'image',
+            'is_unlocked', 'contact_info'
+        ]
+        
+    def get_name(self, obj):
+        return obj.full_name or obj.user.first_name
+    
+    def get_is_unlocked(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        
+        # If user is the tutor themselves, always unlocked
+        if request.user == obj.user:
+            return True
+        
+        # Superadmins/Admins can see everything
+        if request.user.role in ['ADMIN', 'SUPERADMIN', 'TEACHER']: # Allowing other teachers to see? Maybe not. Let's start with Admin.
+             if request.user.role in ['ADMIN', 'SUPERADMIN']:
+                 return True
+        
+        from .models import ContactUnlock
+        return ContactUnlock.objects.filter(parent=request.user, tutor=obj).exists()
+
+    def get_contact_info(self, obj):
+        if self.get_is_unlocked(obj):
+            return {
+                "phone": obj.user.phone,
+                "email": obj.user.email,
+                "whatsapp": obj.whatsapp_number
+            }
+        return None
+        
+    def get_image(self, obj):
+        if obj.profile_image:
+            return obj.profile_image.url
+        if obj.external_profile_image_url:
+            url = obj.external_profile_image_url
+            # Transform Google Drive 'open' links to direct image links
+            # Format: https://drive.google.com/open?id=FILE_ID -> https://drive.google.com/uc?export=view&id=FILE_ID
+            if "drive.google.com" in url and "id=" in url:
+                import re
+                match = re.search(r'id=([a-zA-Z0-9_-]+)', url)
+                if match:
+                    file_id = match.group(1)
+                    return f"https://drive.google.com/uc?export=view&id={file_id}"
+            return url
         return None
 
 

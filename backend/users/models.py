@@ -34,6 +34,7 @@ class TutorProfile(models.Model):
     dob = models.DateField(blank=True, null=True)
     about_me = models.TextField(blank=True, null=True)
     profile_image = models.ImageField(upload_to='tutor_profiles/', blank=True, null=True)
+    external_profile_image_url = models.URLField(max_length=500, blank=True, null=True) # For imported Google Form images
     
     # Location & Mode
     locality = models.CharField(max_length=200, blank=True, null=True)

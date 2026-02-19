@@ -1,0 +1,487 @@
+
+--- Analyzing: THE HOME TUITIONS (Responses) - Form Responses 1.csv ---
+Headers:
+  0: Column 1
+  1: Email Address
+  2: NAME
+
+  3: Gender
+  4: Date of Birth
+  5: CALLING NUMBER , WHATSAPP NUMBER , ALTERNATE NUMBER
+  6: MARITAL STATUS
+  7: FATHER / MOTHER NAME 
+  8: FATHER / MOTHER CONTACT NO.
+  9: INTERMEDIATE ( Stream , Year , School and Board )
+  10: HIGHEST QUALIFICATION
+  11: Classes and Subjects
+  12: Which Subjects you can teach in class 9th and 10th
+  13: Which Subjects You Can Teach in Class 11th and 12th
+  14: Any Additional Subject and Stream You can teach write in brief
+  15: IN WHICH LOCATIONS YOU CAN TEACH
+  16: TEACHING EXPERIENCE IN YEARS
+  17: TEACHING EXPERIENCE  IN SCHOOL ( Describe in brief with school name and year )
+  18: DO YOU HAVE YOUR OWN CONVEYANCE
+  19: LOCAL ADDRESS
+  20: PERMANENT ADDRESS
+  21: AADHAAR CARD FRONT
+  22: AADHAAR CARD BACK
+  23: HIGHEST QUALIFICATION MARKSHEET 
+  24: Recent Passport Size Photograph
+  25:   ✅ Please read all the Terms and conditions carefully before registration
+
+
+☮️ You have to pay Rs. 500 as a registration fee which is non refundable ❗( on 7080738031  Gpay , Phonepe or Paytm ) 
+
+* Your registration will remain incomplete without paying registration fee of Rs. 500.
+
+ 🔴 By paying registration fee during the time of registration you will become our Premium tutor and you will get preference on tuitions.. 
+
+
+🚫 Before applying for any Tuition 
+read all the details and requirements of the tuition carefully. 
+
+* You will have to pay the registration fee before getting the contact number of the parents. 
+
+👉🏻 You will get your first month's tuition fee  From our institute at the end of your first month and  from second month guardian will pay you the tuition fee at the end of every month.
+
+
+✅ we will deduct 50% of the first month's tuition fee as our service charge.
+
+Regards 
+Team 
+THE HOME TUITIONS
+
+Our Website -  https://www.thehometuitions.in/
+  26: I DO HEREBY DECLARE THAT ALL THE ABOVE INFORMATION AND DOCUMENTS GIVEN BY ME ARE TRUE TO THE BEST OF MY KNOWLEDGE AND BELIEF.
+  27: DOCUMENT APPROVED OR NOT
+  28: COMMUNICATION ON CALL / CHAT
+  29: APPROVED OR NOT
+  30: REGISTRATION DATE ( AMOUNT ) - PROCESSED BY
+  31: VALID UPTO
+  32: 1st  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌  ) ( Remark )
+  33: 2nd  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌) ( Remark )
+  34: 3rd  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌ ) ( Remark )
+
+First Row Sample:
+  Column 1: 
+  Email Address: 
+  NAME
+: Vikas singh
+  Gender: 
+  Date of Birth: 
+  CALLING NUMBER , WHATSAPP NUMBER , ALTERNATE NUMBER: 9990689140
+  MARITAL STATUS: UNMARRIED
+  FATHER / MOTHER NAME : Awadheshwar singh
+  FATHER / MOTHER CONTACT NO.: 7789049388
+  INTERMEDIATE ( Stream , Year , School and Board ): Science, UP board, sarvodya inter college, 72%, 2015
+  HIGHEST QUALIFICATION: Graduation
+  Classes and Subjects: 
+  Which Subjects you can teach in class 9th and 10th: 
+  Which Subjects You Can Teach in Class 11th and 12th: 
+  Any Additional Subject and Stream You can teach write in brief: 
+  IN WHICH LOCATIONS YOU CAN TEACH: 
+  TEACHING EXPERIENCE IN YEARS: 2
+  TEACHING EXPERIENCE  IN SCHOOL ( Describe in brief with school name and year ): 
+  DO YOU HAVE YOUR OWN CONVEYANCE: YES
+  LOCAL ADDRESS: Manas Complex. Church road. Aliganj lucknow
+  PERMANENT ADDRESS: Mihinpurwa. Nanpara. Bahraich. 
+  AADHAAR CARD FRONT: https://drive.google.com/open?id=1AfqxpqanxedYIt-rR0THgw4bQetjlhTA
+  AADHAAR CARD BACK: 
+  HIGHEST QUALIFICATION MARKSHEET : https://drive.google.com/open?id=1jHQBq2fOjAgkAS_PWjh0j5eetRniIF66
+  Recent Passport Size Photograph: https://drive.google.com/open?id=1QbDpx5ZtazKSomP_JXBnGInwpVpneX25
+    ✅ Please read all the Terms and conditions carefully before registration
+
+
+☮️ You have to pay Rs. 500 as a registration fee which is non refundable ❗( on 7080738031  Gpay , Phonepe or Paytm ) 
+
+* Your registration will remain incomplete without paying registration fee of Rs. 500.
+
+ 🔴 By paying registration fee during the time of registration you will become our Premium tutor and you will get preference on tuitions.. 
+
+
+🚫 Before applying for any Tuition 
+read all the details and requirements of the tuition carefully. 
+
+* You will have to pay the registration fee before getting the contact number of the parents. 
+
+👉🏻 You will get your first month's tuition fee  From our institute at the end of your first month and  from second month guardian will pay you the tuition fee at the end of every month.
+
+
+✅ we will deduct 50% of the first month's tuition fee as our service charge.
+
+Regards 
+Team 
+THE HOME TUITIONS
+
+Our Website -  https://www.thehometuitions.in/: 
+  I DO HEREBY DECLARE THAT ALL THE ABOVE INFORMATION AND DOCUMENTS GIVEN BY ME ARE TRUE TO THE BEST OF MY KNOWLEDGE AND BELIEF.: YES
+  DOCUMENT APPROVED OR NOT: 
+  COMMUNICATION ON CALL / CHAT: 
+  APPROVED OR NOT: 
+  REGISTRATION DATE ( AMOUNT ) - PROCESSED BY: 
+  VALID UPTO: 
+  1st  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌  ) ( Remark ): 
+  2nd  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌) ( Remark ): 
+  3rd  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌ ) ( Remark ): 
+
+--- Analyzing: THE HOME TUITIONS (Responses) - Form Responses 2.csv ---
+Headers:
+  0: 97
+  1: Email Address
+  2: NAME
+  3: Gender
+  4: Date of Birth
+  5: CALLING NUMBER , WHATSAPP NUMBER , ALTERNATE NUMBER
+  6: MARITAL STATUS
+  7: FATHER / MOTHER NAME 
+  8: FATHER / MOTHER CONTACT NO.
+  9: INTERMEDIATE ( Stream , Year , School and Board )
+  10: HIGHEST QUALIFICATION
+  11: Classes and Subjects
+  12: Which Subjects You Can Teach in Class 11th and 12th
+  13: Any Additional Subject and Stream You can teach write in brief
+  14: IN WHICH LOCATIONS YOU CAN TEACH
+  15: TEACHING EXPERIENCE IN YEARS
+  16: TEACHING EXPERIENCE IN SCHOOL ( Describe in brief with school name and year )
+  17: DO YOU HAVE YOUR OWN CONVEYANCE
+  18: LOCAL ADDRESS
+  19: PERMANENT ADDRESS
+  20: AADHAAR CARD FRONT
+  21: AADHAAR CARD BACK
+  22: HIGHEST QUALIFICATION MARKSHEET 
+  23: RECENT PASSPORT SIZE PHOTOGRAPH.
+  24: 📘 THE HOME TUITIONS 📄 Tutor Registration Brochure — 
+
+ ⭐ Tutor Registration Plans (Non-Refundable) 
+Every plan includes ✨ UNLIMITED tuition opportunities based on tutor performance, demo quality, and discipline.
+🔹 ₹599 Plan 
+🕒 Validity: 6 Months
+♾️ Unlimited tuition opportunities during validity
+🎯 Perfect for tutors beginning their journey
+📈 Good for building experience & confidence
+🔹 ₹999 Plan 
+🗓️ Validity: 1 Year
+♾️ Unlimited tuition opportunities for the entire year
+🔥 Great for tutors seeking long-term, stable tuition flow
+🚀 Higher chance of priority allocation
+🔹 ₹1999 Plan 
+🏆 Lifetime Validity
+♾️ Unlimited tuition opportunities — Lifetime Access
+👑 Best for tutors who want permanent access
+💼 Zero renewal required.
+______________________________________________________________________________________________________________
+
+🚫 STRICT CANCELLATION POLICY (Most Important Section) 
+To maintain fairness, professionalism, and trust, the rules below are followed very strictly.
+❌ 1. Taking Parent Contact But Not Attending the Demo 
+If you receive parent contact details and fail to attend the demo for ANY reason,
+➡️ Instant Cancellation of Registration
+❌ 2. Trying to Deal Directly With Parents 
+Any attempt to negotiate fees or bypass the organization.
+➡️ Permanent & Irreversible Cancellation
+❌ 3. Three Unsuccessful Tuition Attempts (Major Rule) 
+Considered unsuccessful if you:
+🚫 Miss the demo
+🚫 Reject the tuition after allotment
+🚫 Do not attend after confirming
+🚫 Avoid or delay the assignment repeatedly
+After 3 such failed attempts,
+➡️ Your registration will be permanently cancelled. To get more opportunities you have to re - register yourself.
+This ensures only serious, committed, and reliable tutors continue receiving opportunities.
+______________________________________________________________________________________________________________
+💰 Payment & Service Details 
+👨‍🏫 Once registered, you become a Premium Tutor
+💵 First month’s fee is handled by The Home Tuitions
+🧾 50% service charge applies only for the first month
+📲 From the second month onward, parents pay tutors directly
+📌 Before Applying for Any Tuition 
+Always confirm the following before you apply:
+📍 Location
+📚 Student class & subjects
+💰 Fee structure
+⏱️ Tuition timing & days
+Apply only if you can attend, to avoid cancellation under the 3-attempt rule.
+______________________________________________________________________________________________________________
+✍️ Acknowledgement 
+By registering, you confirm that you have read, understood, and agree to follow ALL policies — especially the cancellation rules.
+🌟 Team THE HOME TUITIONS 
+Supporting Tutors. Strengthening Education. Empowering Growth.
+  25: I DO HEREBY DECLARE THAT ALL THE ABOVE INFORMATION AND DOCUMENTS GIVEN BY ME ARE TRUE TO THE BEST OF MY KNOWLEDGE AND BELIEF.
+  26: DOCUMENT APPROVED OR NOT
+  27: COMMUNICATION ON CALL / CHAT
+  28: APPROVED OR NOT
+  29: REGISTRATION DATE ( AMOUNT ) -  PROCESSED BY
+  30: VALID UPTO
+  31: 1st  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌  ) ( Remark )
+  32: 2nd  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌  ) ( Remark )
+  33: 3rd  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌  ) ( Remark )
+
+First Row Sample:
+  97: 
+  Email Address: abhipandey9405@gmail.com
+  NAME: Abhishek pandey 
+  Gender: Male
+  Date of Birth: 11/5/1999
+  CALLING NUMBER , WHATSAPP NUMBER , ALTERNATE NUMBER: 7897235775
+  MARITAL STATUS: UNMARRIED
+  FATHER / MOTHER NAME : Ravindra Kumar Pandey / usha pandey
+  FATHER / MOTHER CONTACT NO.: 9473584346
+  INTERMEDIATE ( Stream , Year , School and Board ): PCM 2015 ,St Francis mission school CBSE 
+  HIGHEST QUALIFICATION: Bachelor of science PCM
+  Classes and Subjects: 6th - 8th All Subjects
+  Which Subjects You Can Teach in Class 11th and 12th: Maths
+  Any Additional Subject and Stream You can teach write in brief: No
+  IN WHICH LOCATIONS YOU CAN TEACH: Vrindavan colony telibagh Lucknow 
+  TEACHING EXPERIENCE IN YEARS: 5
+  TEACHING EXPERIENCE IN SCHOOL ( Describe in brief with school name and year ): No
+  DO YOU HAVE YOUR OWN CONVEYANCE: Option 1
+  LOCAL ADDRESS: Sector 7A 34 vrindavan colony telibagh Lucknow 
+  PERMANENT ADDRESS: Sector 7A 34 vrindavan colony telibagh Lucknow 
+  AADHAAR CARD FRONT: https://drive.google.com/open?id=1WNGN8JB26YhDSBYuE8apnqSdXoVg8Fk0
+  AADHAAR CARD BACK: https://drive.google.com/open?id=1xrr7rTKfRKeR9W5EktO9Gamki-B86_SU
+  HIGHEST QUALIFICATION MARKSHEET : https://drive.google.com/open?id=1Z86WqM1M6XdpMUGkYvNZAVoVFRVRRjjX
+  RECENT PASSPORT SIZE PHOTOGRAPH.: https://drive.google.com/open?id=1nK0vVEXFfprtoQqkJCWAOh9MOksWnejq
+  📘 THE HOME TUITIONS 📄 Tutor Registration Brochure — 
+
+ ⭐ Tutor Registration Plans (Non-Refundable) 
+Every plan includes ✨ UNLIMITED tuition opportunities based on tutor performance, demo quality, and discipline.
+🔹 ₹599 Plan 
+🕒 Validity: 6 Months
+♾️ Unlimited tuition opportunities during validity
+🎯 Perfect for tutors beginning their journey
+📈 Good for building experience & confidence
+🔹 ₹999 Plan 
+🗓️ Validity: 1 Year
+♾️ Unlimited tuition opportunities for the entire year
+🔥 Great for tutors seeking long-term, stable tuition flow
+🚀 Higher chance of priority allocation
+🔹 ₹1999 Plan 
+🏆 Lifetime Validity
+♾️ Unlimited tuition opportunities — Lifetime Access
+👑 Best for tutors who want permanent access
+💼 Zero renewal required.
+______________________________________________________________________________________________________________
+
+🚫 STRICT CANCELLATION POLICY (Most Important Section) 
+To maintain fairness, professionalism, and trust, the rules below are followed very strictly.
+❌ 1. Taking Parent Contact But Not Attending the Demo 
+If you receive parent contact details and fail to attend the demo for ANY reason,
+➡️ Instant Cancellation of Registration
+❌ 2. Trying to Deal Directly With Parents 
+Any attempt to negotiate fees or bypass the organization.
+➡️ Permanent & Irreversible Cancellation
+❌ 3. Three Unsuccessful Tuition Attempts (Major Rule) 
+Considered unsuccessful if you:
+🚫 Miss the demo
+🚫 Reject the tuition after allotment
+🚫 Do not attend after confirming
+🚫 Avoid or delay the assignment repeatedly
+After 3 such failed attempts,
+➡️ Your registration will be permanently cancelled. To get more opportunities you have to re - register yourself.
+This ensures only serious, committed, and reliable tutors continue receiving opportunities.
+______________________________________________________________________________________________________________
+💰 Payment & Service Details 
+👨‍🏫 Once registered, you become a Premium Tutor
+💵 First month’s fee is handled by The Home Tuitions
+🧾 50% service charge applies only for the first month
+📲 From the second month onward, parents pay tutors directly
+📌 Before Applying for Any Tuition 
+Always confirm the following before you apply:
+📍 Location
+📚 Student class & subjects
+💰 Fee structure
+⏱️ Tuition timing & days
+Apply only if you can attend, to avoid cancellation under the 3-attempt rule.
+______________________________________________________________________________________________________________
+✍️ Acknowledgement 
+By registering, you confirm that you have read, understood, and agree to follow ALL policies — especially the cancellation rules.
+🌟 Team THE HOME TUITIONS 
+Supporting Tutors. Strengthening Education. Empowering Growth.: YES, I agree with all the terms and conditions.
+  I DO HEREBY DECLARE THAT ALL THE ABOVE INFORMATION AND DOCUMENTS GIVEN BY ME ARE TRUE TO THE BEST OF MY KNOWLEDGE AND BELIEF.: Yes
+  DOCUMENT APPROVED OR NOT: Approved ✅
+  COMMUNICATION ON CALL / CHAT: Good
+  APPROVED OR NOT: Approved ✅
+  REGISTRATION DATE ( AMOUNT ) -  PROCESSED BY: 8th October  ( 599)-Diksha Pandey
+  VALID UPTO: 8th April 2026
+  1st  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌  ) ( Remark ): Abhinav
+  2nd  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌  ) ( Remark ): 
+  3rd  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌  ) ( Remark ): 
+
+--- Analyzing: THE HOME TUITIONS (Responses) - NEW TUTOR RESPONSE SHEET.csv ---
+Headers:
+  0: Column 1
+  1: Email Address
+  2: NAME
+  3: Gender
+  4: Date of Birth
+  5: CALLING NUMBER , WHATSAPP NUMBER , ALTERNATE NUMBER
+  6: MARITAL STATUS
+  7: FATHER / MOTHER NAME 
+  8: FATHER / MOTHER CONTACT NO.
+  9: INTERMEDIATE ( Stream , Year , School and Board )
+  10: HIGHEST QUALIFICATION
+  11: Classes and Subjects
+  12: Which Subjects You Can Teach in Class 11th and 12th
+  13: Any Additional Subject and Stream You can teach write in brief
+  14: IN WHICH LOCATIONS YOU CAN TEACH
+  15: TEACHING EXPERIENCE IN YEARS
+  16: TEACHING EXPERIENCE IN SCHOOL ( Describe in brief with school name and year )
+  17: DO YOU HAVE YOUR OWN CONVEYANCE
+  18: LOCAL ADDRESS
+  19: PERMANENT ADDRESS
+  20: AADHAAR CARD FRONT
+  21: AADHAAR CARD BACK
+  22: HIGHEST QUALIFICATION MARKSHEET 
+  23: RECENT PASSPORT SIZE PHOTOGRAPH.
+  24: 📘 THE HOME TUITIONS 📄 Tutor Registration Brochure — 
+
+ ⭐ Tutor Registration Plans (Non-Refundable)
+Every plan includes ✨ UNLIMITED tuition opportunities based on tutor performance, demo quality, and discipline.
+🔹 ₹599 Plan
+🕒 Validity: 6 Months
+♾️ Unlimited tuition opportunities during validity
+🎯 Perfect for tutors beginning their journey
+📈 Good for building experience & confidence
+______________________________
+🔹 ₹999 Plan
+🗓️ Validity: 1 Year
+♾️ Unlimited tuition opportunities for the entire year
+🔥 Great for tutors seeking long-term, stable tuition flow
+🚀 Higher chance of priority allocation
+________________________________
+🔹 ₹1999 Plan
+🏆 Lifetime Validity
+♾️ Unlimited tuition opportunities — Lifetime Access
+👑 Best for tutors who want permanent access
+💼 Zero renewal required.
+______________________________________________________________________________________________
+
+🚫 STRICT CANCELLATION POLICY (Most Important Section)
+To maintain fairness, professionalism, and trust, the rules below are followed very strictly.
+
+❌ 1. Taking Parent Contact But Not Attending the Demo
+If you receive parent contact details and fail to attend the demo for ANY reason,
+➡️ Instant Cancellation of Registration
+❌ 2. Trying to Deal Directly With Parents
+Any attempt to negotiate fees or bypass the organization.
+➡️ Permanent & Irreversible Cancellation.
+
+❌ 3. Three Unsuccessful Tuition Attempts (Major Rule)
+Considered unsuccessful if you:
+🚫 Miss the demo
+🚫 Reject the tuition after allotment
+🚫 Do not attend after confirming
+🚫 Avoid or delay the assignment repeatedly
+After 3 such failed attempts,
+
+➡️ Your registration will be permanently cancelled. To get more opportunities you have to re - register yourself.
+This ensures only serious, committed, and reliable tutors continue receiving opportunities.
+______________________________________________________________________________________________________________
+💰 Payment & Service Details
+👨‍🏫 Once registered, you become a Premium Tutor
+💵 First month’s fee is handled by The Home Tuitions
+🧾 A 50% service charge is applicable only for the first month. The payment will be released at the end of the first month.
+📲 From the second month onward, parents pay tutors directly
+
+📌 Before Applying for Any Tuition
+Always confirm the following before you apply:
+📍 Location
+📚 Student class & subjects
+💰 Fee structure
+⏱️ Tuition timing & days
+Apply only if you can attend, to avoid cancellation under the 3-attempt rule.
+______________________________________________________________________________________________________________
+✍️ Acknowledgement
+By registering, you confirm that you have read, understood, and agree to follow ALL policies — especially the cancellation rules.
+🌟 Team THE HOME TUITIONS
+Supporting Tutors. Strengthening Education. Empowering Growth.
+  25: I DO HEREBY DECLARE THAT ALL THE ABOVE INFORMATION AND DOCUMENTS GIVEN BY ME ARE TRUE TO THE BEST OF MY KNOWLEDGE AND BELIEF.
+
+First Row Sample:
+  Column 1: 
+  Email Address: vinaypathak7169@gmail.com
+  NAME: Vinay Pathak
+  Gender: Male
+  Date of Birth: 8/10/2002
+  CALLING NUMBER , WHATSAPP NUMBER , ALTERNATE NUMBER: 9125501796
+  MARITAL STATUS: Unmarried
+  FATHER / MOTHER NAME : Shailesh Pathak
+  FATHER / MOTHER CONTACT NO.: 9125501796
+  INTERMEDIATE ( Stream , Year , School and Board ): PCB, 2020, UP Board
+  HIGHEST QUALIFICATION: Graduation (Bsc. Maths)
+  Classes and Subjects: Nursery to 5th, 6th - 10th
+  Which Subjects You Can Teach in Class 11th and 12th: Do not want to teach these classes
+  Any Additional Subject and Stream You can teach write in brief: Maths, English, Social Science, Physics 
+  IN WHICH LOCATIONS YOU CAN TEACH: Aliganj, Kapoorthala, Bada Chandganj, Mahanagar, IT Chauraha 
+  TEACHING EXPERIENCE IN YEARS: 1 Year
+  TEACHING EXPERIENCE IN SCHOOL ( Describe in brief with school name and year ): No
+  DO YOU HAVE YOUR OWN CONVEYANCE: Yes
+  LOCAL ADDRESS: Mahaveer Purva, Kapoorthala Chauraha, Aliganj, Lucknow 
+  PERMANENT ADDRESS: Mahaveer Purva, Kapoorthala Chauraha, Aliganj, Lucknow 
+  AADHAAR CARD FRONT: https://drive.google.com/open?id=1IVp-GQ3YFyl6jiArQ2eeWMlS2LiSuHkp
+  AADHAAR CARD BACK: https://drive.google.com/open?id=1rTIwOx5OnCrZefspo646bvDxpsDEXGan
+  HIGHEST QUALIFICATION MARKSHEET : https://drive.google.com/open?id=1IvfoMtn3lGOkLB5uyXBaGsXX0r8y3-vL
+  RECENT PASSPORT SIZE PHOTOGRAPH.: https://drive.google.com/open?id=1viBxLlQ1g41RcY78CyuS-v17bK6YccSt
+  📘 THE HOME TUITIONS 📄 Tutor Registration Brochure — 
+
+ ⭐ Tutor Registration Plans (Non-Refundable)
+Every plan includes ✨ UNLIMITED tuition opportunities based on tutor performance, demo quality, and discipline.
+🔹 ₹599 Plan
+🕒 Validity: 6 Months
+♾️ Unlimited tuition opportunities during validity
+🎯 Perfect for tutors beginning their journey
+📈 Good for building experience & confidence
+______________________________
+🔹 ₹999 Plan
+🗓️ Validity: 1 Year
+♾️ Unlimited tuition opportunities for the entire year
+🔥 Great for tutors seeking long-term, stable tuition flow
+🚀 Higher chance of priority allocation
+________________________________
+🔹 ₹1999 Plan
+🏆 Lifetime Validity
+♾️ Unlimited tuition opportunities — Lifetime Access
+👑 Best for tutors who want permanent access
+💼 Zero renewal required.
+______________________________________________________________________________________________
+
+🚫 STRICT CANCELLATION POLICY (Most Important Section)
+To maintain fairness, professionalism, and trust, the rules below are followed very strictly.
+
+❌ 1. Taking Parent Contact But Not Attending the Demo
+If you receive parent contact details and fail to attend the demo for ANY reason,
+➡️ Instant Cancellation of Registration
+❌ 2. Trying to Deal Directly With Parents
+Any attempt to negotiate fees or bypass the organization.
+➡️ Permanent & Irreversible Cancellation.
+
+❌ 3. Three Unsuccessful Tuition Attempts (Major Rule)
+Considered unsuccessful if you:
+🚫 Miss the demo
+🚫 Reject the tuition after allotment
+🚫 Do not attend after confirming
+🚫 Avoid or delay the assignment repeatedly
+After 3 such failed attempts,
+
+➡️ Your registration will be permanently cancelled. To get more opportunities you have to re - register yourself.
+This ensures only serious, committed, and reliable tutors continue receiving opportunities.
+______________________________________________________________________________________________________________
+💰 Payment & Service Details
+👨‍🏫 Once registered, you become a Premium Tutor
+💵 First month’s fee is handled by The Home Tuitions
+🧾 A 50% service charge is applicable only for the first month. The payment will be released at the end of the first month.
+📲 From the second month onward, parents pay tutors directly
+
+📌 Before Applying for Any Tuition
+Always confirm the following before you apply:
+📍 Location
+📚 Student class & subjects
+💰 Fee structure
+⏱️ Tuition timing & days
+Apply only if you can attend, to avoid cancellation under the 3-attempt rule.
+______________________________________________________________________________________________________________
+✍️ Acknowledgement
+By registering, you confirm that you have read, understood, and agree to follow ALL policies — especially the cancellation rules.
+🌟 Team THE HOME TUITIONS
+Supporting Tutors. Strengthening Education. Empowering Growth.: YES, I agree with all the terms and conditions.
+  I DO HEREBY DECLARE THAT ALL THE ABOVE INFORMATION AND DOCUMENTS GIVEN BY ME ARE TRUE TO THE BEST OF MY KNOWLEDGE AND BELIEF.: Yes
