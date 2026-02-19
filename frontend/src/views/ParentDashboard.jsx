@@ -50,6 +50,8 @@ const ParentDashboard = () => {
     const [wallet, setWallet] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [error, setError] = useState(null);
+
     useEffect(() => {
         const tabParam = searchParams.get('tab');
         if (tabParam) {
@@ -60,7 +62,13 @@ const ParentDashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
+            setError(null);
             const token = localStorage.getItem('access');
+            if (!token) {
+                setError("No access token found. Please login again.");
+                setLoading(false);
+                return;
+            }
             const headers = { 'Authorization': `Bearer ${token}` };
 
             const [statsRes, jobsRes, walletRes] = await Promise.all([
@@ -69,15 +77,40 @@ const ParentDashboard = () => {
                 fetch(`${API_BASE_URL}/api/wallet/me/`, { headers })
             ]);
 
-            if (statsRes.ok) setStats(await statsRes.json());
+            if (statsRes.ok) {
+                setStats(await statsRes.json());
+            } else {
+                if (statsRes.status === 401) {
+                    setError("Session expired. Redirecting...");
+                    handleLogout();
+                    return;
+                }
+                console.error("Dashboard Stats Error:", statsRes.status, statsRes.statusText);
+            }
+
             if (jobsRes.ok) {
                 const jobsData = await jobsRes.json();
                 if (jobsData.length > 0) setLatestJob(jobsData[0]);
+            } else if (jobsRes.status === 401) {
+                 // Already handled by statsRes 401 check ideally, but safe to ignore
+            } else {
+                console.error("Dashboard Jobs Error:", jobsRes.status, jobsRes.statusText);
             }
-            if (walletRes.ok) setWallet(await walletRes.json());
+
+            if (walletRes.ok) {
+                setWallet(await walletRes.json());
+            } else if (walletRes.status === 401) {
+                 if (!error) { // Verify if not already redirecting
+                     setError("Session expired. Redirecting...");
+                     handleLogout();
+                 }
+            } else {
+                 console.error("Dashboard Wallet Error:", walletRes.status, walletRes.statusText);
+            }
 
         } catch (error) {
             console.error("Error fetching dashboard data:", error);
+            setError(`Network Error: ${error.message}`);
         } finally {
             setLoading(false);
         }
@@ -145,6 +178,11 @@ const ParentDashboard = () => {
                             <div>
                                 <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard Overview</h1>
                                 <p className="text-slate-500 dark:text-slate-400 mt-2">Welcome back! Here's an overview of your tuition activities.</p>
+                                {error && (
+                                    <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
+                                        <strong>Error:</strong> {error}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Insights Section with Stagger Animation */}

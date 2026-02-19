@@ -30,7 +30,13 @@ const JobSearch = () => {
                 const response = await fetch(`${API_BASE_URL}/api/jobs/search/?${queryParams.toString()}`);
                 if (response.ok) {
                     const data = await response.json();
-                    setJobs(data);
+                    if (data.results && Array.isArray(data.results)) {
+                        setJobs(data.results);
+                    } else if (Array.isArray(data)) {
+                        setJobs(data);
+                    } else {
+                        setJobs([]);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching jobs:", error);

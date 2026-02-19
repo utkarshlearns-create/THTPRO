@@ -535,7 +535,8 @@ class ParentStatsView(APIView):
              return Response({"error": "Only parents can view stats"}, status=403)
         
         from datetime import timedelta
-        from wallet.models import Transaction
+        from wallet.models import Transaction, Wallet
+        from django.db.models import Case, When, Value, IntegerField
         
         user = request.user
         now = timezone.now()
@@ -543,82 +544,147 @@ class ParentStatsView(APIView):
         month_ago = now - timedelta(days=30)
         
         # === Core Stats ===
-        jobs_posted = JobPost.objects.filter(parent=user).count()
-        jobs_this_week = JobPost.objects.filter(parent=user, created_at__gte=week_ago).count()
-        jobs_last_month = JobPost.objects.filter(parent=user, created_at__gte=month_ago, created_at__lt=week_ago).count()
+        # active_jobs: Jobs that are APPROVED or PENDING, not closed/rejected
+        active_jobs_count = JobPost.objects.filter(
+            posted_by=user, 
+            status__in=['APPROVED', 'PENDING_APPROVAL', 'ASSIGNED']
+        ).count()
         
-        applications_received = Application.objects.filter(job__parent=user).count()
-        hired_count = Application.objects.filter(job__parent=user, status='HIRED').count()
+        # jobs_posted: Total all time
+        jobs_posted = JobPost.objects.filter(posted_by=user).count()
         
-        # === Assigned Tutor ===
+        # applications_received: Total apps on user's jobs
+        applications_received = Application.objects.filter(job__posted_by=user).count()
+        
+        
+        # === Wallet Balance ===
+        wallet_balance = 0.00
+        try:
+            if hasattr(user, 'wallet'):
+                wallet_balance = user.wallet.balance
+        except Exception:
+            pass
+
+        # === Assigned Tutor (Most Recent Hired) ===
         assigned_tutor = None
-        hire = Application.objects.filter(job__parent=user, status='HIRED').select_related('tutor__user').first()
+        hire = Application.objects.filter(job__posted_by=user, status='HIRED').select_related('tutor__user', 'job').order_by('-updated_at').first()
         if hire and hire.tutor:
             assigned_tutor = {
-                "name": hire.tutor.full_name or hire.tutor.user.username,
+                "name": hire.tutor.full_name or hire.tutor.user.first_name,
                 "subject": hire.job.subjects[0] if hire.job.subjects else "General",
+                "image": hire.tutor.profile_image.url if hire.tutor.profile_image else None
             }
         
-        # === Profile Completion (simplified) ===
-        profile_fields_filled = sum([
-            bool(user.username),
-            bool(user.email),
-            bool(user.phone),
-        ])
-        profile_completion = int((profile_fields_filled / 3) * 100)
+        # === Recommended Tutors ===
+        # Logic: Find active tutors. Prioritize same locality if parent has posted jobs.
+        
+        parent_locality = None
+        last_job = JobPost.objects.filter(posted_by=user).order_by('-created_at').first()
+        if last_job:
+            parent_locality = last_job.locality
+            
+        # Base Query: Active Tutors only
+        recommended_tutors_qs = TutorProfile.objects.filter(status_record__status='ACTIVE')
+        
+        if parent_locality:
+            # Annotate with match score: 2 for locality match, 0 otherwise
+            # We use distinct() to insure no duplicates if joins happen, though here it's straight table
+            recommended_tutors_qs = recommended_tutors_qs.annotate(
+                locality_match=Case(
+                    When(locality__icontains=parent_locality, then=Value(2)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                )
+            ).order_by('-locality_match', '-teaching_experience_years')
+        else:
+             # Fallback: Sort by experience
+             recommended_tutors_qs = recommended_tutors_qs.order_by('-teaching_experience_years')
+        
+        # Limit to 5
+        recommended_tutors_qs = recommended_tutors_qs[:5]
+        
+        recommended_tutors = []
+        for tutor in recommended_tutors_qs:
+            recommended_tutors.append({
+                "id": tutor.id,
+                "name": tutor.full_name or tutor.user.first_name,
+                "subjects": tutor.subjects, # JSON list
+                "locality": tutor.locality,
+                "rating": 4.8, # Mock rating for now
+                "image": tutor.profile_image.url if tutor.profile_image else None,
+                "experience": tutor.teaching_experience_years
+            })
         
         # === Recent Activity Feed ===
         activities = []
         
-        # Recent job postings
-        recent_jobs = JobPost.objects.filter(parent=user).order_by('-created_at')[:3]
+        # 1. Recent Status Updates on Jobs (Approved/Rejected)
+        # We don't have a separate audit log easily accessible, so we infer from recent jobs
+        recent_jobs = JobPost.objects.filter(posted_by=user).order_by('-created_at')[:3]
         for job in recent_jobs:
-            activities.append({
-                "type": "job_posted",
-                "title": f"Posted: {job.class_grade} - {', '.join(job.subjects[:2])}",
-                "description": f"Job posted for {job.student_name or 'your student'}",
-                "timestamp": job.created_at.isoformat(),
-                "icon": "briefcase"
-            })
+            if job.status == 'PENDING_APPROVAL':
+                activities.append({
+                    "type": "info",
+                    "title": "Job Under Review",
+                    "description": f"Your request for {job.class_grade} is being reviewed.",
+                    "timestamp": job.created_at.isoformat(),
+                    "icon": "clock"
+                })
+            elif job.status == 'APPROVED':
+                 # Use updated_at for approval time roughly
+                 activities.append({
+                    "type": "success",
+                    "title": "Job Approved",
+                    "description": f"Your request for {job.class_grade} is now live.",
+                    "timestamp": job.updated_at.isoformat(),
+                    "icon": "check-circle"
+                })
         
-        # Recent applications received
-        recent_apps = Application.objects.filter(job__parent=user).select_related('tutor__user').order_by('-created_at')[:3]
+        # 2. New Applications
+        recent_apps = Application.objects.filter(job__posted_by=user).select_related('tutor__user', 'job').order_by('-created_at')[:3]
         for app in recent_apps:
             activities.append({
-                "type": "application_received",
-                "title": f"New Application from {app.tutor.full_name or app.tutor.user.username}",
-                "description": f"Applied for {app.job.class_grade}",
+                "type": "application",
+                "title": "New Applicant",
+                "description": f"{app.tutor.full_name or 'A tutor'} applied for {app.job.class_grade}.",
                 "timestamp": app.created_at.isoformat(),
-                "icon": "user"
+                "icon": "user-plus"
             })
         
-        # Recent wallet transactions
+        # 3. Wallet Transactions
         try:
-            wallet_transactions = Transaction.objects.filter(wallet__user=user).order_by('-created_at')[:2]
-            for tx in wallet_transactions:
-                activities.append({
-                    "type": "wallet",
-                    "title": f"Wallet {tx.transaction_type}",
-                    "description": f"₹{tx.amount} - {tx.description}",
-                    "timestamp": tx.created_at.isoformat(),
-                    "icon": "wallet"
-                })
-        except:
+            if hasattr(user, 'wallet'):
+                wallet_transactions = Transaction.objects.filter(wallet=user.wallet).order_by('-created_at')[:3]
+                for tx in wallet_transactions:
+                    activities.append({
+                        "type": "wallet",
+                        "title": "Wallet Update",
+                        "description": f"{'Debited' if tx.transaction_type=='DEBIT' else 'Credited'} ₹{tx.amount}",
+                        "timestamp": tx.created_at.isoformat(),
+                        "icon": "credit-card"
+                    })
+        except Exception:
             pass
         
-        # Sort activities by timestamp
+        # Sort combined list by timestamp
         activities.sort(key=lambda x: x['timestamp'], reverse=True)
-        activities = activities[:5]  # Limit to 5 most recent
+        activities = activities[:5]
+        
+        # === Recent Jobs (Object List for Cards) ===
+        # Re-fetch recent jobs as queryset for serialization
+        recent_jobs_qs = JobPost.objects.filter(posted_by=user).order_by('-created_at')[:3]
+        recent_jobs_data = JobPostSerializer(recent_jobs_qs, many=True).data
         
         return Response({
-            "jobs_posted": jobs_posted,
-            "jobs_this_week": jobs_this_week,
-            "applications_received": applications_received,
-            "hired_count": hired_count,
+            "stats": {
+                "active_jobs": active_jobs_count,
+                "applications_received": applications_received,
+                "wallet_balance": wallet_balance,
+            },
             "assigned_tutor": assigned_tutor,
-            "profile_completion": profile_completion,
-            "member_since": user.date_joined.strftime("%b %Y"),
-            "activities": activities,
+            "recommended_tutors": recommended_tutors,
+            "recent_activities": activities,
+            "recent_jobs": recent_jobs_data,
         })
 
 
