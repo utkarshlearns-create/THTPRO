@@ -584,10 +584,12 @@ class InstitutionTutorListView(generics.ListAPIView):
         # Simple Search
         q = self.request.query_params.get('q')
         if q:
-            from django.db.models import Q
+            from django.db.models import Q, CharField
+            from django.db.models.functions import Cast
+            queryset = queryset.annotate(subjects_str=Cast('subjects', CharField()))
             queryset = queryset.filter(
                 Q(user__first_name__icontains=q) |
-                Q(subjects__icontains=q) |
+                Q(subjects_str__icontains=q) |
                 Q(about__icontains=q)
             )
             
@@ -620,35 +622,38 @@ class PublicTutorSearchView(generics.ListAPIView):
         else:
              # Default sort if filters exist
              queryset = queryset.order_by('-profile_completion_percentage', '-teaching_experience_years')
+             
+        from django.db.models import Q, CharField
+        from django.db.models.functions import Cast
+        
+        # Cast JSON fields to string to ensure __icontains works on PostgreSQL jsonb columns
+        if has_filters:
+             queryset = queryset.annotate(
+                 subjects_str=Cast('subjects', CharField()),
+                 classes_str=Cast('classes', CharField())
+             )
         
         # 1. Text Search (Name, About)
         q = self.request.query_params.get('q')
         if q:
-            from django.db.models import Q
             queryset = queryset.filter(
                 Q(user__first_name__icontains=q) |
                 Q(full_name__icontains=q) |
                 Q(about_me__icontains=q) |
-                Q(subjects__icontains=q)
+                Q(subjects_str__icontains=q)
             )
             
         # 2. Subject Filter (JSON list or string)
         subject = self.request.query_params.get('subject')
         if subject:
-            # For JSONField list, we can use icontains or specific JSON lookup if DB supports it.
-            # SQLite supports JSON, PostgreSQL does too.
-            # Using simple icontains on the JSON string representation is a hack but works for simple lists.
-            queryset = queryset.filter(subjects__icontains=subject)
+            queryset = queryset.filter(subjects_str__icontains=subject)
             
         # 3. Class/Grade Filter
         grade = self.request.query_params.get('class') or self.request.query_params.get('grade')
         if grade:
-             # Fix: Imported data might have grades in 'subjects' JSON list to (e.g. "Class 10", "6th - 10th")
-             # So we check both 'classes' (if populated) and 'subjects'
-             from django.db.models import Q
              queryset = queryset.filter(
-                 Q(classes__icontains=grade) | 
-                 Q(subjects__icontains=grade)
+                 Q(classes_str__icontains=grade) | 
+                 Q(subjects_str__icontains=grade)
              )
              
         # 4. Locality Filter
