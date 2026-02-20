@@ -589,7 +589,7 @@ class InstitutionTutorListView(generics.ListAPIView):
             queryset = queryset.annotate(subjects_str=Cast('subjects', CharField()))
             queryset = queryset.filter(
                 Q(user__first_name__icontains=q) |
-                Q(subjects_str__icontains=q) |
+                Q(subjects_str__icontains=q)
             )
             
         return queryset.order_by('-profile_completion_percentage', '-teaching_experience_years')
