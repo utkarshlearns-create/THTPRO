@@ -590,10 +590,9 @@ class InstitutionTutorListView(generics.ListAPIView):
             queryset = queryset.filter(
                 Q(user__first_name__icontains=q) |
                 Q(subjects_str__icontains=q) |
-                Q(about__icontains=q)
             )
             
-        return queryset
+        return queryset.order_by('-profile_completion_percentage', '-teaching_experience_years')
 
 class PublicTutorSearchView(generics.ListAPIView):
     """
@@ -618,7 +617,7 @@ class PublicTutorSearchView(generics.ListAPIView):
         
         if not has_filters:
              # Randomize validation
-             queryset = queryset.order_by('?')
+             queryset = queryset.order_by('-profile_completion_percentage', '-teaching_experience_years')
         else:
              # Default sort if filters exist
              queryset = queryset.order_by('-profile_completion_percentage', '-teaching_experience_years')
