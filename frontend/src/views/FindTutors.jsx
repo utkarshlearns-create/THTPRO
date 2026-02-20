@@ -244,7 +244,7 @@ const TutorCard = ({ tutor }) => {
                 <div className="relative">
                     {tutor.image && !imgError ? (
                         <img 
-                            src={tutor.image.startsWith('http') ? tutor.image : `${API_BASE_URL}${tutor.image}`} 
+                            src={typeof tutor.image === 'string' && tutor.image.startsWith('http') ? tutor.image : `${API_BASE_URL}${tutor.image}`} 
                             alt={tutor.name} 
                             className="h-16 w-16 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-md"
                             onError={() => setImgError(true)}
