@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, MapPin, BookOpen, GraduationCap, Monitor, Star, Clock, IndianRupee } from 'lucide-react';
+import { Search, Filter, MapPin, BookOpen, GraduationCap, Monitor, Star, Clock, IndianRupee, Globe } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import API_BASE_URL from '../config';
 import { useRouter } from 'next/navigation';
