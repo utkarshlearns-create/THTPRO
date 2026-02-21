@@ -13,7 +13,8 @@ import {
     Globe, 
     Calculator,
     FlaskConical,
-    Loader2
+    Loader2,
+    ChevronDown
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -50,25 +51,44 @@ const JobWizard = () => {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [masterDataLoading, setMasterDataLoading] = useState(true);
+    const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
     
     // Master data from API
     const [subjects, setSubjects] = useState([]);
     const [boards, setBoards] = useState([]);
     const [classLevels, setClassLevels] = useState([]);
     
-    const [formData, setFormData] = useState({
-        student_gender: '',
-        tutor_gender_preference: 'Any',
-        tuition_mode: 'HOME',
-        class_grade: '',
-        board: '',
-        subjects: [],
-        locality: '',
-        preferred_time: '',
-        budget_range: '',
-        hourly_rate: '',
-        requirements: ''
+    const [formData, setFormData] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const savedDraft = localStorage.getItem('jobWizardDraft');
+            if (savedDraft) {
+                try {
+                    return JSON.parse(savedDraft);
+                } catch (e) {
+                    console.error("Error parsing draft", e);
+                }
+            }
+        }
+        return {
+            student_gender: '',
+            tutor_gender_preference: 'Any',
+            tuition_mode: 'HOME',
+            class_grade: '',
+            board: '',
+            subjects: [],
+            locality: '',
+            preferred_time: '',
+            budget_range: '',
+            hourly_rate: '',
+            requirements: ''
+        };
     });
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('jobWizardDraft', JSON.stringify(formData));
+        }
+    }, [formData]);
 
     // Fetch master data on mount
     useEffect(() => {
@@ -161,6 +181,7 @@ const JobWizard = () => {
             
             if (response.ok) {
                 localStorage.removeItem('pendingJobPost');
+                localStorage.removeItem('jobWizardDraft');
                 alert(`Success! ${data.message}\n\nYour job posting is being reviewed by our team. You'll be notified once it's approved.`);
                 if (role === 'TEACHER') {
                     router.push('/tutor-home');
@@ -316,25 +337,46 @@ const JobWizard = () => {
 
                                         <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                                             <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Subjects Required</Label>
-                                            <div className="flex flex-wrap gap-3">
-                                                {subjects.map((sub) => {
-                                                    const IconComponent = iconMap[sub.icon] || BookOpen;
-                                                    return (
-                                                        <button
-                                                            key={sub.id}
-                                                            type="button"
-                                                            onClick={() => handleSubjectChange(sub.name)}
-                                                            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
-                                                                formData.subjects.includes(sub.name)
-                                                                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-indigo-900/50 transform scale-105'
-                                                                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-slate-50 dark:hover:bg-slate-700'
-                                                            }`}
-                                                        >
-                                                            {sub.name}
-                                                            {formData.subjects.includes(sub.name) && <CheckCircle className="h-3 w-3 ml-1 fill-white" />}
-                                                        </button>
-                                                    );
-                                                })}
+                                            <div className="relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsSubjectDropdownOpen(!isSubjectDropdownOpen)}
+                                                    className="w-full flex items-center justify-between py-5 px-4 text-left text-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                                >
+                                                    <span className="truncate text-slate-700 dark:text-slate-200">
+                                                        {formData.subjects.length > 0 ? formData.subjects.join(', ') : 'Select Subjects...'}
+                                                    </span>
+                                                    <ChevronDown className={`h-5 w-5 text-slate-400 transition-transform duration-200 ${isSubjectDropdownOpen ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                
+                                                <AnimatePresence>
+                                                {isSubjectDropdownOpen && (
+                                                    <motion.div 
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-64 overflow-y-auto"
+                                                    >
+                                                        <div className="p-2 space-y-1">
+                                                            {subjects.map((sub) => (
+                                                                <label key={sub.id} className="flex items-center gap-3 p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg cursor-pointer transition-colors group">
+                                                                    <div className={`flex items-center justify-center w-5 h-5 rounded border ${formData.subjects.includes(sub.name) ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 dark:border-slate-600 group-hover:border-indigo-400'}`}>
+                                                                        {formData.subjects.includes(sub.name) && <CheckCircle className="h-4 w-4 text-white" />}
+                                                                    </div>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        value={sub.name}
+                                                                        checked={formData.subjects.includes(sub.name)}
+                                                                        onChange={() => handleSubjectChange(sub.name)}
+                                                                        className="hidden"
+                                                                    />
+                                                                    <span className="text-slate-700 dark:text-slate-200 font-medium">{sub.name}</span>
+                                                                </label>
+                                                            ))}
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                                </AnimatePresence>
                                             </div>
                                         </div>
                                     </>
@@ -491,7 +533,7 @@ const JobWizard = () => {
                             (step === 2 && !formData.locality)
                         }
                     >
-                        Next Step <ArrowRight className="ml-2 h-4 w-4" />
+                        Save & Next <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                 ) : (
                     <Button 
