@@ -39,6 +39,7 @@ class TutorJobPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobPost
         fields = [
+            'student_gender', 'tutor_gender_preference', 'tuition_mode',
             'class_grade', 'board', 'subjects', 'locality',
             'preferred_time', 'budget_range', 'hourly_rate', 'requirements'
         ]

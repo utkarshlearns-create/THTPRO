@@ -57,6 +57,9 @@ const JobWizard = () => {
     const [classLevels, setClassLevels] = useState([]);
     
     const [formData, setFormData] = useState({
+        student_gender: '',
+        tutor_gender_preference: 'Any',
+        tuition_mode: 'HOME',
         class_grade: '',
         board: '',
         subjects: [],
@@ -283,8 +286,36 @@ const JobWizard = () => {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-4">
-                                            <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Subjects You Can Teach</Label>
+                                        <div className="grid grid-cols-2 gap-6 mt-6">
+                                            <div className="space-y-3">
+                                                <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Student Gender</Label>
+                                                <Select name="student_gender" value={formData.student_gender} onValueChange={(val) => handleSelectChange('student_gender', val)}>
+                                                    <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                                                        <SelectValue placeholder="Select" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Male">Boy</SelectItem>
+                                                        <SelectItem value="Female">Girl</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Tutor Gender Preference</Label>
+                                                <Select name="tutor_gender_preference" value={formData.tutor_gender_preference} onValueChange={(val) => handleSelectChange('tutor_gender_preference', val)}>
+                                                    <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                                                        <SelectValue placeholder="Select" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Any">No Preference</SelectItem>
+                                                        <SelectItem value="Male">Male Tutor</SelectItem>
+                                                        <SelectItem value="Female">Female Tutor</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                            <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Subjects Required</Label>
                                             <div className="flex flex-wrap gap-3">
                                                 {subjects.map((sub) => {
                                                     const IconComponent = iconMap[sub.icon] || BookOpen;
@@ -317,6 +348,19 @@ const JobWizard = () => {
                         {step === 2 && (
                              <div className="space-y-8">
                                 <div className="space-y-4">
+                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Tuition Mode</Label>
+                                    <Select name="tuition_mode" value={formData.tuition_mode} onValueChange={(val) => handleSelectChange('tuition_mode', val)}>
+                                        <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                                            <SelectValue placeholder="Select" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="HOME">Home Tuition</SelectItem>
+                                            <SelectItem value="ONLINE">Online Class</SelectItem>
+                                            <SelectItem value="BOTH">Both / Any</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                                     <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Your Locality / Area</Label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -331,8 +375,8 @@ const JobWizard = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className="space-y-4">
-                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Your Available Time Slots</Label>
+                                <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Preferred Timing</Label>
                                     <div className="relative group">
                                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <Clock className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
@@ -443,7 +487,7 @@ const JobWizard = () => {
                         size="lg"
                         className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-8 shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20 transition-all transform hover:-translate-y-0.5"
                         disabled={
-                            (step === 1 && (!formData.class_grade || !formData.board || formData.subjects.length === 0)) ||
+                            (step === 1 && (!formData.class_grade || !formData.board || formData.subjects.length === 0 || !formData.student_gender)) ||
                             (step === 2 && !formData.locality)
                         }
                     >
