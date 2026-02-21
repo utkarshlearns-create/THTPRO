@@ -269,7 +269,7 @@ const ParentDashboard = () => {
                                                     <Skeleton className="h-16 w-full" />
                                                     <Skeleton className="h-16 w-full" />
                                                 </>
-                                            ) : stats.activities?.length > 0 ? (
+                                            ) : Array.isArray(stats.activities) && stats.activities.length > 0 ? (
                                                 stats.activities.map((activity, i) => (
                                                     <motion.div 
                                                         key={i} 
@@ -316,7 +316,10 @@ const ParentDashboard = () => {
                                             <Button className="w-full justify-start bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700" onClick={() => setActiveTab('wallet')}>
                                                 <Wallet className="mr-2 h-4 w-4 text-green-600" /> Add Credits
                                             </Button>
-                                            <Button className="w-full justify-start bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700">
+                                             <Button 
+                                                className="w-full justify-start bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700" 
+                                                onClick={() => router.push('/tutors')}
+                                            >
                                                 <User className="mr-2 h-4 w-4 text-blue-600" /> Browse Tutors
                                             </Button>
                                         </CardContent>
@@ -440,7 +443,9 @@ const JobsList = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setJobs(data);
+                setJobs(Array.isArray(data) ? data : []);
+            } else {
+                setJobs([]);
             }
         } catch (error) {
             console.error("Error fetching jobs:", error);
@@ -497,9 +502,9 @@ const JobsList = () => {
                         </div>
                         
                         <div className="space-y-3">
-                            <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+                             <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
                                 <span className="p-1 rounded bg-white dark:bg-slate-700 text-indigo-500 dark:text-indigo-400 shadow-sm"><FileText size={14} /></span>
-                                <span className="font-medium truncate">{job.subjects.join(', ')}</span>
+                                <span className="font-medium truncate">{Array.isArray(job.subjects) ? job.subjects.join(', ') : 'No subjects'}</span>
                             </div>
                             <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
                                 <span className="p-1 rounded bg-white dark:bg-slate-700 text-emerald-500 dark:text-emerald-400 shadow-sm"><Clock size={14} /></span>
@@ -580,8 +585,8 @@ const MyProfile = ({ latestJob, stats }) => {
                             
                             <div>
                                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Subjects Required</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {latestJob.subjects.map((sub, i) => (
+                                 <div className="flex flex-wrap gap-2">
+                                    {Array.isArray(latestJob.subjects) && latestJob.subjects.map((sub, i) => (
                                         <span key={i} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium border border-indigo-100 dark:border-indigo-900/30">
                                             {sub}
                                         </span>
