@@ -13,10 +13,25 @@ const FindTutors = () => {
     const [filters, setFilters] = useState({
         q: '',
         subject: '',
-        class: '', // Using 'class' as key per backend
+        class: '', 
+        state: 'Uttar Pradesh', // Default to UP
+        city: 'Lucknow',        // Default to Lucknow
         locality: '',
         mode: ''
     });
+
+    const LOCATION_DATA = {
+        "Uttar Pradesh": {
+            "Lucknow": ["Aliganj", "Gomti Nagar", "Indira Nagar", "Hazratganj", "Janki Puram", "Mahanagar", "Alambagh", "Vikas Nagar", "South City", "Aashiana"],
+            "Kanpur": ["Kalyanpur", "Kidwai Nagar", "Civil Lines", "Swaroop Nagar", "Jajmau"],
+            "Varanasi": ["Lanka", "Sigra", "Cantt", "Sarnath"],
+            "Agra": ["Sanjay Place", "Taj Nagri", "Dayal Bagh"],
+            "Noida": ["Sector 15", "Sector 18", "Sector 62", "Sector 137"],
+        }
+    };
+
+    const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "Hindi", "Social Science", "History", "Geography", "Computer Science", "Business Studies", "Accountancy", "Economics"];
+    const CLASSES = ["Nursery/Preschool", "Class 1-5", "Class 6-8", "Class 9", "Class 10", "Class 11", "Class 12", "IIT-JEE/NEET"];
     const [showFilters, setShowFilters] = useState(false);
 
     // Fetch tutors when filters change (debounced)
@@ -127,14 +142,15 @@ const FindTutors = () => {
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Subject</label>
                                     <div className="relative">
                                         <BookOpen className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                                        <input
-                                            type="text"
+                                        <select
                                             name="subject"
                                             value={filters.subject}
                                             onChange={handleFilterChange}
-                                            placeholder="e.g. Maths"
-                                            className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white font-medium"
-                                        />
+                                            className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white font-medium appearance-none"
+                                        >
+                                            <option value="">Any Subject</option>
+                                            {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+                                        </select>
                                     </div>
                                 </div>
 
@@ -142,29 +158,84 @@ const FindTutors = () => {
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Class / Grade</label>
                                     <div className="relative">
                                         <GraduationCap className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                                        <input
-                                            type="text"
+                                        <select
                                             name="class"
                                             value={filters.class}
                                             onChange={handleFilterChange}
-                                            placeholder="e.g. 10th, 5th, 12th"
-                                            className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white font-medium"
-                                        />
+                                            className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white font-medium appearance-none"
+                                        >
+                                            <option value="">Any Class</option>
+                                            {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
+                                        </select>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Location</label>
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">State</label>
                                     <div className="relative">
                                         <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                                        <input
-                                            type="text"
+                                        <select
+                                            name="state"
+                                            value={filters.state}
+                                            onChange={(e) => {
+                                                const newState = e.target.value;
+                                                setFilters(prev => ({ 
+                                                    ...prev, 
+                                                    state: newState, 
+                                                    city: Object.keys(LOCATION_DATA[newState] || {})[0] || '',
+                                                    locality: '' 
+                                                }));
+                                            }}
+                                            className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white font-medium appearance-none"
+                                        >
+                                            <option value="">Select State</option>
+                                            {Object.keys(LOCATION_DATA).map(s => <option key={s} value={s}>{s}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">City</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                                        <select
+                                            name="city"
+                                            value={filters.city}
+                                            onChange={(e) => {
+                                                const newCity = e.target.value;
+                                                setFilters(prev => ({ 
+                                                    ...prev, 
+                                                    city: newCity, 
+                                                    locality: '' 
+                                                }));
+                                            }}
+                                            className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white font-medium appearance-none"
+                                            disabled={!filters.state}
+                                        >
+                                            <option value="">Select City</option>
+                                            {filters.state && Object.keys(LOCATION_DATA[filters.state] || {}).map(c => (
+                                                <option key={c} value={c}>{c}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Area / Locality</label>
+                                    <div className="relative">
+                                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+                                        <select
                                             name="locality"
                                             value={filters.locality}
                                             onChange={handleFilterChange}
-                                            placeholder="e.g. Lucknow"
-                                            className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white font-medium"
-                                        />
+                                            className="w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 text-slate-900 dark:text-white font-medium appearance-none"
+                                            disabled={!filters.city}
+                                        >
+                                            <option value="">Select Area</option>
+                                            {filters.state && filters.city && (LOCATION_DATA[filters.state][filters.city] || []).map(l => (
+                                                <option key={l} value={l}>{l}</option>
+                                            ))}
+                                        </select>
                                     </div>
                                 </div>
                                 
@@ -187,7 +258,7 @@ const FindTutors = () => {
                                 </div>
 
                                 <button 
-                                    onClick={() => setFilters({ q: '', subject: '', class: '', locality: '', mode: '' })}
+                                    onClick={() => setFilters({ q: '', subject: '', class: '', state: 'Uttar Pradesh', city: 'Lucknow', locality: '', mode: '' })}
                                     className="w-full mt-2 py-2 text-sm text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors border border-dashed border-slate-300 dark:border-slate-700 rounded-lg hover:border-indigo-300"
                                 >
                                     Reset Filters

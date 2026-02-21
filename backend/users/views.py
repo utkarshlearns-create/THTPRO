@@ -613,7 +613,7 @@ class PublicTutorSearchView(generics.ListAPIView):
         
         # Check if any filters are applied
         params = self.request.query_params
-        has_filters = any(k in params for k in ['q', 'subject', 'class', 'grade', 'locality', 'mode'])
+        has_filters = any(k in params for k in ['q', 'subject', 'class', 'grade', 'locality', 'mode', 'state', 'city'])
         
         if not has_filters:
              # Randomize validation
@@ -655,10 +655,20 @@ class PublicTutorSearchView(generics.ListAPIView):
                  Q(subjects_str__icontains=grade)
              )
              
-        # 4. Locality Filter
+
+             
+        # 4. Location Filters
+        state = self.request.query_params.get('state')
+        if state:
+            queryset = queryset.filter(state__icontains=state)
+
+        city = self.request.query_params.get('city')
+        if city:
+            queryset = queryset.filter(city__icontains=city)
+
         locality = self.request.query_params.get('locality')
         if locality:
-             queryset = queryset.filter(locality__icontains=locality)
+            queryset = queryset.filter(locality__icontains=locality)
              
         # 5. Mode Filter
         mode = self.request.query_params.get('mode')
