@@ -26,7 +26,9 @@ class JobPost(models.Model):
     
     # Job details
     student_name = models.CharField(max_length=100, blank=True)  # Optional for tutor posts
-    student_gender = models.CharField(max_length=20, choices=[('Male', 'Male'), ('Female', 'Female')], blank=True)
+    student_gender = models.CharField(max_length=20, choices=[('Male', 'Male'), ('Female', 'Female'), ('Any', 'Any')], blank=True)
+    tutor_gender_preference = models.CharField(max_length=20, choices=[('Male', 'Male'), ('Female', 'Female'), ('Any', 'Any')], default='Any')
+    tuition_mode = models.CharField(max_length=20, choices=[('HOME', 'Home Tuition'), ('ONLINE', 'Online'), ('BOTH', 'Both')], default='HOME')
     class_grade = models.CharField(max_length=50) # e.g. "Class 10"
     board = models.CharField(max_length=50) # e.g. "CBSE", "ICSE"
     subjects = models.JSONField(default=list) # ["Maths", "Physics"]
