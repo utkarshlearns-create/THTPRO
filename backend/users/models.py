@@ -37,6 +37,8 @@ class TutorProfile(models.Model):
     external_profile_image_url = models.URLField(max_length=500, blank=True, null=True) # For imported Google Form images
     
     # Location & Mode
+    state = models.CharField(max_length=100, default="Uttar Pradesh")
+    city = models.CharField(max_length=100, default="Lucknow")
     locality = models.CharField(max_length=200, blank=True, null=True)
     teaching_mode = models.CharField(max_length=10, choices=TEACHING_MODE_CHOICES, default='BOTH')
     

@@ -1,0 +1,60 @@
+0: Column 1
+1: Email Address
+2: NAME
+
+3: Gender
+4: Date of Birth
+5: CALLING NUMBER , WHATSAPP NUMBER , ALTERNATE NUMBER
+6: MARITAL STATUS
+7: FATHER / MOTHER NAME 
+8: FATHER / MOTHER CONTACT NO.
+9: INTERMEDIATE ( Stream , Year , School and Board )
+10: HIGHEST QUALIFICATION
+11: Classes and Subjects
+12: Which Subjects you can teach in class 9th and 10th
+13: Which Subjects You Can Teach in Class 11th and 12th
+14: Any Additional Subject and Stream You can teach write in brief
+15: IN WHICH LOCATIONS YOU CAN TEACH
+16: TEACHING EXPERIENCE IN YEARS
+17: TEACHING EXPERIENCE  IN SCHOOL ( Describe in brief with school name and year )
+18: DO YOU HAVE YOUR OWN CONVEYANCE
+19: LOCAL ADDRESS
+20: PERMANENT ADDRESS
+21: AADHAAR CARD FRONT
+22: AADHAAR CARD BACK
+23: HIGHEST QUALIFICATION MARKSHEET 
+24: Recent Passport Size Photograph
+25:   ✅ Please read all the Terms and conditions carefully before registration
+
+
+☮️ You have to pay Rs. 500 as a registration fee which is non refundable ❗( on 7080738031  Gpay , Phonepe or Paytm ) 
+
+* Your registration will remain incomplete without paying registration fee of Rs. 500.
+
+ 🔴 By paying registration fee during the time of registration you will become our Premium tutor and you will get preference on tuitions.. 
+
+
+🚫 Before applying for any Tuition 
+read all the details and requirements of the tuition carefully. 
+
+* You will have to pay the registration fee before getting the contact number of the parents. 
+
+👉🏻 You will get your first month's tuition fee  From our institute at the end of your first month and  from second month guardian will pay you the tuition fee at the end of every month.
+
+
+✅ we will deduct 50% of the first month's tuition fee as our service charge.
+
+Regards 
+Team 
+THE HOME TUITIONS
+
+Our Website -  https://www.thehometuitions.in/
+26: I DO HEREBY DECLARE THAT ALL THE ABOVE INFORMATION AND DOCUMENTS GIVEN BY ME ARE TRUE TO THE BEST OF MY KNOWLEDGE AND BELIEF.
+27: DOCUMENT APPROVED OR NOT
+28: COMMUNICATION ON CALL / CHAT
+29: APPROVED OR NOT
+30: REGISTRATION DATE ( AMOUNT ) - PROCESSED BY
+31: VALID UPTO
+32: 1st  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌  ) ( Remark )
+33: 2nd  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌) ( Remark )
+34: 3rd  Tuition - Person who is handling ( Selected  ✅ or rejected  ❌ ) ( Remark )
