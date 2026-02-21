@@ -11,6 +11,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('csv_file', type=str, help='Path to the CSV file')
+        parser.add_argument('--skip-rows', type=int, default=0, help='Number of rows to skip')
 
     def handle(self, *args, **options):
         csv_file_path = options['csv_file']
@@ -24,6 +25,9 @@ class Command(BaseCommand):
         count_created = 0
         count_skipped = 0
         
+        skip_rows = options.get('skip_rows', 0)
+        current_row = 0
+        
         with open(csv_file_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             # Sanitize headers
@@ -31,6 +35,12 @@ class Command(BaseCommand):
                 reader.fieldnames = [name.strip().replace('\n', '') for name in reader.fieldnames]
             
             for row in reader:
+                current_row += 1
+                if current_row <= skip_rows:
+                    if current_row % 100 == 0:
+                        self.stdout.write(f'Scanning... skipped {current_row} rows')
+                    continue
+
                 try:
                     # Mapping for Google Form Headers
                     full_name = row.get('NAME', '').strip() or row.get('Full Name', '').strip()
@@ -88,46 +98,52 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.WARNING(f'Skipping row with missing phone: {full_name}'))
                         continue
                         
-                    # Check if user exists
-                    if User.objects.filter(username=phone).exists():
-                        self.stdout.write(self.style.WARNING(f'User with phone {phone} already exists. Skipping.'))
-                        count_skipped += 1
-                        continue
-                    
-                    # Create User
-                    user = User.objects.create_user(
+                    # Handle User creation or retrieval
+                    user, created = User.objects.get_or_create(
                         username=phone,
-                        email=email,
-                        password='Tutor@123'
+                        defaults={
+                            'email': email,
+                        }
                     )
-                    user.role = 'TEACHER'
-                    user.phone = phone
-                    user.save()
                     
-                    # Create Profile
-                    profile = TutorProfile.objects.create(
+                    if created:
+                        user.set_password('Tutor@123')
+                        user.role = 'TEACHER'
+                        user.phone = phone
+                        user.save()
+                        count_created += 1
+                        self.stdout.write(self.style.SUCCESS(f'Created user: {full_name} ({phone})'))
+                    else:
+                        count_skipped += 1
+                        if (count_created + count_skipped) % 100 == 0:
+                             self.stdout.write(self.style.WARNING(f'Progress: processed {count_created + count_skipped} rows...'))
+
+                    # Check or Create Profile
+                    profile, profile_created = TutorProfile.objects.get_or_create(
                         user=user,
-                        full_name=full_name,
-                        gender=gender,
-                        subjects=subjects,
-                        locality=locality,
-                        teaching_experience_years=experience,
-                        teaching_mode=mode,
-                        local_address=local_address,
-                        permanent_address=perm_address,
-                        profile_completion_percentage=80
+                        defaults={
+                            'full_name': full_name,
+                            'gender': gender,
+                            'subjects': subjects,
+                            'locality': locality,
+                            'teaching_experience_years': experience,
+                            'teaching_mode': mode,
+                            'local_address': local_address,
+                            'permanent_address': perm_address,
+                            'profile_completion_percentage': 80
+                        }
                     )
                     
-                    # Activate Status
-                    TutorStatus.objects.create(
-                        tutor=profile,
-                        status='ACTIVE'
-                    )
-                    
-                    self.stdout.write(self.style.SUCCESS(f'Created tutor: {full_name} ({phone})'))
-                    count_created += 1
+                    if profile_created:
+                         # Activate Status
+                        TutorStatus.objects.get_or_create(
+                            tutor=profile,
+                            defaults={'status': 'ACTIVE'}
+                        )
+                        if not created: # If user was existing but profile was missing
+                             self.stdout.write(self.style.SUCCESS(f'Created missing profile for: {full_name}'))
                     
                 except Exception as e:
-                    self.stdout.write(self.style.ERROR(f'Error processing row {full_name if "full_name" in locals() else "Unknown"}: {str(e)}'))
+                    self.stdout.write(self.style.ERROR(f'Error processing row {full_name}: {str(e)}'))
         
         self.stdout.write(self.style.SUCCESS(f'Import Complete. Created: {count_created}, Skipped: {count_skipped}'))
