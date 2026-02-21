@@ -350,12 +350,12 @@ const TutorCard = ({ tutor }) => {
             </div>
 
             <div className="flex flex-wrap gap-2 mb-6">
-                {tutor.subjects?.slice(0, 3).map((sub, idx) => (
+                {Array.isArray(tutor.subjects) && tutor.subjects.slice(0, 3).map((sub, idx) => (
                     <span key={idx} className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-md">
                         {sub}
                     </span>
                 ))}
-                {(tutor.subjects?.length || 0) > 3 && (
+                {Array.isArray(tutor.subjects) && tutor.subjects.length > 3 && (
                     <span className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800 text-slate-500 text-xs font-semibold rounded-md">
                         +{tutor.subjects.length - 3} more
                     </span>
