@@ -107,12 +107,12 @@ const FindTutors = () => {
         <div className="min-h-screen relative overflow-hidden bg-slate-50 dark:bg-[#0B1120]">
             {/* User Provided Background Image */}
             <div 
-                className="absolute inset-0 z-0 pointer-events-none"
+                className="fixed inset-0 z-0 pointer-events-none"
                 style={{
                     backgroundImage: "url('/find-tutors-bg.jpg')",
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    backgroundAttachment: 'fixed',
+                    backgroundRepeat: 'no-repeat',
                     opacity: 0.8
                 }}
             >
