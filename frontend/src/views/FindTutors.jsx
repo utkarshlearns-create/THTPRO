@@ -65,7 +65,8 @@ const FindTutors = () => {
                 });
 
                 const response = await fetch(`${API_BASE_URL}/api/users/tutors/search/?${queryParams.toString()}`, {
-                    headers: headers
+                    headers: headers,
+                    cache: 'no-store'
                 });
                 
                 if (response.ok) {
