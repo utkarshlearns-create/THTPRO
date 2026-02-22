@@ -246,7 +246,6 @@ const JobWizard = () => {
                         if (localityName) {
                             setFormData(prev => {
                                 const newData = { ...prev, locality: localityName };
-                                saveDraftToStorage(newData);
                                 return newData;
                             });
                         } else {
