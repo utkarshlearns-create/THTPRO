@@ -14,7 +14,8 @@ import {
     Calculator,
     FlaskConical,
     Loader2,
-    ChevronDown
+    ChevronDown,
+    Navigation
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -52,6 +53,7 @@ const JobWizard = () => {
     const [loading, setLoading] = useState(false);
     const [masterDataLoading, setMasterDataLoading] = useState(true);
     const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
+    const [isDetectingLocation, setIsDetectingLocation] = useState(false);
     
     // Master data from API
     const [subjects, setSubjects] = useState([]);
@@ -214,6 +216,61 @@ const JobWizard = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const detectLocation = () => {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser.");
+            return;
+        }
+
+        setIsDetectingLocation(true);
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                try {
+                    const { latitude, longitude } = position.coords;
+                    // Reverse geocoding using OpenStreetMap Nominatim
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1`, {
+                        headers: {
+                            'Accept-Language': 'en-US,en;q=0.9',
+                             // Nominatim requires a user agent or app identifier ideally, but usually works for light usage
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Try to get the most specific locality name (suburb, neighbourhood, city_district, or city)
+                        const address = data.address;
+                        const localityName = address.suburb || address.neighbourhood || address.city_district || address.city || address.town || address.county;
+                        
+                        if (localityName) {
+                            setFormData(prev => {
+                                const newData = { ...prev, locality: localityName };
+                                saveDraftToStorage(newData);
+                                return newData;
+                            });
+                        } else {
+                            alert("Could not determine specific locality from coordinates.");
+                        }
+                    } else {
+                        throw new Error("Failed to reverse geocode");
+                    }
+                } catch (error) {
+                    console.error("Error fetching location details:", error);
+                    alert("Failed to get location details. Please enter manually.");
+                } finally {
+                    setIsDetectingLocation(false);
+                }
+            },
+            (error) => {
+                console.error("Geolocation error:", error);
+                let msg = "Failed to detect location.";
+                if (error.code === 1) msg = "Please allow location access to use this feature.";
+                alert(msg);
+                setIsDetectingLocation(false);
+            },
+            { timeout: 10000 }
+        );
     };
 
     // Animation Variants
@@ -404,17 +461,33 @@ const JobWizard = () => {
                                 </div>
                                 <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                                     <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Your Locality / Area</Label>
-                                    <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <MapPin className="h-5 w-5 text-indigo-500 dark:text-indigo-400 group-focus-within:animate-bounce" />
+                                    <div className="flex gap-2">
+                                        <div className="relative group flex-1">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <MapPin className="h-5 w-5 text-indigo-500 dark:text-indigo-400 group-focus-within:animate-bounce" />
+                                            </div>
+                                            <Input 
+                                                name="locality" 
+                                                value={formData.locality} 
+                                                onChange={handleInputChange} 
+                                                className="pl-12 py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-shadow" 
+                                                placeholder="e.g. Indiranagar, Sector 14" 
+                                            />
                                         </div>
-                                        <Input 
-                                            name="locality" 
-                                            value={formData.locality} 
-                                            onChange={handleInputChange} 
-                                            className="pl-12 py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-shadow" 
-                                            placeholder="e.g. Indiranagar, Sector 14" 
-                                        />
+                                        <Button 
+                                            type="button" 
+                                            variant="outline"
+                                            onClick={detectLocation}
+                                            disabled={isDetectingLocation}
+                                            className="py-6 px-4 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
+                                            title="Detect my location"
+                                        >
+                                            {isDetectingLocation ? (
+                                                <Loader2 className="h-5 w-5 animate-spin" />
+                                            ) : (
+                                                <Navigation className="h-5 w-5" />
+                                            )}
+                                        </Button>
                                     </div>
                                 </div>
                                 <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
