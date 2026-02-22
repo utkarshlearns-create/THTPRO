@@ -4,7 +4,7 @@ import sys
 
 # Set up Django environment properly from within backend/
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'thtpro.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
 from jobs.models import Subject
