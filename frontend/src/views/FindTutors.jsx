@@ -98,12 +98,19 @@ const FindTutors = () => {
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-slate-50 dark:bg-[#0B1120]">
-            {/* Dynamic Mesh Wave Background */}
-            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-400/30 dark:bg-blue-600/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms]"></div>
-                <div className="absolute top-[20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-cyan-300/30 dark:bg-cyan-500/20 blur-[130px] mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[7000ms]"></div>
-                <div className="absolute bottom-[-20%] left-[20%] w-[70%] h-[70%] rounded-full bg-indigo-400/20 dark:bg-indigo-600/20 blur-[150px] mix-blend-multiply dark:mix-blend-screen"></div>
-                <div className="absolute inset-0 bg-white/40 dark:bg-slate-950/40 backdrop-blur-[50px]"></div>
+            {/* User Provided Background Image */}
+            <div 
+                className="absolute inset-0 z-0 pointer-events-none"
+                style={{
+                    backgroundImage: "url('/find-tutors-bg.jpg')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundAttachment: 'fixed',
+                    opacity: 0.8
+                }}
+            >
+                {/* Overlay to ensure text readability */}
+                <div className="absolute inset-0 bg-white/40 dark:bg-slate-950/60 backdrop-blur-[20px]"></div>
             </div>
 
             <div className="relative z-10 font-sans">
