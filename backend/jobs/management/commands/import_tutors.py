@@ -321,90 +321,95 @@ class Command(BaseCommand):
         report_rows = []
         seen_phones = set()  # in-memory dedup across files
 
-        for row, source, lookup in all_rows:
-            full_name = get(row, lookup, 'name')
-            email_raw = get(row, lookup, 'email')
-            phone_raw = get(row, lookup, 'phone')
-            phone = clean_phone(phone_raw)
+        # ── Pre-fetch lookups for speed ───────────────────────────
+        self.stdout.write("🔍 Pre-fetching existing users for deduplication...")
+        existing_users = set(User.objects.values_list('username', flat=True))
+        existing_emails = set(User.objects.values_list('email', flat=True))
+        self.stdout.write(f"   Found {len(existing_users)} existing users.")
 
-            # ── Filter: approved only ───────────────────────────────────
-            if approved_only and not is_approved(row, lookup):
-                stats['skipped_not_approved'] += 1
-                report_rows.append({
-                    'source': source, 'name': full_name, 'phone': phone,
-                    'result': 'SKIPPED_NOT_APPROVED', 'reason': 'Not in approved list'
-                })
-                continue
+        from django.db import transaction
+        with transaction.atomic():
+            for row, source, lookup in all_rows:
+                full_name = get(row, lookup, 'name')
+                email_raw = get(row, lookup, 'email')
+                phone_raw = get(row, lookup, 'phone')
+                phone = clean_phone(phone_raw)
 
-            # ── Filter: must have valid phone ───────────────────────────
-            if not phone:
-                stats['skipped_no_phone'] += 1
-                self.stdout.write(self.style.WARNING(f'  ⚠ No valid phone — skipping: "{full_name}" ({source})'))
-                report_rows.append({
-                    'source': source, 'name': full_name, 'phone': '',
-                    'result': 'SKIPPED_NO_PHONE', 'reason': f'Raw phone: "{phone_raw}"'
-                })
-                continue
+                # ── Filter: approved only ───────────────────────────────────
+                if approved_only and not is_approved(row, lookup):
+                    stats['skipped_not_approved'] += 1
+                    report_rows.append({
+                        'source': source, 'name': full_name, 'phone': phone,
+                        'result': 'SKIPPED_NOT_APPROVED', 'reason': 'Not in approved list'
+                    })
+                    continue
 
-            # ── Filter: cross-file dedup ────────────────────────────────
-            if phone in seen_phones:
-                stats['skipped_dup_phone'] += 1
-                report_rows.append({
-                    'source': source, 'name': full_name, 'phone': phone,
-                    'result': 'SKIPPED_DUPLICATE', 'reason': 'Duplicate phone in CSV batch'
-                })
-                continue
-            seen_phones.add(phone)
+                # ── Filter: must have valid phone ───────────────────────────
+                if not phone:
+                    stats['skipped_no_phone'] += 1
+                    self.stdout.write(self.style.WARNING(f'  ⚠ No valid phone — skipping: "{full_name}" ({source})'))
+                    report_rows.append({
+                        'source': source, 'name': full_name, 'phone': '',
+                        'result': 'SKIPPED_NO_PHONE', 'reason': f'Raw phone: "{phone_raw}"'
+                    })
+                    continue
 
-            # ── Filter: already in DB ───────────────────────────────────
-            if User.objects.filter(username=phone).exists():
-                stats['skipped_existing_db'] += 1
-                self.stdout.write(self.style.WARNING(f'  ↩ Already in DB — skipping: {phone} ({full_name})'))
-                report_rows.append({
-                    'source': source, 'name': full_name, 'phone': phone,
-                    'result': 'SKIPPED_EXISTING', 'reason': 'Phone already registered'
-                })
-                continue
+                # ── Filter: cross-file dedup ────────────────────────────────
+                if phone in seen_phones:
+                    stats['skipped_dup_phone'] += 1
+                    report_rows.append({
+                        'source': source, 'name': full_name, 'phone': phone,
+                        'result': 'SKIPPED_DUPLICATE', 'reason': 'Duplicate phone in CSV batch'
+                    })
+                    continue
+                seen_phones.add(phone)
 
-            # ── Parse all fields ────────────────────────────────────────
-            gender          = clean_gender(get(row, lookup, 'gender'))
-            dob             = clean_dob(get(row, lookup, 'dob'))
-            marital         = clean_marital(get(row, lookup, 'marital_status'))
-            qualification   = get(row, lookup, 'qualification')
-            locations       = get(row, lookup, 'locations')
-            exp_years       = clean_experience(get(row, lookup, 'exp_years'))
-            local_address   = get(row, lookup, 'local_address')
-            perm_address    = get(row, lookup, 'perm_address')
-            photo_url       = get(row, lookup, 'photo')       # Google Drive URL
-            intermediate    = get(row, lookup, 'intermediate')
+                # ── Filter: already in DB ───────────────────────────────────
+                if phone in existing_users:
+                    stats['skipped_existing_db'] += 1
+                    report_rows.append({
+                        'source': source, 'name': full_name, 'phone': phone,
+                        'result': 'SKIPPED_EXISTING', 'reason': 'Phone already registered'
+                    })
+                    continue
 
-            subjects = clean_subjects([
-                get(row, lookup, 'classes_subjects'),
-                get(row, lookup, 'subjects_9_10'),
-                get(row, lookup, 'subjects_11_12'),
-                get(row, lookup, 'subjects_extra'),
-            ])
+                # ── Parse all fields ────────────────────────────────────────
+                gender          = clean_gender(get(row, lookup, 'gender'))
+                dob             = clean_dob(get(row, lookup, 'dob'))
+                marital         = clean_marital(get(row, lookup, 'marital_status'))
+                qualification   = get(row, lookup, 'qualification')
+                locations       = get(row, lookup, 'locations')
+                exp_years       = clean_experience(get(row, lookup, 'exp_years'))
+                local_address   = get(row, lookup, 'local_address')
+                perm_address    = get(row, lookup, 'perm_address')
+                photo_url       = get(row, lookup, 'photo')       # Google Drive URL
 
-            # Unique email — fallback to phone-based if blank or duplicate
-            email = make_unique_email(email_raw, phone)
-            if User.objects.filter(email=email).exclude(username=phone).exists():
-                email = make_unique_email('', phone)  # force phone-based email
+                subjects = clean_subjects([
+                    get(row, lookup, 'classes_subjects'),
+                    get(row, lookup, 'subjects_9_10'),
+                    get(row, lookup, 'subjects_11_12'),
+                    get(row, lookup, 'subjects_extra'),
+                ])
 
-            # ── Write to DB ─────────────────────────────────────────────
-            if dry_run:
-                self.stdout.write(self.style.SUCCESS(
-                    f'  ✅ [DRY] Would create: {full_name or "?"} | {phone} | {email} | '
-                    f'subjects={subjects[:3]} | exp={exp_years}y'
-                ))
-                stats['created'] += 1
-                report_rows.append({
-                    'source': source, 'name': full_name, 'phone': phone,
-                    'result': 'WOULD_CREATE', 'reason': ''
-                })
-                continue
+                # Unique email — fallback to phone-based if blank or duplicate
+                email = make_unique_email(email_raw, phone)
+                if email in existing_emails:
+                    email = make_unique_email('', phone)  # force phone-based email
 
-            try:
-                with transaction.atomic():
+                # ── Write to DB ─────────────────────────────────────────────
+                if dry_run:
+                    self.stdout.write(self.style.SUCCESS(
+                        f'  ✅ [DRY] Would create: {full_name or "?"} | {phone} | {email} | '
+                        f'subjects={subjects[:3]} | exp={exp_years}y'
+                    ))
+                    stats['created'] += 1
+                    report_rows.append({
+                        'source': source, 'name': full_name, 'phone': phone,
+                        'result': 'WOULD_CREATE', 'reason': ''
+                    })
+                    continue
+
+                try:
                     # Create User — signal will auto-create TutorProfile + TutorStatus
                     user = User.objects.create_user(
                         username=phone,
@@ -430,6 +435,8 @@ class Command(BaseCommand):
                     profile.local_address         = local_address
                     profile.permanent_address     = perm_address
                     profile.teaching_mode         = 'BOTH'
+                    profile.state                 = "Uttar Pradesh"
+                    profile.city                  = "Lucknow"
                     # Store Google Drive photo URL (model field added for exactly this purpose)
                     if photo_url and photo_url.startswith('http'):
                         profile.external_profile_image_url = photo_url
@@ -447,23 +454,20 @@ class Command(BaseCommand):
                             defaults={'status': TutorKYC.Status.VERIFIED}
                         )
 
-                self.stdout.write(self.style.SUCCESS(
-                    f'  ✅ Created: {full_name or "?"} | {phone}'
-                ))
-                stats['created'] += 1
-                report_rows.append({
-                    'source': source, 'name': full_name, 'phone': phone,
-                    'result': 'CREATED', 'reason': ''
-                })
+                    stats['created'] += 1
+                    report_rows.append({
+                        'source': source, 'name': full_name, 'phone': phone,
+                        'result': 'CREATED', 'reason': ''
+                    })
 
-            except Exception as e:
-                stats['errors'] += 1
-                msg = str(e)
-                self.stdout.write(self.style.ERROR(f'  ❌ Error [{full_name} / {phone}]: {msg}'))
-                report_rows.append({
-                    'source': source, 'name': full_name, 'phone': phone,
-                    'result': 'ERROR', 'reason': msg
-                })
+                except Exception as e:
+                    stats['errors'] += 1
+                    msg = str(e)
+                    self.stdout.write(self.style.ERROR(f'  ❌ Error [{full_name} / {phone}]: {msg}'))
+                    report_rows.append({
+                        'source': source, 'name': full_name, 'phone': phone,
+                        'result': 'ERROR', 'reason': msg
+                    })
 
         # ── Summary ─────────────────────────────────────────────────────
         self.stdout.write('\n' + '─' * 60)

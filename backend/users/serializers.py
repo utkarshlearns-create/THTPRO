@@ -148,11 +148,11 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
             return obj.profile_image.url
         if obj.external_profile_image_url:
             url = obj.external_profile_image_url
-            # Transform Google Drive 'open' links to direct image links
-            # Format: https://drive.google.com/open?id=FILE_ID -> https://drive.google.com/uc?export=view&id=FILE_ID
-            if "drive.google.com" in url and "id=" in url:
+            # Transform Google Drive links to direct image links
+            if "drive.google.com" in url:
                 import re
-                match = re.search(r'id=([a-zA-Z0-9_-]+)', url)
+                # Handle both id=FILE_ID and /file/d/FILE_ID/
+                match = re.search(r'id=([a-zA-Z0-9_-]+)', url) or re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
                 if match:
                     file_id = match.group(1)
                     return f"https://drive.google.com/uc?export=view&id={file_id}"
