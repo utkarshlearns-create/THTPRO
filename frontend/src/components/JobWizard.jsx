@@ -229,19 +229,27 @@ const JobWizard = () => {
             async (position) => {
                 try {
                     const { latitude, longitude } = position.coords;
-                    // Reverse geocoding using OpenStreetMap Nominatim
-                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1`, {
+                    // Reverse geocoding using OpenStreetMap Nominatim with zoom 13 (city district/suburb level)
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=13&addressdetails=1`, {
                         headers: {
                             'Accept-Language': 'en-US,en;q=0.9',
-                             // Nominatim requires a user agent or app identifier ideally, but usually works for light usage
                         }
                     });
                     
                     if (response.ok) {
                         const data = await response.json();
-                        // Try to get the most specific locality name (suburb, neighbourhood, city_district, or city)
                         const address = data.address;
-                        const localityName = address.suburb || address.neighbourhood || address.city_district || address.city || address.town || address.county;
+                        
+                        // Construct a more accurate, broader area name (e.g. "Indiranagar, Lucknow")
+                        const area = address.suburb || address.neighbourhood || address.city_district;
+                        const city = address.city || address.town || address.county;
+                        
+                        let localityName = '';
+                        if (area && city && area !== city) {
+                            localityName = `${area}, ${city}`;
+                        } else {
+                            localityName = area || city || address.state || '';
+                        }
                         
                         if (localityName) {
                             setFormData(prev => {
