@@ -475,7 +475,7 @@ const UnlockedContactsList = () => {
                                 <div className="flex items-start gap-4">
                                     <div className="h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0 border-2 border-indigo-50 dark:border-indigo-900/50">
                                         {contact.profile_image ? (
-                                            <img src={`${API_BASE_URL}${contact.profile_image}`} alt={contact.name} className="h-full w-full rounded-full object-cover" />
+                                            <img src={contact.profile_image.startsWith('http') ? contact.profile_image : `${API_BASE_URL}${contact.profile_image}`} alt={contact.name} className="h-full w-full rounded-full object-cover" />
                                         ) : (
                                             <User size={28} className="text-indigo-500" />
                                         )}

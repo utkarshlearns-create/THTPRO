@@ -55,11 +55,27 @@ class TutorStatusSerializer(serializers.ModelSerializer):
 class TutorProfileSerializer(serializers.ModelSerializer):
     kyc = TutorKYCSerializer(source='kyc_records', many=True, read_only=True)
     status_msg = TutorStatusSerializer(source='status_record', read_only=True)
+    image = serializers.SerializerMethodField()
     
     class Meta:
         model = TutorProfile
         fields = '__all__'
         read_only_fields = ['user', 'profile_completion_percentage']
+
+    def get_image(self, obj):
+        if obj.profile_image:
+            return obj.profile_image.url
+        if obj.external_profile_image_url:
+            url = obj.external_profile_image_url
+            # Transform Google Drive links to direct image links
+            if "drive.google.com" in url:
+                import re
+                match = re.search(r'id=([a-zA-Z0-9_-]+)', url) or re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
+                if match:
+                    file_id = match.group(1)
+                    return f"https://drive.google.com/uc?export=view&id={file_id}"
+            return url
+        return None
 
 
 

@@ -132,8 +132,8 @@ export default function ApproveTutorList() {
                                     <TableCell>
                                         <div className="flex items-center gap-2">
                                             <div className="h-8 w-8 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center overflow-hidden">
-                                                {tutor.profile_image ? (
-                                                    <img src={tutor.profile_image} alt="" className="h-full w-full object-cover" />
+                                                {(tutor.image || tutor.profile_image) ? (
+                                                    <img src={tutor.image || tutor.profile_image} alt="" className="h-full w-full object-cover" />
                                                 ) : (
                                                     <User size={14} />
                                                 )}
