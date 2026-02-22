@@ -30,7 +30,14 @@ const FindTutors = () => {
         }
     };
 
-    const SUBJECTS = ["Mathematics", "Physics", "Chemistry", "Biology", "English", "Hindi", "Social Science", "History", "Geography", "Computer Science", "Business Studies", "Accountancy", "Economics"];
+    const SUBJECTS = [
+        "Mathematics", "Physics", "Chemistry", "Biology", "Science", 
+        "English", "Hindi", "Sanskrit", "Regional Languages",
+        "Social Science", "History", "Geography", "Civics", "Political Science", 
+        "Computer Science", "Information Technology", "Coding",
+        "Accountancy", "Business Studies", "Economics", "Commerce",
+        "EVS (Environmental Studies)", "Psychology", "Sociology", "Physical Education"
+    ];
     const CLASSES = ["Nursery/Preschool", "Class 1-5", "Class 6-8", "Class 9", "Class 10", "Class 11", "Class 12", "IIT-JEE/NEET"];
     const [showFilters, setShowFilters] = useState(false);
 
