@@ -73,7 +73,7 @@ class TutorProfileSerializer(serializers.ModelSerializer):
                 match = re.search(r'id=([a-zA-Z0-9_-]+)', url) or re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
                 if match:
                     file_id = match.group(1)
-                    return f"https://drive.google.com/uc?export=view&id={file_id}"
+                    return f"https://lh3.googleusercontent.com/d/{file_id}"
             return url
         return None
 
@@ -171,7 +171,7 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
                 match = re.search(r'id=([a-zA-Z0-9_-]+)', url) or re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
                 if match:
                     file_id = match.group(1)
-                    return f"https://drive.google.com/uc?export=view&id={file_id}"
+                    return f"https://lh3.googleusercontent.com/d/{file_id}"
             return url
         return None
 
