@@ -16,7 +16,8 @@ import {
   Clock,
   TrendingUp,
   Star,
-  Zap
+  Zap,
+  Unlock
 } from 'lucide-react';
 import API_BASE_URL from '../config';
 import { clearAuthState } from '../utils/auth';
@@ -141,6 +142,7 @@ const ParentDashboard = () => {
                     <SidebarItem icon={<Briefcase size={20} />} label="Jobs Posted" active={activeTab === 'jobs_posted'} isOpen={sidebarOpen} onClick={() => setActiveTab('jobs_posted')} />
                     <SidebarItem icon={<User size={20} />} label="Tutor Assigned" active={activeTab === 'tutor_assigned'} isOpen={sidebarOpen} onClick={() => setActiveTab('tutor_assigned')} />
                     <SidebarItem icon={<History size={20} />} label="History" active={activeTab === 'history'} isOpen={sidebarOpen} onClick={() => setActiveTab('history')} />
+                    <SidebarItem icon={<Unlock size={20} />} label="Unlocked Contacts" active={activeTab === 'unlocked_contacts'} isOpen={sidebarOpen} onClick={() => setActiveTab('unlocked_contacts')} />
                     <SidebarItem icon={<Wallet size={20} />} label="Wallet & Credits" active={activeTab === 'wallet'} isOpen={sidebarOpen} onClick={() => setActiveTab('wallet')} />
                     <SidebarItem icon={<Bell size={20} />} label="Notifications" active={activeTab === 'notifications'} isOpen={sidebarOpen} onClick={() => setActiveTab('notifications')} />
                 </nav>
@@ -372,6 +374,9 @@ const ParentDashboard = () => {
                     {/* HISTORY VIEW */}
                     {activeTab === 'history' && <HistorySection />}
 
+                    {/* UNLOCKED CONTACTS VIEW */}
+                    {activeTab === 'unlocked_contacts' && <UnlockedContactsList />}
+
                     {/* WALLET VIEW */}
                     {activeTab === 'wallet' && <WalletSection wallet={wallet} />}
 
@@ -424,6 +429,102 @@ const StatItem = ({ label, value, icon, color }) => (
         </div>
     </div>
 );
+const UnlockedContactsList = () => {
+    const [contacts, setContacts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchContacts = async () => {
+            try {
+                const token = localStorage.getItem('access');
+                const response = await fetch(`${API_BASE_URL}/api/users/dashboard/unlocked-contacts/`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setContacts(Array.isArray(data) ? data : []);
+                }
+            } catch (error) {
+                console.error("Error fetching unlocked contacts:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchContacts();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="space-y-4">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6 animate-in fade-in duration-300">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Unlocked Contacts</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Tutors whose contact details you have unlocked using credits.</p>
+            
+            {contacts.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {contacts.map((contact, idx) => (
+                        <Card key={contact.id || idx} className="border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
+                            <CardContent className="p-6">
+                                <div className="flex items-start gap-4">
+                                    <div className="h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0 border-2 border-indigo-50 dark:border-indigo-900/50">
+                                        {contact.profile_image ? (
+                                            <img src={`${API_BASE_URL}${contact.profile_image}`} alt={contact.name} className="h-full w-full rounded-full object-cover" />
+                                        ) : (
+                                            <User size={28} className="text-indigo-500" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{contact.name}</h3>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                                            <CheckCircle size={14} className="text-green-500" /> Unlocked on {new Date(contact.unlocked_at).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="mt-6 space-y-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-slate-500 dark:text-slate-400">Phone</span>
+                                        <span className="font-semibold text-slate-900 dark:text-white select-all">{contact.phone}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="text-slate-500 dark:text-slate-400">Email</span>
+                                        <span className="font-semibold text-slate-900 dark:text-white select-all">{contact.email}</span>
+                                    </div>
+                                    {contact.subjects && contact.subjects.length > 0 && (
+                                        <div className="pt-3 mt-3 border-t border-slate-200 dark:border-slate-700">
+                                            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Subjects Required</span>
+                                            <div className="flex flex-wrap gap-2">
+                                                {contact.subjects.map((sub, i) => (
+                                                    <span key={i} className="text-xs font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 px-2 py-1 rounded">
+                                                        {sub}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            ) : (
+                 <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Unlock size={24} className="text-slate-400" />
+                    </div>
+                    <h3 className="text-lg font-medium text-slate-900 dark:text-white">No Unlocked Contacts</h3>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">Unlock tutor profiles to see their contacts here.</p>
+                 </div>
+            )}
+        </div>
+    );
+};
 
 export default ParentDashboard;
 

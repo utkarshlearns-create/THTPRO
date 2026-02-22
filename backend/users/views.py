@@ -449,7 +449,33 @@ class ContactUnlockView(APIView):
             return Response({"error": str(e)}, status=500)
 
 
+class UnlockedContactsView(APIView):
+    """
+    Get a list of all tutors whose contacts a parent has unlocked.
+    """
+    permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request):
+        if request.user.role != 'PARENT':
+            return Response({"error": "Only parents can view unlocked contacts."}, status=403)
+            
+        unlocks = ContactUnlock.objects.filter(parent=request.user).select_related('tutor__user')
+        data = []
+        for unlock in unlocks:
+            tutor = unlock.tutor
+            user = tutor.user
+            data.append({
+                "id": tutor.id,
+                "name": tutor.full_name or user.get_full_name() or "Tutor",
+                "phone": user.phone,
+                "email": user.email,
+                "subjects": tutor.subjects if isinstance(tutor.subjects, list) else [],
+                "locality": tutor.locality,
+                "profile_image": tutor.profile_image.url if tutor.profile_image else None,
+                "unlocked_at": unlock.unlocked_at
+            })
+            
+        return Response(data)
 
 
 class CreateAdminUserView(APIView):
