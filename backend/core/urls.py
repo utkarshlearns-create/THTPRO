@@ -6,11 +6,18 @@ def home(request):
     return JsonResponse({"message": "THTPRO Backend Running", "status": "active", "version": "v1.1"})
 
 def health_check(request):
+    from django.conf import settings
     from users.models import User, TutorProfile
     try:
         u_count = User.objects.count()
         t_count = TutorProfile.objects.count()
-        return JsonResponse({"status": "ok", "user_count": u_count, "tutor_profile_count": t_count})
+        db_host = settings.DATABASES['default'].get('HOST', 'unknown')
+        return JsonResponse({
+            "status": "ok", 
+            "user_count": u_count, 
+            "tutor_profile_count": t_count,
+            "db_host": f"{db_host[:10]}...{db_host[-10:]}" if db_host else "unknown"
+        })
     except Exception as e:
         return JsonResponse({"status": "error", "error": str(e)})
 
