@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 import dj_database_url
+from dotenv import load_dotenv
+
+env_path = Path(__file__).resolve().parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -104,11 +108,15 @@ DATABASES = {
     )
 }
 
-if 'DATABASE_URL' in os.environ:
-     DATABASES['default'] = dj_database_url.config(
+# If DATABASE_URL is in environment (from Render or .env), use it
+if os.environ.get('DATABASE_URL'):
+    DATABASES['default'] = dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
         conn_max_age=600,
         ssl_require=True
     )
+    # Neon needs certain ssl options sometimes, but dj_database_url handles most.
+    # We ensure ssl_require is True for any external DATABASE_URL.
 
 
 # Password validation
