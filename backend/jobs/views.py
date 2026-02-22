@@ -572,7 +572,7 @@ class ParentStatsView(APIView):
             assigned_tutor = {
                 "name": hire.tutor.full_name or hire.tutor.user.first_name,
                 "subject": hire.job.subjects[0] if hire.job.subjects else "General",
-                "image": hire.tutor.profile_image.url if hire.tutor.profile_image else None
+                "image": hire.tutor.profile_image.url if hire.tutor.profile_image else (hire.tutor.external_profile_image_url or None)
             }
         
         # === Recommended Tutors ===
@@ -611,7 +611,7 @@ class ParentStatsView(APIView):
                 "subjects": tutor.subjects, # JSON list
                 "locality": tutor.locality,
                 "rating": 4.8, # Mock rating for now
-                "image": tutor.profile_image.url if tutor.profile_image else None,
+                "image": tutor.profile_image.url if tutor.profile_image else (tutor.external_profile_image_url or None),
                 "experience": tutor.teaching_experience_years
             })
         

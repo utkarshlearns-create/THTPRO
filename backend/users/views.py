@@ -471,7 +471,7 @@ class UnlockedContactsView(APIView):
                 "email": user.email,
                 "subjects": tutor.subjects if isinstance(tutor.subjects, list) else [],
                 "locality": tutor.locality,
-                "profile_image": tutor.profile_image.url if tutor.profile_image else None,
+                "profile_image": tutor.profile_image.url if tutor.profile_image else (tutor.external_profile_image_url or None),
                 "unlocked_at": unlock.unlocked_at
             })
             
