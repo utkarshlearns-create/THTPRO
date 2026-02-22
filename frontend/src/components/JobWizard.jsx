@@ -238,10 +238,10 @@ const JobWizard = () => {
     };
 
     return (
-        <Card className="w-full max-w-2xl mx-auto border-0 shadow-2xl overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl ring-1 ring-slate-900/5 dark:ring-white/10">
+        <Card className="w-full max-w-2xl mx-auto border-0 shadow-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl ring-1 ring-slate-900/5 dark:ring-white/10">
              
             {/* Progress Bar Container */}
-            <div className="bg-slate-50/50 dark:bg-slate-800/50 px-8 py-6 border-b border-slate-100 dark:border-slate-800">
+            <div className="bg-slate-50/50 dark:bg-slate-800/50 px-8 py-6 border-b border-slate-100 dark:border-slate-800 rounded-t-2xl">
                 <div className="flex justify-between items-end mb-4">
                     <div>
                         <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Step {step} of 3</span>
