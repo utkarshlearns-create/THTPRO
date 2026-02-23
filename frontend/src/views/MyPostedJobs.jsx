@@ -25,7 +25,7 @@ const MyPostedJobs = () => {
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    setJobs(data);
+                    setJobs(Array.isArray(data) ? data : (data.results || []));
                 }
             } catch (error) {
                 console.error("Error fetching jobs:", error);
@@ -46,7 +46,7 @@ const MyPostedJobs = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setApplicants(data);
+                setApplicants(Array.isArray(data) ? data : (data.results || []));
             }
         } catch (error) {
             console.error("Error fetching applicants:", error);

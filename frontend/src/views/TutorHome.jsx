@@ -49,7 +49,7 @@ const TutorHome = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setJobs(data);
+                setJobs(Array.isArray(data) ? data : (data.results || []));
             }
         } catch (error) {
             console.error("Error fetching jobs:", error);
