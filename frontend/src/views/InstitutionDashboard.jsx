@@ -180,7 +180,7 @@ const MyJobsTab = () => {
             });
             if (res.ok) {
                 const data = await res.json();
-                setJobs(data);
+                setJobs(Array.isArray(data) ? data : (data.results || []));
             }
         } catch (err) { console.error(err); }
         finally { setLoading(false); }
