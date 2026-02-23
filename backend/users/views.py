@@ -1,26 +1,35 @@
-from rest_framework import generics, permissions, status, views
+"""
+Authentication and core user views.
+Handles: login, signup, OTP, Google login, and user profile retrieval.
+"""
+from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserSerializer, TutorProfileSerializer, CustomTokenObtainPairSerializer, TutorKYCSerializer, TutorStatusSerializer, EnquirySerializer, PublicTutorProfileSerializer
-from .models import TutorProfile, TutorKYC, TutorStatus, ContactUnlock
-from jobs.admin_models import AdminProfile
-from wallet.models import Wallet
-from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.shortcuts import get_object_or_404
-from django.core.cache import cache
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
+
+from .serializers import (
+    UserSerializer, TutorProfileSerializer,
+    CustomTokenObtainPairSerializer, TutorKYCSerializer,
+)
+from .models import TutorProfile, TutorKYC, TutorStatus, InstitutionProfile
 from .utils import generate_otp, send_otp_to_phone, verify_google_token
+
 import sys
 import uuid
 import logging
 
 logger = logging.getLogger(__name__)
-
 User = get_user_model()
+
+
+# ==================== AUTH VIEWS ====================
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
 
 class SignupView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -31,17 +40,15 @@ class SignupView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        
-        # Generate tokens for auto-login
-        from rest_framework_simplejwt.tokens import RefreshToken
+
         refresh = RefreshToken.for_user(user)
-        
         return Response({
             "message": "User created successfully",
             "access": str(refresh.access_token),
             "refresh": str(refresh),
-            "role": user.role
+            "role": user.role,
         }, status=status.HTTP_201_CREATED)
+
 
 class SendOTPView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -50,14 +57,12 @@ class SendOTPView(APIView):
         phone = request.data.get('phone')
         if not phone:
             return Response({"error": "Phone number is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         otp = generate_otp()
-        cache_key = f"otp_{phone}"
-        cache.set(cache_key, otp, timeout=300) # 5 minutes
-        
+        cache.set(f"otp_{phone}", otp, timeout=300)
         send_otp_to_phone(phone, otp)
-        
         return Response({"message": "OTP sent successfully"})
+
 
 class VerifyOTPView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -65,34 +70,30 @@ class VerifyOTPView(APIView):
     def post(self, request):
         phone = request.data.get('phone')
         otp = request.data.get('otp')
-        role = request.data.get('role', 'PARENT') # Default if new user
+        role = request.data.get('role', 'PARENT')
 
         if not phone or not otp:
             return Response({"error": "Phone and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
 
         cached_otp = cache.get(f"otp_{phone}")
-        
         if not cached_otp or cached_otp != otp:
-             return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # OTP Verified - Get or Create User
         try:
             user = User.objects.get(phone=phone)
         except User.DoesNotExist:
-            # Create new user
             username = f"user_{phone}"
             user = User.objects.create_user(username=username, phone=phone, role=role)
             user.set_unusable_password()
             user.save()
-        
-        # Generate Tokens
+
         refresh = RefreshToken.for_user(user)
-        
         return Response({
             'refresh': str(refresh),
             'access': str(refresh.access_token),
-            'role': user.role
+            'role': user.role,
         })
+
 
 class GoogleLoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -102,18 +103,18 @@ class GoogleLoginView(APIView):
         try:
             token = request.data.get('token')
             role = request.data.get('role', 'PARENT')
-            
+
             logger.info(f"GoogleLoginView: token={'yes' if token else 'no'}, role={role}")
 
             if not token:
                 return Response({"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST)
-                
+
             google_data = verify_google_token(token)
             logger.info(f"GoogleLoginView: google_data keys={list(google_data.keys()) if google_data else 'None'}")
-            
+
             if not google_data:
                 return Response({"error": "Invalid Google Token"}, status=status.HTTP_400_BAD_REQUEST)
-                
+
             if 'error' in google_data:
                 logger.error(f"GoogleLoginView: Google returned error: {google_data['error']}")
                 return Response({"error": google_data['error']}, status=status.HTTP_400_BAD_REQUEST)
@@ -122,10 +123,10 @@ class GoogleLoginView(APIView):
             if not email:
                 logger.error(f"GoogleLoginView: No email. Full response: {google_data}")
                 return Response({"error": "Could not retrieve email from Google."}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             name = google_data.get('name') or google_data.get('given_name') or email.split('@')[0]
             logger.info(f"GoogleLoginView: email={email}, name={name}")
-            
+
             try:
                 user = User.objects.get(email=email)
                 logger.info(f"GoogleLoginView: Found existing user {user.id}")
@@ -135,7 +136,7 @@ class GoogleLoginView(APIView):
                         "status": "role_required",
                         "email": email,
                         "name": name,
-                        "message": "User not found. Please select a role."
+                        "message": "User not found. Please select a role.",
                     }, status=status.HTTP_200_OK)
 
                 base_username = email.split('@')[0]
@@ -143,14 +144,14 @@ class GoogleLoginView(APIView):
                 user = User.objects.create_user(
                     username=unique_username,
                     email=email,
-                    first_name=name or email.split('@')[0], # Fallback if name is empty
-                    role=role
+                    first_name=name or email.split('@')[0],
+                    role=role,
                 )
                 user.set_unusable_password()
                 user.save()
                 logger.info(f"GoogleLoginView: Created new user {user.id} with role {role}")
 
-                # CRITICAL: Create associated profiles (Same logic as UserSerializer)
+                # Create associated profiles
                 if role == 'TEACHER':
                     if not hasattr(user, 'tutor_profile'):
                         TutorProfile.objects.create(user=user)
@@ -164,20 +165,21 @@ class GoogleLoginView(APIView):
                             contact_person=name or "",
                         )
                         logger.info(f"GoogleLoginView: Created InstitutionProfile for {user.id}")
-                
+
             refresh = RefreshToken.for_user(user)
             refresh['role'] = user.role
-            
+
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-                'role': user.role
+                'role': user.role,
             })
         except Exception as e:
             tb = traceback.format_exc()
             print(f"GoogleLoginView UNHANDLED ERROR: {tb}", file=sys.stderr)
             logger.critical(f"GoogleLoginView UNHANDLED ERROR: {tb}")
             return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class CurrentUserView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
@@ -186,13 +188,8 @@ class CurrentUserView(generics.RetrieveAPIView):
     def get_object(self):
         return self.request.user
 
-class TutorProfileView(generics.RetrieveUpdateAPIView):
-    serializer_class = TutorProfileSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self):
-        profile, created = TutorProfile.objects.get_or_create(user=self.request.user)
-        return profile
+# ==================== ADMIN VIEWS (kept here for backward compat) ====================
 
 class KYCSubmissionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -201,81 +198,66 @@ class KYCSubmissionView(APIView):
         user = request.user
         if user.role != 'TEACHER':
             return Response({"error": "Only tutors can submit KYC."}, status=status.HTTP_403_FORBIDDEN)
-        
+
         profile = user.tutor_profile
-        
-        # 1. Check Profile Completion
+
         if profile.profile_completion_percentage < 100:
             return Response({
                 "error": "Profile must be 100% complete before KYC submission.",
-                "current_percentage": profile.profile_completion_percentage
+                "current_percentage": profile.profile_completion_percentage,
             }, status=status.HTTP_400_BAD_REQUEST)
-            
-        # 2. Check Submission Count
+
         kyc_record = TutorKYC.objects.filter(tutor=profile).order_by('-created_at').first()
         submission_count = kyc_record.submission_count if kyc_record else 0
-        
+
         if submission_count >= 3:
             return Response({"error": "Maximum KYC attempts (3) exceeded. Contact support."}, status=status.HTTP_403_FORBIDDEN)
-            
-        # 3. Handle File Uploads & Create/Update KYC
+
         serializer = TutorKYCSerializer(data=request.data)
         if serializer.is_valid():
-            # Create new KYC record or update? Usually new record for history, or update single record.
-            # Let's create new usually, but requirement says "Increment submission count".
-            # For simplicity, let's CREATE a new attempt if previous was rejected, or UPDATE if DRAFT.
-            # But simpler: Just create/update the active one.
-            
-            # Since fields are optional in model but required for KYC, checks could be here.
-            # Assuming frontend sends files.
-            
             kyc_instance = serializer.save(
                 tutor=profile,
                 status=TutorKYC.Status.SUBMITTED,
-                submission_count=submission_count + 1
+                submission_count=submission_count + 1,
             )
-            
-            # 4. Update Main Status
+
             status_obj, _ = TutorStatus.objects.get_or_create(tutor=profile)
             status_obj.status = TutorStatus.State.KYC_SUBMITTED
             status_obj.save()
-            
-            # Also auto-move to UNDER_REVIEW for now (or wait for admin to see it)
-            # Req: TutorStatus = KYC_SUBMITTED -> UNDER_REVIEW
             status_obj.status = TutorStatus.State.UNDER_REVIEW
             status_obj.save()
 
-            return Response({"message": "KYC Submitted successfully.", "status": status_obj.status}, status=status.HTTP_201_CREATED)
-        
+            return Response({
+                "message": "KYC Submitted successfully.",
+                "status": status_obj.status,
+            }, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class AdminTutorListView(generics.ListAPIView):
-    """
-    Retrieve all tutors for admin dashboard with filtering.
-    """
+    """Retrieve all tutors for admin dashboard with filtering."""
     serializer_class = TutorProfileSerializer
     permission_classes = [permissions.IsAdminUser]
 
     def get_queryset(self):
-        from .models import TutorStatus
         from django.db.models import Q
-        
-        queryset = TutorProfile.objects.all().order_by('-user__date_joined')
-        
-        # Filter by Status
+
+        queryset = TutorProfile.objects.all().select_related(
+            'user', 'status_record'
+        ).order_by('-user__date_joined')
+
         status_param = self.request.query_params.get('status')
         if status_param:
             if status_param == 'PENDING':
-                # Custom group for "Pending Approval"
                 queryset = queryset.filter(status_record__status__in=[
-                    TutorStatus.State.KYC_SUBMITTED, 
+                    TutorStatus.State.KYC_SUBMITTED,
                     TutorStatus.State.UNDER_REVIEW,
-                    TutorStatus.State.SIGNED_UP
+                    TutorStatus.State.SIGNED_UP,
                 ])
             else:
                 queryset = queryset.filter(status_record__status=status_param)
-                
-        # Search
+
         q = self.request.query_params.get('q')
         if q:
             queryset = queryset.filter(
@@ -284,208 +266,48 @@ class AdminTutorListView(generics.ListAPIView):
                 Q(user__phone__icontains=q) |
                 Q(subjects__icontains=q)
             )
-            
+
         return queryset
+
 
 class AdminReviewView(APIView):
     permission_classes = [permissions.IsAdminUser]
-    
+
     def post(self, request, pk):
+        from django.shortcuts import get_object_or_404
+
         profile = get_object_or_404(TutorProfile, pk=pk)
-        action = request.data.get('action') # 'approve' or 'reject'
+        action = request.data.get('action')
         reason = request.data.get('reason', '')
-        
+
         status_obj, _ = TutorStatus.objects.get_or_create(tutor=profile)
-        
+
         if action == 'approve':
             status_obj.status = TutorStatus.State.APPROVED
             status_obj.save()
-            
-            # Update KYC record too
             TutorKYC.objects.filter(tutor=profile, status=TutorKYC.Status.SUBMITTED).update(status=TutorKYC.Status.VERIFIED)
-            
             return Response({"message": "Tutor approved successfully.", "status": "APPROVED"})
-            
+
         elif action == 'reject':
-            status_obj.status = TutorStatus.State.PROFILE_INCOMPLETE # Reset to incomplete as per req? 
-            # Req: "TutorStatus = PROFILE_INCOMPLETE"
+            status_obj.status = TutorStatus.State.PROFILE_INCOMPLETE
             status_obj.save()
-            
-            # Update KYC record
             TutorKYC.objects.filter(tutor=profile, status=TutorKYC.Status.SUBMITTED).update(
                 status=TutorKYC.Status.REJECTED,
-                rejection_reason=reason
+                rejection_reason=reason,
             )
-            
             return Response({"message": "Tutor rejected.", "status": "PROFILE_INCOMPLETE", "reason": reason})
-            
+
         return Response({"error": "Invalid action. Use 'approve' or 'reject'."}, status=status.HTTP_400_BAD_REQUEST)
-
-class DashboardStatsView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        # In the future, this will query the Application model
-        # For now, return mock data or zeros
-        
-        # stats = {
-        #     "total_applications": Application.objects.filter(tutor__user=request.user).count(),
-        #     "accepted_applications": Application.objects.filter(tutor__user=request.user, status='ACCEPTED').count()
-        # }
-        
-        stats = {
-            "total_applications": 0,
-            "accepted_applications": 0
-        }
-        return Response(stats)
-
-from django.views import View
-from django.http import JsonResponse
-import traceback
-import sys
-from django.db import transaction
-
-# ... existing imports ...
-
-class DebugTutorSignupView(View):
-    # Bypass DRF permissions
-    def get(self, request):
-        print("DEBUG: Starting Tutor Signup logic check...", file=sys.stderr)
-        
-        phone = "9988776600" 
-        username = "TutorDebug"
-        
-        try:
-            # 1. Cleanup
-            User.objects.filter(phone=phone).delete()
-            User.objects.filter(username=username).delete()
-            print("DEBUG: Cleanup done.", file=sys.stderr)
-
-            # 2. Simulate Signup
-            with transaction.atomic():
-                # Correct usage: User.objects.create_user handles hashing
-                # Frontend sends 'TEACHER' (all caps).
-                # Model definition: TEACHER = 'TEACHER', 'Teacher'
-                user = User.objects.create_user(
-                    username=username,
-                    phone=phone,
-                    password="password123",
-                    role='TEACHER' 
-                )
-                print(f"DEBUG: User created: {user} (Role: {user.role})", file=sys.stderr)
-                
-                # 3. Check Signal Results
-                profile_exists = TutorProfile.objects.filter(user=user).exists()
-                status_exists = TutorStatus.objects.filter(tutor__user=user).exists()
-                
-                print(f"DEBUG: Profile Exists? {profile_exists}", file=sys.stderr)
-                print(f"DEBUG: Status Exists? {status_exists}", file=sys.stderr)
-                
-                # If these fail, we know the signal is broken
-                if not profile_exists:
-                    raise Exception("Signal failed: TutorProfile not created")
-                if not status_exists:
-                    raise Exception("Signal failed: TutorStatus not created")
-
-            return JsonResponse({
-                "message": "Tutor Signup Logic passed!",
-                "user_id": user.id,
-                "profile_exists": profile_exists,
-                "status_exists": status_exists
-            })
-            
-        except Exception as e:
-            tb = traceback.format_exc()
-            print(f"ERROR in DebugTutorSignupView: {tb}", file=sys.stderr)
-            return JsonResponse({"error": str(e), "traceback": tb}, status=500)
-
-
-class ContactUnlockView(APIView):
-    """
-    Unlock a tutor's contact information by spending credits.
-    Cost: 50 Credits (Hardcoded for now)
-    """
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request, pk):
-        if request.user.role != 'PARENT':
-             return Response({"error": "Only parents can unlock tutor contacts."}, status=403)
-             
-        tutor_profile = get_object_or_404(TutorProfile, pk=pk)
-        
-        # 1. Check if already unlocked
-        if ContactUnlock.objects.filter(parent=request.user, tutor=tutor_profile).exists():
-             return Response({
-                 "message": "Already unlocked",
-                 "phone": tutor_profile.user.phone,
-                 "email": tutor_profile.user.email
-             })
-             
-        # 2. Check Credits
-        UNLOCK_COST = 50
-        wallet, _ = Wallet.objects.get_or_create(user=request.user)
-        
-        if wallet.balance < UNLOCK_COST:
-             return Response({
-                 "error": "Insufficient credits",
-                 "required": UNLOCK_COST,
-                 "current": wallet.balance
-             }, status=402) # Payment Required
-             
-        # 3. Deduct & Unlock (Atomic)
-        try:
-            with transaction.atomic():
-                wallet.debit(UNLOCK_COST, f"Unlocked contact of {tutor_profile.user.username}")
-                ContactUnlock.objects.create(parent=request.user, tutor=tutor_profile)
-                
-            return Response({
-                 "message": "Contact unlocked successfully!",
-                 "phone": tutor_profile.user.phone,
-                 "email": tutor_profile.user.email,
-                 "remaining_balance": wallet.balance
-            })
-            
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
-
-
-class UnlockedContactsView(APIView):
-    """
-    Get a list of all tutors whose contacts a parent has unlocked.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request):
-        if request.user.role != 'PARENT':
-            return Response({"error": "Only parents can view unlocked contacts."}, status=403)
-            
-        unlocks = ContactUnlock.objects.filter(parent=request.user).select_related('tutor__user')
-        data = []
-        for unlock in unlocks:
-            tutor = unlock.tutor
-            user = tutor.user
-            data.append({
-                "id": tutor.id,
-                "name": tutor.full_name or user.get_full_name() or "Tutor",
-                "phone": user.phone,
-                "email": user.email,
-                "subjects": tutor.subjects if isinstance(tutor.subjects, list) else [],
-                "locality": tutor.locality,
-                "profile_image": tutor.profile_image.url if tutor.profile_image else (tutor.external_profile_image_url or None),
-                "unlocked_at": unlock.unlocked_at
-            })
-            
-        return Response(data)
 
 
 class CreateAdminUserView(APIView):
-    """
-    Superadmin creates a new Admin user with specific department.
-    """
+    """Superadmin creates a new Admin user with specific department."""
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        # 1. Check permissions (Superadmin only)
+        from django.db import transaction
+        from jobs.admin_models import AdminProfile
+
         if request.user.role != 'SUPERADMIN':
             return Response({"error": "Only Superadmins can create new admins."}, status=403)
 
@@ -494,7 +316,7 @@ class CreateAdminUserView(APIView):
         email = data.get('email')
         phone = data.get('phone')
         password = data.get('password')
-        department = data.get('department') # PARENT_OPS, TUTOR_OPS, SUPERADMIN
+        department = data.get('department')
 
         if not all([username, email, phone, password, department]):
             return Response({"error": "All fields are required."}, status=400)
@@ -502,220 +324,27 @@ class CreateAdminUserView(APIView):
         if department == 'SUPERADMIN':
             return Response({"error": "Cannot create Superadmin accounts via this interface."}, status=400)
 
-        # Validate department
         valid_departments = ['COUNSELLOR', 'TUTOR_OPS']
         if department not in valid_departments:
-             return Response({"error": f"Invalid department. Choices: {valid_departments}"}, status=400)
+            return Response({"error": f"Invalid department. Choices: {valid_departments}"}, status=400)
 
         if User.objects.filter(username=username).exists():
-             return Response({"error": "Username already exists."}, status=400)
-        
+            return Response({"error": "Username already exists."}, status=400)
+
         if User.objects.filter(phone=phone).exists():
-             return Response({"error": "Phone already exists."}, status=400)
+            return Response({"error": "Phone already exists."}, status=400)
 
         try:
             with transaction.atomic():
-                # 2. Create User (Always ADMIN)
                 user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    phone=phone,
-                    password=password,
-                    role='ADMIN' 
+                    username=username, email=email, phone=phone,
+                    password=password, role='ADMIN',
                 )
-                
-                # 3. Create AdminProfile
-                AdminProfile.objects.create(
-                    user=user,
-                    department=department
-                )
-                
+                AdminProfile.objects.create(user=user, department=department)
+
             return Response({
                 "message": f"Admin {username} created successfully for {department}",
-                "user_id": user.id
+                "user_id": user.id,
             }, status=201)
-
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-
-
-class EnquiryCreateView(generics.CreateAPIView):
-    """Public endpoint for 'Contact Us' form"""
-    permission_classes = [permissions.AllowAny]
-    authentication_classes = [] # Explicitly disable auth
-    serializer_class = EnquirySerializer # Need to import locally or ensure imported
-
-    def get_serializer_class(self):
-        from .serializers import EnquirySerializer
-        return EnquirySerializer
-
-class AdminEnquiryListView(generics.ListAPIView):
-    """Admin view for enquiries"""
-    permission_classes = [permissions.IsAdminUser]
-    
-    def get_serializer_class(self):
-        from .serializers import EnquirySerializer
-        return EnquirySerializer
-
-    def get_queryset(self):
-        from .models import Enquiry
-        return Enquiry.objects.all().order_by('-created_at')
-
-class AdminEnquiryUpdateView(generics.UpdateAPIView):
-    """Admin view to update enquiry status"""
-    permission_classes = [permissions.IsAdminUser]
-    
-    def get_serializer_class(self):
-        from .serializers import EnquirySerializer
-        return EnquirySerializer
-        
-    def get_queryset(self):
-        from .models import Enquiry
-        return Enquiry.objects.all()
-
-from .models import User, TutorProfile, TutorKYC, TutorStatus, Enquiry, InstitutionProfile
-from .serializers import (
-    UserSerializer, TutorProfileSerializer, TutorKYCSerializer,
-    CustomTokenObtainPairSerializer, UserAdminSerializer, EnquirySerializer, InstitutionProfileSerializer
-)
-
-# ... existing code ...
-
-class InstitutionProfileView(generics.RetrieveUpdateAPIView):
-    """
-    Retrieve or update the authenticated user's institution profile.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = InstitutionProfileSerializer
-
-    def get_object(self):
-        if self.request.user.role != 'INSTITUTION':
-            raise permissions.PermissionDenied("User is not an institution.")
-        
-        # Ensure profile exists
-        profile, created = InstitutionProfile.objects.get_or_create(user=self.request.user)
-        return profile
-
-class InstitutionTutorListView(generics.ListAPIView):
-    """
-    List active tutors for institutions to browse.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = TutorProfileSerializer
-    
-    def get_queryset(self):
-        # Only ACTIVE tutors
-        queryset = TutorProfile.objects.filter(status_record__status='ACTIVE')
-        
-        # Simple Search
-        q = self.request.query_params.get('q')
-        if q:
-            from django.db.models import Q, CharField
-            from django.db.models.functions import Cast
-            queryset = queryset.annotate(subjects_str=Cast('subjects', CharField()))
-            queryset = queryset.filter(
-                Q(user__first_name__icontains=q) |
-                Q(subjects_str__icontains=q)
-            )
-            
-        return queryset.order_by('-profile_completion_percentage', '-teaching_experience_years')
-
-class PublicTutorSearchView(generics.ListAPIView):
-    """
-    Public API for searching tutors.
-    Allows filtering by Subject, Class, Locality, Mode.
-    """
-    permission_classes = [permissions.IsAuthenticated] # Or AllowAny if public
-    serializer_class = PublicTutorProfileSerializer
-    
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context.update({"request": self.request})
-        return context
-    
-    def get_queryset(self):
-        # Only ACTIVE tutors
-        queryset = TutorProfile.objects.filter(status_record__status='ACTIVE')
-        
-        # Check if any filters are applied
-        params = self.request.query_params
-        has_filters = any(k in params for k in ['q', 'subject', 'class', 'grade', 'locality', 'mode', 'state', 'city'])
-        
-        if not has_filters:
-             # Randomize validation
-             queryset = queryset.order_by('-profile_completion_percentage', '-teaching_experience_years')
-        else:
-             # Default sort if filters exist
-             queryset = queryset.order_by('-profile_completion_percentage', '-teaching_experience_years')
-             
-        from django.db.models import Q, CharField
-        from django.db.models.functions import Cast
-        
-        # Cast JSON fields to string to ensure __icontains works on PostgreSQL jsonb columns
-        if has_filters:
-             queryset = queryset.annotate(
-                 subjects_str=Cast('subjects', CharField()),
-                 classes_str=Cast('classes', CharField())
-             )
-        
-        # 1. Text Search (Name, About)
-        q = self.request.query_params.get('q')
-        if q:
-            queryset = queryset.filter(
-                Q(user__first_name__icontains=q) |
-                Q(full_name__icontains=q) |
-                Q(about_me__icontains=q) |
-                Q(subjects_str__icontains=q)
-            )
-            
-        # 2. Subject Filter (JSON list or string)
-        subject = self.request.query_params.get('subject')
-        if subject:
-            queryset = queryset.filter(subjects_str__icontains=subject)
-            
-        # 3. Class/Grade Filter
-        grade = self.request.query_params.get('class') or self.request.query_params.get('grade')
-        if grade:
-             queryset = queryset.filter(
-                 Q(classes_str__icontains=grade) | 
-                 Q(subjects_str__icontains=grade)
-             )
-             
-
-             
-        # 4. Location Filters
-        state = self.request.query_params.get('state')
-        if state:
-            queryset = queryset.filter(state__icontains=state)
-
-        city = self.request.query_params.get('city')
-        if city:
-            queryset = queryset.filter(city__icontains=city)
-
-        locality = self.request.query_params.get('locality')
-        if locality:
-            queryset = queryset.filter(locality__icontains=locality)
-             
-        # 5. Mode Filter
-        mode = self.request.query_params.get('mode')
-        if mode and mode in ['HOME', 'ONLINE', 'BOTH']:
-             # If user wants Home, show Home or Both.
-             # If user wants Online, show Online or Both.
-             if mode == 'HOME':
-                 queryset = queryset.filter(teaching_mode='BOTH')
-                 
-        return queryset
-
-class PublicTutorDetailView(generics.RetrieveAPIView):
-    """
-    Get public details of a single tutor.
-    Exposes contact info only if unlocked.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = PublicTutorProfileSerializer
-    queryset = TutorProfile.objects.filter(status_record__status='ACTIVE')
-    
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context.update({"request": self.request})
-        return context
