@@ -1,0 +1,253 @@
+"""
+Parent-facing job views: browse jobs, search, dashboard stats, institution viewset.
+"""
+from datetime import timedelta
+
+from rest_framework import generics, permissions, status, viewsets
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.utils import timezone
+from django.db.models import Q, Case, When, Value, IntegerField
+
+from .models import JobPost, Application, InstituteJob
+from .serializers import JobPostSerializer, InstituteJobSerializer
+from users.models import TutorProfile
+
+
+class ParentJobListView(generics.ListAPIView):
+    """List all approved jobs for parents to browse."""
+    serializer_class = JobPostSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return JobPost.objects.filter(
+            status='APPROVED'
+        ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
+
+
+class JobDetailView(generics.RetrieveAPIView):
+    """Get details of a specific job."""
+    serializer_class = JobPostSerializer
+    permission_classes = [permissions.AllowAny]
+    queryset = JobPost.objects.filter(status='APPROVED')
+
+
+class JobSearchFilterView(generics.ListAPIView):
+    """Advanced Job Search. Filters: subject, grade, location, budget_min."""
+    serializer_class = JobPostSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        queryset = JobPost.objects.filter(
+            status='APPROVED'
+        ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
+
+        params = self.request.query_params
+
+        q = params.get('q')
+        if q:
+            queryset = queryset.filter(
+                Q(subjects__icontains=q) |
+                Q(class_grade__icontains=q) |
+                Q(locality__icontains=q)
+            )
+
+        subject = params.get('subject')
+        if subject:
+            queryset = queryset.filter(subjects__icontains=subject)
+
+        grade = params.get('grade')
+        if grade:
+            queryset = queryset.filter(class_grade__icontains=grade)
+
+        location = params.get('location')
+        if location:
+            queryset = queryset.filter(locality__icontains=location)
+
+        min_budget = params.get('min_budget')
+        if min_budget:
+            queryset = queryset.filter(budget_min__gte=min_budget)
+
+        return queryset
+
+
+class ParentStatsView(APIView):
+    """Get enhanced dashboard stats for parent including activity feed."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != 'PARENT':
+            return Response({"error": "Only parents can view stats"}, status=403)
+
+        user = request.user
+        now = timezone.now()
+
+        stats = self._get_job_stats(user)
+        wallet_balance = self._get_wallet_balance(user)
+        assigned_tutor = self._get_assigned_tutor(user)
+        recommended_tutors = self._get_recommended_tutors(user)
+        activities = self._build_activity_feed(user)
+        recent_jobs_data = JobPostSerializer(
+            JobPost.objects.filter(posted_by=user).order_by('-created_at')[:3],
+            many=True,
+        ).data
+
+        return Response({
+            "stats": {
+                "active_jobs": stats['active_jobs'],
+                "applications_received": stats['applications_received'],
+                "wallet_balance": wallet_balance,
+            },
+            "assigned_tutor": assigned_tutor,
+            "recommended_tutors": recommended_tutors,
+            "recent_activities": activities,
+            "recent_jobs": recent_jobs_data,
+        })
+
+    def _get_job_stats(self, user):
+        """Compute core job statistics."""
+        active_jobs = JobPost.objects.filter(
+            posted_by=user,
+            status__in=['APPROVED', 'PENDING_APPROVAL', 'ASSIGNED'],
+        ).count()
+        applications_received = Application.objects.filter(job__posted_by=user).count()
+        return {'active_jobs': active_jobs, 'applications_received': applications_received}
+
+    def _get_wallet_balance(self, user):
+        """Get users wallet balance safely."""
+        try:
+            if hasattr(user, 'wallet'):
+                return user.wallet.balance
+        except Exception:
+            pass
+        return 0.00
+
+    def _get_assigned_tutor(self, user):
+        """Get the most recently hired tutor info."""
+        hire = Application.objects.filter(
+            job__posted_by=user, status='HIRED'
+        ).select_related('tutor__user', 'job').order_by('-updated_at').first()
+
+        if hire and hire.tutor:
+            return {
+                "name": hire.tutor.full_name or hire.tutor.user.first_name,
+                "subject": hire.job.subjects[0] if hire.job.subjects else "General",
+                "image": (
+                    hire.tutor.profile_image.url if hire.tutor.profile_image
+                    else (hire.tutor.external_profile_image_url or None)
+                ),
+            }
+        return None
+
+    def _get_recommended_tutors(self, user, limit=5):
+        """Recommend active tutors, prioritizing locality match."""
+        last_job = JobPost.objects.filter(posted_by=user).order_by('-created_at').first()
+        parent_locality = last_job.locality if last_job else None
+
+        qs = TutorProfile.objects.filter(
+            status_record__status='ACTIVE'
+        ).select_related('user')
+
+        if parent_locality:
+            qs = qs.annotate(
+                locality_match=Case(
+                    When(locality__icontains=parent_locality, then=Value(2)),
+                    default=Value(0),
+                    output_field=IntegerField(),
+                )
+            ).order_by('-locality_match', '-teaching_experience_years')
+        else:
+            qs = qs.order_by('-teaching_experience_years')
+
+        return [
+            {
+                "id": t.id,
+                "name": t.full_name or t.user.first_name,
+                "subjects": t.subjects,
+                "locality": t.locality,
+                "rating": 4.8,
+                "image": t.profile_image.url if t.profile_image else (t.external_profile_image_url or None),
+                "experience": t.teaching_experience_years,
+            }
+            for t in qs[:limit]
+        ]
+
+    def _build_activity_feed(self, user, limit=5):
+        """Combine recent jobs, applications, wallet txns into a sorted feed."""
+        activities = []
+
+        # Recent jobs status updates
+        for job in JobPost.objects.filter(posted_by=user).order_by('-created_at')[:3]:
+            if job.status == 'PENDING_APPROVAL':
+                activities.append({
+                    "type": "info", "title": "Job Under Review",
+                    "description": f"Your request for {job.class_grade} is being reviewed.",
+                    "timestamp": job.created_at.isoformat(), "icon": "clock",
+                })
+            elif job.status == 'APPROVED':
+                activities.append({
+                    "type": "success", "title": "Job Approved",
+                    "description": f"Your request for {job.class_grade} is now live.",
+                    "timestamp": job.updated_at.isoformat(), "icon": "check-circle",
+                })
+
+        # Recent applications
+        for app in Application.objects.filter(
+            job__posted_by=user
+        ).select_related('tutor__user', 'job').order_by('-created_at')[:3]:
+            activities.append({
+                "type": "application", "title": "New Applicant",
+                "description": f"{app.tutor.full_name or 'A tutor'} applied for {app.job.class_grade}.",
+                "timestamp": app.created_at.isoformat(), "icon": "user-plus",
+            })
+
+        # Wallet transactions
+        try:
+            if hasattr(user, 'wallet'):
+                from wallet.models import Transaction
+                for tx in Transaction.objects.filter(wallet=user.wallet).order_by('-created_at')[:3]:
+                    verb = 'Debited' if tx.transaction_type == 'DEBIT' else 'Credited'
+                    activities.append({
+                        "type": "wallet", "title": "Wallet Update",
+                        "description": f"{verb} ₹{tx.amount}",
+                        "timestamp": tx.created_at.isoformat(), "icon": "credit-card",
+                    })
+        except Exception:
+            pass
+
+        activities.sort(key=lambda x: x['timestamp'], reverse=True)
+        return activities[:limit]
+
+
+class InstituteJobViewSet(viewsets.ModelViewSet):
+    """CRUD for Institute Jobs. Institutions can create/update their own jobs."""
+    serializer_class = InstituteJobSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = InstituteJob.objects.all().order_by('-created_at')
+
+        if self.action in ['list', 'retrieve']:
+            mode = self.request.query_params.get('mode')
+            if (mode == 'my_jobs'
+                    and self.request.user.is_authenticated
+                    and self.request.user.role == 'INSTITUTION'):
+                return queryset.filter(institution=self.request.user)
+            return queryset.filter(status='OPEN')
+
+        return queryset
+
+    def perform_create(self, serializer):
+        if self.request.user.role != 'INSTITUTION':
+            raise permissions.PermissionDenied("Only Institutions can post jobs.")
+        serializer.save(institution=self.request.user)
+
+    def perform_update(self, serializer):
+        if self.request.user != serializer.instance.institution:
+            raise permissions.PermissionDenied("You can only edit your own jobs.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if self.request.user != instance.institution:
+            raise permissions.PermissionDenied("You can only delete your own jobs.")
+        instance.delete()
