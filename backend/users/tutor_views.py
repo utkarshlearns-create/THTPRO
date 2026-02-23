@@ -96,19 +96,21 @@ class PublicTutorSearchView(generics.ListAPIView):
                 Q(subjects_str__icontains=q)
             )
 
-        # 2. Subject Filter — match synonyms for "Mathematics" vs "Maths" etc.
+        # 2. Subject Filter — match synonyms, but also include tutors with no subject data
         subject = params.get('subject')
         if subject:
             synonyms = self.SUBJECT_SYNONYMS.get(subject, [subject])
-            subject_q = Q()
+            subject_q = Q(subjects_str__in=['[]', '""', 'null', '']) | Q(subjects_str__isnull=True)
             for syn in synonyms:
                 subject_q |= Q(subjects_str__icontains=syn)
             queryset = queryset.filter(subject_q)
 
-        # 3. Class/Grade Filter
+        # 3. Class/Grade Filter — also include tutors with no class data
         grade = params.get('class') or params.get('grade')
         if grade:
             queryset = queryset.filter(
+                Q(classes_str__in=['[]', '""', 'null', '']) |
+                Q(classes_str__isnull=True) |
                 Q(classes_str__icontains=grade) |
                 Q(subjects_str__icontains=grade)
             )

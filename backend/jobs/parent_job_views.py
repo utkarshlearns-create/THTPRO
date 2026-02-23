@@ -1,6 +1,7 @@
 """
 Parent-facing job views: browse jobs, search, dashboard stats, institution viewset.
 """
+import re
 from datetime import timedelta
 
 from rest_framework import generics, permissions, status, viewsets
@@ -12,6 +13,20 @@ from django.db.models import Q, Case, When, Value, IntegerField
 from .models import JobPost, Application, InstituteJob
 from .serializers import JobPostSerializer, InstituteJobSerializer
 from users.models import TutorProfile
+
+
+def _get_tutor_image(tutor):
+    """Get tutor's image URL, transforming Google Drive links to direct image links."""
+    if tutor.profile_image:
+        return tutor.profile_image.url
+    if tutor.external_profile_image_url:
+        url = tutor.external_profile_image_url
+        if "drive.google.com" in url:
+            match = re.search(r'id=([a-zA-Z0-9_-]+)', url) or re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
+            if match:
+                return f"https://lh3.googleusercontent.com/d/{match.group(1)}"
+        return url
+    return None
 
 
 class ParentJobListView(generics.ListAPIView):
@@ -132,10 +147,7 @@ class ParentStatsView(APIView):
             return {
                 "name": hire.tutor.full_name or hire.tutor.user.first_name,
                 "subject": hire.job.subjects[0] if hire.job.subjects else "General",
-                "image": (
-                    hire.tutor.profile_image.url if hire.tutor.profile_image
-                    else (hire.tutor.external_profile_image_url or None)
-                ),
+                "image": _get_tutor_image(hire.tutor),
             }
         return None
 
@@ -166,7 +178,7 @@ class ParentStatsView(APIView):
                 "subjects": t.subjects,
                 "locality": t.locality,
                 "rating": 4.8,
-                "image": t.profile_image.url if t.profile_image else (t.external_profile_image_url or None),
+                "image": _get_tutor_image(t),
                 "experience": t.teaching_experience_years,
             }
             for t in qs[:limit]
