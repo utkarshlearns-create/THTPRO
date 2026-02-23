@@ -123,6 +123,17 @@ const Navbar = () => {
                 )}
                 {role ? (
                         <>
+                        {/* Mobile wallet + notifications row */}
+                        <div className="flex items-center justify-between px-3 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                            <Link href={role === 'TEACHER' ? '/dashboard/tutor?tab=wallet' : '/dashboard/parent?tab=wallet'} className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 font-bold text-sm">
+                                 <Wallet size={18} className="text-indigo-600 dark:text-indigo-400" />
+                                 <span>₹ {walletBalance}</span>
+                            </Link>
+                            <Link href={role === 'TEACHER' ? '/dashboard/tutor?tab=notifications' : '/dashboard/parent?tab=notifications'} className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 rounded-full">
+                                <Bell size={20} />
+                                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+                            </Link>
+                        </div>
                         <Link href={role === 'ADMIN' ? '/dashboard/admin' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'}
                             className="block w-full text-center px-3 py-3 text-indigo-600 dark:text-indigo-400 font-bold hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-lg"
                         >
