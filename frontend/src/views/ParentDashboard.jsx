@@ -32,7 +32,7 @@ const Skeleton = ({ className }) => (
 );
 
 const ParentDashboard = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const searchParams = useSearchParams();
     const initialTab = searchParams.get('tab') || 'overview';
     const [activeTab, setActiveTab] = useState(initialTab);
@@ -124,8 +124,18 @@ const ParentDashboard = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex font-sans text-slate-900 dark:text-slate-100">
-            {/* Sidebar */}
-            <aside className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} flex flex-col fixed h-full z-30 shadow-sm`}>
+            {/* Mobile Backdrop Overlay */}
+            {sidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden" 
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
+            {/* Sidebar — hidden on mobile, overlay drawer when toggled */}
+            <aside className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col fixed h-full z-50 shadow-sm
+                ${sidebarOpen ? 'w-64 translate-x-0' : 'w-20 -translate-x-full lg:translate-x-0'}
+            `}>
                 <div className="h-16 flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
                      {sidebarOpen ? (
                         <div className="font-bold text-xl tracking-tight flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
@@ -155,10 +165,10 @@ const ParentDashboard = () => {
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+            {/* Main Content — no left margin on mobile */}
+            <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}>
                 {/* Header */}
-                <header className="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-20">
+                <header className="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-20">
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400 transition-colors">
                         <Menu size={20} />
                     </button>
@@ -174,7 +184,7 @@ const ParentDashboard = () => {
                     </div>
                 </header>
 
-                <div className="p-8 max-w-6xl mx-auto space-y-8">
+                <div className="p-4 sm:p-8 max-w-6xl mx-auto space-y-6 sm:space-y-8">
                     {activeTab === 'overview' && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div>

@@ -20,9 +20,9 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
     return (
         <aside className={cn(
             "fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300 border-r",
-            "bg-white border-slate-200 shadow-xl", // Light Mode (Solid White, stronger shadow)
-            "dark:bg-slate-900/80 dark:border-white/5 dark:shadow-none dark:backdrop-blur-xl", // Dark Mode
-            isOpen ? "w-64" : "w-20"
+            "bg-white border-slate-200 shadow-xl",
+            "dark:bg-slate-900/80 dark:border-white/5 dark:shadow-none dark:backdrop-blur-xl",
+            isOpen ? "w-64 translate-x-0" : "w-20 -translate-x-full lg:translate-x-0"
         )}>
             {/* Logo Area & Toggle */}
             <div className="h-20 flex items-center justify-between px-4 border-b border-slate-200 dark:border-white/5 relative">
@@ -53,7 +53,11 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
                 {navItems.map((item) => (
                     <button
                         key={item.id}
-                        onClick={() => onTabChange(item.id)}
+                        onClick={() => {
+                            onTabChange(item.id);
+                            // Auto-close sidebar on mobile
+                            if (window.innerWidth < 1024) onToggle();
+                        }}
                         className={cn(
                             "w-full flex items-center gap-4 px-3 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
                             activeTab === item.id 

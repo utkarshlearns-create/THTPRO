@@ -9,13 +9,13 @@ const Header = ({ sidebarOpen, setSidebarOpen, user }) => {
 
     return (
         <header className={cn(
-            "h-20 fixed top-0 right-0 z-40 flex items-center justify-between px-8 transition-all duration-300 border-b",
-            "bg-white/80 border-slate-200 backdrop-blur-md", // Light Mode
-            "dark:bg-slate-950/50 dark:border-white/5", // Dark Mode
-            sidebarOpen ? "left-0 md:left-64" : "left-0 md:left-20" // Fix for mobile/desktop layout
+            "h-20 fixed top-0 right-0 z-40 flex items-center justify-between px-4 sm:px-8 transition-all duration-300 border-b",
+            "bg-white/80 border-slate-200 backdrop-blur-md",
+            "dark:bg-slate-950/50 dark:border-white/5",
+            sidebarOpen ? "left-0 lg:left-64" : "left-0 lg:left-20"
         )}>
             {/* Left: Mobile Toggle & Welcome */}
-            <div className="flex items-center gap-4 md:gap-6 ml-12 md:ml-0"> {/* ml-12 to push past fixed sidebar toggle on mobile if needed */}
+            <div className="flex items-center gap-4 md:gap-6">
                 <div className="hidden md:block">
                     <h1 className="text-xl font-semibold text-slate-800 dark:text-white">
                         Welcome back, <span className="bg-gradient-to-r from-sky-400 to-indigo-600 dark:from-sky-300 dark:to-indigo-400 bg-clip-text text-transparent">{user?.first_name || 'Tutor'}</span>
