@@ -104,6 +104,10 @@ def clean_phone(raw):
             digits = digits[1:]
         if len(digits) == 10 and digits[0] in '6789':
             return digits
+    # Fallback: search for any 10-digit Indian number in the raw text
+    matches = re.findall(r'[6-9]\d{9}', raw)
+    if matches:
+        return matches[0]
     return ''
 
 
