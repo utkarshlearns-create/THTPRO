@@ -26,6 +26,7 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { motion } from 'framer-motion';
 import ContactPopup from '../components/home/ContactPopup';
+import InlineContactForm from '../components/home/InlineContactForm';
 
 const FadeIn = ({ children, className, delay = 0 }) => (
   <motion.div
@@ -547,6 +548,9 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Inline Contact Form */}
+      <InlineContactForm />
 
       {/* FAQ Section */}
       <FAQ />
