@@ -195,8 +195,8 @@ const LandingPage = () => {
               <div className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
                 <div className="relative h-56 overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1588072432836-e10032774350?w=600&h=400&fit=crop&crop=faces" 
-                    alt="Parent helping child study" 
+                    src="https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&h=400&fit=crop&crop=faces" 
+                    alt="Indian student smiling" 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
@@ -221,8 +221,8 @@ const LandingPage = () => {
                 <div className="absolute top-4 right-4 z-10 bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">Popular</div>
                 <div className="relative h-56 overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1577896851231-70ef18881754?w=600&h=400&fit=crop&crop=faces" 
-                    alt="Teacher in front of blackboard" 
+                    src="https://images.unsplash.com/photo-1580894732444-8ecded7900cd?w=600&h=400&fit=crop&crop=faces" 
+                    alt="Indian female teacher in classroom" 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
@@ -246,8 +246,8 @@ const LandingPage = () => {
               <div className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
                 <div className="relative h-56 overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&h=400&fit=crop" 
-                    alt="School building" 
+                    src="https://images.unsplash.com/photo-1562774053-701939374585?w=600&h=400&fit=crop" 
+                    alt="Indian school building campus" 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
