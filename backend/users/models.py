@@ -106,6 +106,12 @@ class TutorKYC(models.Model):
     police_verification = models.FileField(upload_to='kyc_docs/', blank=True, null=True)
     teaching_certificate = models.FileField(upload_to='kyc_docs/', blank=True, null=True)
     
+    # External document URLs (for imported Google Form data)
+    external_aadhaar_front_url = models.URLField(max_length=500, blank=True, null=True)
+    external_aadhaar_back_url = models.URLField(max_length=500, blank=True, null=True)
+    external_education_url = models.URLField(max_length=500, blank=True, null=True)
+    external_photo_url = models.URLField(max_length=500, blank=True, null=True)
+    
     # Document Verification Flags (NEW)
     aadhaar_verified = models.BooleanField(default=False)
     education_verified = models.BooleanField(default=False)
