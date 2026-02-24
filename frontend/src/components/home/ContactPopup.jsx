@@ -158,15 +158,22 @@ const ContactPopup = () => {
                                                     <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Location</label>
                                                     <div className="relative">
                                                         <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                                                        <input
-                                                            type="text"
+                                                        <select
                                                             name="location"
                                                             required
                                                             value={formData.location}
                                                             onChange={handleChange}
-                                                            placeholder="City/Area"
-                                                            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm"
-                                                        />
+                                                            className={`w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm ${formData.location === '' ? 'text-slate-400' : 'text-slate-900 dark:text-white'}`}
+                                                        >
+                                                            <option value="" disabled>Select your Area</option>
+                                                            {[
+                                                                "Aliganj", "Gomti Nagar", "Indira Nagar", "Hazratganj", 
+                                                                "Janki Puram", "Mahanagar", "Alambagh", "Vikas Nagar", 
+                                                                "South City", "Aashiana", "Other"
+                                                            ].sort().map(loc => (
+                                                                <option key={loc} value={loc} className="text-slate-900 dark:text-white">{loc}</option>
+                                                            ))}
+                                                        </select>
                                                     </div>
                                                 </div>
                                             </div>
