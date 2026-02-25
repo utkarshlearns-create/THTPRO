@@ -226,7 +226,7 @@ const MyApplications = () => {
 
                                             {/* Subjects */}
                                             <div className="flex flex-wrap gap-2 mb-3">
-                                                {job.subjects.map((subject, idx) => (
+                                                {Array.isArray(job.subjects) && job.subjects.map((subject, idx) => (
                                                     <span 
                                                         key={idx}
                                                         className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 text-xs font-medium rounded-full"

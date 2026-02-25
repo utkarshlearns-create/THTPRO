@@ -146,10 +146,10 @@ export default function ApproveTutorList() {
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex flex-wrap gap-1">
-                                            {tutor.subjects && tutor.subjects.slice(0, 2).map((sub, i) => (
+                                            {Array.isArray(tutor.subjects) && tutor.subjects.slice(0, 2).map((sub, i) => (
                                                 <Badge key={i} variant="outline" className="text-xs">{sub}</Badge>
                                             ))}
-                                            {tutor.subjects && tutor.subjects.length > 2 && (
+                                            {Array.isArray(tutor.subjects) && tutor.subjects.length > 2 && (
                                                 <span className="text-xs text-slate-400">+{tutor.subjects.length - 2}</span>
                                             )}
                                         </div>

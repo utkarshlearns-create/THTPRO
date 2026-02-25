@@ -243,7 +243,7 @@ const KYCStatusDashboard = () => {
                             <div className="mt-4">
                                 <p className="font-semibold text-amber-900 dark:text-amber-100 mb-2">Documents to re-upload:</p>
                                 <ul className="list-disc list-inside text-amber-800 dark:text-amber-200">
-                                    {kycData.documents_to_resubmit.map((doc, idx) => (
+                                    {Array.isArray(kycData.documents_to_resubmit) && kycData.documents_to_resubmit.map((doc, idx) => (
                                         <li key={idx}>{doc}</li>
                                     ))}
                                 </ul>

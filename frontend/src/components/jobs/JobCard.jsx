@@ -30,7 +30,7 @@ const JobCard = ({ job }) => {
 
             <div className="mb-4">
                 <div className="flex flex-wrap gap-2 mb-3">
-                    {job.subjects && job.subjects.map((subject, index) => (
+                    {Array.isArray(job.subjects) && job.subjects.map((subject, index) => (
                         <span key={index} className="flex items-center px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-md">
                             <BookOpen size={12} className="mr-1.5" />
                             {subject}
