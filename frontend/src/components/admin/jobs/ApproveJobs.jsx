@@ -218,7 +218,11 @@ export default function ApproveJobs() {
                                     <div>
                                         <p className="text-xs text-slate-500 mb-1">Parent Connect</p>
                                         <p className="font-medium text-slate-900 dark:text-white">{selectedJob.user?.first_name || 'N/A'}</p>
-                                        <p className="text-sm text-slate-500">{selectedJob.user?.phone || selectedJob.user?.email || 'No contact info'}</p>
+                                        <p className="text-sm text-slate-500">
+                                            {selectedJob.parent_whatsapp_number 
+                                                ? `WhatsApp: ${selectedJob.parent_whatsapp_number}` 
+                                                : (selectedJob.user?.phone || selectedJob.user?.email || 'No contact info')}
+                                        </p>
                                     </div>
 
                                     <div>
