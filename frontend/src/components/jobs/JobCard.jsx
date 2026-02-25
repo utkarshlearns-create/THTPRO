@@ -11,6 +11,42 @@ const JobCard = ({ job }) => {
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
+    const getStatusBadge = (status) => {
+        switch (status) {
+            case 'PENDING_APPROVAL':
+                return (
+                    <span className="px-3 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-xs font-semibold rounded-full border border-amber-100 dark:border-amber-800 flex items-center gap-1.5 shadow-sm">
+                        <Clock size={12} className="animate-pulse" /> Under Review
+                    </span>
+                );
+            case 'APPROVED':
+            case 'ACTIVE':
+                return (
+                    <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold rounded-full border border-emerald-100 dark:border-emerald-800 shadow-sm">
+                        Active
+                    </span>
+                );
+            case 'REJECTED':
+                return (
+                    <span className="px-3 py-1 bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs font-semibold rounded-full border border-rose-100 dark:border-rose-800 shadow-sm">
+                        Rejected
+                    </span>
+                );
+            case 'MODIFICATIONS_NEEDED':
+                return (
+                    <span className="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-xs font-semibold rounded-full border border-orange-100 dark:border-orange-800 shadow-sm">
+                        Needs Changes
+                    </span>
+                );
+            default:
+                return (
+                    <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold rounded-full border border-slate-200 dark:border-slate-700 shadow-sm">
+                        {status || 'Unknown'}
+                    </span>
+                );
+        }
+    };
+
     return (
         <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-5 hover:shadow-lg transition-shadow duration-300">
             <div className="flex justify-between items-start mb-3">
@@ -23,9 +59,7 @@ const JobCard = ({ job }) => {
                         {job.locality || 'Remote/TBD'}
                     </div>
                 </div>
-                <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-semibold rounded-full border border-blue-100 dark:border-blue-800">
-                    Active
-                </span>
+                {getStatusBadge(job.status)}
             </div>
 
             <div className="mb-4">
