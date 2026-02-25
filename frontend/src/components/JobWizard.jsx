@@ -530,7 +530,9 @@ const JobWizard = () => {
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="HOME">Home Tuition</SelectItem>
-                                            <SelectItem value="ONLINE">Online Class</SelectItem>
+                                            <SelectItem value="ONLINE_ONE_TO_ONE">Online One-to-One</SelectItem>
+                                            <SelectItem value="ONLINE_GROUP">Online Group</SelectItem>
+                                            <SelectItem value="INSTITUTION">Institution / Center</SelectItem>
                                             <SelectItem value="BOTH">Both / Any</SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -572,13 +574,19 @@ const JobWizard = () => {
                                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                             <Clock className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
                                         </div>
-                                        <Input 
-                                            name="preferred_time" 
-                                            value={formData.preferred_time} 
-                                            onChange={handleInputChange} 
-                                            className="pl-12 py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-shadow" 
-                                            placeholder="e.g. Weekday Evenings 5-8 PM" 
-                                        />
+                                        <Select name="preferred_time" value={formData.preferred_time} onValueChange={(val) => handleSelectChange('preferred_time', val)}>
+                                            <SelectTrigger className="pl-12 py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                                                <SelectValue placeholder="Select Preferred Time" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Early Morning (Before 9 AM)">Early Morning (Before 9 AM)</SelectItem>
+                                                <SelectItem value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</SelectItem>
+                                                <SelectItem value="Afternoon (12 PM - 4 PM)">Afternoon (12 PM - 4 PM)</SelectItem>
+                                                <SelectItem value="Evening (4 PM - 8 PM)">Evening (4 PM - 8 PM)</SelectItem>
+                                                <SelectItem value="Late Evening (After 8 PM)">Late Evening (After 8 PM)</SelectItem>
+                                                <SelectItem value="Flexible / Any Time">Flexible / Any Time</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
                             </div>
