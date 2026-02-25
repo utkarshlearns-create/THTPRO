@@ -14,10 +14,10 @@ import {
   Bell,
   CheckCircle,
   Clock,
-  TrendingUp,
   Star,
   Zap,
-  Unlock
+  Unlock,
+  Home
 } from 'lucide-react';
 import API_BASE_URL from '../config';
 import { clearAuthState } from '../utils/auth';
@@ -176,9 +176,17 @@ const ParentDashboard = () => {
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400 transition-colors">
                         <Menu size={20} />
                     </button>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                        <button 
+                            onClick={() => router.push('/parent-home')}
+                            className="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-indigo-900/30 rounded-xl transition-all shadow-sm flex items-center gap-2"
+                            title="Go to Parent Home"
+                        >
+                            <Home size={20} />
+                            <span className="hidden sm:inline-block text-sm font-medium">Home</span>
+                        </button>
                         <ThemeToggle />
-                         <div className="text-right hidden sm:block">
+                         <div className="text-right hidden md:block pl-2 border-l border-slate-200 dark:border-slate-800">
                             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-none">Parent Account</p>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Managed Profile</p>
                         </div>
