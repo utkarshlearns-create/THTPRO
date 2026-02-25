@@ -33,6 +33,7 @@ const Skeleton = ({ className }) => (
 
 const ParentDashboard = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarHover, setSidebarHover] = useState(false);
     const searchParams = useSearchParams();
     const initialTab = searchParams.get('tab') || 'overview';
     const [activeTab, setActiveTab] = useState(initialTab);
@@ -133,11 +134,14 @@ const ParentDashboard = () => {
             )}
 
             {/* Sidebar — hidden on mobile, overlay drawer when toggled */}
-            <aside className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col fixed h-full z-50 shadow-sm
-                ${sidebarOpen ? 'w-64 translate-x-0' : 'w-20 -translate-x-full lg:translate-x-0'}
+            <aside 
+                onMouseEnter={() => setSidebarHover(true)}
+                onMouseLeave={() => setSidebarHover(false)}
+                className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col fixed h-full z-50 shadow-sm
+                ${(sidebarOpen || sidebarHover) ? 'w-64 translate-x-0' : 'w-20 -translate-x-full lg:translate-x-0'}
             `}>
                 <div className="h-16 flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
-                     {sidebarOpen ? (
+                     {(sidebarOpen || sidebarHover) ? (
                         <div className="font-bold text-xl tracking-tight flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
                             <span className="text-slate-900 dark:text-white">THE HOME</span> TUITIONS
                         </div>
@@ -147,20 +151,20 @@ const ParentDashboard = () => {
                 </div>
 
                 <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-                    <SidebarItem icon={<LayoutDashboard size={20} />} label="Overview" active={activeTab === 'overview'} isOpen={sidebarOpen} onClick={() => setActiveTab('overview')} />
-                    <SidebarItem icon={<User size={20} />} label="My Profile" active={activeTab === 'profile'} isOpen={sidebarOpen} onClick={() => setActiveTab('profile')} />
-                    <SidebarItem icon={<Briefcase size={20} />} label="Jobs Posted" active={activeTab === 'jobs_posted'} isOpen={sidebarOpen} onClick={() => setActiveTab('jobs_posted')} />
-                    <SidebarItem icon={<User size={20} />} label="Tutor Assigned" active={activeTab === 'tutor_assigned'} isOpen={sidebarOpen} onClick={() => setActiveTab('tutor_assigned')} />
-                    <SidebarItem icon={<History size={20} />} label="History" active={activeTab === 'history'} isOpen={sidebarOpen} onClick={() => setActiveTab('history')} />
-                    <SidebarItem icon={<Unlock size={20} />} label="Unlocked Contacts" active={activeTab === 'unlocked_contacts'} isOpen={sidebarOpen} onClick={() => setActiveTab('unlocked_contacts')} />
-                    <SidebarItem icon={<Wallet size={20} />} label="Wallet & Credits" active={activeTab === 'wallet'} isOpen={sidebarOpen} onClick={() => setActiveTab('wallet')} />
-                    <SidebarItem icon={<Bell size={20} />} label="Notifications" active={activeTab === 'notifications'} isOpen={sidebarOpen} onClick={() => setActiveTab('notifications')} />
+                    <SidebarItem icon={<LayoutDashboard size={20} />} label="Overview" active={activeTab === 'overview'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('overview')} />
+                    <SidebarItem icon={<User size={20} />} label="My Profile" active={activeTab === 'profile'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('profile')} />
+                    <SidebarItem icon={<Briefcase size={20} />} label="Jobs Posted" active={activeTab === 'jobs_posted'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('jobs_posted')} />
+                    <SidebarItem icon={<User size={20} />} label="Tutor Assigned" active={activeTab === 'tutor_assigned'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('tutor_assigned')} />
+                    <SidebarItem icon={<History size={20} />} label="History" active={activeTab === 'history'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('history')} />
+                    <SidebarItem icon={<Unlock size={20} />} label="Unlocked Contacts" active={activeTab === 'unlocked_contacts'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('unlocked_contacts')} />
+                    <SidebarItem icon={<Wallet size={20} />} label="Wallet & Credits" active={activeTab === 'wallet'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('wallet')} />
+                    <SidebarItem icon={<Bell size={20} />} label="Notifications" active={activeTab === 'notifications'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('notifications')} />
                 </nav>
 
                 <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-                    <Button variant="ghost" onClick={handleLogout} className={`w-full justify-start text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 ${!sidebarOpen && 'px-2 justify-center'}`}>
-                        <LogOut size={20} className={sidebarOpen ? "mr-2" : ""} />
-                        {sidebarOpen && "Logout"}
+                    <Button variant="ghost" onClick={handleLogout} className={`w-full transition-all duration-300 text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 ${!(sidebarOpen || sidebarHover) ? 'px-2 justify-center' : 'justify-start'}`}>
+                        <LogOut size={20} className={(sidebarOpen || sidebarHover) ? "mr-2" : ""} />
+                        <span className={`${!(sidebarOpen || sidebarHover) ? 'opacity-0 w-0 hidden' : 'opacity-100'}`}>Logout</span>
                     </Button>
                 </div>
             </aside>
@@ -399,17 +403,21 @@ const ParentDashboard = () => {
     );
 };
 
-const SidebarItem = ({ icon, label, active, isOpen, onClick }) => (
+const SidebarItem = ({ icon, label, active, isOpen, isHovered, onClick }) => {
+    const showLabel = isOpen || isHovered;
+    return (
     <button 
         onClick={onClick}
-        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group
+        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative
         ${active ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 font-medium' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200'}
-        ${!isOpen && 'justify-center'}
+        ${!showLabel && 'justify-center'}
     `}>
         <span className={`flex-shrink-0 transition-colors ${active ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'}`}>{icon}</span>
-        {isOpen && <span>{label}</span>}
+        <span className={`whitespace-nowrap transition-all duration-300 origin-left ${showLabel ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 w-0 hidden'}`}>
+            {label}
+        </span>
     </button>
-);
+)};
 
 const InsightCard = ({ title, value, icon, description, trend, trendColor, progress }) => (
     <Card className="border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow bg-white dark:bg-slate-900">
