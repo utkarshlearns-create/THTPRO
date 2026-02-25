@@ -566,7 +566,7 @@ const JobsList = () => {
     const fetchJobs = async () => {
         try {
             const token = localStorage.getItem('access');
-            const response = await fetch(`${API_BASE_URL}/api/jobs/`, {
+            const response = await fetch(`${API_BASE_URL}/api/jobs/my-jobs/`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
