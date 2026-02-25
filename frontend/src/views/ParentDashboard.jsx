@@ -510,7 +510,7 @@ const UnlockedContactsList = () => {
                                         <div className="pt-3 mt-3 border-t border-slate-200 dark:border-slate-700">
                                             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Subjects Required</span>
                                             <div className="flex flex-wrap gap-2">
-                                                {contact.subjects.map((sub, i) => (
+                                                {Array.isArray(contact.subjects) && contact.subjects.map((sub, i) => (
                                                     <span key={i} className="text-xs font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-900/30 px-2 py-1 rounded">
                                                         {sub}
                                                     </span>

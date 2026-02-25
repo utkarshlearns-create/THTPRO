@@ -155,7 +155,7 @@ const TutorProfileView = ({ tutorId }) => {
                             <div className="mb-6">
                                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Subjects</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {tutor.subjects?.map((sub, i) => (
+                                    {Array.isArray(tutor.subjects) && tutor.subjects.map((sub, i) => (
                                         <span key={i} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-semibold">
                                             {sub}
                                         </span>
@@ -166,7 +166,7 @@ const TutorProfileView = ({ tutorId }) => {
                             <div>
                                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Classes</h3>
                                 <div className="flex flex-wrap gap-2">
-                                     {tutor.classes?.map((cls, i) => (
+                                     {Array.isArray(tutor.classes) && tutor.classes.map((cls, i) => (
                                         <span key={i} className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-lg text-sm font-semibold">
                                             {cls}
                                         </span>
