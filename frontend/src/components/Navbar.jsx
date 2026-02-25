@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Bell, Wallet, User } from 'lucide-react';
+import { Menu, X, Bell, Wallet, User, Home } from 'lucide-react';
 import { Button } from './ui/button';
 import API_BASE_URL from '../config';
 import { clearAuthState } from '../utils/auth';
@@ -61,6 +61,16 @@ const Navbar = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
+                {role && (
+                    <Link 
+                        href={role === 'PARENT' ? '/parent-home' : role === 'TEACHER' ? '/tutor-home' : role === 'INSTITUTION' ? '/institution-home' : '/'}
+                        className="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-indigo-900/30 rounded-xl transition-all shadow-sm flex items-center gap-2 mr-2"
+                        title="Go to Home"
+                    >
+                        <Home size={20} />
+                        <span className="hidden lg:inline-block text-sm font-medium">Home</span>
+                    </Link>
+                )}
                 <ThemeToggle />
                 {role ? (
                     <div className="flex items-center gap-6 ml-auto">

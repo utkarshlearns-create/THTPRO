@@ -140,6 +140,9 @@ const NavItem = ({ item, activeView, setActiveView, isOpen }) => {
             setActiveView(item.id);
         }
     };
+    
+    // We treat the NavItem as "open" if either the prop isOpen is true OR if we have hover state active on the sidebar
+    // However, since in AdminSidebar it passes "showSidebar" to "isOpen", we just use "isOpen" directly.
 
     return (
         <div className="mb-1">
@@ -189,6 +192,9 @@ const NavItem = ({ item, activeView, setActiveView, isOpen }) => {
 };
 
 export default function AdminSidebar({ activeView, setActiveView, isOpen, toggleSidebar, mode }) {
+    const [isHovered, setIsHovered] = useState(false);
+    const showSidebar = isOpen || isHovered;
+
     // Filter items based on mode
     const filteredItems = MENU_ITEMS.filter(item => {
         if (!mode) return true; // Show all if no mode specified
@@ -219,18 +225,20 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
 
     return (
         <aside
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             className={cn(
                 "fixed left-0 top-0 h-screen bg-slate-900 text-white flex flex-col border-r border-slate-800 transition-all duration-300 z-50",
-                isOpen ? "w-64" : "w-20"
+                showSidebar ? "w-64" : "w-20"
             )}
         >
             {/* Header */}
-            <div className={cn("h-16 flex items-center border-b border-slate-800 transition-all duration-300 relative", isOpen ? "px-6" : "justify-center px-0")}>
+            <div className={cn("h-16 flex items-center border-b border-slate-800 transition-all duration-300 relative", showSidebar ? "px-6" : "justify-center px-0")}>
                 <div className="flex items-center gap-2 overflow-hidden">
-                    <div className="h-8 w-8 bg-blue-600 rounded-lg flex-shrink-0 flex items-center justify-center">
+                    <div className="h-8 w-8 bg-blue-600 rounded-lg flex-shrink-0 flex items-center justify-center cursor-pointer" onClick={toggleSidebar}>
                         <span className="font-bold text-white">T</span>
                     </div>
-                    {isOpen && (
+                    {showSidebar && (
                         <span className="font-bold text-lg tracking-tight whitespace-nowrap">THTPRO<span className="text-blue-500">Admin</span></span>
                     )}
                 </div>
@@ -246,7 +254,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
 
             {/* Navigation */}
             <div className="flex-1 overflow-y-auto py-6 px-3 custom-scrollbar overflow-x-hidden">
-                {isOpen && (
+                {showSidebar && (
                     <div className="px-3 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         {mode ? `${mode} Admin` : 'Main Navigation'}
                     </div>
@@ -255,7 +263,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
                 <div className="space-y-1">
                     {filteredItems.map((item, index) => (
                         item.header ? (
-                            isOpen && (
+                            showSidebar && (
                                 <div key={index} className="px-3 mt-4 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
                                     {item.header}
                                 </div>
@@ -266,7 +274,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
                                 item={item}
                                 activeView={activeView}
                                 setActiveView={setActiveView}
-                                isOpen={isOpen}
+                                isOpen={showSidebar}
                             />
                         )
                     ))}
@@ -275,7 +283,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
 
             {/* Footer */}
             <div className="p-4 border-t border-slate-800 bg-slate-900/50">
-                {isOpen ? (
+                {showSidebar ? (
                     <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-800/50 mb-3">
                         <div className="flex items-center gap-3 overflow-hidden">
                             <img 
@@ -303,11 +311,11 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
                     }}
                     className={cn(
                         "w-full flex items-center gap-2 p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm font-medium",
-                        !isOpen && "justify-center"
+                        !showSidebar && "justify-center"
                     )}
                 >
                     <LogOut size={16} />
-                    {isOpen && <span>Sign Out</span>}
+                    <span className={cn("transition-all duration-300 whitespace-nowrap", !showSidebar ? "w-0 opacity-0 overflow-hidden" : "opacity-100")}>Sign Out</span>
                 </button>
             </div>
         </aside>

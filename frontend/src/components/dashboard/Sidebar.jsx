@@ -6,6 +6,8 @@ import { useTheme } from '../../context/ThemeContext';
 
 const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
     const { theme, toggleTheme } = useTheme();
+    const [isHovered, setIsHovered] = useState(false);
+    const showSidebar = isOpen || isHovered;
     const navItems = [
         { id: 'dashboard_home', icon: LayoutDashboard, label: 'Dashboard' },
         { id: 'profile', icon: User, label: 'My Profile' },
@@ -18,15 +20,18 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
     ];
 
     return (
-        <aside className={cn(
+        <aside 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className={cn(
             "fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300 border-r",
             "bg-white border-slate-200 shadow-xl",
             "dark:bg-slate-900/80 dark:border-white/5 dark:shadow-none dark:backdrop-blur-xl",
-            isOpen ? "w-64 translate-x-0" : "w-20 -translate-x-full lg:translate-x-0"
+            showSidebar ? "w-64 translate-x-0" : "w-20 -translate-x-full lg:translate-x-0"
         )}>
             {/* Logo Area & Toggle */}
             <div className="h-20 flex items-center justify-between px-4 border-b border-slate-200 dark:border-white/5 relative">
-                {isOpen ? (
+                {showSidebar ? (
                     <div className="flex flex-col">
                         <span className="text-xl font-bold bg-gradient-to-r from-sky-500 to-blue-700 dark:from-sky-400 dark:to-blue-600 bg-clip-text text-transparent">THE HOME</span>
                         <span className="text-xs tracking-[0.3em] text-slate-500 dark:text-slate-400 font-medium">TUITIONS</span>
@@ -72,8 +77,8 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
                         
                         <span className={cn(
                             "font-medium whitespace-nowrap transition-all duration-300 origin-left",
-                            !isOpen && "opacity-0 translate-x-10 w-0 overflow-hidden",
-                            isOpen && "opacity-100 translate-x-0"
+                            !showSidebar && "opacity-0 translate-x-10 w-0 overflow-hidden",
+                            showSidebar && "opacity-100 translate-x-0"
                         )}>
                             {item.label}
                         </span>
@@ -82,7 +87,7 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
             </nav>
 
             {/* Collapsed Toggle (When closed, user clicks logo or bottom button to open? Or use the header button. Adding button at bottom for convenience) */}
-            {!isOpen && (
+            {!showSidebar && (
                 <button 
                     onClick={onToggle}
                     className="mx-auto mb-2 p-2 rounded-full bg-indigo-50 dark:bg-slate-800 text-indigo-600 dark:text-sky-400 hover:bg-indigo-100 dark:hover:bg-slate-700 transition"
@@ -100,14 +105,14 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
                     "w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-colors group",
                     "text-slate-500 hover:text-indigo-600 hover:bg-slate-100", // Light
                     "dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5", // Dark
-                    !isOpen && "justify-center px-0"
+                    !showSidebar && "justify-center px-0"
                 )}>
                     {theme === 'dark' ? (
                         <Sun className="w-5 h-5 group-hover:rotate-45 transition-transform" />
                     ) : (
                         <Moon className="w-5 h-5 group-hover:-rotate-12 transition-transform" />
                     )}
-                    {isOpen && <span className="font-medium">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
+                    <span className={cn("font-medium transition-all duration-300 whitespace-nowrap", !showSidebar ? "w-0 opacity-0 overflow-hidden" : "opacity-100")}>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
                 </button>
 
                 {/* Logout */}
@@ -120,10 +125,10 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
                     "w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-colors group",
                     "text-slate-500 hover:text-red-500 hover:bg-red-50", // Light
                     "dark:text-slate-400 dark:hover:text-red-400 dark:hover:bg-red-500/10", // Dark
-                    !isOpen && "justify-center px-0"
+                    !showSidebar && "justify-center px-0"
                 )}>
                     <LogOut className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                    {isOpen && <span className="font-medium">Sign Out</span>}
+                    <span className={cn("font-medium transition-all duration-300 whitespace-nowrap", !showSidebar ? "w-0 opacity-0 overflow-hidden" : "opacity-100")}>Sign Out</span>
                 </button>
             </div>
         </aside>
