@@ -281,8 +281,8 @@ const ParentDashboard = () => {
                                                     <Skeleton className="h-16 w-full" />
                                                     <Skeleton className="h-16 w-full" />
                                                 </>
-                                            ) : Array.isArray(stats.activities) && stats.activities.length > 0 ? (
-                                                stats.activities.map((activity, i) => (
+                                            ) : Array.isArray(stats.recent_activities) && stats.recent_activities.length > 0 ? (
+                                                stats.recent_activities.map((activity, i) => (
                                                     <motion.div 
                                                         key={i} 
                                                         initial={{ opacity: 0, x: -20 }} 
