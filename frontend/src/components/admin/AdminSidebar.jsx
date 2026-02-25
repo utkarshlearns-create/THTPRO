@@ -229,7 +229,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
             onMouseLeave={() => setIsHovered(false)}
             className={cn(
                 "fixed left-0 top-0 h-screen bg-slate-900 text-white flex flex-col border-r border-slate-800 transition-all duration-300 z-50",
-                showSidebar ? "w-64" : "w-20"
+                showSidebar ? "w-64 translate-x-0" : "w-64 -translate-x-full lg:w-20 lg:translate-x-0"
             )}
         >
             {/* Header */}
