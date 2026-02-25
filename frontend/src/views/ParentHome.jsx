@@ -202,9 +202,12 @@ const ParentHome = () => {
                                 </div>
                             </div>
                             
-                            <button className="w-full py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 font-semibold text-xs group-hover:bg-indigo-600 group-hover:text-white dark:group-hover:text-white transition-colors">
+                            <Link 
+                                href={`/tutors/${tutor.id}`}
+                                className="block w-full text-center py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 font-semibold text-xs group-hover:bg-indigo-600 group-hover:text-white dark:group-hover:text-white transition-colors"
+                            >
                                 View Profile
-                            </button>
+                            </Link>
                         </div>
                     ))}
                 </div>

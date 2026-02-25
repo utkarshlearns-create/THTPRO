@@ -188,11 +188,11 @@ class Command(BaseCommand):
                             stats['skipped_no_tutor'] += 1
                             break
                         except Exception as e:
-                            err_str = str(e)
-                            if attempt < max_retries - 1 and ('connection' in err_str.lower() or 'closed' in err_str.lower() or 'server' in err_str.lower()):
+                            err_str = str(e).lower()
+                            if attempt < max_retries - 1 and ('connection' in err_str or 'closed' in err_str or 'server' in err_str or 'translate' in err_str or 'timeout' in err_str):
                                 stats['retries'] += 1
                                 connection.close()
-                                time.sleep(2)
+                                time.sleep(3 + attempt * 2)
                             else:
                                 stats['errors'] += 1
                                 results.append((fname, phone, 'ERROR', err_str[:80]))
