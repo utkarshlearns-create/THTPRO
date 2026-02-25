@@ -55,6 +55,27 @@ const JobWizard = () => {
     const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
     const [isDetectingLocation, setIsDetectingLocation] = useState(false);
     
+    const dropdownRef = React.useRef(null);
+
+    // Close the dropdown if clicked outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsSubjectDropdownOpen(false);
+            }
+        };
+
+        if (isSubjectDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isSubjectDropdownOpen]);
+
     // Master data from API
     const [subjects, setSubjects] = useState([]);
     const [boards, setBoards] = useState([]);
@@ -82,7 +103,8 @@ const JobWizard = () => {
             preferred_time: '',
             budget_range: '',
             hourly_rate: '',
-            requirements: ''
+            requirements: '',
+            parent_whatsapp_number: ''
         };
     });
 
@@ -96,12 +118,36 @@ const JobWizard = () => {
     useEffect(() => {
         const fetchMasterData = async () => {
             try {
+                // Fetch Master Data
                 const response = await fetch(`${API_BASE_URL}/api/jobs/master/`);
                 if (response.ok) {
                     const data = await response.json();
                     setSubjects(data.subjects || []);
                     setBoards(data.boards || []);
                     setClassLevels(data.class_levels || []);
+                }
+
+                // Fetch Profile info to auto-fill WhatsApp number if available
+                if (typeof window !== 'undefined') {
+                    const token = localStorage.getItem('access');
+                    if (token) {
+                        try {
+                            const profileRes = await fetch(`${API_BASE_URL}/api/users/profile/`, {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (profileRes.ok) {
+                                const profileData = await profileRes.json();
+                                if (profileData.phone) {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        parent_whatsapp_number: prev.parent_whatsapp_number || profileData.phone
+                                    }));
+                                }
+                            }
+                        } catch (err) {
+                            console.error("Error fetching profile phone:", err);
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching master data:', error);
@@ -385,6 +431,19 @@ const JobWizard = () => {
                                                 </Select>
                                             </div>
                                             <div className="space-y-3">
+                                                <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">WhatsApp Number</Label>
+                                                <Input 
+                                                    name="parent_whatsapp_number" 
+                                                    value={formData.parent_whatsapp_number} 
+                                                    onChange={handleInputChange} 
+                                                    placeholder="e.g. 9876543210" 
+                                                    className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700" 
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-6 mt-6">
+                                            <div className="space-y-3">
                                                 <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Tutor Gender Preference</Label>
                                                 <Select name="tutor_gender_preference" value={formData.tutor_gender_preference} onValueChange={(val) => handleSelectChange('tutor_gender_preference', val)}>
                                                     <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
@@ -401,7 +460,7 @@ const JobWizard = () => {
 
                                         <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                                             <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Subjects Required</Label>
-                                            <div className="relative">
+                                            <div className="relative" ref={dropdownRef}>
                                                 <button
                                                     type="button"
                                                     onClick={() => setIsSubjectDropdownOpen(!isSubjectDropdownOpen)}
@@ -422,11 +481,20 @@ const JobWizard = () => {
                                                         className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden"
                                                     >
                                                         <div className="p-2 pb-3 space-y-1 max-h-64 overflow-y-auto custom-scrollbar">
-                                                            {subjects.map((sub) => (
-                                                                <label key={sub.id} className="flex items-center gap-3 p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg cursor-pointer transition-colors group">
-                                                                    <div className={`flex items-center justify-center w-5 h-5 rounded border ${formData.subjects.includes(sub.name) ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 dark:border-slate-600 group-hover:border-indigo-400'}`}>
-                                                                        {formData.subjects.includes(sub.name) && <CheckCircle className="h-4 w-4 text-white" />}
-                                                                    </div>
+                                                            {(() => {
+                                                                const isJuniorClass = formData.class_grade && 
+                                                                    ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7'].includes(formData.class_grade);
+                                                                
+                                                                // Conditionally inject "All Subjects"
+                                                                let optionsToRender = [...subjects];
+                                                                if (isJuniorClass && !optionsToRender.some(s => s.name === 'All Subjects')) {
+                                                                    optionsToRender = [{ id: 'all_subj', name: 'All Subjects', icon: 'BookOpen' }, ...optionsToRender];
+                                                                }
+                                                                return optionsToRender.map((sub) => (
+                                                                    <label key={sub.id} className="flex items-center gap-3 p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg cursor-pointer transition-colors group">
+                                                                        <div className={`flex items-center justify-center w-5 h-5 rounded border ${formData.subjects.includes(sub.name) ? 'bg-indigo-600 border-indigo-600' : 'border-slate-300 dark:border-slate-600 group-hover:border-indigo-400'}`}>
+                                                                            {formData.subjects.includes(sub.name) && <CheckCircle className="h-4 w-4 text-white" />}
+                                                                        </div>
                                                                     <input
                                                                         type="checkbox"
                                                                         value={sub.name}
@@ -435,8 +503,9 @@ const JobWizard = () => {
                                                                         className="hidden"
                                                                     />
                                                                     <span className="text-slate-700 dark:text-slate-200 font-medium">{sub.name}</span>
-                                                                </label>
-                                                            ))}
+                                                                    </label>
+                                                                ));
+                                                            })()}
                                                         </div>
                                                     </motion.div>
                                                 )}
