@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle, XCircle, Eye, Loader2, X, Clock, MapPin, IndianRupee, BookOpen, User as UserIcon } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Eye, Loader2, X, Clock, MapPin, IndianRupee, BookOpen, User as UserIcon, Briefcase } from 'lucide-react';
 import { 
     Table, 
     TableBody, 
