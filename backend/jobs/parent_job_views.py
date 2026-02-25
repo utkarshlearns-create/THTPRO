@@ -44,7 +44,14 @@ class JobDetailView(generics.RetrieveAPIView):
     """Get details of a specific job."""
     serializer_class = JobPostSerializer
     permission_classes = [permissions.AllowAny]
-    queryset = JobPost.objects.filter(status='APPROVED')
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return JobPost.objects.filter(
+                Q(status='APPROVED') | Q(posted_by=user) | Q(parent=user)
+            )
+        return JobPost.objects.filter(status='APPROVED')
 
 
 class JobSearchFilterView(generics.ListAPIView):
