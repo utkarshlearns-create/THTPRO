@@ -17,7 +17,8 @@ import {
   Star,
   Zap,
   Unlock,
-  Home
+  Home,
+  TrendingUp
 } from 'lucide-react';
 import API_BASE_URL from '../config';
 import { clearAuthState } from '../utils/auth';
