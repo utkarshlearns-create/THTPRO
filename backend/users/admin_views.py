@@ -14,6 +14,14 @@ class IsSuperAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated and request.user.role == 'SUPERADMIN')
 
+
+class IsAdminOrSuperAdmin(permissions.BasePermission):
+    """
+    Allows access to both SUPERADMIN and ADMIN (Counsellors, Tutor Ops, etc.)
+    """
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated and request.user.role in ['ADMIN', 'SUPERADMIN'])
+
 class UserManagementView(generics.ListAPIView):
     """
     Superadmin: List all users with filtering and search.
