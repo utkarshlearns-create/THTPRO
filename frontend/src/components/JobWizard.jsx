@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 
 import API_BASE_URL from '../config';
 import { clearAuthState } from '../utils/auth';
@@ -209,7 +210,7 @@ const JobWizard = () => {
 
         if (!token) {
             localStorage.setItem('pendingJobPost', JSON.stringify(formData));
-            alert("Please Login to post a job opportunity!");
+            toast.error("Please Login to post a job opportunity!");
             router.push('/login?redirect=post-job');
             return;
         }
@@ -230,14 +231,14 @@ const JobWizard = () => {
             if (response.ok) {
                 localStorage.removeItem('pendingJobPost');
                 localStorage.removeItem('jobWizardDraft');
-                alert(`Success! ${data.message}\n\nYour job posting is being reviewed by our team. You'll be notified once it's approved.`);
+                toast.success(`Success! ${data.message}\nYour job posting is being reviewed by our team.`, { duration: 5000 });
                 if (role === 'TEACHER') {
                     router.push('/tutor-home');
                 } else {
                     router.push('/dashboard/parent');
                 }
             } else if (response.status === 401) {
-                alert("Your session has expired. Please login again.");
+                toast.error("Your session has expired. Please login again.");
                 clearAuthState();
                 router.push('/login');
             } else {
@@ -254,11 +255,11 @@ const JobWizard = () => {
                         errorMessage = messages.join('\n');
                     }
                 }
-                alert(errorMessage);
+                toast.error(errorMessage);
             }
         } catch (error) {
             console.error("Error posting job:", error);
-            alert("Network error. Please check your connection.");
+            toast.error("Network error. Please check your connection.");
         } finally {
             setLoading(false);
         }
@@ -266,7 +267,7 @@ const JobWizard = () => {
 
     const detectLocation = () => {
         if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser.");
+            toast.error("Geolocation is not supported by your browser.");
             return;
         }
 
@@ -303,14 +304,14 @@ const JobWizard = () => {
                                 return newData;
                             });
                         } else {
-                            alert("Could not determine specific locality from coordinates.");
+                            toast.error("Could not determine specific locality from coordinates.");
                         }
                     } else {
                         throw new Error("Failed to reverse geocode");
                     }
                 } catch (error) {
                     console.error("Error fetching location details:", error);
-                    alert("Failed to get location details. Please enter manually.");
+                    toast.error("Failed to get location details. Please enter manually.");
                 } finally {
                     setIsDetectingLocation(false);
                 }
@@ -319,7 +320,7 @@ const JobWizard = () => {
                 console.error("Geolocation error:", error);
                 let msg = "Failed to detect location.";
                 if (error.code === 1) msg = "Please allow location access to use this feature.";
-                alert(msg);
+                toast.error(msg);
                 setIsDetectingLocation(false);
             },
             { timeout: 10000 }
