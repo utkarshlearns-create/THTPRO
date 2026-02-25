@@ -10,7 +10,7 @@ from django.db.models import Q, Count
 from django.contrib.auth import get_user_model
 from .models import JobPost, Application
 from .serializers import JobPostSerializer
-from users.admin_views import IsSuperAdmin
+from users.admin_views import IsSuperAdmin, IsAdminOrSuperAdmin
 
 User = get_user_model()
 
@@ -27,7 +27,7 @@ class CRMJobListView(generics.ListAPIView):
     Supports filtering by status, date range, location, assigned admin.
     """
     serializer_class = JobPostSerializer
-    permission_classes = [IsSuperAdmin]
+    permission_classes = [IsAdminOrSuperAdmin]
     pagination_class = StandardPagination
 
     def get_queryset(self):
@@ -92,7 +92,7 @@ class CRMJobDetailView(generics.RetrieveAPIView):
     Superadmin CRM: Get full job details including applications.
     """
     serializer_class = JobPostSerializer
-    permission_classes = [IsSuperAdmin]
+    permission_classes = [IsAdminOrSuperAdmin]
     queryset = JobPost.objects.all()
 
     def retrieve(self, request, *args, **kwargs):
@@ -172,7 +172,7 @@ class CRMUpdateStatusView(APIView):
     """
     Superadmin CRM: Update job status.
     """
-    permission_classes = [IsSuperAdmin]
+    permission_classes = [IsAdminOrSuperAdmin]
 
     def patch(self, request, pk):
         try:

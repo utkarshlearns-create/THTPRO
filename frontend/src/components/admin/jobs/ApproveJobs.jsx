@@ -34,7 +34,7 @@ export default function ApproveJobs() {
             // Or maybe 'OPEN' jobs that are flagged?
             // Actually, typical workflow: Parent posts -> Admin approves -> OPEN.
             // So status might be 'PENDING'.
-            const response = await fetch(`${API_BASE_URL}/api/jobs/crm/jobs/?status=PENDING`, {
+            const response = await fetch(`${API_BASE_URL}/api/jobs/crm/jobs/?status=PENDING_APPROVAL`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
