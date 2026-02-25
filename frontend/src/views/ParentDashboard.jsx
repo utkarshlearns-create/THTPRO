@@ -139,7 +139,7 @@ const ParentDashboard = () => {
                 onMouseEnter={() => setSidebarHover(true)}
                 onMouseLeave={() => setSidebarHover(false)}
                 className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col fixed h-full z-50 shadow-sm
-                ${(sidebarOpen || sidebarHover) ? 'w-64 translate-x-0' : 'w-20 -translate-x-full lg:translate-x-0'}
+                ${(sidebarOpen || sidebarHover) ? 'w-64 translate-x-0' : 'w-64 -translate-x-full lg:w-20 lg:translate-x-0'}
             `}>
                 <div className="h-16 flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
                      {(sidebarOpen || sidebarHover) ? (

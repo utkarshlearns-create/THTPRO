@@ -27,7 +27,7 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
             "fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300 border-r",
             "bg-white border-slate-200 shadow-xl",
             "dark:bg-slate-900/80 dark:border-white/5 dark:shadow-none dark:backdrop-blur-xl",
-            showSidebar ? "w-64 translate-x-0" : "w-20 -translate-x-full lg:translate-x-0"
+            showSidebar ? "w-64 translate-x-0" : "w-64 -translate-x-full lg:w-20 lg:translate-x-0"
         )}>
             {/* Logo Area & Toggle */}
             <div className="h-20 flex items-center justify-between px-4 border-b border-slate-200 dark:border-white/5 relative">
