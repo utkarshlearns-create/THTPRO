@@ -27,11 +27,15 @@ from .admin_models import AdminTask, Notification
 class JobPostSerializer(serializers.ModelSerializer):
     posted_by_username = serializers.CharField(source='posted_by.username', read_only=True)
     assigned_admin_username = serializers.CharField(source='assigned_admin.username', read_only=True)
+    application_count = serializers.SerializerMethodField()
     
     class Meta:
         model = JobPost
         fields = '__all__'
         read_only_fields = ('posted_by', 'assigned_admin', 'created_at', 'updated_at')
+
+    def get_application_count(self, obj):
+        return obj.application_set.count()
 
 
 class TutorJobPostSerializer(serializers.ModelSerializer):
