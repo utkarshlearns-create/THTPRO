@@ -115,6 +115,30 @@ const JobWizard = () => {
         }
     }, [formData]);
 
+    // Auto-calculate dynamic pricing based on Class/Grade
+    useEffect(() => {
+        if (formData.class_grade) {
+            const classGrade = formData.class_grade.toLowerCase();
+            let budget = 'Negotiable based on requirements';
+            
+            if (classGrade.includes('nursery') || classGrade.includes('lkg') || classGrade.includes('ukg') || 
+                classGrade.includes('class 1') || classGrade.includes('class 2') || classGrade.includes('class 3') || 
+                classGrade.includes('class 4') || classGrade.includes('class 5')) {
+                budget = '₹3,500 - ₹5,000 / month (6 days a week)';
+            } else if (classGrade.includes('class 6') || classGrade.includes('class 7') || classGrade.includes('class 8')) {
+                budget = '₹4,500 - ₹5,000 / month (6 days a week)';
+            } else if (classGrade.includes('class 9') || classGrade.includes('class 10')) {
+                budget = '₹6,000 - ₹7,000 / month (6 days a week)';
+            } else if (classGrade.includes('class 11') || classGrade.includes('class 12')) {
+                budget = '₹7,000 - ₹9,000 / month (per subject, 3 days a week)';
+            } else if (classGrade.includes('jee') || classGrade.includes('neet')) {
+                budget = '₹8,000 - ₹10,000 / month (per subject, 3 days a week)';
+            }
+
+            setFormData(prev => ({ ...prev, budget_range: budget, hourly_rate: '' }));
+        }
+    }, [formData.class_grade]);
+
     // Fetch master data on mount
     useEffect(() => {
         const fetchMasterData = async () => {
@@ -133,7 +157,7 @@ const JobWizard = () => {
                     const token = localStorage.getItem('access');
                     if (token) {
                         try {
-                            const profileRes = await fetch(`${API_BASE_URL}/api/users/profile/`, {
+                            const profileRes = await fetch(`${API_BASE_URL}/api/users/me/`, {
                                 headers: { 'Authorization': `Bearer ${token}` }
                             });
                             if (profileRes.ok) {
@@ -596,28 +620,19 @@ const JobWizard = () => {
                         {/* STEP 3: Rate & Requirements */}
                         {step === 3 && (
                              <div className="space-y-8">
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-4">
-                                        <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Hourly Rate (₹)</Label>
-                                        <Input 
-                                            name="hourly_rate" 
-                                            type="number"
-                                            value={formData.hourly_rate} 
-                                            onChange={handleInputChange} 
-                                            placeholder="e.g. 500" 
-                                            className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700" 
-                                        />
-                                    </div>
-                                    <div className="space-y-4">
-                                        <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Budget Range (Optional)</Label>
-                                        <Input 
-                                            name="budget_range" 
-                                            value={formData.budget_range} 
-                                            onChange={handleInputChange} 
-                                            placeholder="e.g. ₹3000 - ₹5000/month" 
-                                            className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700" 
-                                        />
-                                    </div>
+                                <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-5 border border-indigo-100 dark:border-indigo-800 flex items-start gap-4">
+                                     <div className="h-10 w-10 shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-300 mt-0.5">
+                                         <Banknote className="h-5 w-5" />
+                                     </div>
+                                     <div>
+                                         <h4 className="font-semibold text-slate-900 dark:text-white text-base">Estimated Pricing Guide</h4>
+                                         <p className="text-indigo-700 dark:text-indigo-300 font-bold mt-1 text-lg">
+                                             {formData.budget_range || 'Select a class to see pricing'}
+                                         </p>
+                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                                             This is an approximate industry standard rate. Final fee may vary slightly based on tutor's experience and specific location.
+                                         </p>
+                                     </div>
                                 </div>
 
                                 <div className="space-y-4">

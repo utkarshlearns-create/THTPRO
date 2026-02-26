@@ -26,6 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
 import ThemeToggle from '../components/ui/ThemeToggle';
+import ParentOnboardingPopup from '../components/ParentOnboardingPopup';
 
 // Skeleton component for loading states
 const Skeleton = ({ className }) => (
@@ -51,6 +52,7 @@ const ParentDashboard = () => {
     });
     const [latestJob, setLatestJob] = useState(null);
     const [wallet, setWallet] = useState(null);
+    const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const [error, setError] = useState(null);
@@ -74,10 +76,11 @@ const ParentDashboard = () => {
             }
             const headers = { 'Authorization': `Bearer ${token}` };
 
-            const [statsRes, jobsRes, walletRes] = await Promise.all([
+            const [statsRes, jobsRes, walletRes, profileRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/api/jobs/stats/parent/`, { headers }),
                 fetch(`${API_BASE_URL}/api/jobs/`, { headers }),
-                fetch(`${API_BASE_URL}/api/wallet/me/`, { headers })
+                fetch(`${API_BASE_URL}/api/wallet/me/`, { headers }),
+                fetch(`${API_BASE_URL}/api/users/me/`, { headers })
             ]);
 
             if (statsRes.ok) {
@@ -111,6 +114,10 @@ const ParentDashboard = () => {
                  console.error("Dashboard Wallet Error:", walletRes.status, walletRes.statusText);
             }
 
+            if (profileRes.ok) {
+                setUserProfile(await profileRes.json());
+            }
+
         } catch (error) {
             console.error("Error fetching dashboard data:", error);
             setError(`Network Error: ${error.message}`);
@@ -126,6 +133,8 @@ const ParentDashboard = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex font-sans text-slate-900 dark:text-slate-100">
+            <ParentOnboardingPopup userProfile={userProfile} onComplete={(updatedProfile) => setUserProfile(updatedProfile)} />
+            
             {/* Mobile Backdrop Overlay */}
             {sidebarOpen && (
                 <div 
@@ -647,19 +656,30 @@ const JobsList = () => {
                     </div>
 
                     <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                        <div className="flex -space-x-2">
-                            {[1, 2, 3].map((i) => (
-                                <div key={i} className="h-8 w-8 rounded-full border-2 border-white dark:border-slate-700 bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-500 dark:text-slate-300">
-                                    ?
+                        <div className="flex items-center gap-2">
+                            <div className="flex -space-x-2">
+                                <div className="h-8 w-8 rounded-full border-2 border-white dark:border-slate-700 bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-300">
+                                    {job.application_count || 0}
                                 </div>
-                            ))}
+                            </div>
+                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                {job.application_count === 1 ? 'Applicant' : 'Applicants'}
+                            </span>
                         </div>
-                        <button 
-                            onClick={() => router.push(`/jobs/${job.id}`)}
-                            className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 group/btn"
-                        >
-                            View Details <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
-                        </button>
+                        <div className="flex items-center gap-4">
+                            <button 
+                                onClick={() => router.push(`/tutors?subject=${encodeURIComponent(job.subjects?.[0] || '')}&location=${encodeURIComponent(job.locality || '')}`)}
+                                className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                            >
+                                Find Matches
+                            </button>
+                            <button 
+                                onClick={() => router.push(`/jobs/${job.id}`)}
+                                className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 group/btn"
+                            >
+                                View Details <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             ))}
