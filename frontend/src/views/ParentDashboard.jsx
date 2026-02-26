@@ -571,7 +571,7 @@ const JobsList = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setJobs(Array.isArray(data) ? data : []);
+                setJobs(Array.isArray(data) ? data : data.results || []);
             } else {
                 setJobs([]);
             }
