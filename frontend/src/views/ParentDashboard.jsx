@@ -558,6 +558,7 @@ export default ParentDashboard;
 const JobsList = () => {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         fetchJobs();
@@ -653,7 +654,10 @@ const JobsList = () => {
                                 </div>
                             ))}
                         </div>
-                        <button className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 group/btn">
+                        <button 
+                            onClick={() => router.push(`/jobs/${job.id}`)}
+                            className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 group/btn"
+                        >
                             View Details <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
                         </button>
                     </div>
