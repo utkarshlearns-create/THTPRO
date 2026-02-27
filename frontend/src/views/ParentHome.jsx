@@ -13,7 +13,8 @@ import {
   LayoutGrid,
   Search,
   CheckCircle,
-  Bell
+  Bell,
+  Clock
 } from 'lucide-react';
 import JobWizard from '../components/JobWizard';
 import API_BASE_URL from '../config';
