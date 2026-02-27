@@ -65,7 +65,7 @@ class AdminJobListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+        if self.request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR', 'TUTOR_ADMIN']:
             return JobPost.objects.none()
             
         status_param = self.request.query_params.get('status')
