@@ -54,26 +54,58 @@ export default function ApproveJobs() {
         fetchPendingJobs();
     }, []);
 
-    const handleAction = async (jobId, action) => {
+    const [rejectJobId, setRejectJobId] = useState(null);
+    const [rejectionReason, setRejectionReason] = useState('');
+
+    const handleApprove = async (jobId) => {
         try {
             const token = localStorage.getItem('access');
-            const response = await fetch(`${API_BASE_URL}/api/jobs/crm/jobs/${jobId}/status/`, {
-                method: 'PATCH',
+            const response = await fetch(`${API_BASE_URL}/api/jobs/admin/${jobId}/approve/`, {
+                method: 'PUT',
+                headers: { 
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                toast.success('Job approved successfully');
+                fetchPendingJobs();
+            } else {
+                toast.error("Failed to approve job");
+            }
+        } catch (error) {
+            console.error("Error approving job:", error);
+            toast.error("Server error");
+        }
+    };
+
+    const handleReject = async () => {
+        if (!rejectionReason.trim()) {
+            toast.error("Please provide a rejection reason");
+            return;
+        }
+        
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/admin/${rejectJobId}/reject/`, {
+                method: 'PUT',
                 headers: { 
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ status: action === 'approve' ? 'APPROVED' : 'REJECTED' }) 
+                body: JSON.stringify({ reason: rejectionReason }) 
             });
 
             if (response.ok) {
-                toast.success(`Job ${action}d successfully`);
-                fetchPendingJobs(); // Refresh
+                toast.success('Job rejected successfully');
+                setRejectJobId(null);
+                setRejectionReason('');
+                fetchPendingJobs();
             } else {
-                toast.error("Action failed");
+                toast.error("Failed to reject job");
             }
         } catch (error) {
-            console.error("Error updating job:", error);
+            console.error("Error rejecting job:", error);
             toast.error("Server error");
         }
     };
@@ -161,7 +193,7 @@ export default function ApproveJobs() {
                                                 size="sm" 
                                                 className="h-8 w-8 p-0 bg-green-600 hover:bg-green-700 text-white" 
                                                 title="Approve"
-                                                onClick={() => handleAction(job.id, 'approve')}
+                                                onClick={() => handleApprove(job.id)}
                                             >
                                                 <CheckCircle size={14} />
                                             </Button>
@@ -169,7 +201,7 @@ export default function ApproveJobs() {
                                                 size="sm" 
                                                 className="h-8 w-8 p-0 bg-red-600 hover:bg-red-700 text-white" 
                                                 title="Reject"
-                                                onClick={() => handleAction(job.id, 'reject')}
+                                                onClick={() => setRejectJobId(job.id)}
                                             >
                                                 <XCircle size={14} />
                                             </Button>
@@ -294,7 +326,7 @@ export default function ApproveJobs() {
                                 variant="outline" 
                                 className="border-red-200 hover:bg-red-50 hover:text-red-700 dark:border-red-900/30 dark:hover:bg-red-900/20 dark:hover:text-red-400"
                                 onClick={() => {
-                                    handleAction(selectedJob.id, 'reject');
+                                    setRejectJobId(selectedJob.id);
                                     setSelectedJob(null);
                                 }}
                             >
@@ -304,13 +336,48 @@ export default function ApproveJobs() {
                             <Button 
                                 className="bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/20"
                                 onClick={() => {
-                                    handleAction(selectedJob.id, 'approve');
+                                    handleApprove(selectedJob.id);
                                     setSelectedJob(null);
                                 }}
                             >
                                 <CheckCircle size={16} className="mr-2" />
                                 Approve Job
                             </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Reject Modal */}
+            {rejectJobId && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <div className="p-6">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Reject Job Posting</h3>
+                            <p className="text-sm text-slate-500 mb-4">Please provide a reason for rejecting this job. This will be visible to the parent.</p>
+                            <textarea
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                placeholder="E.g., Budget is too low for this grade level..."
+                                className="w-full min-h-[100px] p-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none dark:text-white"
+                            />
+                            <div className="flex justify-end gap-3 mt-6">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setRejectJobId(null);
+                                        setRejectionReason('');
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                    onClick={handleReject}
+                                >
+                                    Confirm Rejection
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>

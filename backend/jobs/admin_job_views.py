@@ -59,6 +59,25 @@ class AdminPendingJobsView(generics.ListAPIView):
             status='PENDING_APPROVAL',
         ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
 
+class AdminJobListView(generics.ListAPIView):
+    """Admin views jobs strictly filtered by an optional status parameter."""
+    serializer_class = JobPostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+            return JobPost.objects.none()
+            
+        status_param = self.request.query_params.get('status')
+        queryset = JobPost.objects.all().select_related('posted_by', 'assigned_admin').order_by('-created_at')
+        
+        if status_param:
+            queryset = queryset.filter(status=status_param.upper())
+            
+        # Optional: Admins and Counsellors might only see specific jobs, but the prompt says they want an Approved/Rejected jobs list.
+        # usually all approved/rejected jobs are visible.
+        return queryset
+
 
 class AdminInstitutionJobListView(generics.ListAPIView):
     """List all pending jobs posted by Institutions for Admin approval."""
@@ -180,7 +199,7 @@ class AdminAssignTutorView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN']:
+        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
             return Response({"error": "Admin access required"}, status=403)
 
         job_post = get_object_or_404(JobPost, pk=pk)
