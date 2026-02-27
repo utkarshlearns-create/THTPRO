@@ -223,8 +223,8 @@ const ParentDashboard = () => {
                     {activeTab === 'overview' && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div>
-                                <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Dashboard Overview</h1>
-                                <p className="text-slate-500 dark:text-slate-400 mt-2">Welcome back! Here's an overview of your tuition activities.</p>
+                                <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Welcome back, {userProfile?.first_name || 'Parent'}!</h1>
+                                <p className="text-slate-500 dark:text-slate-400 mt-2">Here's an overview of your tuition activities.</p>
                                 {error && (
                                     <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300">
                                         <strong>Error:</strong> {error}
