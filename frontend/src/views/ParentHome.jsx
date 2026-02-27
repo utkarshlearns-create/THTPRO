@@ -99,10 +99,10 @@ const ParentHome = () => {
       <section className="relative pt-24 pb-32 overflow-hidden bg-slate-900">
         {/* Background Image with Overlay */}
         <div 
-            className="absolute inset-0 z-0 bg-cover bg-center opacity-40 mix-blend-overlay"
+            className="absolute inset-0 z-0 bg-cover bg-center opacity-15"
             style={{ backgroundImage: `url('/parent-home-hero.png')` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950/90 to-slate-900 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950/95 to-slate-900 z-0" />
         
         {/* Decorative Elements */}
         <div className="absolute top-20 right-[10%] w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl z-0 animate-pulse" />
@@ -153,7 +153,7 @@ const ParentHome = () => {
                                 View History
                             </Link>
                         </div>
-                        <div className="max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
                            <ActivityFeed activities={stats?.recent_activities} />
                         </div>
                     </div>
@@ -164,7 +164,7 @@ const ParentHome = () => {
 
       {/* Overlapping Stats Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20 mb-20 text-slate-100">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <StatCard 
                   title="Active Jobs" 
                   value={stats?.stats?.active_jobs || 0} 
@@ -181,19 +181,6 @@ const ParentHome = () => {
                   description="Interested tutors"
                   className="bg-white dark:bg-slate-900 shadow-2xl rounded-[1.5rem] border-0 text-slate-900 dark:text-white"
               />
-              {/* Profile Strength Card */}
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-[1.5rem] shadow-2xl flex flex-col justify-between border-0 text-slate-900 dark:text-white">
-                  <div className="flex items-center justify-between mb-2">
-                       <h3 className="text-slate-500 dark:text-slate-400 font-semibold text-sm">Profile Strength</h3>
-                       <span className="text-indigo-600 dark:text-indigo-400 font-bold">85%</span>
-                  </div>
-                  <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-4">
-                      <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: '85%' }} />
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                      <CheckCircle size={14} className="text-emerald-500" /> Complete KYC to reach 100%
-                  </div>
-              </div>
           </div>
       </div>
 

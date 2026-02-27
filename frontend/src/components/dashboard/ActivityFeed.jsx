@@ -76,7 +76,7 @@ const ActivityFeed = ({ activities = [] }) => {
               ) : null}
               <div className="relative flex space-x-3">
                 <div>
-                  <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white dark:ring-slate-900 ${getColorClass(activity.type)}`}>
+                  <span className={`h-8 w-8 rounded-full flex items-center justify-center ring-4 ring-white dark:ring-slate-900 ${getColorClass(activity.type)}`}>
                     {getIcon(activity.type, activity.icon)}
                   </span>
                 </div>
