@@ -15,7 +15,8 @@ import {
     FlaskConical,
     Loader2,
     ChevronDown,
-    Navigation
+    Navigation,
+    Banknote
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
