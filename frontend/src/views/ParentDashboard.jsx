@@ -16,9 +16,9 @@ import {
   Clock,
   Star,
   Zap,
-  Unlock,
   Home,
-  TrendingUp
+  TrendingUp,
+  X
 } from 'lucide-react';
 import API_BASE_URL from '../config';
 import { clearAuthState } from '../utils/auth';
@@ -781,9 +781,18 @@ const JobsList = () => {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {jobs.map((job) => (
                 <div key={job.id} className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-                    {/* Status Badge */}
-                    <div className="absolute top-4 right-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase
+                    {/* Status Badge & Actions */}
+                    <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+                        {['OPEN', 'APPROVED', 'ACTIVE'].includes(job.status) && (
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); handleCloseJob(job.id); }}
+                                className="text-[11px] font-bold px-2 py-1 rounded-full text-rose-500 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:border-rose-200 dark:hover:border-rose-800 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors shadow-sm flex items-center gap-1"
+                                title="Close Job Requirement"
+                            >
+                                <X size={12} strokeWidth={3} /> Close
+                            </button>
+                        )}
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase shadow-sm
                             ${['OPEN', 'APPROVED', 'ACTIVE'].includes(job.status) ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700'}
                         `}>
                             {['APPROVED', 'ACTIVE'].includes(job.status) ? 'OPEN' : job.status.replace('_', ' ')}
@@ -836,25 +845,16 @@ const JobsList = () => {
                                 {job.application_count === 1 ? 'Applicant' : 'Applicants'}
                             </span>
                         </div>
-                        <div className="flex items-center gap-3">
-                            {['OPEN', 'APPROVED', 'ACTIVE'].includes(job.status) && (
-                                <button 
-                                    onClick={() => handleCloseJob(job.id)}
-                                    className="text-xs font-bold px-2 py-1.5 rounded-lg text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors"
-                                    title="Close Job Requirement"
-                                >
-                                    Close Job
-                                </button>
-                            )}
+                        <div className="flex items-center gap-4">
                             <button 
-                                onClick={() => router.push(`/tutors?subject=${encodeURIComponent(job.subjects?.[0] || '')}&location=${encodeURIComponent(job.locality || '')}`)}
-                                className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors hidden sm:block"
+                                onClick={(e) => { e.stopPropagation(); router.push(`/tutors?subject=${encodeURIComponent(job.subjects?.[0] || '')}&location=${encodeURIComponent(job.locality || '')}`); }}
+                                className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                             >
                                 Find Matches
                             </button>
                             <button 
-                                onClick={() => setSelectedJob(job)}
-                                className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 group/btn"
+                                onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}
+                                className="text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 px-4 py-2 rounded-xl transition-all shadow-sm shadow-indigo-200 dark:shadow-indigo-900/20 hover:shadow-md flex items-center gap-1.5 group/btn"
                             >
                                 View Applicants <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
                             </button>
