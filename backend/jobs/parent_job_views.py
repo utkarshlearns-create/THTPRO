@@ -344,3 +344,25 @@ class TutorAttendanceView(generics.ListCreateAPIView):
             raise permissions.PermissionDenied("Only parents can mark attendance")
         serializer.save(marked_by=self.request.user)
 
+
+class ParentCloseJobView(APIView):
+    """Parent closes an active job posting."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        if request.user.role != 'PARENT':
+            return Response({"error": "Only parents can perform this action"}, status=status.HTTP_403_FORBIDDEN)
+            
+        job = get_object_or_404(JobPost, pk=pk)
+        
+        # Ensure the user owns the job
+        if job.posted_by != request.user and job.parent != request.user:
+            return Response({"error": "You do not have permission to close this job."}, status=status.HTTP_403_FORBIDDEN)
+            
+        if job.status == 'CLOSED':
+            return Response({"message": "Job is already closed."}, status=status.HTTP_200_OK)
+            
+        job.status = 'CLOSED'
+        job.save()
+        
+        return Response({"message": "Job successfully closed.", "status": job.status}, status=status.HTTP_200_OK)
