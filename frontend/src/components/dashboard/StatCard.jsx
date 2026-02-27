@@ -11,7 +11,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendLabel, color = "indigo
   };
 
   return (
-    <div className={`bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 transition-all hover:shadow-md ${className}`}>
+    <div className={`transition-all hover:shadow-md ${!className.includes('bg-') ? 'bg-white dark:bg-slate-900 shadow-sm' : ''} ${!className.includes('rounded-') ? 'rounded-xl' : ''} ${!className.includes('p-') ? 'p-6' : ''} ${!className.includes('border') ? 'border border-slate-100 dark:border-slate-800' : ''} ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</h3>
         <div className={`p-2 rounded-lg ${colorClasses[color] || colorClasses.indigo}`}>
