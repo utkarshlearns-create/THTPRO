@@ -751,9 +751,9 @@ const JobsList = () => {
                     {/* Status Badge */}
                     <div className="absolute top-4 right-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase
-                            ${job.status === 'OPEN' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700'}
+                            ${['OPEN', 'APPROVED', 'ACTIVE'].includes(job.status) ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700'}
                         `}>
-                            {job.status}
+                            {job.status.replace('_', ' ')}
                         </span>
                     </div>
 
