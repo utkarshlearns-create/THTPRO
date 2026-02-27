@@ -154,7 +154,7 @@ const ParentHome = () => {
                                 View History
                             </Link>
                         </div>
-                        <div className="max-h-[420px] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
+                        <div className="max-h-[420px] overflow-y-auto overflow-x-hidden p-4 pb-8 custom-scrollbar">
                            <ActivityFeed activities={stats?.recent_activities} />
                         </div>
                     </div>

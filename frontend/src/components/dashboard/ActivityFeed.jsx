@@ -67,7 +67,7 @@ const ActivityFeed = ({ activities = [] }) => {
 
   return (
     <div className="flow-root">
-      <ul className="-mb-8">
+      <ul className="">
         {activities.map((activity, activityIdx) => (
           <li key={activityIdx}>
             <div className="relative pb-8">
