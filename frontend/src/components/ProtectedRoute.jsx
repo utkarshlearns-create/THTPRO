@@ -22,7 +22,7 @@ export default function ProtectedRoute({ allowedRoles, children, loginPath = "/l
             if (!allowedRoles.includes(userRole) && !allowedRoles.includes(userRole?.toUpperCase())) {
                 // Role mismatch - redirect based on their actual role
                 if (userRole === 'TEACHER') router.replace('/tutor-home');
-                else if (userRole === 'ADMIN') router.replace('/dashboard/admin');
+                else if (['COUNSELLOR', 'TUTOR_ADMIN'].includes(userRole)) router.replace('/dashboard/admin');
                 else if (userRole === 'SUPERADMIN') router.replace('/superadmin');
                 else router.replace('/parent-home');
             }

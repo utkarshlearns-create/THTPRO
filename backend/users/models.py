@@ -5,7 +5,8 @@ class User(AbstractUser):
     class Role(models.TextChoices):
         PARENT = 'PARENT', 'Parent'
         TEACHER = 'TEACHER', 'Teacher'
-        ADMIN = 'ADMIN', 'Admin'
+        COUNSELLOR = 'COUNSELLOR', 'Counsellor'
+        TUTOR_ADMIN = 'TUTOR_ADMIN', 'Tutor Admin'
         SUPERADMIN = 'SUPERADMIN', 'Super Admin'
         INSTITUTION = 'INSTITUTION', 'Institution'
 

@@ -149,24 +149,11 @@ const EditUserModal = ({ user, onClose, onSuccess }) => {
                                     >
                                         <option value="PARENT">Parent</option>
                                         <option value="TEACHER">Tutor</option>
-                                        <option value="ADMIN">Admin</option>
+                                        <option value="COUNSELLOR">Counsellor</option>
+                                        <option value="TUTOR_ADMIN">Tutor Admin</option>
                                     </select>
                                 </div>
                             </div>
-                            {formData.role === 'ADMIN' && (
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Department</label>
-                                    <select
-                                        name="department"
-                                        value={formData.department}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border-none focus:ring-2 focus:ring-brand-gold/50 text-sm"
-                                    >
-                                        <option value="COUNSELLOR">Counsellor</option>
-                                        <option value="TUTOR_OPS">Tutor Operations</option>
-                                    </select>
-                                </div>
-                            )}
                         </div>
 
                         <div className="pt-4 flex gap-3">

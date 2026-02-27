@@ -146,7 +146,7 @@ class CRMAssignAdminView(APIView):
             admin_id = request.data.get('admin_id')
             
             if admin_id:
-                admin = User.objects.get(pk=admin_id, role='ADMIN')
+                admin = User.objects.get(pk=admin_id, role__in=['COUNSELLOR', 'TUTOR_ADMIN'])
                 job.assigned_admin = admin
                 job.save()
                 return Response({
@@ -213,7 +213,7 @@ class CRMAdminListView(APIView):
     permission_classes = [IsSuperAdmin]
 
     def get(self, request):
-        admins = User.objects.filter(role='ADMIN', is_active=True)
+        admins = User.objects.filter(role__in=['COUNSELLOR', 'TUTOR_ADMIN'], is_active=True)
         return Response([
             {
                 'id': admin.id,

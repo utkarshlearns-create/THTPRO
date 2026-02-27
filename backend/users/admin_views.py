@@ -20,7 +20,7 @@ class IsAdminOrSuperAdmin(permissions.BasePermission):
     Allows access to both SUPERADMIN and ADMIN (Counsellors, Tutor Ops, etc.)
     """
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.role in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR'])
+        return bool(request.user and request.user.is_authenticated and request.user.role in ['COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN'])
 
 class UserManagementView(generics.ListAPIView):
     """
@@ -159,7 +159,8 @@ class SuperAdminAnalyticsView(APIView):
         # User counts
         total_parents = User.objects.filter(role='PARENT').count()
         total_tutors = User.objects.filter(role='TUTOR').count()
-        total_admins = User.objects.filter(role='ADMIN').count()
+        total_admins = User.objects.filter(role__in=['COUNSELLOR', 'TUTOR_ADMIN']).count()
+        total_institutions = User.objects.filter(role='INSTITUTION').count()
         
         # KYC stats
         pending_kyc = TutorKYC.objects.filter(status='SUBMITTED').count()
@@ -268,8 +269,8 @@ class AdminPerformanceView(APIView):
 
         department = request.query_params.get('department')  # COUNSELLOR or TUTOR_OPS
         
-        # Get admins by department through AdminProfile relationship
-        admins_query = User.objects.filter(role='ADMIN', is_active=True).select_related('admin_profile')
+        # Fetch all admin staff (counsellors and tutor admins)
+        admins_query = User.objects.filter(role__in=['COUNSELLOR', 'TUTOR_ADMIN'], is_active=True).select_related('admin_profile')
         if department:
             admins_query = admins_query.filter(admin_profile__department=department)
         

@@ -29,7 +29,7 @@ def assign_job_to_admin(job_post):
     if not admin_profiles.exists():
         # Fallback to any active admin if no specific ops are available
         logger.warning("No COUNSELLOR admins available. Falling back to any admin.")
-        admins = User.objects.filter(role='ADMIN', is_active=True)
+        admins = User.objects.filter(role__in=['COUNSELLOR', 'TUTOR_ADMIN'], is_active=True)
         if not admins.exists():
             logger.error("No active admins available for job assignment")
             raise Exception("No active admins available")
