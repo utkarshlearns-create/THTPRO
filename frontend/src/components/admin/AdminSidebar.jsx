@@ -34,8 +34,8 @@ const MENU_ITEMS = [
         icon: Briefcase,
         id: 'jobs',
         subItems: [
-            { label: 'Final Leads List', id: 'jobs-final-leads' },
-            { label: 'Close Leads List', id: 'jobs-close-leads' },
+            { label: 'Approved Jobs', id: 'jobs-approved-list' },
+            { label: 'Rejected Jobs', id: 'jobs-rejected-list' },
             { label: 'Add New Jobs', id: 'jobs-add-new' },
             { label: 'Approve Jobs', id: 'jobs-approve' },
         ]
@@ -205,7 +205,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
         // Specific section handling mapping roles to dashboard features
         if (mode === 'COUNSELLOR') {
             if (item.header === 'TUTOR MANAGEMENT') return false;
-            if (['approve-tutor', 'select-tutor', 'tutor-package'].includes(item.id)) return false;
+            if (['approve-tutor', 'select-tutor', 'tutor-package', 'parent-package'].includes(item.id)) return false;
             return true;
         }
         

@@ -2,10 +2,9 @@
 import React, { useState } from 'react';
 import AdminLayout from '../components/admin/AdminLayout';
 import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
-import FinalLeadsList from '../components/admin/jobs/FinalLeadsList';
-import CloseLeadsList from '../components/admin/jobs/CloseLeadsList';
 import AddNewJob from '../components/admin/jobs/AddNewJob';
 import ApproveJobs from '../components/admin/jobs/ApproveJobs';
+import AdminJobList from '../components/admin/jobs/AdminJobList';
 import NotificationMaster from '../components/admin/notifications/NotificationMaster';
 import ParentPackageMaster from '../components/admin/packages/ParentPackageMaster';
 import TutorPackageMaster from '../components/admin/packages/TutorPackageMaster';
@@ -28,7 +27,7 @@ const PlaceholderView = ({ title, description }) => (
 const AdminDashboard = ({ mode }) => { // Accept mode prop
     // Determine default view based on mode
     const getDefaultView = () => {
-        if (mode === 'counsellor') return 'jobs-final-leads';
+        if (mode === 'counsellor') return 'jobs-approved-list';
         if (mode === 'tutor') return 'approve-tutor-list';
         return 'home';
     }
@@ -40,8 +39,8 @@ const AdminDashboard = ({ mode }) => { // Accept mode prop
         if (activeView === 'home') return <AnalyticsDashboard />;
 
         // Post Jobs
-        if (activeView === 'jobs-final-leads') return <FinalLeadsList />;
-        if (activeView === 'jobs-close-leads') return <CloseLeadsList />;
+        if (activeView === 'jobs-approved-list') return <AdminJobList status="APPROVED" title="Approved Jobs" />;
+        if (activeView === 'jobs-rejected-list') return <AdminJobList status="REJECTED" title="Rejected Jobs" />;
         if (activeView === 'jobs-add-new') return <AddNewJob />;
         if (activeView === 'jobs-approve') return <ApproveJobs />;
 

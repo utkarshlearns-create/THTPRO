@@ -19,6 +19,7 @@ from .admin_job_views import (
     AdminRequestModificationsView,
     AdminAssignTutorView,
     AdminInstitutionJobListView,
+    AdminJobListView,
 )
 
 # Parent endpoints
@@ -79,6 +80,7 @@ urlpatterns = [
     path('admin/<int:pk>/request-modifications/', AdminRequestModificationsView.as_view(), name='admin-request-modifications'),
     path('admin/<int:pk>/assign-tutor/', AdminAssignTutorView.as_view(), name='admin-assign-tutor'),
     path('admin/institution-pending/', AdminInstitutionJobListView.as_view(), name='admin-institution-pending-jobs'),
+    path('admin/all/', AdminJobListView.as_view(), name='admin-all-jobs'),
 
     # Parent endpoints
     path('parent/approved/', ParentJobListView.as_view(), name='parent-approved-jobs'),
