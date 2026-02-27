@@ -172,7 +172,7 @@ const ParentHome = () => {
                   icon={Briefcase} 
                   color="indigo"
                   description="Currently hiring for"
-                  className="bg-white dark:bg-slate-900 shadow-2xl rounded-[1.5rem] border-2 border-indigo-500/20 text-slate-900 dark:text-white"
+                  className="bg-white dark:bg-slate-900 shadow-2xl rounded-[1.5rem] border-[3px] border-indigo-500/40 text-slate-900 dark:text-white"
               />
               <StatCard 
                   title="Applications" 
@@ -180,7 +180,7 @@ const ParentHome = () => {
                   icon={Users} 
                   color="emerald"
                   description="Interested tutors"
-                  className="bg-white dark:bg-slate-900 shadow-2xl rounded-[1.5rem] border-2 border-emerald-500/20 text-slate-900 dark:text-white"
+                  className="bg-white dark:bg-slate-900 shadow-2xl rounded-[1.5rem] border-[3px] border-emerald-500/40 text-slate-900 dark:text-white"
               />
           </div>
       </div>
