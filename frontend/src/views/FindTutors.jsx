@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, MapPin, BookOpen, GraduationCap, Monitor, Star, Clock, IndianRupee, Globe } from 'lucide-react';
+import { Search, Filter, MapPin, BookOpen, GraduationCap, Monitor, Star, Clock, IndianRupee, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import API_BASE_URL from '../config';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,8 @@ const FindTutors = () => {
         locality: '',
         mode: ''
     });
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const LOCATION_DATA = {
         "Uttar Pradesh": {
@@ -64,6 +66,7 @@ const FindTutors = () => {
                 Object.entries(filters).forEach(([key, value]) => {
                     if (value) queryParams.append(key, value);
                 });
+                queryParams.append('page', currentPage);
 
                 const response = await fetch(`${API_BASE_URL}/api/users/tutors/search/?${queryParams.toString()}`, {
                     headers: headers,
@@ -76,10 +79,13 @@ const FindTutors = () => {
                     // Handle pagination (Django Rest Framework returns { results: [], count: ... })
                     if (data.results && Array.isArray(data.results)) {
                         setTutors(data.results);
+                        setTotalPages(Math.ceil((data.count || 0) / 20)); // PAGE_SIZE is 20
                     } else if (Array.isArray(data)) {
                         setTutors(data);
+                        setTotalPages(1);
                     } else {
                         setTutors([]); // Fallback
+                        setTotalPages(1);
                     }
                 } else if (response.status === 401) {
                     // Unauthorized
@@ -98,11 +104,19 @@ const FindTutors = () => {
         }, 500); // 500ms debounce
 
         return () => clearTimeout(timer);
-    }, [filters]);
+    }, [filters, currentPage]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters(prev => ({ ...prev, [name]: value }));
+        setCurrentPage(1); // Reset to page 1 on filter change
+    };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     };
 
     return (
@@ -312,10 +326,67 @@ const FindTutors = () => {
                                 ))}
                             </div>
                         ) : tutors.length > 0 ? (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {tutors.map(tutor => (
-                                    <TutorCard key={tutor.id} tutor={tutor} />
-                                ))}
+                            <div className="space-y-8">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    {tutors.map(tutor => (
+                                        <TutorCard key={tutor.id} tutor={tutor} />
+                                    ))}
+                                </div>
+                                
+                                {/* Pagination Controls */}
+                                {totalPages > 1 && (
+                                    <div className="flex items-center justify-center gap-2 mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                            aria-label="Previous Page"
+                                        >
+                                            <ChevronLeft className="h-5 w-5" />
+                                        </button>
+                                        
+                                        <div className="flex items-center gap-1">
+                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                                // Simplified pagination: show limited pages if too many
+                                                if (
+                                                    totalPages > 7 && 
+                                                    page !== 1 && 
+                                                    page !== totalPages && 
+                                                    Math.abs(page - currentPage) > 1
+                                                ) {
+                                                    // Show ellipsis only once for skipped sections
+                                                    if (page === currentPage - 2 || page === currentPage + 2) {
+                                                        return <span key={page} className="px-2 text-slate-400">...</span>;
+                                                    }
+                                                    return null;
+                                                }
+                                                
+                                                return (
+                                                    <button
+                                                        key={page}
+                                                        onClick={() => handlePageChange(page)}
+                                                        className={`w-10 h-10 rounded-lg text-sm font-semibold transition-colors ${
+                                                            currentPage === page
+                                                                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
+                                                                : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                                        }`}
+                                                    >
+                                                        {page}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                            aria-label="Next Page"
+                                        >
+                                            <ChevronRight className="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="text-center py-24 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">

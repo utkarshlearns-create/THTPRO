@@ -81,9 +81,10 @@ class MyJobPostsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        from django.db.models import Q
         return JobPost.objects.filter(
-            posted_by=self.request.user
-        ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
+            Q(posted_by=self.request.user) | Q(parent=self.request.user)
+        ).select_related('posted_by', 'parent', 'assigned_admin').order_by('-created_at')
 
 
 class TutorApplicationsView(APIView):
