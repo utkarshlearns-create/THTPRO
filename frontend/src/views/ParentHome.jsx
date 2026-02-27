@@ -145,7 +145,7 @@ const ParentHome = () => {
             <section>
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Your Job Postings</h2>
-                    <Link href="/parent/approved" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1">
+                    <Link href="/dashboard/parent?tab=jobs_posted" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1">
                         View All <ChevronRight size={18} />
                     </Link>
                 </div>
