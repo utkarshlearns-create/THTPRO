@@ -20,7 +20,7 @@ class IsAdminOrSuperAdmin(permissions.BasePermission):
     Allows access to both SUPERADMIN and ADMIN (Counsellors, Tutor Ops, etc.)
     """
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.role in ['ADMIN', 'SUPERADMIN'])
+        return bool(request.user and request.user.is_authenticated and request.user.role in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR'])
 
 class UserManagementView(generics.ListAPIView):
     """
