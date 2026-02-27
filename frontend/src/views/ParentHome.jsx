@@ -107,7 +107,7 @@ const ParentHome = () => {
                     </div>
 
                     {/* Quick Stats Row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                         <StatCard 
                             title="Active Jobs" 
                             value={stats?.stats?.active_jobs || 0} 
@@ -119,12 +119,6 @@ const ParentHome = () => {
                             value={stats?.stats?.applications_received || 0} 
                             icon={Users} 
                             color="emerald"
-                        />
-                        <StatCard 
-                            title="Wallet Balance" 
-                            value={`₹${stats?.stats?.wallet_balance || 0}`} 
-                            icon={Wallet} 
-                            color="amber"
                         />
                     </div>
 
