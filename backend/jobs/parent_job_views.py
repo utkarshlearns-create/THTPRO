@@ -206,8 +206,20 @@ class ParentStatsView(APIView):
             elif job.status == 'APPROVED':
                 activities.append({
                     "type": "success", "title": "Job Approved",
-                    "description": f"Your request for {job.class_grade} is now live.",
+                    "description": f"Your request for {job.class_grade} is approved. Awaiting tutors.",
                     "timestamp": job.updated_at.isoformat(), "icon": "check-circle",
+                })
+            elif job.status == 'OPEN':
+                activities.append({
+                    "type": "success", "title": "Job Live",
+                    "description": f"Your request for {job.class_grade} is now Live.",
+                    "timestamp": job.updated_at.isoformat(), "icon": "check-circle",
+                })
+            elif job.status == 'ASSIGNED':
+                activities.append({
+                    "type": "success", "title": "Tutor Assigned",
+                    "description": f"Your request for {job.class_grade} has a tutor assigned.",
+                    "timestamp": job.updated_at.isoformat(), "icon": "user-check",
                 })
 
         # Recent applications
