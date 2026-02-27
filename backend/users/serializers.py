@@ -143,8 +143,8 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
             return True
         
         # Superadmins/Admins can see everything
-        if request.user.role in ['ADMIN', 'SUPERADMIN', 'TEACHER']: # Allowing other teachers to see? Maybe not. Let's start with Admin.
-             if request.user.role in ['ADMIN', 'SUPERADMIN']:
+        if request.user.role in ['COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN', 'TEACHER']: # Allowing other teachers to see? Maybe not. Let's start with Admin.
+             if request.user.role in ['COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN']:
                  return True
         
         from .models import ContactUnlock

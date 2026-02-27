@@ -316,17 +316,17 @@ class CreateAdminUserView(APIView):
         email = data.get('email')
         phone = data.get('phone')
         password = data.get('password')
-        department = data.get('department')
+        role = data.get('role')
 
-        if not all([username, email, phone, password, department]):
+        if not all([username, email, phone, password, role]):
             return Response({"error": "All fields are required."}, status=400)
 
-        if department == 'SUPERADMIN':
+        if role == 'SUPERADMIN':
             return Response({"error": "Cannot create Superadmin accounts via this interface."}, status=400)
 
-        valid_departments = ['COUNSELLOR', 'TUTOR_OPS']
-        if department not in valid_departments:
-            return Response({"error": f"Invalid department. Choices: {valid_departments}"}, status=400)
+        valid_roles = ['COUNSELLOR', 'TUTOR_ADMIN']
+        if role not in valid_roles:
+            return Response({"error": f"Invalid role. Choices: {valid_roles}"}, status=400)
 
         if User.objects.filter(username=username).exists():
             return Response({"error": "Username already exists."}, status=400)
@@ -338,12 +338,13 @@ class CreateAdminUserView(APIView):
             with transaction.atomic():
                 user = User.objects.create_user(
                     username=username, email=email, phone=phone,
-                    password=password, role='ADMIN',
+                    password=password, role=role,
                 )
-                AdminProfile.objects.create(user=user, department=department)
+                # Note: If AdminProfile is still needed for other reasons, it can be created here. 
+                # Otherwise, roles are native now.
 
             return Response({
-                "message": f"Admin {username} created successfully for {department}",
+                "message": f"Admin {username} created successfully as {role}",
                 "user_id": user.id,
             }, status=201)
         except Exception as e:

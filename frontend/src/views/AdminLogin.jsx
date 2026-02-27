@@ -28,8 +28,9 @@ const AdminLogin = () => {
 
             if (response.ok) {
                 const decoded = jwtDecode(data.access);
-                if (decoded.role !== 'ADMIN' && decoded.role !== 'SUPERADMIN') {
-                    setError('Access Denied: You do not have admin privileges.');
+                // Check if user is an admin or superadmin
+                if (!['COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN'].includes(decoded.role)) {
+                    toast.error('Unauthorized access. Admin privileges required.');
                     return;
                 }
 

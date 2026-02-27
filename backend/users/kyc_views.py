@@ -163,7 +163,7 @@ class AdminPendingKYCView(generics.ListAPIView):
     
     def get_queryset(self):
         # Check if user is admin
-        if self.request.user.role not in ['ADMIN', 'SUPERADMIN']:
+        if self.request.user.role not in ['TUTOR_ADMIN', 'SUPERADMIN']:
             return TutorKYC.objects.none()
         
         # Return KYC records assigned to this admin with UNDER_REVIEW status
@@ -181,7 +181,7 @@ class AdminKYCVerifyView(APIView):
     
     def put(self, request, pk):
         # Check if user is admin
-        if request.user.role not in ['ADMIN', 'SUPERADMIN']:
+        if request.user.role not in ['TUTOR_ADMIN', 'SUPERADMIN']:
             return Response(
                 {"error": "Only admins can verify KYC"},
                 status=status.HTTP_403_FORBIDDEN
@@ -191,7 +191,7 @@ class AdminKYCVerifyView(APIView):
         kyc_record = get_object_or_404(TutorKYC, pk=pk)
         
         # Check if assigned to this admin (superadmin can verify any)
-        if request.user.role == 'ADMIN' and kyc_record.assigned_admin != request.user:
+        if request.user.role == 'TUTOR_ADMIN' and kyc_record.assigned_admin != request.user:
             return Response(
                 {"error": "This KYC is not assigned to you"},
                 status=status.HTTP_403_FORBIDDEN

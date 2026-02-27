@@ -89,7 +89,7 @@ const Login = () => {
         localStorage.setItem('role', role);
         
         console.log('Login successful, role:', role);
-        if (role === 'ADMIN') {
+        if (['COUNSELLOR', 'TUTOR_ADMIN'].includes(role)) {
             router.push('/dashboard/admin');
         } else if (role === 'TEACHER') {
             router.push('/tutor-home');

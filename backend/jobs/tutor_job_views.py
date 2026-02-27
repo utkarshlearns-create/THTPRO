@@ -50,7 +50,7 @@ class JobCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        allowed_roles = ['PARENT', 'TEACHER', 'ADMIN', 'SUPERADMIN', 'INSTITUTION']
+        allowed_roles = ['PARENT', 'TEACHER', 'COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN', 'INSTITUTION']
         if request.user.role not in allowed_roles:
             return Response({"error": "You must be logged in as a Parent, Tutor, or Institution to post a job."}, status=403)
 
