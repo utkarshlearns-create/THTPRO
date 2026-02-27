@@ -28,6 +28,9 @@ from .parent_job_views import (
     JobSearchFilterView,
     ParentStatsView,
     InstituteJobViewSet,
+    ParentApplicationActionView,
+    TutorRatingView,
+    TutorAttendanceView,
 )
 
 # Notification endpoints
@@ -81,6 +84,9 @@ urlpatterns = [
     path('stats/parent/', ParentStatsView.as_view(), name='parent-stats'),
     path('', ParentJobListView.as_view(), name='job-list'),
     path('<int:pk>/', JobDetailView.as_view(), name='job-detail'),
+    path('parent/application-action/<int:pk>/', ParentApplicationActionView.as_view(), name='parent-application-action'),
+    path('parent/tutor-rating/', TutorRatingView.as_view(), name='parent-tutor-rating'),
+    path('parent/tutor-attendance/', TutorAttendanceView.as_view(), name='parent-tutor-attendance'),
 
     # Job interactions
     path('<int:pk>/apply/', JobApplicationCreateView.as_view(), name='job-apply'),

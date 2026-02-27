@@ -163,8 +163,8 @@ const ParentDashboard = () => {
                 <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
                     <SidebarItem icon={<LayoutDashboard size={20} />} label="Overview" active={activeTab === 'overview'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('overview')} />
                     <SidebarItem icon={<User size={20} />} label="My Profile" active={activeTab === 'profile'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('profile')} />
-                    <SidebarItem icon={<Briefcase size={20} />} label="Jobs Posted" active={activeTab === 'jobs_posted'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('jobs_posted')} />
-                    <SidebarItem icon={<User size={20} />} label="Tutor Assigned" active={activeTab === 'tutor_assigned'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('tutor_assigned')} />
+                    <SidebarItem icon={<Briefcase size={20} />} label="Job Postings" active={activeTab === 'jobs_posted'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('jobs_posted')} />
+                    <SidebarItem icon={<User size={20} />} label="Your Tutor" active={activeTab === 'tutor_assigned'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('tutor_assigned')} />
                     <SidebarItem icon={<History size={20} />} label="History" active={activeTab === 'history'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('history')} />
                     <SidebarItem icon={<Unlock size={20} />} label="Unlocked Contacts" active={activeTab === 'unlocked_contacts'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('unlocked_contacts')} />
                     <SidebarItem icon={<Wallet size={20} />} label="Wallet & Credits" active={activeTab === 'wallet'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('wallet')} />
@@ -377,12 +377,12 @@ const ParentDashboard = () => {
                         </div>
                     )}
 
-                    {/* JOBS POSTED VIEW */}
+                    {/* JOB POSTINGS VIEW */}
                     {activeTab === 'jobs_posted' && (
                         <div className="space-y-6 animate-in fade-in duration-300">
                              <div className="flex justify-between items-center">
                                 <div>
-                                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Jobs Posted</h1>
+                                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Job Postings</h1>
                                     <p className="text-slate-500 dark:text-slate-400 text-sm">Manage your active tuition requirements.</p>
                                 </div>
                                 <Button 
@@ -564,9 +564,136 @@ const UnlockedContactsList = () => {
 
 export default ParentDashboard;
 
+const JobApplicationsView = ({ job, onBack }) => {
+    const [applications, setApplications] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchApplications();
+    }, [job.id]);
+
+    const fetchApplications = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/${job.id}/applicants/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setApplications(data.results || data);
+            }
+        } catch (error) {
+            console.error("Error fetching applications:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAction = async (appId, action) => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/parent/application-action/${appId}/`, {
+                method: 'PATCH',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action })
+            });
+            if (response.ok) {
+                fetchApplications();
+            }
+        } catch (error) {
+            console.error(`Error processing application ${action}:`, error);
+        }
+    };
+
+    return (
+        <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon" onClick={onBack} className="rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700">
+                    <History size={18} className="rotate-180" />
+                </Button>
+                <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Applicants for {job.class_grade} {job.subjects?.[0]}</h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Review tutor profiles and applications</p>
+                </div>
+            </div>
+
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {[1, 2].map((i) => <Skeleton key={i} className="h-48 rounded-xl" />)}
+                </div>
+            ) : applications.length === 0 ? (
+                <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <User size={48} className="mx-auto mb-4 text-slate-300 dark:text-slate-600" />
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No Applicants Yet</h3>
+                    <p className="text-slate-500 dark:text-slate-400">Tutors will appear here once they apply.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {applications.map((app) => (
+                        <Card key={app.id} className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                            <CardContent className="p-6">
+                                <div className="flex gap-4">
+                                    <div className="h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 border-2 border-indigo-50 dark:border-indigo-900/50 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                        {/* Profile placeholder/image (no contact info) */}
+                                        <User size={28} className="text-indigo-500" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{app.tutor_name}</h3>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                                ID: #{app.tutor}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        {app.status === 'APPLIED' ? (
+                                            <span className="text-xs font-bold text-amber-600 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-400 px-3 py-1 rounded-full">Pending</span>
+                                        ) : app.status === 'HIRED' ? (
+                                            <span className="text-xs font-bold text-green-600 bg-green-100 dark:bg-green-900/40 dark:text-green-400 px-3 py-1 rounded-full">Hired</span>
+                                        ) : (
+                                            <span className="text-xs font-bold text-red-600 bg-red-100 dark:bg-red-900/40 dark:text-red-400 px-3 py-1 rounded-full">Rejected</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg text-sm text-slate-700 dark:text-slate-300">
+                                    <span className="font-semibold block mb-1">Cover Message:</span>
+                                    {app.cover_message ? `"${app.cover_message}"` : <span className="italic text-slate-400">No message provided.</span>}
+                                </div>
+
+                                {app.status === 'APPLIED' && (
+                                    <div className="flex gap-3 mt-6">
+                                        <Button 
+                                            onClick={() => handleAction(app.id, 'ACCEPT')}
+                                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+                                        >
+                                            <CheckCircle size={16} className="mr-2" /> Accept
+                                        </Button>
+                                        <Button 
+                                            onClick={() => handleAction(app.id, 'REJECT')}
+                                            variant="outline"
+                                            className="flex-1 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-900/50"
+                                        >
+                                            <XCircle size={16} className="mr-2" /> Reject
+                                        </Button>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const JobsList = () => {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedJob, setSelectedJob] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -599,6 +726,10 @@ const JobsList = () => {
             ))}
         </div>
     );
+
+    if (selectedJob) {
+        return <JobApplicationsView job={selectedJob} onBack={() => setSelectedJob(null)} />;
+    }
 
     if (jobs.length === 0) {
         return (
@@ -674,10 +805,10 @@ const JobsList = () => {
                                 Find Matches
                             </button>
                             <button 
-                                onClick={() => router.push(`/jobs/${job.id}`)}
+                                onClick={() => setSelectedJob(job)}
                                 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 group/btn"
                             >
-                                View Details <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
+                                View Applicants <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
                             </button>
                         </div>
                     </div>
@@ -771,21 +902,261 @@ const ProfileField = ({ label, value, icon }) => (
     </div>
 );
 
-const TutorAssigned = () => (
-    <div className="space-y-6 animate-in fade-in duration-300">
-         <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Assigned Tutors</h1>
-         </div>
-         <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-                <User size={32} className="text-indigo-500 dark:text-indigo-400" />
-                <span className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full flex items-center justify-center text-white text-xs font-bold">+</span>
+const TutorAssigned = () => {
+    const [assignedJobs, setAssignedJobs] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [ratingModal, setRatingModal] = useState({ open: false, app: null, job: null });
+    const [attendanceModal, setAttendanceModal] = useState({ open: false, app: null, job: null });
+    
+    // Ratings Form State
+    const [rating, setRating] = useState(5);
+    const [review, setReview] = useState('');
+    
+    // Attendance Form State
+    const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
+    const [attendanceStatus, setAttendanceStatus] = useState('PRESENT');
+
+    useEffect(() => {
+        const fetchAssignedTutors = async () => {
+            try {
+                const token = localStorage.getItem('access');
+                const jobsRes = await fetch(`${API_BASE_URL}/api/jobs/my-jobs/`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (jobsRes.ok) {
+                    const jobsData = await jobsRes.json();
+                    const jobs = Array.isArray(jobsData) ? jobsData : jobsData.results || [];
+                    
+                    const myAssignedJobs = jobs.filter(j => j.status === 'ASSIGNED');
+                    
+                    const tutorsData = await Promise.all(myAssignedJobs.map(async (job) => {
+                        const appRes = await fetch(`${API_BASE_URL}/api/jobs/${job.id}/applicants/`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (appRes.ok) {
+                            const appsData = await appRes.json();
+                            const apps = appsData.results || appsData;
+                            const hiredApp = apps.find(a => a.status === 'HIRED');
+                            if (hiredApp) {
+                                return { job, application: hiredApp };
+                            }
+                        }
+                        return null;
+                    }));
+                    
+                    setAssignedJobs(tutorsData.filter(Boolean));
+                }
+            } catch (error) {
+                console.error("Error fetching assigned tutors:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAssignedTutors();
+    }, []);
+
+    const handleRatingSubmit = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/parent/tutor-rating/`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    tutor: ratingModal.app.tutor,
+                    job: ratingModal.job.id,
+                    rating,
+                    review
+                })
+            });
+            if (response.ok) {
+                alert('Rating submitted successfully!');
+                setRatingModal({ open: false, app: null, job: null });
+                setRating(5);
+                setReview('');
+            } else {
+                const err = await response.json();
+                alert(`Error: ${JSON.stringify(err)}`);
+            }
+        } catch (error) {
+            console.error("Error submitting rating:", error);
+        }
+    };
+
+    const handleAttendanceSubmit = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/parent/tutor-attendance/`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    tutor: attendanceModal.app.tutor, 
+                    job: attendanceModal.job.id,
+                    date: attendanceDate,
+                    status: attendanceStatus
+                })
+            });
+            if (response.ok) {
+                alert('Attendance marked successfully!');
+                setAttendanceModal({ open: false, app: null, job: null });
+                setAttendanceDate(new Date().toISOString().split('T')[0]);
+                setAttendanceStatus('PRESENT');
+            } else {
+                const err = await response.json();
+                alert(`Error: ${JSON.stringify(err)}`);
+            }
+        } catch (error) {
+            console.error("Error marking attendance:", error);
+        }
+    };
+
+    return (
+        <div className="space-y-6 animate-in fade-in duration-300 relative">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Your Tutor</h1>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Manage tutors assigned to your active jobs.</p>
+                </div>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">No Tutors Assigned Yet</h3>
-            <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto">Once you approve an application, your assigned tutor will appear here.</p>
-         </div>
-    </div>
-);
+
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Skeleton className="h-48 rounded-xl" />
+                </div>
+            ) : assignedJobs.length === 0 ? (
+                <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                        <User size={32} className="text-indigo-500 dark:text-indigo-400" />
+                        <span className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full flex items-center justify-center text-white text-xs font-bold">+</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">No Tutors Assigned Yet</h3>
+                    <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto">Once you approve an application, your assigned tutor will appear here.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {assignedJobs.map(({ job, application }) => (
+                        <Card key={job.id} className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+                            <CardContent className="p-6">
+                                <div className="flex gap-4">
+                                    <div className="h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 border-2 border-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xl overflow-hidden">
+                                        {application.tutor_name ? application.tutor_name.charAt(0) : 'T'}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{application.tutor_name}</h3>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">{job.class_grade} - {job.subjects?.join(', ')}</p>
+                                    </div>
+                                </div>
+                                <div className="mt-6 flex gap-3">
+                                    <Button 
+                                        variant="outline" 
+                                        className="flex-1 text-slate-700 dark:text-slate-300"
+                                        onClick={() => setAttendanceModal({ open: true, app: application, job })}
+                                    >
+                                        <Clock size={16} className="mr-2" /> Attendance
+                                    </Button>
+                                    <Button 
+                                        onClick={() => setRatingModal({ open: true, app: application, job })}
+                                        className="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-800 dark:bg-amber-900/30 dark:hover:bg-amber-900/60 dark:text-amber-400 border-amber-200 dark:border-amber-800"
+                                    >
+                                        <Star size={16} className="mr-2" /> Rate Tutor
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
+
+            {/* Attendance Modal */}
+            {attendanceModal.open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
+                        <div className="p-6">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Mark Attendance</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Record a session for {attendanceModal.app?.tutor_name}.</p>
+                            
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
+                                    <input 
+                                        type="date" 
+                                        value={attendanceDate}
+                                        onChange={(e) => setAttendanceDate(e.target.value)}
+                                        className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Status</label>
+                                    <select 
+                                        value={attendanceStatus}
+                                        onChange={(e) => setAttendanceStatus(e.target.value)}
+                                        className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    >
+                                        <option value="PRESENT">Present</option>
+                                        <option value="ABSENT">Absent</option>
+                                        <option value="RESCHEDULED">Rescheduled</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                            <Button variant="ghost" onClick={() => setAttendanceModal({ open: false, app: null, job: null })}>Cancel</Button>
+                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleAttendanceSubmit}>Submit</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Rating Modal */}
+            {ratingModal.open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
+                        <div className="p-6">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Rate Your Tutor</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">How was your experience with {ratingModal.app?.tutor_name}?</p>
+                            
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Rating ({rating}/5)</label>
+                                    <div className="flex gap-2">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button 
+                                                key={star} 
+                                                onClick={() => setRating(star)}
+                                                className={`p-2 rounded-full transition-colors ${rating >= star ? 'text-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'text-slate-300 dark:text-slate-600'}`}
+                                            >
+                                                <Star fill={rating >= star ? 'currentColor' : 'none'} size={24} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Review (Optional)</label>
+                                    <textarea 
+                                        rows="3"
+                                        placeholder="Write a brief review..."
+                                        value={review}
+                                        onChange={(e) => setReview(e.target.value)}
+                                        className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                            <Button variant="ghost" onClick={() => setRatingModal({ open: false, app: null, job: null })}>Cancel</Button>
+                            <Button className="bg-amber-500 hover:bg-amber-600 text-white" onClick={handleRatingSubmit}>Submit Review</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const HistorySection = () => (
     <div className="space-y-6 animate-in fade-in duration-300">

@@ -282,3 +282,65 @@ class InstituteJobViewSet(viewsets.ModelViewSet):
         if self.request.user != instance.institution:
             raise permissions.PermissionDenied("You can only delete your own jobs.")
         instance.delete()
+
+from django.shortcuts import get_object_or_404
+
+class ParentApplicationActionView(APIView):
+    """Parent accepts or rejects a tutor's application."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        if request.user.role != 'PARENT':
+            return Response({"error": "Only parents can perform this action"}, status=status.HTTP_403_FORBIDDEN)
+            
+        application = get_object_or_404(Application, pk=pk)
+        job = application.job
+        
+        # Ensure the user owns the job
+        if job.posted_by != request.user and job.parent != request.user:
+            return Response({"error": "You do not have permission for this job"}, status=status.HTTP_403_FORBIDDEN)
+            
+        action = request.data.get('action') # 'ACCEPT' or 'REJECT'
+        
+        if action == 'ACCEPT':
+            application.status = 'HIRED'
+            application.save()
+            job.status = 'ASSIGNED'
+            job.save()
+            # Reject all other applications for this job
+            Application.objects.filter(job=job).exclude(pk=pk).update(status='REJECTED')
+            return Response({"message": "Application accepted successfully!"})
+            
+        elif action == 'REJECT':
+            application.status = 'REJECTED'
+            application.save()
+            return Response({"message": "Application rejected."})
+            
+        return Response({"error": "Invalid action, must be ACCEPT or REJECT"}, status=status.HTTP_400_BAD_REQUEST)
+
+from .models import TutorRating, TutorAttendance
+from .serializers import TutorRatingSerializer, TutorAttendanceSerializer
+
+class TutorRatingView(generics.CreateAPIView):
+    """Parent rates a tutor"""
+    serializer_class = TutorRatingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        if self.request.user.role != 'PARENT':
+            raise permissions.PermissionDenied("Only parents can rate tutors")
+        serializer.save(parent=self.request.user)
+
+class TutorAttendanceView(generics.ListCreateAPIView):
+    """Parent marks/views attendance for their assigned tutor"""
+    serializer_class = TutorAttendanceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return TutorAttendance.objects.filter(marked_by=self.request.user).order_by('-date')
+
+    def perform_create(self, serializer):
+        if self.request.user.role != 'PARENT':
+            raise permissions.PermissionDenied("Only parents can mark attendance")
+        serializer.save(marked_by=self.request.user)
+
