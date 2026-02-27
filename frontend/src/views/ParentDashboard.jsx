@@ -730,6 +730,28 @@ const JobsList = () => {
         }
     };
 
+    const handleCloseJob = async (jobId) => {
+        if (!confirm("Are you sure you want to close this job requirement? You will no longer receive applications.")) return;
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/parent/jobs/${jobId}/close/`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                setJobs(jobs.map(j => j.id === jobId ? {...j, status: 'CLOSED'} : j));
+            } else {
+                alert("Failed to close job. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error closing job:", error);
+            alert("Network error while closing job.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (loading) return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[1, 2, 3, 4].map((i) => (
@@ -814,10 +836,19 @@ const JobsList = () => {
                                 {job.application_count === 1 ? 'Applicant' : 'Applicants'}
                             </span>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
+                            {['OPEN', 'APPROVED', 'ACTIVE'].includes(job.status) && (
+                                <button 
+                                    onClick={() => handleCloseJob(job.id)}
+                                    className="text-xs font-bold px-2 py-1.5 rounded-lg text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition-colors"
+                                    title="Close Job Requirement"
+                                >
+                                    Close Job
+                                </button>
+                            )}
                             <button 
                                 onClick={() => router.push(`/tutors?subject=${encodeURIComponent(job.subjects?.[0] || '')}&location=${encodeURIComponent(job.locality || '')}`)}
-                                className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                                className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors hidden sm:block"
                             >
                                 Find Matches
                             </button>
