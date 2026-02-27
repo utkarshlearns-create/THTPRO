@@ -206,15 +206,82 @@ const ParentHome = () => {
             </section>
         )}
 
-        {/* Wizard Section (Collapsible or Inline) */}
-        <section id="job-wizard-section" className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-slate-900 dark:to-slate-900 rounded-3xl p-8 border border-indigo-100 dark:border-slate-800">
-             <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Post a Requirement</h2>
-                <p className="text-slate-500 dark:text-slate-400">Quickly find the best tutor for your child.</p>
-             </div>
-             <div className="max-w-3xl mx-auto bg-white dark:bg-slate-950 rounded-xl shadow-sm p-1">
-                <JobWizard />
-             </div>
+        {/* Job Wizard Section */}
+        <section id="job-wizard-section" className="relative py-24 scroll-mt-20 overflow-hidden">
+            {/* Background Decorations */}
+            <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[120px] -z-10" />
+            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[100px] -z-10" />
+
+            <div className="max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                    {/* Left: Creative Benefits Panel */}
+                    <div className="lg:col-span-12 xl:col-span-5 space-y-8 animate-in fade-in slide-in-from-left-8 duration-1000">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full text-sm font-bold tracking-wide uppercase">
+                            <Star size={16} fill="currentColor" /> Quick & Easy Process
+                        </div>
+                        
+                        <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white leading-[1.15] tracking-tight">
+                            Find the <span className="text-indigo-600 dark:text-indigo-400">Perfect Tutor</span> for Your Child
+                        </h2>
+                        
+                        <p className="text-xl text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Say goodbye to endless searching. Tell us your needs, and we'll connect you with top-rated, background-verified educators in minutes.
+                        </p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+                            <div className="flex items-start gap-4">
+                                <div className="p-3 bg-white dark:bg-slate-900 shadow-xl rounded-2xl border border-slate-100 dark:border-slate-800 text-indigo-600">
+                                    <ShieldCheck size={24} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900 dark:text-white">Verified Experts</h4>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">100% background checked</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-4">
+                                <div className="p-3 bg-white dark:bg-slate-900 shadow-xl rounded-2xl border border-slate-100 dark:border-slate-800 text-purple-600">
+                                    <Clock size={24} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900 dark:text-white">Fast Response</h4>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">Matches within 2 hours</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-4">
+                                <div className="p-3 bg-white dark:bg-slate-900 shadow-xl rounded-2xl border border-slate-100 dark:border-slate-800 text-emerald-600">
+                                    <CheckCircle size={24} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900 dark:text-white">Best Pricing</h4>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">Personalized auto-pricing</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-4">
+                                <div className="p-3 bg-white dark:bg-slate-900 shadow-xl rounded-2xl border border-slate-100 dark:border-slate-800 text-amber-600">
+                                    <Star size={24} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900 dark:text-white">Rated 4.9/5</h4>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">By 50,000+ happy parents</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Job Wizard Form */}
+                    <div className="lg:col-span-12 xl:col-span-7 animate-in fade-in slide-in-from-right-8 duration-1000">
+                        <div className="bg-white dark:bg-slate-900 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-none rounded-[2.5rem] p-4 md:p-8 border border-slate-100 dark:border-slate-800 relative z-10 overflow-hidden">
+                            {/* Glassmorphism Accents */}
+                            <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-[80px]" />
+                            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/10 rounded-full blur-[80px]" />
+                            
+                            <div className="relative z-20">
+                                <JobWizard />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         {/* Recommended Tutors Section */}
