@@ -164,7 +164,7 @@ class JobApplicantsView(generics.ListAPIView):
 
     def get_queryset(self):
         job = get_object_or_404(JobPost, pk=self.kwargs['pk'])
-        if job.posted_by != self.request.user:
+        if job.posted_by != self.request.user and job.parent != self.request.user:
             return Application.objects.none()
         return Application.objects.filter(
             job=job

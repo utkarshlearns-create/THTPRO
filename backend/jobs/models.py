@@ -78,6 +78,39 @@ class Application(models.Model):
     def __str__(self):
         return f"App by {self.tutor.user.username} for {self.job.student_name}"
 
+class TutorRating(models.Model):
+    tutor = models.ForeignKey('users.TutorProfile', on_delete=models.CASCADE, related_name='ratings')
+    parent = models.ForeignKey(User, on_delete=models.CASCADE, related_name='given_ratings')
+    job = models.ForeignKey(JobPost, on_delete=models.SET_NULL, null=True, blank=True, related_name='ratings')
+    rating = models.IntegerField()
+    review = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('tutor', 'parent', 'job')
+        
+    def __str__(self):
+        return f"Rating for {self.tutor.user.username} by {self.parent.username}: {self.rating}/5"
+
+class TutorAttendance(models.Model):
+    STATUS_CHOICES = (
+        ('PRESENT', 'Present'),
+        ('ABSENT', 'Absent'),
+        ('RESCHEDULED', 'Rescheduled'),
+    )
+    tutor = models.ForeignKey('users.TutorProfile', on_delete=models.CASCADE, related_name='attendance_records')
+    job = models.ForeignKey(JobPost, on_delete=models.CASCADE, related_name='attendance_records')
+    date = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PRESENT')
+    marked_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='marked_attendance')
+    remarks = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('tutor', 'job', 'date')
+
+    def __str__(self):
+        return f"{self.tutor.user.username} - {self.date} - {self.status}"
 
 # ==================== MASTER DATA MODELS ====================
 

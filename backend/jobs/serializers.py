@@ -95,3 +95,17 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = '__all__'
         read_only_fields = ('user', 'created_at')
+
+from .models import TutorRating, TutorAttendance
+
+class TutorRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TutorRating
+        fields = '__all__'
+        read_only_fields = ('parent', 'created_at')
+
+class TutorAttendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TutorAttendance
+        fields = '__all__'
+        read_only_fields = ('marked_by', 'created_at')
