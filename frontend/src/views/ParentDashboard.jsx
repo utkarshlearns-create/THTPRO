@@ -759,14 +759,20 @@ const JobsList = () => {
 
                     <div className="p-6">
                         <div className="mb-4">
-                             <div className="h-12 w-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-lg mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                {job.subjects && job.subjects[0] ? job.subjects[0].charAt(0) : 'S'}
+                             <div className={`h-12 w-12 rounded-xl flex items-center justify-center text-white font-bold text-lg mb-4 shadow-sm transition-all duration-300 group-hover:scale-110
+                                ${!job.student_name ? 'bg-slate-400' : 
+                                  ['A','E','I','O','U'].includes(job.student_name.charAt(0).toUpperCase()) ? 'bg-indigo-500' :
+                                  ['B','C','D','F','G'].includes(job.student_name.charAt(0).toUpperCase()) ? 'bg-emerald-500' :
+                                  ['H','J','K','L','M'].includes(job.student_name.charAt(0).toUpperCase()) ? 'bg-amber-500' :
+                                  ['N','P','Q','R','S'].includes(job.student_name.charAt(0).toUpperCase()) ? 'bg-purple-500' : 'bg-rose-500'}
+                             `}>
+                                {job.student_name ? job.student_name.charAt(0).toUpperCase() : <User size={20} />}
                              </div>
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
-                                {job.student_name}'s Tuition
+                                {job.student_name ? `${job.student_name}'s Tuition` : `Tuition for ${job.class_grade}`}
                             </h3>
                             <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
-                                {job.class_grade} • {job.board}
+                                {job.class_grade} {job.board ? `• ${job.board}` : ''}
                             </p>
                         </div>
                         
