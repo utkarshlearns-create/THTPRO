@@ -21,13 +21,28 @@ const ParentHome = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [user, setUser] = useState({ name: 'Parent' });
+  const [user, setUser] = useState({ first_name: 'Parent' });
 
   useEffect(() => {
     fetchDashboardData();
-    // Get user name/details from local storage or decode token if needed
-    // For now, we'll rely on the API response or generic greeting
+    fetchUserProfile();
   }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+        const token = localStorage.getItem('access');
+        if (!token) return;
+        const response = await fetch(`${API_BASE_URL}/api/users/me/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            setUser(data);
+        }
+    } catch (err) {
+        console.error("Error fetching user profile:", err);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -84,7 +99,7 @@ const ParentHome = () => {
                 <div className="lg:col-span-2">
                     <div className="mb-8">
                         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-2">
-                            Welcome Back!
+                            Welcome, {user?.first_name || 'Parent'}!
                         </h1>
                         <p className="text-lg text-slate-500 dark:text-slate-400">
                             Manage your tuition requests and track progress.
