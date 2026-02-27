@@ -202,24 +202,19 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
         // Common items
         if (['home', 'notifications', 'reports'].includes(item.id)) return true;
         
-        // Header handling - tricky because headers have no ID.
-        // Simplified approach: If header is "PARENT MANAGEMENT" and mode is 'tutor', hide.
-        if (item.header === 'PARENT MANAGEMENT' && mode === 'tutor') return false;
-        if (item.header === 'TUTOR MANAGEMENT' && mode === 'counsellor') return false;
-        if (item.header === 'GENERAL') return true;
+        // Specific section handling mapping roles to dashboard features
+        if (mode === 'COUNSELLOR') {
+            if (item.header === 'TUTOR MANAGEMENT') return false;
+            if (['approve-tutor', 'select-tutor', 'tutor-package'].includes(item.id)) return false;
+            return true;
+        }
+        
+        if (mode === 'TUTOR_ADMIN') {
+            if (['PARENT MANAGEMENT', 'INSTITUTE MANAGEMENT'].includes(item.header)) return false;
+            if (['jobs', 'parent-package', 'institute-jobs'].includes(item.id)) return false;
+            return true;
+        }
 
-        // Specific section handling
-        if (mode === 'counsellor') {
-            // Removed 'parent-package' as per user request
-            // Added 'institute-jobs' as per user request
-            return ['jobs', 'institute-jobs'].includes(item.id) || 
-                   item.header === 'PARENT MANAGEMENT' || 
-                   item.header === 'INSTITUTE MANAGEMENT' || 
-                   item.header === 'GENERAL';
-        }
-        if (mode === 'tutor') {
-            return ['approve-tutor', 'select-tutor', 'tutor-package', 'enquiries'].includes(item.id) || item.header === 'TUTOR MANAGEMENT' || item.header === 'GENERAL';
-        }
         return true;
     });
 
