@@ -72,7 +72,7 @@ const ActivityFeed = ({ activities = [] }) => {
           <li key={activityIdx}>
             <div className="relative pb-8">
               {activityIdx !== activities.length - 1 ? (
-                <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200 dark:bg-slate-800" aria-hidden="true" />
+                <span className="absolute top-5 left-4 -ml-px h-[calc(100%-8px)] w-0.5 bg-slate-200/50 dark:bg-slate-800/50" aria-hidden="true" />
               ) : null}
               <div className="relative flex space-x-3">
                 <div>

@@ -96,13 +96,13 @@ const ParentHome = () => {
     <div className="bg-slate-50 dark:bg-slate-950 min-h-screen pb-20 transition-colors duration-300">
       
       {/* Hero Section */}
-      <section className="relative pt-24 pb-32 overflow-hidden bg-slate-900">
+      <section className="relative pt-32 pb-44 overflow-hidden bg-slate-900 min-h-[700px] flex items-center">
         {/* Background Image with Overlay */}
         <div 
-            className="absolute inset-0 z-0 bg-cover bg-center opacity-15"
+            className="absolute inset-0 z-0 bg-cover bg-[center_right] opacity-40 mix-blend-screen"
             style={{ backgroundImage: `url('/parent-home-hero.png')` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950/95 to-slate-900 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950/80 to-slate-900 z-0" />
         
         {/* Decorative Elements */}
         <div className="absolute top-20 right-[10%] w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl z-0 animate-pulse" />
@@ -153,7 +153,7 @@ const ParentHome = () => {
                                 View History
                             </Link>
                         </div>
-                        <div className="max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="max-h-[420px] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
                            <ActivityFeed activities={stats?.recent_activities} />
                         </div>
                     </div>
