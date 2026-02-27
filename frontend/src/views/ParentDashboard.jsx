@@ -231,10 +231,9 @@ const ParentDashboard = () => {
                             </div>
 
                             {/* Insights Section with Stagger Animation */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {loading ? (
                                     <>
-                                        <Skeleton className="h-36 w-full" />
                                         <Skeleton className="h-36 w-full" />
                                         <Skeleton className="h-36 w-full" />
                                     </>
@@ -243,30 +242,21 @@ const ParentDashboard = () => {
                                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                                             <InsightCard 
                                                 title="Wallet Balance" 
-                                                value={`₹ ${wallet?.balance || '0'}`} 
+                                                value={`₹ ${stats?.stats?.wallet_balance || (wallet?.balance || '0')}`} 
                                                 icon={<Wallet className="text-emerald-500" />}
                                                 description="Available credits for unlocking"
-                                                trend={wallet?.balance > 100 ? "Healthy balance" : "Consider recharging"}
-                                                trendColor={wallet?.balance > 100 ? "text-emerald-600" : "text-amber-600"}
+                                                trend={stats?.stats?.wallet_balance > 100 ? "Healthy balance" : "Consider recharging"}
+                                                trendColor={stats?.stats?.wallet_balance > 100 ? "text-emerald-600" : "text-amber-600"}
                                             />
                                         </motion.div>
                                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                                             <InsightCard 
                                                 title="Active Jobs" 
-                                                value={stats.jobs_posted} 
+                                                value={stats?.stats?.active_jobs || 0} 
                                                 icon={<Briefcase className="text-indigo-500" />}
                                                 description="Open tuition requirements"
-                                                trend={stats.jobs_this_week > 0 ? `${stats.jobs_this_week} new this week` : "Post a job to start"}
+                                                trend={stats?.stats?.active_jobs > 0 ? "Managing your requests" : "Post a job to start"}
                                                 trendColor="text-indigo-600"
-                                            />
-                                        </motion.div>
-                                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                                            <InsightCard 
-                                                title="Profile Strength" 
-                                                value={`${stats.profile_completion}%`} 
-                                                icon={<Zap className="text-amber-500" />}
-                                                description="Complete your profile to attract better tutors"
-                                                progress={stats.profile_completion}
                                             />
                                         </motion.div>
                                     </>
@@ -274,10 +264,9 @@ const ParentDashboard = () => {
                             </div>
 
                             {/* Quick Stats Grid with Stagger */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 {loading ? (
                                     <>
-                                        <Skeleton className="h-20 w-full" />
                                         <Skeleton className="h-20 w-full" />
                                         <Skeleton className="h-20 w-full" />
                                         <Skeleton className="h-20 w-full" />
@@ -285,16 +274,13 @@ const ParentDashboard = () => {
                                 ) : (
                                     <>
                                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}>
-                                            <StatItem label="Applications" value={stats.applications_received} icon={<User size={18} />} color="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" />
+                                            <StatItem label="Applications" value={stats?.stats?.applications_received || 0} icon={<User size={18} />} color="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" />
                                         </motion.div>
                                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }}>
-                                            <StatItem label="Tutors Hired" value={stats.hired_count} icon={<CheckCircle size={18} />} color="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" />
+                                            <StatItem label="Tutors Hired" value={stats?.stats?.hired_count || 0} icon={<CheckCircle size={18} />} color="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" />
                                         </motion.div>
                                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6 }}>
-                                            <StatItem label="Member Since" value={stats.member_since || 'N/A'} icon={<Clock size={18} />} color="bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300" />
-                                        </motion.div>
-                                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 }}>
-                                            <StatItem label="Assigned Tutor" value={stats.assigned_tutor?.name || 'None'} icon={<Star size={18} />} color="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" />
+                                            <StatItem label="Assigned Tutor" value={stats?.assigned_tutor?.name || 'None'} icon={<Star size={18} />} color="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" />
                                         </motion.div>
                                     </>
                                 )}
