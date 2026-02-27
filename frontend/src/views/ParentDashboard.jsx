@@ -54,6 +54,7 @@ const ParentDashboard = () => {
     const [wallet, setWallet] = useState(null);
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showEditProfile, setShowEditProfile] = useState(false);
 
     const [error, setError] = useState(null);
 
@@ -78,7 +79,7 @@ const ParentDashboard = () => {
 
             const [statsRes, jobsRes, walletRes, profileRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/api/jobs/stats/parent/`, { headers }),
-                fetch(`${API_BASE_URL}/api/jobs/`, { headers }),
+                fetch(`${API_BASE_URL}/api/jobs/my-jobs/`, { headers }),
                 fetch(`${API_BASE_URL}/api/wallet/me/`, { headers }),
                 fetch(`${API_BASE_URL}/api/users/me/`, { headers })
             ]);
@@ -96,7 +97,8 @@ const ParentDashboard = () => {
 
             if (jobsRes.ok) {
                 const jobsData = await jobsRes.json();
-                if (jobsData.length > 0) setLatestJob(jobsData[0]);
+                const fetchedJobs = Array.isArray(jobsData) ? jobsData : (jobsData.results || []);
+                if (fetchedJobs.length > 0) setLatestJob(fetchedJobs[0]);
             } else if (jobsRes.status === 401) {
                  // Already handled by statsRes 401 check ideally, but safe to ignore
             } else {
@@ -133,7 +135,16 @@ const ParentDashboard = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex font-sans text-slate-900 dark:text-slate-100">
-            <ParentOnboardingPopup userProfile={userProfile} onComplete={(updatedProfile) => setUserProfile(updatedProfile)} />
+            {/* Connect onboarding popup with support for manual manual 'Edit Profile' triggering */}
+            <ParentOnboardingPopup 
+                userProfile={userProfile} 
+                forceOpen={showEditProfile}
+                onClose={() => setShowEditProfile(false)}
+                onComplete={(updatedProfile) => {
+                    setUserProfile(updatedProfile);
+                    setShowEditProfile(false);
+                }} 
+            />
             
             {/* Mobile Backdrop Overlay */}
             {sidebarOpen && (
@@ -398,7 +409,7 @@ const ParentDashboard = () => {
                     )}
 
                     {/* MY PROFILE VIEW */}
-                    {activeTab === 'profile' && <MyProfile latestJob={latestJob} stats={stats} />}
+                    {activeTab === 'profile' && <MyProfile latestJob={latestJob} stats={stats} userProfile={userProfile} onEdit={() => setShowEditProfile(true)} />}
 
                     {/* TUTOR ASSIGNED VIEW */}
                     {activeTab === 'tutor_assigned' && <TutorAssigned />}
@@ -824,7 +835,15 @@ const JobsList = () => {
     );
 };
 
-const MyProfile = ({ latestJob, stats }) => {
+const MyProfile = ({ latestJob, stats, userProfile, onEdit }) => {
+    // Generate Location String dynamically
+    let locationStr = "Location Not Provided";
+    if (userProfile?.locality) {
+        locationStr = userProfile.locality;
+    } else if (latestJob?.locality) {
+        locationStr = latestJob.locality;
+    }
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-300">
             {/* Left Column: Identity */}
@@ -849,11 +868,11 @@ const MyProfile = ({ latestJob, stats }) => {
                         </div>
                          <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                             <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Location</span>
-                            <span className="text-sm text-slate-900 dark:text-white font-medium">Mumbai, India</span>
+                            <span className="text-sm text-slate-900 dark:text-white font-medium truncate max-w-[150px]">{locationStr}</span>
                         </div>
                     </div>
 
-                    <Button className="w-full mt-6" variant="outline">Edit Basic Info</Button>
+                    <Button onClick={onEdit} className="w-full mt-6 hover:bg-slate-100 dark:hover:bg-slate-800" variant="outline">Edit Basic Info</Button>
                 </CardContent>
             </Card>
 

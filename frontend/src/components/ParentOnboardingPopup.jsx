@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Phone, User, Sparkles } from 'lucide-react';
 import API_BASE_URL from '../config';
 
-const ParentOnboardingPopup = ({ userProfile, onComplete }) => {
+const ParentOnboardingPopup = ({ userProfile, onComplete, forceOpen = false, onClose }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
@@ -12,6 +12,13 @@ const ParentOnboardingPopup = ({ userProfile, onComplete }) => {
     const [error, setError] = useState('');
 
     useEffect(() => {
+        if (forceOpen) {
+            setName(userProfile?.first_name || '');
+            setPhone(userProfile?.phone || '');
+            setIsOpen(true);
+            return;
+        }
+
         // If profile is loaded and missing either first_name or phone, show popup
         if (userProfile && (!userProfile.first_name || !userProfile.phone)) {
             setName(userProfile.first_name || '');
@@ -20,7 +27,7 @@ const ParentOnboardingPopup = ({ userProfile, onComplete }) => {
         } else if (userProfile) {
             setIsOpen(false);
         }
-    }, [userProfile]);
+    }, [userProfile, forceOpen]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -74,13 +81,21 @@ const ParentOnboardingPopup = ({ userProfile, onComplete }) => {
                     className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-200/50 dark:border-slate-800/50"
                 >
                     <div className="bg-gradient-to-r from-indigo-600 to-blue-600 p-8 text-center relative overflow-hidden">
+                        {forceOpen && onClose && (
+                            <button 
+                                onClick={onClose}
+                                className="absolute top-4 right-4 text-white hover:bg-white/20 p-2 rounded-full transition-colors z-20"
+                            >
+                                ✕
+                            </button>
+                        )}
                         <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                         <div className="relative z-10 flex flex-col items-center">
                             <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm mb-4 ring-4 ring-white/10">
                                 <Sparkles className="h-8 w-8 text-white" />
                             </div>
-                            <h2 className="text-2xl font-extrabold text-white tracking-tight">Just One More Little Step!</h2>
-                            <p className="text-indigo-100 mt-2 text-sm font-medium">To provide you with the best experience, we need a few details to personalize your account.</p>
+                            <h2 className="text-2xl font-extrabold text-white tracking-tight">{forceOpen ? 'Update Your Profile' : 'Just One More Little Step!'}</h2>
+                            <p className="text-indigo-100 mt-2 text-sm font-medium">{forceOpen ? 'Keep your contact details up to date.' : 'To provide you with the best experience, we need a few details to personalize your account.'}</p>
                         </div>
                     </div>
 
@@ -139,7 +154,7 @@ const ParentOnboardingPopup = ({ userProfile, onComplete }) => {
                             {loading ? (
                                 <div className="h-5 w-5 border-2 border-slate-400 border-t-white dark:border-slate-400 dark:border-t-slate-900 rounded-full animate-spin"></div>
                             ) : (
-                                "Complete Profile & Continue"
+                                forceOpen ? "Save Changes" : "Complete Profile & Continue"
                             )}
                         </button>
                     </form>
