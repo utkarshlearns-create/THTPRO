@@ -62,7 +62,7 @@ const CRMModule = () => {
   // Filters
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [adminFilter, setAdminFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
   
   // Selected job
   const [selectedJob, setSelectedJob] = useState(null);
@@ -74,14 +74,14 @@ const CRMModule = () => {
     fetchJobs();
     fetchPipelineStats();
     fetchAdmins();
-  }, [statusFilter, adminFilter]);
+  }, [statusFilter, roleFilter]);
 
   const fetchJobs = async () => {
     setLoading(true);
     try {
       let url = `${API_BASE_URL}/api/jobs/crm/jobs/?`;
       if (statusFilter !== 'ALL') url += `status=${statusFilter}&`;
-      if (adminFilter) url += `admin_id=${adminFilter}&`;
+      if (roleFilter) url += `admin_role=${roleFilter}&`;
       if (searchQuery) url += `q=${searchQuery}&`;
 
       const response = await fetch(url, {
@@ -250,15 +250,14 @@ const CRMModule = () => {
               ))}
             </select>
             <select
-              value={adminFilter}
-              onChange={(e) => setAdminFilter(e.target.value)}
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
               className="px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500"
             >
-              <option value="">All Admins</option>
+              <option value="">All Roles</option>
               <option value="unassigned">Unassigned</option>
-              {admins.map(admin => (
-                <option key={admin.id} value={admin.id}>{admin.name} ({admin.assigned_jobs})</option>
-              ))}
+              <option value="COUNSELLOR">Counsellors</option>
+              <option value="TUTOR_ADMIN">Tutor Admins</option>
             </select>
           </div>
         </CardContent>
@@ -447,9 +446,16 @@ const CRMModule = () => {
                       onChange={(e) => e.target.value && handleAssignAdmin(selectedJob.id, e.target.value)}
                     >
                       <option value="">Select Admin</option>
-                      {admins.map(admin => (
-                        <option key={admin.id} value={admin.id}>{admin.name}</option>
-                      ))}
+                      <optgroup label="Counsellors">
+                        {admins.filter(a => a.role === 'COUNSELLOR').map(admin => (
+                          <option key={admin.id} value={admin.id}>{admin.name}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Tutor Admins">
+                        {admins.filter(a => a.role === 'TUTOR_ADMIN').map(admin => (
+                          <option key={admin.id} value={admin.id}>{admin.name}</option>
+                        ))}
+                      </optgroup>
                     </select>
                   </div>
                 </div>

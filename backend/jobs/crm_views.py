@@ -38,13 +38,21 @@ class CRMJobListView(generics.ListAPIView):
         if status_filter and status_filter != 'ALL':
             queryset = queryset.filter(status=status_filter)
         
-        # Filter by assigned admin
+        # Filter by assigned admin ID
         admin_id = self.request.query_params.get('admin_id')
         if admin_id:
             if admin_id == 'unassigned':
                 queryset = queryset.filter(assigned_admin__isnull=True)
             else:
                 queryset = queryset.filter(assigned_admin_id=admin_id)
+
+        # Filter by assigned admin role
+        admin_role = self.request.query_params.get('admin_role')
+        if admin_role:
+            if admin_role == 'unassigned':
+                queryset = queryset.filter(assigned_admin__isnull=True)
+            else:
+                queryset = queryset.filter(assigned_admin__role=admin_role)
         
         # Filter by date range
         date_from = self.request.query_params.get('date_from')
@@ -219,6 +227,7 @@ class CRMAdminListView(APIView):
                 'id': admin.id,
                 'name': admin.username,
                 'email': admin.email,
+                'role': admin.role,
                 'assigned_jobs': JobPost.objects.filter(assigned_admin=admin).count()
             }
             for admin in admins
