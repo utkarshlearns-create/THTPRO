@@ -110,7 +110,7 @@ class ParentStatsView(APIView):
         recommended_tutors = self._get_recommended_tutors(user)
         activities = self._build_activity_feed(user)
         recent_jobs_data = JobPostSerializer(
-            JobPost.objects.filter(posted_by=user).order_by('-created_at')[:3],
+            JobPost.objects.filter(Q(posted_by=user) | Q(parent=user)).order_by('-created_at')[:3],
             many=True,
         ).data
 
@@ -129,10 +129,10 @@ class ParentStatsView(APIView):
     def _get_job_stats(self, user):
         """Compute core job statistics."""
         active_jobs = JobPost.objects.filter(
-            posted_by=user,
+            Q(posted_by=user) | Q(parent=user),
             status__in=['APPROVED', 'PENDING_APPROVAL', 'ASSIGNED'],
         ).count()
-        applications_received = Application.objects.filter(job__posted_by=user).count()
+        applications_received = Application.objects.filter(Q(job__posted_by=user) | Q(job__parent=user)).count()
         return {'active_jobs': active_jobs, 'applications_received': applications_received}
 
     def _get_wallet_balance(self, user):
@@ -147,7 +147,7 @@ class ParentStatsView(APIView):
     def _get_assigned_tutor(self, user):
         """Get the most recently hired tutor info."""
         hire = Application.objects.filter(
-            job__posted_by=user, status='HIRED'
+            Q(job__posted_by=user) | Q(job__parent=user), status='HIRED'
         ).select_related('tutor__user', 'job').order_by('-updated_at').first()
 
         if hire and hire.tutor:
@@ -160,7 +160,7 @@ class ParentStatsView(APIView):
 
     def _get_recommended_tutors(self, user, limit=5):
         """Recommend active tutors, prioritizing locality match."""
-        last_job = JobPost.objects.filter(posted_by=user).order_by('-created_at').first()
+        last_job = JobPost.objects.filter(Q(posted_by=user) | Q(parent=user)).order_by('-created_at').first()
         parent_locality = last_job.locality if last_job else None
 
         qs = TutorProfile.objects.filter(
@@ -196,7 +196,7 @@ class ParentStatsView(APIView):
         activities = []
 
         # Recent jobs status updates
-        for job in JobPost.objects.filter(posted_by=user).order_by('-created_at')[:3]:
+        for job in JobPost.objects.filter(Q(posted_by=user) | Q(parent=user)).order_by('-created_at')[:3]:
             if job.status == 'PENDING_APPROVAL':
                 activities.append({
                     "type": "info", "title": "Job Under Review",
@@ -224,7 +224,7 @@ class ParentStatsView(APIView):
 
         # Recent applications
         for app in Application.objects.filter(
-            job__posted_by=user
+            Q(job__posted_by=user) | Q(job__parent=user)
         ).select_related('tutor__user', 'job').order_by('-created_at')[:3]:
             activities.append({
                 "type": "application", "title": "New Applicant",
