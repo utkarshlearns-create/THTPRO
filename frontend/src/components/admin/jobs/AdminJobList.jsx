@@ -18,7 +18,7 @@ export default function AdminJobList({ status, title }) {
         setLoading(true);
         try {
             const token = localStorage.getItem('access');
-            const response = await fetch(`${API_BASE_URL}/api/jobs/crm/jobs/all/?status=${status}`, {
+            const response = await fetch(`${API_BASE_URL}/api/jobs/admin/all/?status=${status}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
