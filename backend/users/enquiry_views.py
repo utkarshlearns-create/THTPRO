@@ -13,6 +13,11 @@ class EnquiryCreateView(generics.CreateAPIView):
     authentication_classes = []
     serializer_class = EnquirySerializer
 
+    def perform_create(self, serializer):
+        from jobs.utils import assign_enquiry_to_admin
+        enquiry = serializer.save()
+        assign_enquiry_to_admin(enquiry)
+
 
 class AdminEnquiryListView(generics.ListAPIView):
     """Admin view for enquiries."""
