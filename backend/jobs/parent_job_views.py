@@ -118,6 +118,7 @@ class ParentStatsView(APIView):
             "stats": {
                 "active_jobs": stats['active_jobs'],
                 "applications_received": stats['applications_received'],
+                "hired_count": stats['hired_count'],
                 "wallet_balance": wallet_balance,
             },
             "assigned_tutor": assigned_tutor,
@@ -133,7 +134,11 @@ class ParentStatsView(APIView):
             status__in=['APPROVED', 'PENDING_APPROVAL', 'ASSIGNED'],
         ).count()
         applications_received = Application.objects.filter(Q(job__posted_by=user) | Q(job__parent=user)).count()
-        return {'active_jobs': active_jobs, 'applications_received': applications_received}
+        hired_count = JobPost.objects.filter(
+            Q(posted_by=user) | Q(parent=user),
+            status='ASSIGNED'
+        ).count()
+        return {'active_jobs': active_jobs, 'applications_received': applications_received, 'hired_count': hired_count}
 
     def _get_wallet_balance(self, user):
         """Get users wallet balance safely."""
