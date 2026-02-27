@@ -14,10 +14,56 @@ User = get_user_model()
 
 def assign_job_to_admin(job_post):
     """
-    Assigns a job post to the admin with the least workload.
+    Assigns a job post to the admin with the least workload OR the previously assigned admin.
     Uses AdminProfile for availability and department tracking.
     """
     from .admin_models import AdminTask, AdminProfile
+    from users.models import Enquiry
+    
+    # 1. Check for Sticky Counsellor (Prioritize same admin for same parent)
+    parent_user = job_post.parent or job_post.posted_by
+    if parent_user:
+        # Check prior jobs
+        prior_job = JobPost.objects.filter(
+            Q(parent=parent_user) | Q(posted_by=parent_user),
+            assigned_admin__isnull=False
+        ).exclude(id=job_post.id).order_by('-created_at').first()
+        
+        if prior_job and prior_job.assigned_admin.is_active:
+            assigned_admin = prior_job.assigned_admin
+            logger.info(f"Sticky Assignment: Re-assigning job {job_post.id} to previous admin {assigned_admin.username}")
+            
+            # Update counter for the sticky admin
+            try:
+                profile = AdminProfile.objects.get(user=assigned_admin)
+                profile.pending_job_count += 1
+                profile.save()
+            except AdminProfile.DoesNotExist:
+                pass
+                
+            return _finalize_job_assignment(job_post, assigned_admin)
+            
+        # Check prior enquiries linked by phone if parent has phone
+        if hasattr(parent_user, 'phone') and parent_user.phone:
+            prior_enquiry = Enquiry.objects.filter(
+                phone=parent_user.phone,
+                assigned_admin__isnull=False
+            ).order_by('-created_at').first()
+            
+            if prior_enquiry and prior_enquiry.assigned_admin.is_active:
+                assigned_admin = prior_enquiry.assigned_admin
+                logger.info(f"Sticky Assignment: Job {job_post.id} assigned to admin {assigned_admin.username} based on prior Enquiry")
+                
+                try:
+                    profile = AdminProfile.objects.get(user=assigned_admin)
+                    profile.pending_job_count += 1
+                    profile.save()
+                except AdminProfile.DoesNotExist:
+                    pass
+                    
+                return _finalize_job_assignment(job_post, assigned_admin)
+                
+    # 2. Fallback to Workload Balanced Assignment
     
     # Get active COUNSELLOR or SUPERADMIN admins who are available
     admin_profiles = AdminProfile.objects.filter(
@@ -45,6 +91,12 @@ def assign_job_to_admin(job_post):
         # Increment counter
         chosen_profile.pending_job_count += 1
         chosen_profile.save()
+    
+    return _finalize_job_assignment(job_post, assigned_admin)
+
+def _finalize_job_assignment(job_post, assigned_admin):
+    """Helper method to construct tasks and notifications for job assignments"""
+    from .admin_models import AdminTask
     
     logger.info(f"Assigning job {job_post.id} to admin {assigned_admin.username}")
     
@@ -158,4 +210,76 @@ def assign_kyc_to_admin(kyc_record):
         related_kyc=kyc_record
     )
     
+    
+    return assigned_admin
+
+
+def assign_enquiry_to_admin(enquiry):
+    """
+    Assigns a Landing Page Enquiry to a Counsellor.
+    Checks for Sticky Assignments based on phone number first.
+    """
+    from users.models import Enquiry, User
+    from .models import JobPost
+    from django.db.models import Q
+    import random
+    
+    if not enquiry.phone:
+        return _fallback_enquiry_assignment(enquiry)
+        
+    # 1. Check if an active User exists with this phone who has prior Jobs
+    matching_user = User.objects.filter(phone=enquiry.phone).first()
+    if matching_user:
+        prior_job = JobPost.objects.filter(
+            Q(parent=matching_user) | Q(posted_by=matching_user),
+            assigned_admin__isnull=False
+        ).order_by('-created_at').first()
+        
+        if prior_job and prior_job.assigned_admin.is_active:
+            logger.info(f"Sticky Enquiry: Assigning to {prior_job.assigned_admin.username} based on prior Job")
+            enquiry.assigned_admin = prior_job.assigned_admin
+            enquiry.save()
+            return enquiry.assigned_admin
+
+    # 2. Check for prior Enquiries with same phone
+    prior_enquiry = Enquiry.objects.filter(
+        phone=enquiry.phone,
+        assigned_admin__isnull=False
+    ).exclude(id=enquiry.id).order_by('-created_at').first()
+    
+    if prior_enquiry and prior_enquiry.assigned_admin.is_active:
+        logger.info(f"Sticky Enquiry: Assigning to {prior_enquiry.assigned_admin.username} based on prior Enquiry")
+        enquiry.assigned_admin = prior_enquiry.assigned_admin
+        enquiry.save()
+        return enquiry.assigned_admin
+
+    # 3. Fallback to Workload Balanced Assignment
+    return _fallback_enquiry_assignment(enquiry)
+
+def _fallback_enquiry_assignment(enquiry):
+    from .admin_models import AdminProfile
+    from users.models import User
+    import random
+    
+    # Get active COUNSELLOR or SUPERADMIN
+    admin_profiles = AdminProfile.objects.filter(
+        Q(department='COUNSELLOR') | Q(department='SUPERADMIN'),
+        is_available=True,
+        user__is_active=True
+    ).order_by('pending_job_count')
+    
+    if not admin_profiles.exists():
+        admins = User.objects.filter(role__in=['COUNSELLOR', 'TUTOR_ADMIN'], is_active=True)
+        if not admins.exists():
+            return None
+        assigned_admin = random.choice(admins)
+    else:
+        min_count = admin_profiles.first().pending_job_count
+        candidates = admin_profiles.filter(pending_job_count=min_count)
+        chosen_profile = random.choice(candidates)
+        assigned_admin = chosen_profile.user
+        
+    enquiry.assigned_admin = assigned_admin
+    enquiry.save()
+    logger.info(f"Assigned Enquiry {enquiry.id} to admin {assigned_admin.username}")
     return assigned_admin

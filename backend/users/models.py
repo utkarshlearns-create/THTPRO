@@ -196,6 +196,10 @@ class Enquiry(models.Model):
     location = models.CharField(max_length=255, blank=True, null=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
+    
+    # New Field for Sticky Assignment
+    assigned_admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_enquiries')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
