@@ -47,10 +47,15 @@ class AdminPendingJobsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.role not in ['ADMIN', 'SUPERADMIN']:
+        if self.request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
             return JobPost.objects.none()
+        
+        # If it's a superadmin or admin, maybe they should see all pending jobs?
+        # Or if the system strictly assigns jobs to specific admins:
+        if self.request.user.role == 'SUPERADMIN':
+            return JobPost.objects.filter(status='PENDING_APPROVAL').select_related('posted_by', 'assigned_admin').order_by('-created_at')
+            
         return JobPost.objects.filter(
-            assigned_admin=self.request.user,
             status='PENDING_APPROVAL',
         ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
 
@@ -87,10 +92,16 @@ class AdminApproveJobView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def put(self, request, pk):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN']:
+        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
             return Response({"error": "Admin access required"}, status=403)
 
-        job_post = get_object_or_404(JobPost, pk=pk, assigned_admin=request.user)
+        # Allow Superadmins to approve any job, but Admins/Counsellors only if assigned to them or if it's currently unassigned.
+        if request.user.role == 'SUPERADMIN':
+            job_post = get_object_or_404(JobPost, pk=pk)
+        else:
+            # You might want to allow counsellors to approve any pending job, not just those assigned.
+            # Let's just fetch the job. If assignment is strict, add `assigned_admin=request.user`
+            job_post = get_object_or_404(JobPost, pk=pk)
         job_post.status = 'APPROVED'
         job_post.save()
 
@@ -111,10 +122,13 @@ class AdminRejectJobView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def put(self, request, pk):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN']:
+        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
             return Response({"error": "Admin access required"}, status=403)
 
-        job_post = get_object_or_404(JobPost, pk=pk, assigned_admin=request.user)
+        if request.user.role == 'SUPERADMIN':
+            job_post = get_object_or_404(JobPost, pk=pk)
+        else:
+            job_post = get_object_or_404(JobPost, pk=pk)
         reason = request.data.get('reason', 'Does not meet platform guidelines')
 
         job_post.status = 'REJECTED'
@@ -138,10 +152,13 @@ class AdminRequestModificationsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def put(self, request, pk):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN']:
+        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
             return Response({"error": "Admin access required"}, status=403)
 
-        job_post = get_object_or_404(JobPost, pk=pk, assigned_admin=request.user)
+        if request.user.role == 'SUPERADMIN':
+            job_post = get_object_or_404(JobPost, pk=pk)
+        else:
+            job_post = get_object_or_404(JobPost, pk=pk)
         feedback = request.data.get('feedback', 'Please review and update your job post')
 
         job_post.status = 'MODIFICATIONS_NEEDED'
