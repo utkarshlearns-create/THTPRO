@@ -16,6 +16,7 @@ import {
   Clock,
   Star,
   Zap,
+  Unlock,
   Home,
   TrendingUp,
   X
