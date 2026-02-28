@@ -21,7 +21,8 @@ import {
   TrendingUp,
   X,
   Heart,
-  AlertCircle
+  AlertCircle,
+  MapPin
 } from 'lucide-react';
 import API_BASE_URL from '../config';
 import { clearAuthState } from '../utils/auth';
@@ -991,9 +992,25 @@ const MyProfile = ({ latestJob, stats, userProfile, onEdit }) => {
                                 <CheckCircle size={12} /> VERIFIED
                             </span>
                         </div>
-                         <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                            <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Location</span>
-                            <span className="text-sm text-slate-900 dark:text-white font-medium truncate max-w-[150px]">{locationStr}</span>
+                        <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                            <span className="text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                                <MapPin size={14} className="text-indigo-500" /> City
+                            </span>
+                            <span className="text-sm text-slate-900 dark:text-white font-bold">{userProfile?.city || 'Lucknow'}</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                            <span className="text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                                <MapPin size={14} className="text-indigo-500" /> Area
+                            </span>
+                            <span className="text-sm text-slate-900 dark:text-white font-bold">{userProfile?.area || 'N/A'}</span>
+                        </div>
+                        <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg space-y-2">
+                            <span className="text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-700 pb-1 w-full">
+                                <Home size={14} className="text-indigo-500" /> Detailed Address
+                            </span>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium min-h-[40px]">
+                                {userProfile?.address || 'No address provided.'}
+                            </p>
                         </div>
                     </div>
 

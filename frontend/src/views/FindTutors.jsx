@@ -6,6 +6,7 @@ import API_BASE_URL from '../config';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import TutorCard from '../components/tutor/TutorCard';
+import { LOCATION_DATA } from '../constants/locations';
 
 const FindTutors = () => {
     const router = useRouter();
@@ -23,15 +24,6 @@ const FindTutors = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
-    const LOCATION_DATA = {
-        "Uttar Pradesh": {
-            "Lucknow": ["Aliganj", "Gomti Nagar", "Indira Nagar", "Hazratganj", "Janki Puram", "Mahanagar", "Alambagh", "Vikas Nagar", "South City", "Aashiana"],
-            "Kanpur": ["Kalyanpur", "Kidwai Nagar", "Civil Lines", "Swaroop Nagar", "Jajmau"],
-            "Varanasi": ["Lanka", "Sigra", "Cantt", "Sarnath"],
-            "Agra": ["Sanjay Place", "Taj Nagri", "Dayal Bagh"],
-            "Noida": ["Sector 15", "Sector 18", "Sector 62", "Sector 137"],
-        }
-    };
 
     const SUBJECTS = [
         "Mathematics", "Physics", "Chemistry", "Biology", "Science", 
