@@ -143,18 +143,24 @@ const ParentHome = () => {
                 </div>
 
                 {/* Right: Floating Activity Card */}
-                <div className="lg:col-span-5 hidden lg:block">
-                    <div className="bg-white/10 backdrop-blur-xl rounded-[2rem] p-8 border border-white/10 shadow-2xl relative">
-                        <div className="absolute -top-4 -right-4 bg-amber-400 p-3 rounded-2xl shadow-lg rotate-12">
-                            <Bell size={24} className="text-amber-950" />
-                        </div>
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="font-bold text-xl text-white">Recent Activity</h3>
-                            <Link href="/dashboard/parent?tab=activities" className="text-indigo-300 text-sm font-semibold hover:text-white transition-colors">
+                <div className="lg:col-span-12 xl:col-span-5 hidden lg:block">
+                    <div className="bg-indigo-50/90 dark:bg-slate-950/50 backdrop-blur-xl rounded-[2.5rem] p-8 border border-indigo-100/50 dark:border-white/10 shadow-2xl relative overflow-hidden">
+                        {/* Decorative Background Glow for Card */}
+                        <div className="absolute -top-20 -right-20 w-40 h-40 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none" />
+                        
+                        <div className="flex items-center justify-between mb-8 relative z-10">
+                            <div className="flex items-center gap-3">
+                                <h3 className="font-extrabold text-xl text-slate-900 dark:text-white tracking-tight">Recent Activity</h3>
+                                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-full">
+                                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Live</span>
+                                </div>
+                            </div>
+                            <Link href="/dashboard/parent?tab=activities" className="text-indigo-600 dark:text-indigo-300 text-sm font-bold hover:underline transition-colors">
                                 View History
                             </Link>
                         </div>
-                        <div className="max-h-[420px] overflow-y-auto overflow-x-hidden p-4 pb-8 custom-scrollbar">
+                        <div className="max-h-[420px] overflow-y-auto overflow-x-hidden p-4 pb-8 custom-scrollbar relative z-10">
                            <ActivityFeed activities={stats?.recent_activities} />
                         </div>
                     </div>
