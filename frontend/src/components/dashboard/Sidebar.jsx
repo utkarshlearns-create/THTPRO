@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { LayoutDashboard, User, FileText, Wallet, Bell, LogOut, Settings, HelpCircle, MapPin, BookOpen, ChevronLeft, ChevronRight, Menu, Sun, Moon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../context/ThemeContext';
@@ -136,4 +136,3 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
 };
 
 export default Sidebar;
-
