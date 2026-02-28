@@ -13,6 +13,11 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.PARENT)
     phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
     
+    # Address Details
+    city = models.CharField(max_length=100, default="Lucknow")
+    area = models.CharField(max_length=200, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    
     # We will use phone/email for auth eventually, but for now stick to default username/password 
     # or simple customization.
     

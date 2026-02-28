@@ -3,11 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Phone, User, Sparkles } from 'lucide-react';
 import API_BASE_URL from '../config';
+import { LOCATION_DATA } from '../constants/locations';
+import { MapPin, Home } from 'lucide-react';
 
 const ParentOnboardingPopup = ({ userProfile, onComplete, forceOpen = false, onClose }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
+    const [city, setCity] = useState('Lucknow');
+    const [area, setArea] = useState('');
+    const [address, setAddress] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -23,6 +28,9 @@ const ParentOnboardingPopup = ({ userProfile, onComplete, forceOpen = false, onC
         if (userProfile && (!userProfile.first_name || !userProfile.phone)) {
             setName(userProfile.first_name || '');
             setPhone(userProfile.phone || '');
+            setCity(userProfile.city || 'Lucknow');
+            setArea(userProfile.area || '');
+            setAddress(userProfile.address || '');
             setIsOpen(true);
         } else if (userProfile) {
             setIsOpen(false);
@@ -49,7 +57,10 @@ const ParentOnboardingPopup = ({ userProfile, onComplete, forceOpen = false, onC
                 },
                 body: JSON.stringify({
                     first_name: name.trim(),
-                    phone: phone.trim()
+                    phone: phone.trim(),
+                    city: city,
+                    area: area,
+                    address: address.trim()
                 })
             });
 
@@ -143,6 +154,70 @@ const ParentOnboardingPopup = ({ userProfile, onComplete, forceOpen = false, onC
                                     <CheckCircle2 size={12} className="text-emerald-500" />
                                     We promise no spam, ever.
                                 </p>
+                            </div>
+
+                            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-5">
+                                <h3 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Address Details</h3>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 tracking-tight">City</label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                                <MapPin size={18} />
+                                            </div>
+                                            <select
+                                                required
+                                                value={city}
+                                                onChange={(e) => {
+                                                    setCity(e.target.value);
+                                                    setArea('');
+                                                }}
+                                                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:text-white transition-all text-sm font-medium appearance-none"
+                                            >
+                                                {Object.keys(LOCATION_DATA["Uttar Pradesh"]).map(c => (
+                                                    <option key={c} value={c}>{c}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 tracking-tight">Area</label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                                <MapPin size={18} />
+                                            </div>
+                                            <select
+                                                required
+                                                value={area}
+                                                onChange={(e) => setArea(e.target.value)}
+                                                className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:text-white transition-all text-sm font-medium appearance-none"
+                                            >
+                                                <option value="">Select Area</option>
+                                                {city && LOCATION_DATA["Uttar Pradesh"][city].map(a => (
+                                                    <option key={a} value={a}>{a}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 tracking-tight">Detailed Address</label>
+                                    <div className="relative">
+                                        <div className="absolute top-3.5 left-3.5 pointer-events-none text-slate-400">
+                                            <Home size={18} />
+                                        </div>
+                                        <textarea
+                                            value={address}
+                                            onChange={(e) => setAddress(e.target.value)}
+                                            rows={2}
+                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:text-white transition-all text-sm font-medium resize-none"
+                                            placeholder="House No, Street Name, Landmark..."
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
