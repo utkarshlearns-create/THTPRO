@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { MapPin, Star, Clock, Monitor, Globe, Award } from 'lucide-react';
+import { MapPin, Star, Clock, Monitor, Globe, Award, Heart } from 'lucide-react';
 import API_BASE_URL from '../../config';
 
 const getThemeFromSubjects = (subjects) => {
@@ -83,6 +83,38 @@ const getSpecialistText = (themeKey) => {
 const TutorCard = ({ tutor }) => {
     const rating = 4.5 + Math.random() * 0.5;
     const [imgError, setImgError] = React.useState(false);
+    const [isFavourite, setIsFavourite] = React.useState(tutor.is_favourite || false);
+    const [toggling, setToggling] = React.useState(false);
+    const [isParent, setIsParent] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsParent(localStorage.getItem('role') === 'PARENT');
+    }, []);
+
+    const handleToggleFavourite = async () => {
+        try {
+            setToggling(true);
+            const token = localStorage.getItem('access');
+            if (!token) return;
+
+            const response = await fetch(`${API_BASE_URL}/api/users/tutors/${tutor.id}/favourite/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setIsFavourite(data.is_favourite);
+            }
+        } catch (error) {
+            console.error("Error toggling favourite:", error);
+        } finally {
+            setToggling(false);
+        }
+    };
     
     const themeKey = getThemeFromSubjects(tutor.subjects);
     const styles = themeStyles[themeKey];
@@ -122,10 +154,29 @@ const TutorCard = ({ tutor }) => {
                     </div>
                 </div>
 
-                {/* Rating */}
-                <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
-                    <span className="text-sm font-extrabold text-slate-700 dark:text-slate-300 leading-none">{rating.toFixed(1)}</span>
-                    <Star size={12} className="fill-amber-400 text-amber-400" />
+                {/* Rating & Favorite */}
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                    <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <span className="text-sm font-extrabold text-slate-700 dark:text-slate-300 leading-none">{rating.toFixed(1)}</span>
+                        <Star size={12} className="fill-amber-400 text-amber-400" />
+                    </div>
+                    {isParent && (
+                        <button 
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleToggleFavourite();
+                            }}
+                            disabled={toggling}
+                            className={`p-2 rounded-xl transition-all duration-300 border ${
+                                isFavourite 
+                                ? 'bg-rose-50 border-rose-100 text-rose-500 dark:bg-rose-900/20 dark:border-rose-900/30' 
+                                : 'bg-slate-50 border-slate-200 text-slate-400 hover:text-rose-500 dark:bg-slate-800/80 dark:border-slate-700'
+                            } ${toggling ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 active:scale-95'}`}
+                        >
+                            <Heart size={18} className={isFavourite ? 'fill-current' : ''} />
+                        </button>
+                    )}
                 </div>
             </div>
 

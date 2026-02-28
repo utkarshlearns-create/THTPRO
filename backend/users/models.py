@@ -220,3 +220,15 @@ class InstitutionProfile(models.Model):
 
     def __str__(self):
         return self.institution_name
+
+class FavouriteTutor(models.Model):
+    parent = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favourite_tutors_records')
+    tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='favourited_by_parents')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('parent', 'tutor')
+        verbose_name_plural = "Favourite Tutors"
+
+    def __str__(self):
+        return f"{self.parent.username} loves {self.tutor.user.username}"

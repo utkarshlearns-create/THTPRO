@@ -22,6 +22,8 @@ from .tutor_views import (
     PublicTutorDetailView,
     ContactUnlockView,
     UnlockedContactsView,
+    FavouriteTutorToggleView,
+    FavouriteTutorListView,
 )
 
 # Institution views
@@ -71,6 +73,8 @@ urlpatterns = [
     path('dashboard/unlocked-contacts/', UnlockedContactsView.as_view(), name='unlocked_contacts'),
     path('tutors/search/', PublicTutorSearchView.as_view(), name='public_tutor_search'),
     path('tutors/<int:pk>/', PublicTutorDetailView.as_view(), name='public_tutor_detail'),
+    path('tutors/<int:pk>/favourite/', FavouriteTutorToggleView.as_view(), name='tutor_favourite_toggle'),
+    path('dashboard/favourite-tutors/', FavouriteTutorListView.as_view(), name='favourite_tutors_list'),
 
     # Institution
     path('institution/profile/', InstitutionProfileView.as_view(), name='institution_profile'),

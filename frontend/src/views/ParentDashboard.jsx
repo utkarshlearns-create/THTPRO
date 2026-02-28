@@ -20,6 +20,7 @@ import {
   Home,
   TrendingUp,
   X,
+  Heart,
   AlertCircle
 } from 'lucide-react';
 import API_BASE_URL from '../config';
@@ -29,6 +30,7 @@ import { Button } from '../components/ui/button';
 import { Progress } from '../components/ui/progress';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import ParentOnboardingPopup from '../components/ParentOnboardingPopup';
+import TutorCard from '../components/tutor/TutorCard';
 
 // Skeleton component for loading states
 const Skeleton = ({ className }) => (
@@ -181,6 +183,14 @@ const ParentDashboard = () => {
                     <SidebarItem icon={<History size={20} />} label="History" active={activeTab === 'history'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('history')} />
                     <SidebarItem icon={<Unlock size={20} />} label="Unlocked Contacts" active={activeTab === 'unlocked_contacts'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('unlocked_contacts')} />
                     <SidebarItem icon={<Wallet size={20} />} label="Wallet & Credits" active={activeTab === 'wallet'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('wallet')} />
+                    <SidebarItem 
+                        icon={<Heart size={20} />} 
+                        label="Favourites" 
+                        active={activeTab === 'favourites'} 
+                        isOpen={sidebarOpen} 
+                        isHovered={sidebarHover}
+                        onClick={() => setActiveTab('favourites')} 
+                    />
                     <SidebarItem icon={<Bell size={20} />} label="Notifications" active={activeTab === 'notifications'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('notifications')} />
                 </nav>
 
@@ -411,6 +421,9 @@ const ParentDashboard = () => {
                     {/* WALLET VIEW */}
                     {activeTab === 'wallet' && <WalletSection wallet={wallet} />}
 
+                    {/* FAVOURITES VIEW */}
+                    {activeTab === 'favourites' && <FavouritesSection />}
+
                     {/* NOTIFICATIONS VIEW */}
                     {activeTab === 'notifications' && <NotificationsSection />}
 
@@ -557,6 +570,86 @@ const UnlockedContactsList = () => {
                     <p className="text-slate-500 dark:text-slate-400 mt-1">Unlock tutor profiles to see their contacts here.</p>
                  </div>
             )}
+        </div>
+    );
+};
+
+const FavouritesSection = () => {
+    const [favourites, setFavourites] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        fetchFavourites();
+    }, []);
+
+    const fetchFavourites = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/users/dashboard/favourite-tutors/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                setFavourites(await response.json());
+            } else {
+                setError("Failed to fetch favourites.");
+            }
+        } catch (err) {
+            setError("Something went wrong while fetching favourites.");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map(i => <Skeleton key={i} className="h-64 w-full" />)}
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800">
+                <AlertCircle className="w-12 h-12 text-rose-500 mb-4" />
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Error Loading Favourites</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-center max-w-md">{error}</p>
+                <Button onClick={fetchFavourites} className="mt-6 bg-indigo-600 hover:bg-indigo-700">Try Again</Button>
+            </div>
+        );
+    }
+
+    if (favourites.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center p-12 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="w-20 h-20 bg-rose-50 dark:bg-rose-900/20 rounded-full flex items-center justify-center mb-6">
+                    <Heart size={40} className="text-rose-500" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">No Favourites Yet</h3>
+                <p className="text-slate-500 dark:text-slate-400 text-center max-w-md mb-8">
+                    You haven't saved any tutors yet. Browse our recommended teachers and heart the ones you love!
+                </p>
+                <Button onClick={() => window.location.href = '/parent-home'} className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-6 rounded-2xl font-bold text-lg shadow-lg shadow-indigo-200 dark:shadow-none hover:scale-105 transition-all">
+                    Find Tutors
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6 animate-in fade-in duration-500">
+            <div>
+                <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Favourite Tutors</h1>
+                <p className="text-slate-500 dark:text-slate-400 mt-1">Found {favourites.length} tutors you've saved.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-12">
+                {favourites.map(tutor => (
+                    <TutorCard key={tutor.id} tutor={tutor} />
+                ))}
+            </div>
         </div>
     );
 };
