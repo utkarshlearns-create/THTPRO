@@ -18,6 +18,7 @@ def assign_job_to_admin(job_post):
     Uses AdminProfile for availability and department tracking.
     """
     from .admin_models import AdminTask, AdminProfile
+    from .models import JobPost
     from users.models import Enquiry
     
     # 1. Check for Sticky Counsellor (Prioritize same admin for same parent)
