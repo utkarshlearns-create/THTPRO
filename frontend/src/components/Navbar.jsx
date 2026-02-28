@@ -14,6 +14,7 @@ const Navbar = () => {
   const pathname = usePathname();
 
   const [walletBalance, setWalletBalance] = useState('0.00');
+  const [favouriteCount, setFavouriteCount] = useState(0);
 
   useEffect(() => {
     // Check role on mount and on every route change (e.g. after login/logout)
@@ -22,8 +23,29 @@ const Navbar = () => {
     
     if (userRole) {
         fetchWalletBalance();
+        if (userRole === 'PARENT') {
+            fetchFavouriteCount();
+        }
     }
   }, [pathname]);
+
+  const fetchFavouriteCount = async () => {
+    try {
+        const token = localStorage.getItem('access');
+        if (!token) return;
+        
+        const response = await fetch(`${API_BASE_URL}/api/users/dashboard/favourite-tutors/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            // Data is paginated: { count: X, results: [...] }
+            setFavouriteCount(data.count || (Array.isArray(data) ? data.length : 0));
+        }
+    } catch (error) {
+        console.error("Error fetching favourite count:", error);
+    }
+  };
 
   const fetchWalletBalance = async () => {
     try {
@@ -83,8 +105,13 @@ const Navbar = () => {
                             <span className="absolute top-1.5 right-2 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
                         </Link>
                         {role === 'PARENT' && (
-                            <Link href="/dashboard/parent?tab=favourites" className="p-2 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full" title="My Favourite Tutors">
+                            <Link href="/dashboard/parent?tab=favourites" className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full" title="My Favourite Tutors">
                                 <Heart size={24} />
+                                {favouriteCount > 0 && (
+                                    <span className="absolute top-0.5 right-0.5 min-w-[20px] h-5 px-1 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 animate-in zoom-in duration-300">
+                                        {favouriteCount}
+                                    </span>
+                                )}
                             </Link>
                         )}
                         <Link href={['COUNSELLOR', 'TUTOR_ADMIN'].includes(role) ? '/dashboard/admin' : role === 'TEACHER' ? '/dashboard/tutor' : role === 'INSTITUTION' ? '/dashboard/institution' : '/dashboard/parent'} 
@@ -149,8 +176,13 @@ const Navbar = () => {
                                 <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
                             </Link>
                             {role === 'PARENT' && (
-                                <Link href="/dashboard/parent?tab=favourites" className="p-2 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-full">
+                                <Link href="/dashboard/parent?tab=favourites" className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-full">
                                     <Heart size={20} />
+                                    {favouriteCount > 0 && (
+                                        <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white dark:border-slate-800 animate-in zoom-in duration-300">
+                                            {favouriteCount}
+                                        </span>
+                                    )}
                                 </Link>
                             )}
                         </div>
