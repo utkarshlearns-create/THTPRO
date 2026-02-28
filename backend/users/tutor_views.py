@@ -227,4 +227,49 @@ class UnlockedContactsView(APIView):
                 "unlocked_at": unlock.unlocked_at,
             })
 
-        return Response(data)
+
+class FavouriteTutorToggleView(APIView):
+    """Toggle a tutor's favorite status for the current parent."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role != 'PARENT':
+            return Response({"error": "Only parents can favorite tutors."}, status=403)
+
+        tutor_profile = get_object_or_404(TutorProfile, pk=pk)
+        from .models import FavouriteTutor
+        
+        favourite, created = FavouriteTutor.objects.get_or_create(
+            parent=request.user, 
+            tutor=tutor_profile
+        )
+
+        if not created:
+            favourite.delete()
+            return Response({"is_favourite": False, "message": "Removed from favourites"})
+        
+        return Response({"is_favourite": True, "message": "Added to favourites"}, status=201)
+
+
+class FavouriteTutorListView(generics.ListAPIView):
+    """List all tutors favorited by the current parent."""
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PublicTutorProfileSerializer
+
+    def get_queryset(self):
+        if self.request.user.role != 'PARENT':
+            return TutorProfile.objects.none()
+        
+        from .models import FavouriteTutor
+        favourite_ids = FavouriteTutor.objects.filter(
+            parent=self.request.user
+        ).values_list('tutor_id', flat=True)
+        
+        return TutorProfile.objects.filter(
+            id__in=favourite_ids
+        ).select_related('user', 'status_record')
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context

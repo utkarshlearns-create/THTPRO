@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Bell, Wallet, User, Home } from 'lucide-react';
+import { Menu, X, Bell, Wallet, User, Home, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import API_BASE_URL from '../config';
 import { clearAuthState } from '../utils/auth';
@@ -82,6 +82,11 @@ const Navbar = () => {
                             <Bell size={24} />
                             <span className="absolute top-1.5 right-2 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
                         </Link>
+                        {role === 'PARENT' && (
+                            <Link href="/dashboard/parent?tab=favourites" className="p-2 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full" title="My Favourite Tutors">
+                                <Heart size={24} />
+                            </Link>
+                        )}
                         <Link href={['COUNSELLOR', 'TUTOR_ADMIN'].includes(role) ? '/dashboard/admin' : role === 'TEACHER' ? '/dashboard/tutor' : role === 'INSTITUTION' ? '/dashboard/institution' : '/dashboard/parent'} 
                             className="flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded-full transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
                         >
@@ -143,6 +148,11 @@ const Navbar = () => {
                                 <Bell size={20} />
                                 <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
                             </Link>
+                            {role === 'PARENT' && (
+                                <Link href="/dashboard/parent?tab=favourites" className="p-2 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-full">
+                                    <Heart size={20} />
+                                </Link>
+                            )}
                         </div>
                         <Link href={['COUNSELLOR', 'TUTOR_ADMIN'].includes(role) ? '/dashboard/admin' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'}
                             className="block w-full text-center px-3 py-3 text-indigo-600 dark:text-indigo-400 font-bold hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-lg"

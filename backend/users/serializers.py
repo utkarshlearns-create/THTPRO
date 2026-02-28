@@ -39,7 +39,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 from .models import TutorProfile
 
-from .models import TutorProfile, TutorKYC, TutorStatus, Enquiry, InstitutionProfile
+from .models import TutorProfile, TutorKYC, TutorStatus, Enquiry, InstitutionProfile, FavouriteTutor
+
+class FavouriteTutorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FavouriteTutor
+        fields = ['id', 'tutor', 'created_at']
 
 class TutorKYCSerializer(serializers.ModelSerializer):
     class Meta:
@@ -117,6 +122,7 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
     classes = serializers.ListField(read_only=True)
     image = serializers.SerializerMethodField()
     is_unlocked = serializers.SerializerMethodField()
+    is_favourite = serializers.SerializerMethodField()
     contact_info = serializers.SerializerMethodField()
     
     class Meta:
@@ -127,12 +133,18 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
             'teaching_experience_years', 'expected_fee', 
             'highest_qualification', 'is_bed', 'is_tet', 
             'profile_completion_percentage', 'image',
-            'is_unlocked', 'contact_info'
+            'is_unlocked', 'is_favourite', 'contact_info'
         ]
         
     def get_name(self, obj):
         return obj.full_name or obj.user.first_name
     
+    def get_is_favourite(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return FavouriteTutor.objects.filter(parent=request.user, tutor=obj).exists()
+
     def get_is_unlocked(self, obj):
         request = self.context.get('request')
         if not request or not request.user.is_authenticated:
