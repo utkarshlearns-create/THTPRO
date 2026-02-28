@@ -19,6 +19,11 @@ const TutorProfileView = ({ tutorId }) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const userRole = localStorage.getItem('role');
+        setIsParent(userRole === 'PARENT');
+    }, []);
+
+    useEffect(() => {
         const fetchTutor = async () => {
             try {
                 const token = localStorage.getItem('access');
