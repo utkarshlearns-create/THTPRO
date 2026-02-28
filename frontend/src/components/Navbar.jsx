@@ -108,7 +108,7 @@ const Navbar = () => {
                             <Link href="/dashboard/parent?tab=favourites" className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full" title="My Favourite Tutors">
                                 <Heart size={24} />
                                 {favouriteCount > 0 && (
-                                    <span className="absolute top-0.5 right-0.5 min-w-[20px] h-5 px-1 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 animate-in zoom-in duration-300">
+                                    <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-4 px-1 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-slate-900 animate-in zoom-in duration-300">
                                         {favouriteCount}
                                     </span>
                                 )}
@@ -179,7 +179,7 @@ const Navbar = () => {
                                 <Link href="/dashboard/parent?tab=favourites" className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-rose-600 rounded-full">
                                     <Heart size={20} />
                                     {favouriteCount > 0 && (
-                                        <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white dark:border-slate-800 animate-in zoom-in duration-300">
+                                        <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-3.5 px-0.5 bg-rose-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center border border-white dark:border-slate-800 animate-in zoom-in duration-300">
                                             {favouriteCount}
                                         </span>
                                     )}
