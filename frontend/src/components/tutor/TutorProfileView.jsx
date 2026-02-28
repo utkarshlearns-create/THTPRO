@@ -157,20 +157,6 @@ const TutorProfileView = ({ tutorId }) => {
                         <div className="text-center md:text-left flex-grow">
                             <div className="flex items-center justify-between md:justify-start gap-4 mb-2">
                                 <h1 className="text-3xl md:text-5xl font-bold">{tutor.name}</h1>
-                                {isParent && (
-                                    <button 
-                                        onClick={handleToggleFavourite}
-                                        disabled={toggling}
-                                        className={`p-3 rounded-2xl transition-all duration-300 border backdrop-blur-md ${
-                                            isFavourite 
-                                            ? 'bg-rose-500/20 border-rose-500/30 text-rose-500 shadow-lg shadow-rose-500/20' 
-                                            : 'bg-white/10 border-white/20 text-indigo-200 hover:bg-white/20 hover:text-white'
-                                        } ${toggling ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 active:scale-95'}`}
-                                        title={isFavourite ? "Remove from Favourites" : "Add to Favourites"}
-                                    >
-                                        <Heart size={24} className={isFavourite ? 'fill-current' : ''} />
-                                    </button>
-                                )}
                             </div>
                             <div className="flex flex-wrap justify-center md:justify-start gap-4 text-indigo-200">
                                 <span className="flex items-center"><MapPin size={18} className="mr-1"/> {tutor.locality}</span>
@@ -294,6 +280,21 @@ const TutorProfileView = ({ tutorId }) => {
                                 <button className="w-full py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-colors">
                                     Message Tutor
                                 </button>
+
+                                {isParent && (
+                                    <button 
+                                        onClick={handleToggleFavourite}
+                                        disabled={toggling}
+                                        className={`w-full py-3 flex items-center justify-center gap-2 border transition-all rounded-xl font-bold ${
+                                            isFavourite 
+                                            ? 'bg-rose-50 border-rose-200 text-rose-600 dark:bg-rose-900/10 dark:border-rose-900/20 dark:text-rose-400 hover:bg-rose-100' 
+                                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700'
+                                        } ${toggling ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        <Heart size={18} className={isFavourite ? 'fill-rose-600 dark:fill-rose-400' : ''} />
+                                        {isFavourite ? 'Remove from Favourites' : 'Add to Favourites'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
