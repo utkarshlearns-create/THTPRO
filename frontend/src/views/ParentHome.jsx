@@ -298,38 +298,77 @@ const ParentHome = () => {
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                    {stats.recommended_tutors.map(tutor => (
-                        <div key={tutor.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-indigo-100 dark:hover:border-indigo-900/50 transition-all group">
-                            <div className="flex flex-col items-center mb-4">
-                                <img 
-                                    src={tutor.image ? `${API_BASE_URL}${tutor.image}` : `https://ui-avatars.com/api/?name=${tutor.name}&background=random`} 
-                                    alt={tutor.name} 
-                                    className="w-20 h-20 rounded-full object-cover border-4 border-slate-50 dark:border-slate-800 shadow-sm mb-3" 
-                                />
-                                <h3 className="font-bold text-slate-900 dark:text-white leading-tight text-center">{tutor.name}</h3>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-1 line-clamp-1">
-                                    {tutor.subjects && tutor.subjects.join(', ')}
-                                </p>
-                            </div>
-                            
-                            <div className="flex items-center justify-between text-xs px-2 mb-3">
-                                <div className="flex items-center gap-1 text-amber-500 font-bold">
-                                    <Star size={14} fill="currentColor" /> {tutor.rating}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
+                    {stats.recommended_tutors.map(tutor => {
+                        // Dynamic theme color based on subject or random
+                        const themes = [
+                            { border: 'border-indigo-500', bg: 'bg-indigo-50', text: 'text-indigo-600', ring: 'ring-indigo-500/30' },
+                            { border: 'border-emerald-500', bg: 'bg-emerald-50', text: 'text-emerald-600', ring: 'ring-emerald-500/30' },
+                            { border: 'border-amber-500', bg: 'bg-amber-50', text: 'text-amber-600', ring: 'ring-amber-500/30' },
+                            { border: 'border-purple-500', bg: 'bg-purple-50', text: 'text-purple-600', ring: 'ring-purple-500/30' },
+                            { border: 'border-rose-500', bg: 'bg-rose-50', text: 'text-rose-600', ring: 'ring-rose-500/30' },
+                        ];
+                        const theme = themes[tutor.id % themes.length];
+
+                        return (
+                            <div key={tutor.id} className={`relative bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl p-5 rounded-[2rem] border border-white/20 dark:border-slate-800/50 shadow-xl overflow-hidden transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] group ${theme.border} border-t-4`}>
+                                {/* Floating Experience Badge */}
+                                <div className="absolute top-4 right-4 z-10">
+                                    <div className="px-2.5 py-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-full text-[10px] font-bold text-slate-600 dark:text-slate-300 shadow-sm border border-slate-100 dark:border-slate-700">
+                                        5+ Yrs Exp
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 truncate max-w-[80px]">
-                                    <MapPin size={12} /> <span className="truncate">{tutor.locality}</span>
+
+                                <div className="flex flex-col items-center mb-6 relative">
+                                    {/* Avatar with Gradient Ring */}
+                                    <div className={`relative p-1 rounded-full ring-2 ${theme.ring} mb-4 transition-transform duration-500 group-hover:scale-110`}>
+                                        <img 
+                                            src={tutor.image ? `${API_BASE_URL}${tutor.image}` : `https://ui-avatars.com/api/?name=${tutor.name}&background=random`} 
+                                            alt={tutor.name} 
+                                            className="w-20 h-20 rounded-full object-cover shadow-inner" 
+                                        />
+                                        {/* Verified Badge */}
+                                        <div className="absolute bottom-0 right-0 bg-emerald-500 text-white p-1 rounded-full shadow-lg border-2 border-white dark:border-slate-900 animate-pulse">
+                                            <ShieldCheck size={12} fill="currentColor" />
+                                        </div>
+                                    </div>
+
+                                    <h3 className="font-extrabold text-slate-900 dark:text-white leading-tight text-center text-lg">{tutor.name}</h3>
+                                    
+                                    {/* Rating & Location Row */}
+                                    <div className="flex items-center gap-3 mt-2">
+                                        <div className="flex items-center gap-1 text-amber-500 font-bold text-sm bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-full">
+                                            <Star size={14} fill="currentColor" /> {tutor.rating}
+                                        </div>
+                                        <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-xs font-medium">
+                                            <MapPin size={12} className="text-indigo-500" /> {tutor.locality}
+                                        </div>
+                                    </div>
                                 </div>
+                                
+                                {/* Subject Pills */}
+                                <div className="flex flex-wrap justify-center gap-1.5 mb-6">
+                                    {tutor.subjects && tutor.subjects.slice(0, 3).map((sub, i) => (
+                                        <span key={i} className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${theme.bg} ${theme.text} dark:bg-opacity-20`}>
+                                            {sub}
+                                        </span>
+                                    ))}
+                                    {tutor.subjects && tutor.subjects.length > 3 && (
+                                        <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500">
+                                            +{tutor.subjects.length - 3}
+                                        </span>
+                                    )}
+                                </div>
+                                
+                                <Link 
+                                    href={`/tutors/${tutor.id}`}
+                                    className={`block w-full text-center py-3 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white font-bold text-sm shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-indigo-500/25`}
+                                >
+                                    View Profile
+                                </Link>
                             </div>
-                            
-                            <Link 
-                                href={`/tutors/${tutor.id}`}
-                                className="block w-full text-center py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 font-semibold text-xs group-hover:bg-indigo-600 group-hover:text-white dark:group-hover:text-white transition-colors"
-                            >
-                                View Profile
-                            </Link>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </section>
         )}
