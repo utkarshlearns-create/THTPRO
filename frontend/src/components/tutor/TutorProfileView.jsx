@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
     MapPin, Star, Clock, GraduationCap, BookOpen, 
-    Monitor, ShieldCheck, Award, Phone, Mail, Lock
+    Monitor, ShieldCheck, Award, Phone, Mail, Lock, Heart
 } from 'lucide-react';
 import Navbar from '../Navbar';
 import API_BASE_URL from '../../config';
@@ -13,6 +13,9 @@ const TutorProfileView = ({ tutorId }) => {
     const [tutor, setTutor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [unlocking, setUnlocking] = useState(false);
+    const [isFavourite, setIsFavourite] = useState(false);
+    const [toggling, setToggling] = useState(false);
+    const [isParent, setIsParent] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -29,6 +32,8 @@ const TutorProfileView = ({ tutorId }) => {
                 if (response.ok) {
                     const data = await response.json();
                     setTutor(data);
+                    setIsFavourite(data.is_favourite);
+                    setIsParent(localStorage.getItem('role') === 'PARENT');
                 } else {
                     setError("Failed to load tutor profile");
                 }
@@ -43,6 +48,31 @@ const TutorProfileView = ({ tutorId }) => {
             fetchTutor();
         }
     }, [tutorId]);
+
+    const handleToggleFavourite = async () => {
+        try {
+            setToggling(true);
+            const token = localStorage.getItem('access');
+            if (!token) return;
+
+            const response = await fetch(`${API_BASE_URL}/api/users/tutors/${tutorId}/favourite/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setIsFavourite(data.is_favourite);
+            }
+        } catch (error) {
+            console.error("Error toggling favourite:", error);
+        } finally {
+            setToggling(false);
+        }
+    };
 
     const handleUnlock = async () => {
         if (!confirm("Unlock contact for 50 Credits?")) return;
@@ -119,8 +149,24 @@ const TutorProfileView = ({ tutorId }) => {
                                 className="h-full w-full rounded-full object-cover"
                             />
                         </div>
-                        <div className="text-center md:text-left">
-                            <h1 className="text-3xl md:text-5xl font-bold mb-2">{tutor.name}</h1>
+                        <div className="text-center md:text-left flex-grow">
+                            <div className="flex items-center justify-between md:justify-start gap-4 mb-2">
+                                <h1 className="text-3xl md:text-5xl font-bold">{tutor.name}</h1>
+                                {isParent && (
+                                    <button 
+                                        onClick={handleToggleFavourite}
+                                        disabled={toggling}
+                                        className={`p-3 rounded-2xl transition-all duration-300 border backdrop-blur-md ${
+                                            isFavourite 
+                                            ? 'bg-rose-500/20 border-rose-500/30 text-rose-500 shadow-lg shadow-rose-500/20' 
+                                            : 'bg-white/10 border-white/20 text-indigo-200 hover:bg-white/20 hover:text-white'
+                                        } ${toggling ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110 active:scale-95'}`}
+                                        title={isFavourite ? "Remove from Favourites" : "Add to Favourites"}
+                                    >
+                                        <Heart size={24} className={isFavourite ? 'fill-current' : ''} />
+                                    </button>
+                                )}
+                            </div>
                             <div className="flex flex-wrap justify-center md:justify-start gap-4 text-indigo-200">
                                 <span className="flex items-center"><MapPin size={18} className="mr-1"/> {tutor.locality}</span>
                                 <span className="flex items-center"><Star size={18} className="mr-1 text-yellow-400 fill-current"/> 4.8 Rating</span>
