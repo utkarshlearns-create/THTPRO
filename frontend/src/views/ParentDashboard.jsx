@@ -591,7 +591,8 @@ const FavouritesSection = () => {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
-                setFavourites(await response.json());
+                const data = await response.json();
+                setFavourites(data.results || data);
             } else {
                 setError("Failed to fetch favourites.");
             }
@@ -646,7 +647,7 @@ const FavouritesSection = () => {
                 <p className="text-slate-500 dark:text-slate-400 mt-1">Found {favourites.length} tutors you've saved.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-12">
-                {favourites.map(tutor => (
+                {Array.isArray(favourites) && favourites.map(tutor => (
                     <TutorCard key={tutor.id} tutor={tutor} />
                 ))}
             </div>
