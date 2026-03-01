@@ -16,8 +16,13 @@ const CameraCapture = ({ onCapture, onClose }) => {
         async function startCamera() {
             try {
                 const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'user', width: 480, height: 480 } 
+                    video: { 
+                        facingMode: 'user', 
+                        width: { ideal: 480 }, 
+                        height: { ideal: 480 } 
+                    } 
                 });
+                console.log("Camera stream started");
                 setStream(mediaStream);
                 if (videoRef.current) videoRef.current.srcObject = mediaStream;
             } catch (err) {
@@ -27,27 +32,49 @@ const CameraCapture = ({ onCapture, onClose }) => {
         }
         startCamera();
         return () => {
-            if (stream) stream.getTracks().forEach(track => track.stop());
+            if (stream) {
+                console.log("Stopping camera tracks");
+                stream.getTracks().forEach(track => track.stop());
+            }
         };
     }, []);
 
     const capture = () => {
+        console.log("Capture triggered");
         const canvas = canvasRef.current;
         const video = videoRef.current;
         if (canvas && video) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+            const width = video.videoWidth || 480;
+            const height = video.videoHeight || 480;
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            // Mirror flip the capture too
+            ctx.translate(width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, 0, 0, width, height);
+            
             canvas.toBlob((blob) => {
+                if (!blob) {
+                    console.error("Failed to create blob from canvas");
+                    return;
+                }
+                console.log("Blob created, size:", blob.size);
                 const file = new File([blob], "captured-photo.jpg", { type: "image/jpeg" });
                 onCapture(file);
                 onClose();
             }, 'image/jpeg', 0.8);
+        } else {
+            console.error("Canvas or Video ref not found", { canvas: !!canvas, video: !!video });
         }
     };
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <style>{`
+                .mirror { transform: scaleX(-1); }
+            `}</style>
             <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
                 <div className="p-4 border-b border-slate-100 dark:border-white/5 flex justify-between items-center">
                     <h3 className="font-bold text-slate-900 dark:text-white">Take Profile Photo</h3>
