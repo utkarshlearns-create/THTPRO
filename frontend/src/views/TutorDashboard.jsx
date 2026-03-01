@@ -218,6 +218,7 @@ const TutorDashboard = () => {
                 <ProfileEditForm 
                     formData={formData} 
                     handleInputChange={handleInputChange} 
+                    handleProfileFileChange={handleProfileFileChange}
                     handleSubmit={handleSubmit}
                     saving={saving}
                     isLocked={isLocked}
