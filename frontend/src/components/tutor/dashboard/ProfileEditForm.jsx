@@ -40,19 +40,10 @@ const CameraCapture = ({ onCapture, onClose }) => {
     }, []);
 
     const capture = () => {
-        console.log("Capture button clicked");
         const canvas = canvasRef.current;
         const video = videoRef.current;
         
-        if (!canvas || !video) {
-            console.error("Refs missing");
-            return;
-        }
-
-        if (video.readyState < 2) {
-            alert("Please wait for the video to stabilize...");
-            return;
-        }
+        if (!canvas || !video) return;
 
         try {
             const width = video.videoWidth || 640;
@@ -61,34 +52,31 @@ const CameraCapture = ({ onCapture, onClose }) => {
             canvas.height = height;
             
             const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, width, height);
-            
-            // Apply mirror flip to capture
             ctx.save();
             ctx.translate(width, 0);
             ctx.scale(-1, 1);
             ctx.drawImage(video, 0, 0, width, height);
             ctx.restore();
             
-            // Try toDataURL first as it's synchronous and often more stable
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-            if (!dataUrl || dataUrl === 'data:,') throw new Error("Canvas is empty");
+            // toDataURL followed by manual conversion is most compatible
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
             
-            // Convert to File
-            fetch(dataUrl)
-                .then(res => res.blob())
-                .then(blob => {
-                    const file = new File([blob], "captured-photo.jpg", { type: "image/jpeg", lastModified: Date.now() });
-                    onCapture(file);
-                    onClose();
-                })
-                .catch(err => {
-                    console.error("Blob conversion error:", err);
-                    alert("Error processing photo. Please try again.");
-                });
+            // Manual conversion to avoid fetch() data URL restrictions
+            const byteString = atob(dataUrl.split(',')[1]);
+            const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([ab], { type: mimeString });
+            const file = new File([blob], "profile-photo.jpg", { type: "image/jpeg" });
+            
+            onCapture(file);
+            onClose();
         } catch (err) {
             console.error("Capture failure:", err);
-            alert("Capture failed: " + err.message);
+            alert("Capture error: " + err.message);
         }
     };
 
