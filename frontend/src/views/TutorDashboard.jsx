@@ -88,16 +88,63 @@ const TutorDashboard = () => {
         setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     };
 
+    const handleProfileFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const fieldName = e.target.name;
+            const previewUrl = URL.createObjectURL(file);
+            setFormData(prev => ({ 
+                ...prev, 
+                [fieldName]: file,
+                [`${fieldName}Preview`]: previewUrl
+            }));
+        }
+    };
+
     const handleSubmit = async (e) => {
         if(e) e.preventDefault();
         setSaving(true);
         try {
             const token = localStorage.getItem('access');
-            const response = await fetch(`${API_BASE_URL}/api/users/profile/`, {
+            
+            // Check if we have files to upload
+            const hasFiles = formData.profile_image instanceof File || formData.intro_video instanceof File;
+            
+            let fetchOptions = {
                 method: 'PATCH',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
+                headers: { 'Authorization': `Bearer ${token}` }
+            };
+
+            if (hasFiles) {
+                const submissionData = new FormData();
+                // Append all fields to FormData
+                Object.keys(formData).forEach(key => {
+                    if (key.endsWith('Preview')) return; // skip preview URLs
+                    
+                    const value = formData[key];
+                    if (value instanceof File) {
+                        submissionData.append(key, value);
+                    } else if (Array.isArray(value)) {
+                        submissionData.append(key, JSON.stringify(value));
+                    } else if (value !== null && value !== undefined) {
+                        submissionData.append(key, value);
+                    }
+                });
+                fetchOptions.body = submissionData;
+                // DO NOT set Content-Type header when sending FormData! The browser sets it with boundary automatically
+            } else {
+                fetchOptions.headers['Content-Type'] = 'application/json';
+                
+                // Exclude File objects if any are accidentally stringified (though hasFiles check handles this)
+                const jsonPayload = { ...formData };
+                delete jsonPayload.profile_imagePreview;
+                delete jsonPayload.intro_videoPreview;
+                
+                fetchOptions.body = JSON.stringify(jsonPayload);
+            }
+
+            const response = await fetch(`${API_BASE_URL}/api/users/profile/`, fetchOptions);
+
             if (response.ok) {
                 const data = await response.json();
                 setCompletionPercentage(data.profile_completion_percentage);

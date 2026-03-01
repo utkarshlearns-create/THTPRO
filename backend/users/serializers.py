@@ -132,7 +132,7 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
             'subjects', 'classes', 'locality', 'teaching_mode', 
             'teaching_experience_years', 'expected_fee', 
             'highest_qualification', 'is_bed', 'is_tet', 
-            'profile_completion_percentage', 'image',
+            'profile_completion_percentage', 'image', 'intro_video',
             'is_unlocked', 'is_favourite', 'contact_info'
         ]
         
@@ -210,13 +210,8 @@ class UserSerializer(serializers.ModelSerializer):
             user.set_password(password)
             user.save()
             
-        # Create profile based on role
-        if user.role == 'TEACHER':
-            TutorProfile.objects.create(user=user)
-            # Also create status record
-            from .models import TutorStatus
-            TutorStatus.objects.create(tutor=user.tutor_profile)
-        elif user.role == 'INSTITUTION':
+        # Create profile based on role (TutorProfile is handled by signals)
+        if user.role == 'INSTITUTION':
             InstitutionProfile.objects.create(
                 user=user,
                 institution_name=user.first_name or "New Institution", # Default name

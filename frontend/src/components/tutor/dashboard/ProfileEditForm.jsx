@@ -7,7 +7,7 @@ import { cn } from '../../../lib/utils';
 import KYCUpload from './KYCUpload';
 import MultiSelect from '../../ui/multi-select';
 
-const ProfileEditForm = ({ formData, handleInputChange, handleSubmit, saving, isLocked, activeSection, setActiveSection, kycProps }) => {
+const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange, handleSubmit, saving, isLocked, activeSection, setActiveSection, kycProps }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex justify-between items-center">
@@ -68,6 +68,27 @@ const ProfileEditForm = ({ formData, handleInputChange, handleSubmit, saving, is
                                         </div>
                                     </CardHeader>
                                     <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        
+                                        {/* Profile Image Upload */}
+                                        <div className="col-span-1 md:col-span-2 flex items-center space-x-6">
+                                            <div className="shrink-0">
+                                                <img 
+                                                    className="h-24 w-24 object-cover rounded-full border-4 border-white dark:border-slate-800 shadow-md" 
+                                                    src={formData.profile_imagePreview || formData.profile_image || formData.external_profile_image_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.full_name || 'Tutor'}`} 
+                                                    alt="Profile" 
+                                                />
+                                            </div>
+                                            <label className="block">
+                                                <span className="sr-only">Choose profile photo</span>
+                                                <input 
+                                                    type="file" 
+                                                    name="profile_image"
+                                                    onChange={handleProfileFileChange}
+                                                    accept="image/*"
+                                                    className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/20"
+                                                />
+                                            </label>
+                                        </div>
                                         <FormGroup label="Full Name">
                                             <input type="text" name="full_name" value={formData.full_name} onChange={handleInputChange} className="input-field" placeholder="e.g. John Doe" />
                                         </FormGroup>
@@ -170,6 +191,40 @@ const ProfileEditForm = ({ formData, handleInputChange, handleSubmit, saving, is
                                                     placeholder="Select Classes"
                                                 />
                                             </FormGroup>
+
+                                            {/* Intro Video Upload */}
+                                            <div className="col-span-1 md:col-span-2">
+                                                <FormGroup label="Video Confession / Introduction (Max 50MB)">
+                                                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 dark:border-slate-700 border-dashed rounded-xl transition-colors hover:border-indigo-400 dark:hover:border-indigo-500">
+                                                        <div className="space-y-1 text-center">
+                                                            {formData.intro_videoPreview || formData.intro_video ? (
+                                                                <div className="mb-4">
+                                                                    <video 
+                                                                        src={formData.intro_videoPreview || (typeof formData.intro_video === 'string' ? formData.intro_video : '')} 
+                                                                        controls 
+                                                                        className="mx-auto h-40 rounded-lg shadow-sm"
+                                                                    />
+                                                                    <div className="mt-2 text-sm text-slate-500 truncate max-w-xs mx-auto">
+                                                                        {formData.intro_video instanceof File ? formData.intro_video.name : 'Current Video'}
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <svg className="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                                </svg>
+                                                            )}
+                                                            <div className="flex text-sm text-slate-600 dark:text-slate-400 justify-center">
+                                                                <label htmlFor="intro_video_upload" className="relative cursor-pointer bg-white dark:bg-slate-800 rounded-md font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                                    <span>Upload a video</span>
+                                                                    <input id="intro_video_upload" name="intro_video" type="file" className="sr-only" accept="video/mp4,video/webm,video/ogg" onChange={handleProfileFileChange} />
+                                                                </label>
+                                                                <p className="pl-1">or drag and drop</p>
+                                                            </div>
+                                                            <p className="text-xs text-slate-500 dark:text-slate-400">MP4, WebM, OGG up to 50MB</p>
+                                                        </div>
+                                                    </div>
+                                                </FormGroup>
+                                            </div>
                                         </div>
 
                                         <FormGroup label="Teaching Mode">

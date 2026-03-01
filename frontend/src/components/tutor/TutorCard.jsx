@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { MapPin, Star, Clock, Monitor, Globe, Award, Heart } from 'lucide-react';
+import { MapPin, Star, Clock, Monitor, Globe, Award, Heart, ShieldCheck } from 'lucide-react';
 import API_BASE_URL from '../../config';
 
 const getThemeFromSubjects = (subjects) => {
@@ -145,9 +145,14 @@ const TutorCard = ({ tutor }) => {
 
                     {/* Name & Sub-header */}
                     <div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white truncate max-w-[170px] sm:max-w-[190px]">
-                            {tutor.name}
-                        </h3>
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white truncate max-w-[150px] sm:max-w-[170px]">
+                                {tutor.name}
+                            </h3>
+                            {tutor.is_verified && (
+                                <ShieldCheck size={18} className="text-blue-500 flex-shrink-0" />
+                            )}
+                        </div>
                         <div className={`text-sm font-semibold ${styles.text} flex items-center gap-1 mt-0.5 truncate`}>
                              <Award size={14} /> {specialistText}
                         </div>
