@@ -89,14 +89,21 @@ const TutorDashboard = () => {
     };
 
     const handleProfileFileChange = (e) => {
-        const file = e.target.files[0];
+        const file = e.target.files && e.target.files.length > 0 ? e.target.files[0] : null;
+        const fieldName = e.target.name;
+        
         if (file) {
-            const fieldName = e.target.name;
             const previewUrl = URL.createObjectURL(file);
             setFormData(prev => ({ 
                 ...prev, 
                 [fieldName]: file,
                 [`${fieldName}Preview`]: previewUrl
+            }));
+        } else {
+            setFormData(prev => ({ 
+                ...prev, 
+                [fieldName]: null,
+                [`${fieldName}Preview`]: null
             }));
         }
     };
