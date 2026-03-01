@@ -1,13 +1,95 @@
-"use client";
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
-import { Save, User, Briefcase, ShieldCheck } from 'lucide-react';
+import { Save, User, Briefcase, ShieldCheck, Camera, RotateCcw, X } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import KYCUpload from './KYCUpload';
 import MultiSelect from '../../ui/multi-select';
 
+const CameraCapture = ({ onCapture, onClose }) => {
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
+    const [stream, setStream] = useState(null);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        async function startCamera() {
+            try {
+                const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user', width: 480, height: 480 } 
+                });
+                setStream(mediaStream);
+                if (videoRef.current) videoRef.current.srcObject = mediaStream;
+            } catch (err) {
+                console.error("Camera error:", err);
+                setError("Could not access camera. Please check permissions.");
+            }
+        }
+        startCamera();
+        return () => {
+            if (stream) stream.getTracks().forEach(track => track.stop());
+        };
+    }, []);
+
+    const capture = () => {
+        const canvas = canvasRef.current;
+        const video = videoRef.current;
+        if (canvas && video) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            canvas.toBlob((blob) => {
+                const file = new File([blob], "captured-photo.jpg", { type: "image/jpeg" });
+                onCapture(file);
+                onClose();
+            }, 'image/jpeg', 0.8);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
+                <div className="p-4 border-b border-slate-100 dark:border-white/5 flex justify-between items-center">
+                    <h3 className="font-bold text-slate-900 dark:text-white">Take Profile Photo</h3>
+                    <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors">
+                        <X size={20} className="text-slate-500" />
+                    </button>
+                </div>
+                <div className="relative aspect-square bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                    {error ? (
+                        <div className="p-6 text-center text-red-500 font-medium">{error}</div>
+                    ) : (
+                        <video ref={videoRef} autoPlay playsInline className="h-full w-full object-cover mirror" />
+                    )}
+                    <canvas ref={canvasRef} className="hidden" />
+                </div>
+                <div className="p-6 flex justify-center gap-4 bg-slate-50 dark:bg-slate-900/50">
+                    <Button variant="outline" onClick={onClose} className="rounded-full px-6">Cancel</Button>
+                    {!error && (
+                        <Button onClick={capture} variant="sapphire" className="rounded-full px-8 gap-2">
+                            <Camera size={18} /> Capture
+                        </Button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange, handleSubmit, saving, isLocked, activeSection, setActiveSection, kycProps }) => {
+    const [showCamera, setShowCamera] = useState(false);
+
+    const onCameraCapture = (file) => {
+        // Mocking an event object for the handler
+        const event = {
+            target: {
+                name: 'profile_image',
+                files: [file]
+            }
+        };
+        handleProfileFileChange(event);
+    };
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex justify-between items-center">
@@ -78,17 +160,50 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                                     alt="Profile" 
                                                 />
                                             </div>
-                                            <label className="block">
-                                                <span className="sr-only">Choose profile photo</span>
-                                                <input 
-                                                    type="file" 
-                                                    name="profile_image"
-                                                    onChange={handleProfileFileChange}
-                                                    accept="image/*"
-                                                    className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/20"
-                                                />
-                                            </label>
+                                            <div className="flex flex-col gap-3">
+                                                <label className="block">
+                                                    <span className="sr-only">Choose profile photo</span>
+                                                    <input 
+                                                        type="file" 
+                                                        name="profile_image"
+                                                        onChange={handleProfileFileChange}
+                                                        accept="image/*"
+                                                        className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-500/10 dark:file:text-indigo-400 dark:hover:file:bg-indigo-500/20"
+                                                    />
+                                                </label>
+                                                <div className="flex items-center gap-3">
+                                                    <Button 
+                                                        type="button"
+                                                        variant="outline" 
+                                                        size="sm" 
+                                                        className="gap-2 rounded-full border-slate-200 dark:border-white/10"
+                                                        onClick={() => setShowCamera(true)}
+                                                    >
+                                                        <Camera size={14} />
+                                                        Take Photo
+                                                    </Button>
+                                                    {(formData.profile_imagePreview || formData.profile_image instanceof File) && (
+                                                        <Button 
+                                                            type="button"
+                                                            variant="ghost" 
+                                                            size="sm" 
+                                                            className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 gap-1"
+                                                            onClick={() => handleProfileFileChange({ target: { name: 'profile_image', files: [] } })}
+                                                        >
+                                                            <RotateCcw size={14} />
+                                                            Reset
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
+
+                                        {showCamera && (
+                                            <CameraCapture 
+                                                onCapture={onCameraCapture} 
+                                                onClose={() => setShowCamera(false)} 
+                                            />
+                                        )}
                                         <FormGroup label="Full Name">
                                             <input type="text" name="full_name" value={formData.full_name} onChange={handleInputChange} className="input-field" placeholder="e.g. John Doe" />
                                         </FormGroup>
@@ -282,12 +397,51 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                         <FormGroup label="Specialization / Stream">
                                             <input type="text" name="highest_stream" value={formData.highest_stream} onChange={handleInputChange} className="input-field" placeholder="e.g. Computer Science" />
                                         </FormGroup>
-                                        <FormGroup label="University / College">
-                                            <input type="text" name="highest_university" value={formData.highest_university} onChange={handleInputChange} className="input-field" placeholder="e.g. IIT Delhi" />
+                                        <FormGroup label="University Name">
+                                            <input type="text" name="highest_university" value={formData.highest_university} onChange={handleInputChange} className="input-field" placeholder="e.g. University of Mumbai" />
+                                        </FormGroup>
+                                        <FormGroup label="College Name">
+                                            <input type="text" name="highest_college" value={formData.highest_college} onChange={handleInputChange} className="input-field" placeholder="e.g. St. Xavier's College" />
+                                        </FormGroup>
+                                        <FormGroup label="Year of Completion">
+                                            <input type="number" name="highest_year" value={formData.highest_year} onChange={handleInputChange} className="input-field" placeholder="2020" />
                                         </FormGroup>
                                          <FormGroup label="Intermediate (12th) Stream">
                                             <input type="text" name="intermediate_stream" value={formData.intermediate_stream} onChange={handleInputChange} className="input-field" placeholder="e.g. PCM / PCB / Commerce" />
                                         </FormGroup>
+                                        <FormGroup label="12th School Name">
+                                            <input type="text" name="intermediate_school" value={formData.intermediate_school} onChange={handleInputChange} className="input-field" placeholder="e.g. St. Xavier's" />
+                                        </FormGroup>
+                                        <FormGroup label="12th Completion Year">
+                                            <input type="number" name="intermediate_year" value={formData.intermediate_year} onChange={handleInputChange} className="input-field" placeholder="2016" />
+                                        </FormGroup>
+                                        <FormGroup label="12th Board">
+                                            <input type="text" name="intermediate_board" value={formData.intermediate_board} onChange={handleInputChange} className="input-field" placeholder="e.g. CBSE / ICSE / UP Board" />
+                                        </FormGroup>
+
+                                        {/* Certifications Checkboxes */}
+                                        <div className="col-span-1 md:col-span-2">
+                                            <FormGroup label="Professional Certifications">
+                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                                                    <label className="flex items-center gap-2 cursor-pointer p-3 rounded-lg border border-slate-200 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                        <input type="checkbox" name="is_bed" checked={formData.is_bed} onChange={handleInputChange} className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">B.Ed</span>
+                                                    </label>
+                                                    <label className="flex items-center gap-2 cursor-pointer p-3 rounded-lg border border-slate-200 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                        <input type="checkbox" name="is_tet" checked={formData.is_tet} onChange={handleInputChange} className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">TET</span>
+                                                    </label>
+                                                    <label className="flex items-center gap-2 cursor-pointer p-3 rounded-lg border border-slate-200 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                        <input type="checkbox" name="is_mphil" checked={formData.is_mphil} onChange={handleInputChange} className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">M.Phil</span>
+                                                    </label>
+                                                    <label className="flex items-center gap-2 cursor-pointer p-3 rounded-lg border border-slate-200 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                                        <input type="checkbox" name="is_phd" checked={formData.is_phd} onChange={handleInputChange} className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Ph.D</span>
+                                                    </label>
+                                                </div>
+                                            </FormGroup>
+                                        </div>
                                     </CardContent>
                                 </Card>
                             </>
