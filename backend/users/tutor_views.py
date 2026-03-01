@@ -4,6 +4,7 @@ Tutor-related views: profile, search, contact unlock, and dashboard stats.
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import Q, CharField
@@ -17,17 +18,11 @@ from wallet.models import Wallet
 class TutorProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = TutorProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_object(self):
         profile, created = TutorProfile.objects.get_or_create(user=self.request.user)
         return profile
-
-    def patch(self, request, *args, **kwargs):
-        print("--- PROFILE PATCH REQUEST ---")
-        print("Headers Content-Type:", request.headers.get('Content-Type'))
-        print("request.FILES:", request.FILES)
-        print("---------------------------")
-        return super().patch(request, *args, **kwargs)
 
 
 class DashboardStatsView(APIView):
