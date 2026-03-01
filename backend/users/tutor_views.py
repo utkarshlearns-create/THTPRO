@@ -22,6 +22,13 @@ class TutorProfileView(generics.RetrieveUpdateAPIView):
         profile, created = TutorProfile.objects.get_or_create(user=self.request.user)
         return profile
 
+    def patch(self, request, *args, **kwargs):
+        print("--- PROFILE PATCH REQUEST ---")
+        print("Headers Content-Type:", request.headers.get('Content-Type'))
+        print("request.FILES:", request.FILES)
+        print("---------------------------")
+        return super().patch(request, *args, **kwargs)
+
 
 class DashboardStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
