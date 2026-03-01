@@ -147,6 +147,15 @@ const TutorDashboard = () => {
 
             if (response.ok) {
                 const data = await response.json();
+                
+                // Sync form data with server response and clear previews
+                setFormData(prev => ({
+                    ...prev,
+                    ...data,
+                    profile_imagePreview: null,
+                    intro_videoPreview: null
+                }));
+                
                 setCompletionPercentage(data.profile_completion_percentage);
                 alert('Profile updated successfully!');
             } else { alert('Failed to update profile.'); }
