@@ -5,35 +5,7 @@ import { cn } from '../../../lib/utils';
 import { Send, Clock, CheckCircle, XCircle, Loader } from 'lucide-react';
 import API_BASE_URL from '../../../config';
 
-const ApplicationFunnel = () => {
-    const [stats, setStats] = useState({
-        total_applications: 0,
-        pending_applications: 0,
-        accepted_applications: 0,
-        rejected_applications: 0
-    });
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        fetchStats();
-    }, []);
-
-    const fetchStats = async () => {
-        try {
-            const token = localStorage.getItem('access');
-            const response = await fetch(`${API_BASE_URL}/api/users/dashboard/stats/`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setStats(data);
-            }
-        } catch (error) {
-            console.error('Error fetching stats:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+const ApplicationFunnel = ({ stats = { total_applications: 0, pending_applications: 0, accepted_applications: 0, rejected_applications: 0 } }) => {
 
     const funnelData = [
         { 
@@ -66,15 +38,6 @@ const ApplicationFunnel = () => {
         },
     ];
 
-    if (loading) {
-        return (
-            <Card className="col-span-4">
-                <CardContent className="p-12 flex items-center justify-center">
-                    <Loader className="h-6 w-6 animate-spin text-indigo-600" />
-                </CardContent>
-            </Card>
-        );
-    }
 
     return (
         <Card className="col-span-4">
