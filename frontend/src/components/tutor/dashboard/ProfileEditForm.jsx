@@ -40,33 +40,55 @@ const CameraCapture = ({ onCapture, onClose }) => {
     }, []);
 
     const capture = () => {
-        console.log("Capture triggered");
+        console.log("Capture button clicked");
         const canvas = canvasRef.current;
         const video = videoRef.current;
-        if (canvas && video) {
-            const width = video.videoWidth || 480;
+        
+        if (!canvas || !video) {
+            console.error("Refs missing");
+            return;
+        }
+
+        if (video.readyState < 2) {
+            alert("Please wait for the video to stabilize...");
+            return;
+        }
+
+        try {
+            const width = video.videoWidth || 640;
             const height = video.videoHeight || 480;
             canvas.width = width;
             canvas.height = height;
-            const ctx = canvas.getContext('2d');
             
-            // Mirror flip the capture too
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, width, height);
+            
+            // Apply mirror flip to capture
+            ctx.save();
             ctx.translate(width, 0);
             ctx.scale(-1, 1);
             ctx.drawImage(video, 0, 0, width, height);
+            ctx.restore();
             
-            canvas.toBlob((blob) => {
-                if (!blob) {
-                    console.error("Failed to create blob from canvas");
-                    return;
-                }
-                console.log("Blob created, size:", blob.size);
-                const file = new File([blob], "captured-photo.jpg", { type: "image/jpeg" });
-                onCapture(file);
-                onClose();
-            }, 'image/jpeg', 0.8);
-        } else {
-            console.error("Canvas or Video ref not found", { canvas: !!canvas, video: !!video });
+            // Try toDataURL first as it's synchronous and often more stable
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            if (!dataUrl || dataUrl === 'data:,') throw new Error("Canvas is empty");
+            
+            // Convert to File
+            fetch(dataUrl)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], "captured-photo.jpg", { type: "image/jpeg", lastModified: Date.now() });
+                    onCapture(file);
+                    onClose();
+                })
+                .catch(err => {
+                    console.error("Blob conversion error:", err);
+                    alert("Error processing photo. Please try again.");
+                });
+        } catch (err) {
+            console.error("Capture failure:", err);
+            alert("Capture failed: " + err.message);
         }
     };
 
