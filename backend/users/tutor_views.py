@@ -21,7 +21,10 @@ class TutorProfileView(generics.RetrieveUpdateAPIView):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_object(self):
-        profile, created = TutorProfile.objects.get_or_create(user=self.request.user)
+        try:
+            profile = TutorProfile.objects.select_related('user', 'status_record').prefetch_related('kyc_records').get(user=self.request.user)
+        except TutorProfile.DoesNotExist:
+            profile = TutorProfile.objects.create(user=self.request.user)
         return profile
 
 

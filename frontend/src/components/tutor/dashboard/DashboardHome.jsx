@@ -15,7 +15,7 @@ import { CircularProgress } from '../../ui/progress';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
 
-const DashboardHome = ({ user, completionPercentage }) => {
+const DashboardHome = ({ user, completionPercentage, stats }) => {
     const router = useRouter();
 
     return (
@@ -51,7 +51,7 @@ const DashboardHome = ({ user, completionPercentage }) => {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 
                 <QuickActions />
-                <ApplicationFunnel />
+                <ApplicationFunnel stats={stats} />
 
                 {/* Coming Soon Features */}
                 {/* Row 1: Ranking Banner */}
