@@ -226,6 +226,8 @@ class UnlockedContactsView(APIView):
                 "profile_image": tutor.profile_image.url if tutor.profile_image else (tutor.external_profile_image_url or None),
                 "unlocked_at": unlock.unlocked_at,
             })
+            
+        return Response(data)
 
 
 class FavouriteTutorToggleView(APIView):
