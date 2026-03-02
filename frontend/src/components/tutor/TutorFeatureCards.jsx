@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { Card, CardContent } from '../../ui/card';
+import { Card, CardContent } from '../ui/card';
 import { Calendar, Wallet, Users, Layout } from 'lucide-react';
 
 const cards = [
@@ -38,17 +38,17 @@ const cards = [
     }
 ];
 
-const InspirationCards = () => {
+const TutorFeatureCards = () => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {cards.map((card, idx) => (
-                <Card key={idx} className={`shadow-premium border-2 ${card.border} hover:scale-[1.02] transition-transform duration-300`}>
-                    <CardContent className="p-6">
-                        <div className={`w-14 h-14 rounded-2xl ${card.bg} flex items-center justify-center mb-5`}>
-                            <card.icon className={`h-7 w-7 ${card.color}`} />
+                <Card key={idx} className={`shadow-premium border border-slate-100 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900/50 hover:scale-[1.03] transition-all duration-500 rounded-3xl overflow-hidden group`}>
+                    <CardContent className="p-8">
+                        <div className={`w-16 h-16 rounded-[1.5rem] ${card.bg} flex items-center justify-center mb-6 transition-transform group-hover:rotate-6 shadow-sm`}>
+                            <card.icon className={`h-8 w-8 ${card.color}`} />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{card.title}</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{card.title}</h3>
+                        <p className="text-base text-slate-500 dark:text-slate-400 leading-relaxed group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
                             {card.description}
                         </p>
                     </CardContent>
@@ -58,4 +58,4 @@ const InspirationCards = () => {
     );
 };
 
-export default InspirationCards;
+export default TutorFeatureCards;
