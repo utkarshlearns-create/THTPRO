@@ -64,12 +64,12 @@ const TutorHome = () => {
     const canApply = profileStatus.percent >= 80 && profileStatus.status === 'APPROVED';
 
     return (
-        <div className="bg-slate-50 dark:bg-slate-950 min-h-screen pb-32 pt-20 transition-colors duration-300">
-             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
-                
-                {/* 1. HERO SECTION */}
-                <TutorHero />
+        <div className="bg-white dark:bg-slate-950 min-h-screen pb-32 transition-colors duration-300">
+            {/* 1. HERO SECTION (Full width, light blue) */}
+            <TutorHero />
 
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 space-y-24">
+                
                 {/* 2. FEATURE CARDS */}
                 <TutorFeatureCards />
 
