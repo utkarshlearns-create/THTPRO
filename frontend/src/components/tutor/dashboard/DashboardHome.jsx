@@ -11,82 +11,62 @@ import QuickActions from './QuickActions';
 import TutorRanking from './TutorRanking';
 import KYCStatusCard from './KYCStatusCard';
 import NextStepsChecklist from './NextStepsChecklist';
-import DashboardHero from './DashboardHero';
-import InspirationCards from './InspirationCards';
+import { CircularProgress } from '../../ui/progress';
+import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
+import { Button } from '../../ui/button';
 
 const DashboardHome = ({ user, completionPercentage, stats }) => {
     const router = useRouter();
 
     return (
-        <div className="space-y-10 animate-in fade-in zoom-in-95 duration-700 pb-10">
-            {/* Premium Hero Section */}
-            <DashboardHero user={user} completionPercentage={completionPercentage} />
-
-            {/* Inspiration / Feature Highlight Cards (Show if profile not 100% or just for aesthetic) */}
-            <div className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Platform Highlights</h2>
-                        <p className="text-slate-500 dark:text-slate-400">Everything you need to succeed as a professional tutor.</p>
-                    </div>
-                </div>
-                <InspirationCards />
-            </div>
+        <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
+             {/* Profile Completion Banner (if not 100%) */}
+             {completionPercentage < 100 && (
+                 <Card className="bg-gradient-to-r from-slate-900 to-indigo-950 border-indigo-500/30">
+                    <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-6">
+                             <CircularProgress value={completionPercentage} size={80} strokeWidth={6} showValue={false} />
+                             <div>
+                                 <h2 className="text-xl font-bold text-white">Complete Your Profile</h2>
+                                 <p className="text-slate-400 max-w-md">
+                                     You are <span className="text-sky-400 font-bold">{completionPercentage}%</span> there! 
+                                     Complete your profile to unlock job applications and boost visibility.
+                                 </p>
+                             </div>
+                        </div>
+                        <Button variant="sapphire" onClick={() => router.push('/dashboard/tutor?tab=profile')}>
+                            Complete Now
+                        </Button>
+                    </CardContent>
+                 </Card>
+             )}
 
             {/* Critical Action Widgets */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-                <div className="space-y-4">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white px-1">Your Onboarding</h3>
-                    <NextStepsChecklist />
-                </div>
-                <div className="space-y-4">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white px-1">Verification Status</h3>
-                    <KYCStatusCard />
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <NextStepsChecklist />
+                <KYCStatusCard />
             </div>
 
-            {/* Main Stats and Activities Grid */}
-            <div className="space-y-6 pt-4 border-t border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Activity Center</h2>
-                </div>
+            {/* Widgets Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <QuickActions />
-                    <ApplicationFunnel stats={stats} />
+                <QuickActions />
+                <ApplicationFunnel stats={stats} />
 
-                    {/* Row 1: Ranking Banner */}
-                    <div className="lg:col-span-2">
-                        <TutorRanking />
-                    </div>
+                {/* Coming Soon Features */}
+                {/* Row 1: Ranking Banner */}
+                <TutorRanking />
 
-                    {/* Row 2: Earnings & Upcoming Classes */}
-                    <div className="lg:col-span-2">
-                        <EarningsChart />
-                    </div>
-                    <div className="lg:col-span-2">
-                        <UpcomingClasses />
-                    </div>
+                {/* Row 2: Earnings & Upcoming Classes */}
+                <EarningsChart />
+                <UpcomingClasses />
 
-                    {/* Row 3: Performance, Stats */}
-                    <div className="lg:col-span-2">
-                        <PerformanceRadial />
-                    </div>
-                    <div className="lg:col-span-2">
-                        <EngagementStats />
-                    </div>
-                    
-                    {/* Full Width Job Matches */}
-                    <div className="lg:col-span-4">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Recommended Job Matches</h3>
-                            <Button variant="ghost" className="text-indigo-600 hover:text-indigo-700 font-semibold" onClick={() => router.push('/dashboard/tutor?tab=tuitions')}>
-                                View All Matches <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </div>
-                        <JobMatchList />
-                    </div>
-                </div>
+                {/* Row 3: Performance, Stats */}
+                <PerformanceRadial />
+                <EngagementStats />
+                
+                {/* Job Matches */}
+                <JobMatchList />
             </div>
         </div>
     );
