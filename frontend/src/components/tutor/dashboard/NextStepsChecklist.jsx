@@ -105,26 +105,26 @@ const NextStepsChecklist = () => {
     const currentStep = currentStepIndex >= 0 ? steps[currentStepIndex] : null;
 
     return (
-        <Card className="col-span-4 border-2 border-indigo-200 dark:border-indigo-900/50">
-            <CardHeader>
+        <Card className="col-span-4 shadow-premium border-slate-200 dark:border-slate-800 overflow-hidden">
+            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800/50">
                 <div className="flex items-center justify-between">
-                    <CardTitle>Next Steps</CardTitle>
-                    <div className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-                        {completedSteps}/{totalSteps} Completed
+                    <CardTitle className="text-xl font-bold text-slate-900 dark:text-white">Your Onboarding Journey</CardTitle>
+                    <div className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-bold">
+                        {completedSteps}/{totalSteps} Steps Complete
                     </div>
                 </div>
                 {/* Progress Bar */}
                 <div className="mt-4">
-                    <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                         <div 
-                            className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-indigo-600 to-blue-500 shadow-[0_0_10px_rgba(79,70,229,0.4)] transition-all duration-1000 ease-out"
                             style={{ width: `${progressPercentage}%` }}
                         />
                     </div>
                 </div>
             </CardHeader>
-            <CardContent>
-                <div className="space-y-3">
+            <CardContent className="p-6">
+                <div className="space-y-4">
                     {steps.map((step, index) => {
                         const isCompleted = step.completed;
                         const isCurrent = !isCompleted && index === currentStepIndex;
@@ -134,11 +134,11 @@ const NextStepsChecklist = () => {
                             <div 
                                 key={step.id}
                                 className={cn(
-                                    "flex items-center gap-4 p-4 rounded-xl border-2 transition-all",
-                                    isCompleted && "bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-900/50",
-                                    isCurrent && "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-300 dark:border-indigo-900/50 shadow-md",
-                                    !isCompleted && !isCurrent && "bg-slate-50 dark:bg-slate-900/20 border-slate-200 dark:border-slate-800",
-                                    isDisabled && "opacity-50"
+                                    "flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300",
+                                    isCompleted && "bg-emerald-50/30 dark:bg-emerald-900/5 border-emerald-100 dark:border-emerald-900/20",
+                                    isCurrent && "bg-white dark:bg-slate-900 border-indigo-200 dark:border-indigo-900/50 shadow-md scale-[1.01]",
+                                    !isCompleted && !isCurrent && "bg-slate-50/50 dark:bg-slate-900/20 border-slate-100 dark:border-slate-800/50",
+                                    isDisabled && "opacity-40 grayscale-[0.5]"
                                 )}
                             >
                                 {/* Step Icon */}
