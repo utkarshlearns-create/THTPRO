@@ -201,7 +201,7 @@ const TutorDashboard = () => {
 
     if (loading) return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-sky-400">Loading Dashboard...</div>;
 
-    const isLocked = status === 'UNDER_REVIEW' || status === 'APPROVED';
+    const isLocked = status === 'UNDER_REVIEW';
 
     return (
         <TutorDashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} user={formData}>
