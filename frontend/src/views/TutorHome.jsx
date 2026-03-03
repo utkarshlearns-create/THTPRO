@@ -61,7 +61,7 @@ const TutorHome = () => {
         }
     };
 
-    const canApply = profileStatus.percent >= 80 && profileStatus.status === 'APPROVED';
+    const canApply = profileStatus.percent >= 80 && (profileStatus.status === 'APPROVED' || profileStatus.status === 'ACTIVE');
 
     return (
         <div className="bg-white dark:bg-slate-950 min-h-screen pb-32 transition-colors duration-300">

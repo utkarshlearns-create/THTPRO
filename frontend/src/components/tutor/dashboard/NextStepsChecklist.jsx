@@ -79,7 +79,7 @@ const NextStepsChecklist = () => {
             id: 3,
             label: 'Get Verified',
             description: 'Wait for admin approval',
-            completed: profileData?.status_msg?.status === 'APPROVED',
+            completed: profileData?.status_msg?.status === 'APPROVED' || profileData?.status_msg?.status === 'ACTIVE',
             action: 'View Status',
             link: '/tutor/kyc/status',
             disabled: profileData?.status_msg?.status === 'SIGNED_UP' || profileData?.status_msg?.status === 'PROFILE_INCOMPLETE'
@@ -91,7 +91,7 @@ const NextStepsChecklist = () => {
             completed: (stats?.total_applications || 0) > 0,
             action: 'Browse Jobs',
             link: '/dashboard/tutor?tab=tuitions',
-            disabled: profileData?.status_msg?.status !== 'APPROVED'
+            disabled: profileData?.status_msg?.status !== 'APPROVED' && profileData?.status_msg?.status !== 'ACTIVE'
         }
     ];
 

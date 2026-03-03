@@ -68,7 +68,7 @@ const KYCStatusCard = () => {
                 action: 'View Status',
                 actionLink: '/tutor/kyc/status'
             },
-            'APPROVED': {
+            'VERIFIED': {
                 icon: CheckCircle,
                 color: 'text-green-600 dark:text-green-400',
                 bg: 'bg-green-50 dark:bg-green-900/20',
@@ -100,7 +100,7 @@ const KYCStatusCard = () => {
             }
         };
 
-        return configs[status] || configs['NOT_SUBMITTED'];
+        return (configs[status] || configs['VERIFIED'] && status === 'APPROVED') ? configs[status === 'APPROVED' ? 'VERIFIED' : status] : (configs[status] || configs['NOT_SUBMITTED']);
     };
 
     const config = getStatusConfig();
@@ -109,8 +109,8 @@ const KYCStatusCard = () => {
     // Timeline steps
     const timelineSteps = [
         { label: 'Submitted', completed: kycStatus?.status !== 'NOT_SUBMITTED' },
-        { label: 'Under Review', completed: ['SUBMITTED', 'APPROVED', 'REJECTED', 'RESUBMIT_REQUIRED'].includes(kycStatus?.status) },
-        { label: 'Verified', completed: kycStatus?.status === 'APPROVED' }
+        { label: 'Under Review', completed: ['SUBMITTED', 'VERIFIED', 'APPROVED', 'REJECTED', 'RESUBMIT_REQUIRED'].includes(kycStatus?.status) },
+        { label: 'Verified', completed: kycStatus?.status === 'VERIFIED' || kycStatus?.status === 'APPROVED' }
     ];
 
     return (
