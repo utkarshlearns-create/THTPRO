@@ -82,15 +82,18 @@ class CRMJobListView(generics.ListAPIView):
         response = super().list(request, *args, **kwargs)
         
         # Add summary stats
-        all_jobs = JobPost.objects.all()
-        response.data['stats'] = {
-            'total': all_jobs.count(),
-            'pending': all_jobs.filter(status='PENDING_APPROVAL').count(),
-            'approved': all_jobs.filter(status='APPROVED').count(),
-            'rejected': all_jobs.filter(status='REJECTED').count(),
-            'assigned': all_jobs.filter(status='ASSIGNED').count(),
-            'closed': all_jobs.filter(status='CLOSED').count(),
-        }
+        # ⚡ Bolt: Use a single aggregate query instead of 6 separate counts
+        # This reduces DB queries from 6 to 1, significantly improving list response time
+        stats = JobPost.objects.aggregate(
+            total=Count('id'),
+            pending=Count('id', filter=Q(status='PENDING_APPROVAL')),
+            approved=Count('id', filter=Q(status='APPROVED')),
+            rejected=Count('id', filter=Q(status='REJECTED')),
+            assigned=Count('id', filter=Q(status='ASSIGNED')),
+            closed=Count('id', filter=Q(status='CLOSED')),
+        )
+
+        response.data['stats'] = stats
         
         return response
 
@@ -249,30 +252,50 @@ class CRMPipelineStatsView(APIView):
         this_week = today - timedelta(days=7)
         this_month = today - timedelta(days=30)
 
-        jobs = JobPost.objects.all()
+        # ⚡ Bolt: Optimize pipeline stats by using aggregate queries
+        # Reduces JobPost queries from 9 to 1, and Application queries from 3 to 1
+        job_stats = JobPost.objects.aggregate(
+            pending=Count('id', filter=Q(status='PENDING_APPROVAL')),
+            approved=Count('id', filter=Q(status='APPROVED')),
+            assigned=Count('id', filter=Q(status='ASSIGNED')),
+            closed=Count('id', filter=Q(status='CLOSED')),
+            rejected=Count('id', filter=Q(status='REJECTED')),
+            today=Count('id', filter=Q(created_at__date=today)),
+            this_week=Count('id', filter=Q(created_at__date__gte=this_week)),
+            this_month=Count('id', filter=Q(created_at__date__gte=this_month)),
+            unassigned_pending=Count('id', filter=Q(status='PENDING_APPROVAL', assigned_admin__isnull=True)),
+        )
+
+        app_stats = Application.objects.aggregate(
+            total=Count('id'),
+            hired=Count('id', filter=Q(status='HIRED'))
+        )
+
+        total_apps = app_stats['total']
+        hired_apps = app_stats['hired']
         
         return Response({
             # Pipeline stages
             'pipeline': {
-                'pending': jobs.filter(status='PENDING_APPROVAL').count(),
-                'approved': jobs.filter(status='APPROVED').count(),
-                'assigned': jobs.filter(status='ASSIGNED').count(),
-                'closed': jobs.filter(status='CLOSED').count(),
-                'rejected': jobs.filter(status='REJECTED').count(),
+                'pending': job_stats['pending'],
+                'approved': job_stats['approved'],
+                'assigned': job_stats['assigned'],
+                'closed': job_stats['closed'],
+                'rejected': job_stats['rejected'],
             },
             # Time-based metrics
-            'today': jobs.filter(created_at__date=today).count(),
-            'this_week': jobs.filter(created_at__date__gte=this_week).count(),
-            'this_month': jobs.filter(created_at__date__gte=this_month).count(),
+            'today': job_stats['today'],
+            'this_week': job_stats['this_week'],
+            'this_month': job_stats['this_month'],
             # Conversion metrics
-            'total_applications': Application.objects.count(),
-            'hired_applications': Application.objects.filter(status='HIRED').count(),
+            'total_applications': total_apps,
+            'hired_applications': hired_apps,
             'conversion_rate': round(
-                (Application.objects.filter(status='HIRED').count() / max(Application.objects.count(), 1)) * 100, 
+                (hired_apps / max(total_apps, 1)) * 100,
                 1
             ),
             # Unassigned jobs needing attention
-            'unassigned_pending': jobs.filter(status='PENDING_APPROVAL', assigned_admin__isnull=True).count(),
+            'unassigned_pending': job_stats['unassigned_pending'],
         })
 
 
