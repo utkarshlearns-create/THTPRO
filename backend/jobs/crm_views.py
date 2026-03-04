@@ -79,17 +79,21 @@ class CRMJobListView(generics.ListAPIView):
         return queryset
 
     def list(self, request, *args, **kwargs):
+        from django.db.models import Count
+
         response = super().list(request, *args, **kwargs)
         
-        # Add summary stats
-        all_jobs = JobPost.objects.all()
+        # Add summary stats using database aggregation to avoid multiple queries
+        status_counts = JobPost.objects.values('status').annotate(count=Count('status'))
+        stats_dict = {item['status']: item['count'] for item in status_counts}
+
         response.data['stats'] = {
-            'total': all_jobs.count(),
-            'pending': all_jobs.filter(status='PENDING_APPROVAL').count(),
-            'approved': all_jobs.filter(status='APPROVED').count(),
-            'rejected': all_jobs.filter(status='REJECTED').count(),
-            'assigned': all_jobs.filter(status='ASSIGNED').count(),
-            'closed': all_jobs.filter(status='CLOSED').count(),
+            'total': sum(stats_dict.values()),
+            'pending': stats_dict.get('PENDING_APPROVAL', 0),
+            'approved': stats_dict.get('APPROVED', 0),
+            'rejected': stats_dict.get('REJECTED', 0),
+            'assigned': stats_dict.get('ASSIGNED', 0),
+            'closed': stats_dict.get('CLOSED', 0),
         }
         
         return response
@@ -243,32 +247,41 @@ class CRMPipelineStatsView(APIView):
     def get(self, request):
         from django.utils import timezone
         from datetime import timedelta
+        from django.db.models import Count
 
         now = timezone.now()
         today = now.date()
         this_week = today - timedelta(days=7)
         this_month = today - timedelta(days=30)
 
+        # Optimize pipeline stages with a single query using aggregation
+        status_counts = JobPost.objects.values('status').annotate(count=Count('status'))
+        stats_dict = {item['status']: item['count'] for item in status_counts}
+
+        # For other counts, we still need separate queries, but we saved several above
         jobs = JobPost.objects.all()
         
+        total_applications = Application.objects.count()
+        hired_applications = Application.objects.filter(status='HIRED').count()
+
         return Response({
             # Pipeline stages
             'pipeline': {
-                'pending': jobs.filter(status='PENDING_APPROVAL').count(),
-                'approved': jobs.filter(status='APPROVED').count(),
-                'assigned': jobs.filter(status='ASSIGNED').count(),
-                'closed': jobs.filter(status='CLOSED').count(),
-                'rejected': jobs.filter(status='REJECTED').count(),
+                'pending': stats_dict.get('PENDING_APPROVAL', 0),
+                'approved': stats_dict.get('APPROVED', 0),
+                'assigned': stats_dict.get('ASSIGNED', 0),
+                'closed': stats_dict.get('CLOSED', 0),
+                'rejected': stats_dict.get('REJECTED', 0),
             },
             # Time-based metrics
             'today': jobs.filter(created_at__date=today).count(),
             'this_week': jobs.filter(created_at__date__gte=this_week).count(),
             'this_month': jobs.filter(created_at__date__gte=this_month).count(),
             # Conversion metrics
-            'total_applications': Application.objects.count(),
-            'hired_applications': Application.objects.filter(status='HIRED').count(),
+            'total_applications': total_applications,
+            'hired_applications': hired_applications,
             'conversion_rate': round(
-                (Application.objects.filter(status='HIRED').count() / max(Application.objects.count(), 1)) * 100, 
+                (hired_applications / max(total_applications, 1)) * 100,
                 1
             ),
             # Unassigned jobs needing attention
