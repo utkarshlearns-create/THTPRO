@@ -3,6 +3,7 @@ import string
 from django.core.cache import cache
 import requests
 from django.conf import settings
+import logging
 
 logger = logging.getLogger(__name__)
 
