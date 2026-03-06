@@ -1,0 +1,3 @@
+## 2024-03-06 - [Preventing N+1 queries with DRF SerializerMethodField count()]
+**Learning:** In Django Rest Framework, using `obj.related_queryset.count()` inside a `SerializerMethodField` ignores `prefetch_related` and triggers a database query for *every* serialized object. This causes a severe N+1 query performance bottleneck.
+**Action:** When calculating counts on related objects in a DRF serializer, check for the internal Django `_prefetched_objects_cache` (using `hasattr(obj, '_prefetched_objects_cache') and 'related_name' in obj._prefetched_objects_cache`). If prefetched, use `len(obj.related_name.all())` to resolve the count in Python space from the prefetch cache. Otherwise, fallback to `.count()`.
