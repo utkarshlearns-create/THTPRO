@@ -18,7 +18,7 @@ const Header = ({ sidebarOpen, setSidebarOpen, user }) => {
             <div className="flex items-center gap-4 md:gap-6">
                 <div className="hidden md:block">
                     <h1 className="text-xl font-semibold text-slate-800 dark:text-white">
-                        Welcome back, <span className="bg-gradient-to-r from-sky-400 to-indigo-600 dark:from-sky-300 dark:to-indigo-400 bg-clip-text text-transparent">{user?.first_name || 'Tutor'}</span>
+                        Welcome back, <span className="bg-gradient-to-r from-sky-400 to-indigo-600 dark:from-sky-300 dark:to-indigo-400 bg-clip-text text-transparent">{user?.full_name?.split(' ')[0] || user?.first_name || 'Tutor'}</span>
                     </h1>
                     <p className="text-xs text-slate-500 flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#22c55e]"></span>
@@ -51,9 +51,19 @@ const Header = ({ sidebarOpen, setSidebarOpen, user }) => {
                  </button>
 
                  {/* Profile Avatar */}
-                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 p-[1px] cursor-pointer hover:scale-105 transition-transform shadow-md">
-                    <div className="h-full w-full rounded-full bg-white dark:bg-slate-950 flex items-center justify-center">
-                        <span className="font-bold text-indigo-600 dark:text-sky-400 text-sm">TU</span>
+                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 p-[1px] cursor-pointer hover:scale-105 transition-transform shadow-md overflow-hidden">
+                    <div className="h-full w-full rounded-full bg-white dark:bg-slate-950 flex items-center justify-center overflow-hidden">
+                        {(user?.profile_imagePreview || (typeof user?.profile_image === 'string' && user.profile_image)) ? (
+                            <img 
+                                src={user.profile_imagePreview || user.profile_image} 
+                                alt="Profile" 
+                                className="h-full w-full object-cover" 
+                            />
+                        ) : (
+                            <span className="font-bold text-indigo-600 dark:text-sky-400 text-sm">
+                                {user?.full_name?.charAt(0)?.toUpperCase() || user?.first_name?.charAt(0)?.toUpperCase() || 'T'}
+                            </span>
+                        )}
                     </div>
                  </div>
             </div>
