@@ -15,17 +15,15 @@ const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 const Login = () => {
   const [formData, setFormData] = useState({
     phone: '',
-    password: '',
-    otp: ''
+    password: ''
   });
-  const [authMethod, setAuthMethod] = useState('password'); // 'password' | 'otp'
-  const [otpSent, setOtpSent] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   // Role Selection Modal State
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [tempGoogleToken, setTempGoogleToken] = useState(null);
+  const [confirmationResult, setConfirmationResult] = useState(null);
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -35,75 +33,52 @@ const Login = () => {
     });
   };
 
-  const handleSendOtp = async (e) => {
-    e.preventDefault();
-    if (!formData.phone) return setError("Please enter your phone number.");
-    setLoading(true);
-    try {
-        const res = await fetch(`${API_BASE_URL}/api/users/auth/send-otp/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phone: formData.phone })
-        });
-        if (res.ok) {
-            setOtpSent(true);
-            setError("");
-            alert("OTP sent to your phone (Check console for mock OTP)");
-        } else {
-            setError("Failed to send OTP.");
-        }
-    } catch { setError("Network error sending OTP."); }
-    finally { setLoading(false); }
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const endpoint = authMethod === 'password' ? '/api/users/login/' : '/api/users/auth/verify-otp/';
-    const body = authMethod === 'password' 
-        ? { username: formData.phone, password: formData.password }
-        : { phone: formData.phone, otp: formData.otp };
-
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+        const response = await fetch(`${API_BASE_URL}/api/users/login/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: formData.phone, password: formData.password }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (response.ok) {
-        localStorage.setItem('access', data.access);
-        localStorage.setItem('refresh', data.refresh);
-        
-        let role = data.role;
-        if (!role && data.access) {
-            const decoded = jwtDecode(data.access);
-            role = decoded.role;
-        }
-        localStorage.setItem('role', role);
-        
-        console.log('Login successful, role:', role);
-        if (['COUNSELLOR', 'TUTOR_ADMIN'].includes(role)) {
-            router.push('/dashboard/admin');
-        } else if (role === 'TEACHER') {
-            router.push('/tutor-home');
+        if (response.ok) {
+            processSuccessfulLogin(data);
         } else {
-            router.push('/parent-home');
+            setError(data.detail || data.error || 'Login failed');
         }
-      } else {
-        setError(data.detail || data.error || 'Login failed');
-      }
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      console.error("Login error:", err);
+      setError(err.message || 'Something went wrong. Please try again.');
     } finally {
-      setLoading(false);
+      if (!showRoleModal) setLoading(false);
     }
+  };
+
+  const processSuccessfulLogin = (data) => {
+      localStorage.setItem('access', data.access);
+      localStorage.setItem('refresh', data.refresh);
+      
+      let role = data.role;
+      if (!role && data.access) {
+          const decoded = jwtDecode(data.access);
+          role = decoded.role;
+      }
+      localStorage.setItem('role', role);
+      
+      console.log('Login successful, role:', role);
+      if (['COUNSELLOR', 'TUTOR_ADMIN'].includes(role)) {
+          router.push('/dashboard/admin');
+      } else if (role === 'TEACHER') {
+          router.push('/tutor-home');
+      } else {
+          router.push('/parent-home');
+      }
   };
 
     const handleGoogleSuccess = async (credentialResponse, role = null) => {
@@ -142,11 +117,7 @@ const Login = () => {
                 return;
             }
 
-            localStorage.setItem('access', data.access);
-            localStorage.setItem('refresh', data.refresh);
-            localStorage.setItem('role', data.role);
-            if (data.role === 'TEACHER') router.push('/tutor-home');
-            else router.push('/parent-home');
+            processSuccessfulLogin(data);
           } else {
               setError(data.error || data.detail || "Google Login failed.");
           }
@@ -225,8 +196,7 @@ const Login = () => {
               </div>
             </div>
 
-            {authMethod === 'password' ? (
-                <div>
+            <div>
                 <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Password
                 </label>
@@ -258,51 +228,12 @@ const Login = () => {
                         </svg>
                     )}
                     </button>
-                    <div className="text-right mt-1">
-                        <button type="button" onClick={() => setAuthMethod('otp')} className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
-                             Login with OTP instead
-                        </button>
-                    </div>
                 </div>
-                </div>
-            ) : (
-                <div>
-                     {otpSent ? (
-                         <div>
-                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Enter OTP</label>
-                            <input
-                                name="otp"
-                                type="text"
-                                maxLength="6"
-                                required
-                                value={formData.otp}
-                                onChange={handleChange}
-                                className="block w-full mt-1 rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-3 text-slate-900 dark:text-white dark:bg-slate-900 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                placeholder="XXXXXX"
-                            />
-                             <div className="text-right mt-1">
-                                <button type="button" onClick={() => setAuthMethod('password')} className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300">
-                                    Cancel
-                                </button>
-                            </div>
-                         </div>
-                     ) : (
-                         <div className="mt-4">
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">We will send an OTP to your registered number.</p>
-                             <div className="text-right">
-                                <button type="button" onClick={() => setAuthMethod('password')} className="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 mr-4">
-                                    Use Password
-                                </button>
-                            </div>
-                         </div>
-                     )}
-                </div>
-            )}
+            </div>
 
             <div>
               <button
-                type={authMethod === 'otp' && !otpSent ? 'button' : 'submit'}
-                onClick={authMethod === 'otp' && !otpSent ? handleSendOtp : undefined}
+                type="submit"
                 disabled={loading}
                 className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-lg'}`}
               >

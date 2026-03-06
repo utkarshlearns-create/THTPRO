@@ -5,8 +5,6 @@ from .views import (
     CustomTokenObtainPairView,
     CurrentUserView,
     SignupView,
-    SendOTPView,
-    VerifyOTPView,
     GoogleLoginView,
     KYCSubmissionView,
     AdminTutorListView,
@@ -60,8 +58,6 @@ from .kyc_views import (
 urlpatterns = [
     # Auth
     path('signup/', SignupView.as_view(), name='signup'),
-    path('auth/send-otp/', SendOTPView.as_view(), name='send_otp'),
-    path('auth/verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),
     path('auth/google/', GoogleLoginView.as_view(), name='google_login'),
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('me/', CurrentUserView.as_view(), name='current_user'),

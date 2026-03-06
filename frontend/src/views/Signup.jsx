@@ -22,13 +22,10 @@ const Signup = () => {
         phone: '',
         password: '',
         role: 'PARENT', // Default
-        otp: ''
     });
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [signupMethod, setSignupMethod] = useState('password'); // 'password' | 'otp'
-    const [otpSent, setOtpSent] = useState(false);
 
     useEffect(() => {
         if (roleParam === 'teacher') {
@@ -42,36 +39,13 @@ const Signup = () => {
         setFormData(prev => ({ ...prev, role: newRole }));
     };
 
-    const handleSendOtp = async (e) => {
-        e.preventDefault();
-        if (!formData.phone) return setError("Please enter your phone number.");
-        setLoading(true);
-        try {
-            const res = await fetch(`${API_BASE_URL}/api/users/auth/send-otp/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone: formData.phone })
-            });
-            if (res.ok) {
-                setOtpSent(true);
-                setError("");
-                alert("OTP sent to your phone (Check console for mock OTP)");
-            } else {
-                setError("Failed to send OTP.");
-            }
-        } catch { setError("Network error sending OTP."); }
-        finally { setLoading(false); }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
         
         try {
-            let endpoint = '/api/users/signup/';
-            // Backend expects username (used for login). We set username=phone so users login with phone.
-            let body = {
+            const body = {
                 username: formData.phone,
                 phone: formData.phone,
                 password: formData.password,
@@ -79,16 +53,9 @@ const Signup = () => {
                 first_name: formData.name,
             };
 
-            if (signupMethod === 'otp') {
-                endpoint = '/api/users/auth/verify-otp/';
-                body = { phone: formData.phone, otp: formData.otp, role: formData.role };
-            }
-
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            const response = await fetch(`${API_BASE_URL}/api/users/signup/`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
             
@@ -337,7 +304,7 @@ const Signup = () => {
             )}
 
             <div className="grid grid-cols-1 gap-5">
-                 <div>
+                <div>
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Full Name</label>
                     <input
                         name="name"
@@ -349,7 +316,7 @@ const Signup = () => {
                         placeholder="e.g. Rahul Verma"
                     />
                 </div>
-                 <div>
+                <div>
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Phone Number</label>
                     <input
                         name="phone"
@@ -361,7 +328,7 @@ const Signup = () => {
                         placeholder="+91..."
                     />
                 </div>
-                 <div>
+                <div>
                     <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
                     <div className="relative mt-1">
                         <input
@@ -370,21 +337,20 @@ const Signup = () => {
                             required
                             value={formData.password}
                             onChange={handleChange}
-                             className="block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-3 text-slate-900 dark:text-white dark:bg-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-colors pr-10"
+                            className="block w-full rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-3 text-slate-900 dark:text-white dark:bg-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-colors pr-10"
                             placeholder="Create a strong password"
                         />
-                         <button
+                        <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 focus:outline-none"
                         >
-                             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
                     </div>
                 </div>
             </div>
-
-            <div className="flex items-start">
+            <div className="flex items-start mt-6">
                <div className="flex h-5 items-center">
                     <input
                         id="terms"
@@ -404,7 +370,7 @@ const Signup = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-lg'}`}
+              className={`w-full mt-6 flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:shadow-lg'}`}
             >
               {loading ? (
                   <span className="flex items-center gap-2">
@@ -412,7 +378,7 @@ const Signup = () => {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                        </svg>
-                       Creating Account...
+                       Processing...
                   </span>
               ) : 'Create Account'}
             </button>

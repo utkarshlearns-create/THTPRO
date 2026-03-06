@@ -15,7 +15,7 @@ from .serializers import (
     CustomTokenObtainPairSerializer, TutorKYCSerializer,
 )
 from .models import TutorProfile, TutorKYC, TutorStatus, InstitutionProfile
-from .utils import generate_otp, send_otp_to_phone, verify_google_token
+from .utils import verify_google_token
 
 import sys
 import uuid
@@ -49,50 +49,6 @@ class SignupView(generics.CreateAPIView):
             "role": user.role,
         }, status=status.HTTP_201_CREATED)
 
-
-class SendOTPView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        phone = request.data.get('phone')
-        if not phone:
-            return Response({"error": "Phone number is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        otp = generate_otp()
-        cache.set(f"otp_{phone}", otp, timeout=300)
-        send_otp_to_phone(phone, otp)
-        return Response({"message": "OTP sent successfully"})
-
-
-class VerifyOTPView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        phone = request.data.get('phone')
-        otp = request.data.get('otp')
-        role = request.data.get('role', 'PARENT')
-
-        if not phone or not otp:
-            return Response({"error": "Phone and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        cached_otp = cache.get(f"otp_{phone}")
-        if not cached_otp or cached_otp != otp:
-            return Response({"error": "Invalid or expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            user = User.objects.get(phone=phone)
-        except User.DoesNotExist:
-            username = f"user_{phone}"
-            user = User.objects.create_user(username=username, phone=phone, role=role)
-            user.set_unusable_password()
-            user.save()
-
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'role': user.role,
-        })
 
 
 class GoogleLoginView(APIView):
@@ -179,6 +135,7 @@ class GoogleLoginView(APIView):
             print(f"GoogleLoginView UNHANDLED ERROR: {tb}", file=sys.stderr)
             logger.critical(f"GoogleLoginView UNHANDLED ERROR: {tb}")
             return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class CurrentUserView(generics.RetrieveUpdateAPIView):
