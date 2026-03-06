@@ -2,8 +2,6 @@ import random
 import string
 from django.core.cache import cache
 import requests
-import sys
-import logging
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -62,4 +60,3 @@ def verify_google_token(token):
         error_msg = f"Google verification exception: {str(e)}"
         logger.error(error_msg)
         return {"error": error_msg}
-
