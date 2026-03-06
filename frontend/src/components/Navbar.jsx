@@ -15,6 +15,7 @@ const Navbar = () => {
 
   const [walletBalance, setWalletBalance] = useState('0.00');
   const [favouriteCount, setFavouriteCount] = useState(0);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     // Check role on mount and on every route change (e.g. after login/logout)
@@ -23,6 +24,7 @@ const Navbar = () => {
     
     if (userRole) {
         fetchWalletBalance();
+        fetchUserData();
         if (userRole === 'PARENT') {
             fetchFavouriteCount();
         }
@@ -62,6 +64,34 @@ const Navbar = () => {
     } catch (error) {
         console.error("Error fetching wallet balance:", error);
     }
+  };
+
+  const fetchUserData = async () => {
+    try {
+        const token = localStorage.getItem('access');
+        if (!token) return;
+        
+        const response = await fetch(`${API_BASE_URL}/api/users/me/`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            setUserData(data);
+        }
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+    }
+  };
+
+  const getAvatarContent = () => {
+      const imageUrl = userData?.tutor_profile?.image;
+      if (imageUrl) {
+          return <img src={imageUrl} alt="Profile" className="h-full w-full rounded-full object-cover" />;
+      }
+      if (userData?.first_name) {
+          return userData.first_name.charAt(0).toUpperCase();
+      }
+      return role === 'TEACHER' ? 'T' : role === 'PARENT' ? 'P' : role === 'INSTITUTION' ? 'I' : 'A';
   };
 
   // Hide Navbar on Admin Dashboard and Admin Login
@@ -118,7 +148,7 @@ const Navbar = () => {
                             className="flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 rounded-full transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
                         >
                             <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md ring-2 ring-white dark:ring-slate-800">
-                                {role === 'TEACHER' ? 'T' : role === 'PARENT' ? 'P' : role === 'INSTITUTION' ? 'I' : 'A'}
+                                {getAvatarContent()}
                             </div>
                         </Link>
                     </div>
