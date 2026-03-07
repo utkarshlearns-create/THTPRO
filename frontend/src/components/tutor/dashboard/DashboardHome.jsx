@@ -15,7 +15,7 @@ import { CircularProgress } from '../../ui/progress';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
 
-const DashboardHome = ({ user, completionPercentage, stats }) => {
+const DashboardHome = ({ user, completionPercentage, stats, setActiveTab }) => {
     const router = useRouter();
 
     return (
@@ -66,7 +66,7 @@ const DashboardHome = ({ user, completionPercentage, stats }) => {
                 <EngagementStats />
                 
                 {/* Job Matches */}
-                <JobMatchList />
+                <JobMatchList onViewAll={() => setActiveTab('tuitions')} />
             </div>
         </div>
     );
