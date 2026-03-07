@@ -242,14 +242,14 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                             />
                                         )}
                                         <FormGroup label="Full Name">
-                                            <input type="text" name="full_name" value={formData.full_name} onChange={handleInputChange} className="input-field" placeholder="e.g. John Doe" />
+                                            <input type="text" name="full_name" value={formData.full_name || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. John Doe" />
                                         </FormGroup>
                                         <FormGroup label="WhatsApp Number">
-                                            <input type="text" name="whatsapp_number" value={formData.whatsapp_number} onChange={handleInputChange} className="input-field" placeholder="+91 98765 43210" />
+                                            <input type="text" name="whatsapp_number" value={formData.whatsapp_number || ''} onChange={handleInputChange} className="input-field" placeholder="+91 98765 43210" />
                                         </FormGroup>
                                         <div className="grid grid-cols-2 gap-4">
                                             <FormGroup label="Gender">
-                                                <select name="gender" value={formData.gender} onChange={handleInputChange} className="input-field">
+                                                <select name="gender" value={formData.gender || ''} onChange={handleInputChange} className="input-field">
                                                     <option value="">Select Gender</option>
                                                     <option value="Male">Male</option>
                                                     <option value="Female">Female</option>
@@ -257,7 +257,7 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                                 </select>
                                             </FormGroup>
                                             <FormGroup label="Marital Status">
-                                                <select name="marital_status" value={formData.marital_status} onChange={handleInputChange} className="input-field">
+                                                <select name="marital_status" value={formData.marital_status || ''} onChange={handleInputChange} className="input-field">
                                                     <option value="">Select Status</option>
                                                     <option value="Single">Single</option>
                                                     <option value="Married">Married</option>
@@ -265,7 +265,7 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                             </FormGroup>
                                         </div>
                                         <FormGroup label="Date of Birth">
-                                            <input type="date" name="dob" value={formData.dob} onChange={handleInputChange} className="input-field" />
+                                            <input type="date" name="dob" value={formData.dob || ''} onChange={handleInputChange} className="input-field" />
                                         </FormGroup>
                                     </CardContent>
                                 </Card>
@@ -285,21 +285,21 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                     </CardHeader>
                                     <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <FormGroup label="City / Locality">
-                                            <input type="text" name="locality" value={formData.locality} onChange={handleInputChange} className="input-field" placeholder="e.g. Indrapuri, Gopalpura" />
+                                            <input type="text" name="locality" value={formData.locality || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Indrapuri, Gopalpura" />
                                         </FormGroup>
                                         <div className="hidden md:block"></div>
                                         
                                         <FormGroup label="Local Address">
-                                            <textarea name="local_address" value={formData.local_address} onChange={handleInputChange} rows="2" className="input-field resize-none" placeholder="Current residential address"></textarea>
+                                            <textarea name="local_address" value={formData.local_address || ''} onChange={handleInputChange} rows="2" className="input-field resize-none" placeholder="Current residential address"></textarea>
                                         </FormGroup>
                                         <FormGroup label="Permanent Address">
-                                            <textarea name="permanent_address" value={formData.permanent_address} onChange={handleInputChange} rows="2" className="input-field resize-none" placeholder="Permanent address (if different)"></textarea>
+                                            <textarea name="permanent_address" value={formData.permanent_address || ''} onChange={handleInputChange} rows="2" className="input-field resize-none" placeholder="Permanent address (if different)"></textarea>
                                         </FormGroup>
                                         <div className="col-span-1 md:col-span-2">
                                             <FormGroup label="About Me">
                                                 <textarea 
                                                     name="about_me" 
-                                                    value={formData.about_me} 
+                                                    value={formData.about_me || ''} 
                                                     onChange={handleInputChange} 
                                                     rows="4" 
                                                     className="input-field resize-none leading-relaxed" 
@@ -380,7 +380,7 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                         </div>
 
                                         <FormGroup label="Teaching Mode">
-                                            <select name="teaching_mode" value={formData.teaching_mode} onChange={handleInputChange} className="input-field">
+                                            <select name="teaching_mode" value={formData.teaching_mode || ''} onChange={handleInputChange} className="input-field">
                                                 <option value="BOTH">Online & Offline</option>
                                                 <option value="ONLINE">Online Only</option>
                                                 <option value="OFFLINE">Offline / Home Tuition</option>
@@ -389,13 +389,13 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                         <FormGroup label="Expected Fee">
                                             <div className="relative">
                                                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
-                                                <input type="number" name="expected_fee" value={formData.expected_fee} onChange={handleInputChange} className="input-field pl-8" placeholder="500" />
+                                                <input type="number" name="expected_fee" value={formData.expected_fee === null ? '' : formData.expected_fee} onChange={handleInputChange} className="input-field pl-8" placeholder="500" />
                                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">/hr</span>
                                             </div>
                                         </FormGroup>
                                         <FormGroup label="Total Experience">
                                             <div className="relative">
-                                                <input type="number" name="teaching_experience_years" value={formData.teaching_experience_years} onChange={handleInputChange} className="input-field" placeholder="0" />
+                                                <input type="number" name="teaching_experience_years" value={formData.teaching_experience_years === null ? '' : formData.teaching_experience_years} onChange={handleInputChange} className="input-field" placeholder="0" />
                                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">Years</span>
                                             </div>
                                         </FormGroup>
@@ -417,7 +417,7 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                     </CardHeader>
                                     <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <FormGroup label="Highest Qualification">
-                                            <select name="highest_qualification" value={formData.highest_qualification} onChange={handleInputChange} className="input-field">
+                                            <select name="highest_qualification" value={formData.highest_qualification || ''} onChange={handleInputChange} className="input-field">
                                                 <option value="">Select Degree</option>
                                                 <option value="B.Tech">B.Tech</option>
                                                 <option value="B.Sc">B.Sc</option>
@@ -432,28 +432,28 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                             </select>
                                         </FormGroup>
                                         <FormGroup label="Specialization / Stream">
-                                            <input type="text" name="highest_stream" value={formData.highest_stream} onChange={handleInputChange} className="input-field" placeholder="e.g. Computer Science" />
+                                            <input type="text" name="highest_stream" value={formData.highest_stream || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Computer Science" />
                                         </FormGroup>
                                         <FormGroup label="University Name">
-                                            <input type="text" name="highest_university" value={formData.highest_university} onChange={handleInputChange} className="input-field" placeholder="e.g. University of Mumbai" />
+                                            <input type="text" name="highest_university" value={formData.highest_university || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. University of Mumbai" />
                                         </FormGroup>
                                         <FormGroup label="College Name">
-                                            <input type="text" name="highest_college" value={formData.highest_college} onChange={handleInputChange} className="input-field" placeholder="e.g. St. Xavier's College" />
+                                            <input type="text" name="highest_college" value={formData.highest_college || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. St. Xavier's College" />
                                         </FormGroup>
                                         <FormGroup label="Year of Completion">
-                                            <input type="number" name="highest_year" value={formData.highest_year} onChange={handleInputChange} className="input-field" placeholder="2020" />
+                                            <input type="number" name="highest_year" value={formData.highest_year === null ? '' : formData.highest_year} onChange={handleInputChange} className="input-field" placeholder="2020" />
                                         </FormGroup>
                                          <FormGroup label="Intermediate (12th) Stream">
-                                            <input type="text" name="intermediate_stream" value={formData.intermediate_stream} onChange={handleInputChange} className="input-field" placeholder="e.g. PCM / PCB / Commerce" />
+                                            <input type="text" name="intermediate_stream" value={formData.intermediate_stream || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. PCM / PCB / Commerce" />
                                         </FormGroup>
                                         <FormGroup label="12th School Name">
-                                            <input type="text" name="intermediate_school" value={formData.intermediate_school} onChange={handleInputChange} className="input-field" placeholder="e.g. St. Xavier's" />
+                                            <input type="text" name="intermediate_school" value={formData.intermediate_school || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. St. Xavier's" />
                                         </FormGroup>
                                         <FormGroup label="12th Completion Year">
-                                            <input type="number" name="intermediate_year" value={formData.intermediate_year} onChange={handleInputChange} className="input-field" placeholder="2016" />
+                                            <input type="number" name="intermediate_year" value={formData.intermediate_year === null ? '' : formData.intermediate_year} onChange={handleInputChange} className="input-field" placeholder="2016" />
                                         </FormGroup>
                                         <FormGroup label="12th Board">
-                                            <input type="text" name="intermediate_board" value={formData.intermediate_board} onChange={handleInputChange} className="input-field" placeholder="e.g. CBSE / ICSE / UP Board" />
+                                            <input type="text" name="intermediate_board" value={formData.intermediate_board || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. CBSE / ICSE / UP Board" />
                                         </FormGroup>
 
                                         {/* Certifications Checkboxes */}
