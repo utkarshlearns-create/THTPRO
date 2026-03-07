@@ -821,8 +821,13 @@ const JobsList = () => {
     useEffect(() => {
         fetchJobs();
         const handleRefresh = () => fetchJobs();
+        const handleOpenWizard = () => setShowJobWizard(true);
         window.addEventListener('refreshJobs', handleRefresh);
-        return () => window.removeEventListener('refreshJobs', handleRefresh);
+        window.addEventListener('openJobWizard', handleOpenWizard);
+        return () => {
+            window.removeEventListener('refreshJobs', handleRefresh);
+            window.removeEventListener('openJobWizard', handleOpenWizard);
+        };
     }, []);
 
     const fetchJobs = async () => {
@@ -1076,12 +1081,14 @@ const MyProfile = ({ latestJob, stats, userProfile, onEdit }) => {
                             </div>
                         </div>
                     ) : (
-                        <div className="text-center py-12">
-                             <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                        <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center py-12">
+                             <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400">
                                 <User size={24} />
                              </div>
-                            <p className="text-slate-500 dark:text-slate-400">No student profile active.</p>
-                            <Button className="mt-4" variant="link" onClick={() => window.location.href = '/parent-home'}>Create Profile via Job Post</Button>
+                            <p className="text-slate-500 dark:text-slate-400 mb-6">No student profile active.</p>
+                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => window.dispatchEvent(new Event('openJobWizard'))}>
+                                <Briefcase className="mr-2 h-4 w-4" /> Create Profile via Job Post
+                            </Button>
                         </div>
                     )}
                 </CardContent>
