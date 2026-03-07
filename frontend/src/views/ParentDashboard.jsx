@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
   User, 
@@ -32,6 +32,7 @@ import { Progress } from '../components/ui/progress';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import ParentOnboardingPopup from '../components/ParentOnboardingPopup';
 import TutorCard from '../components/tutor/TutorCard';
+import JobWizard from '../components/JobWizard';
 
 // Skeleton component for loading states
 const Skeleton = ({ className }) => (
@@ -60,6 +61,7 @@ const ParentDashboard = () => {
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showEditProfile, setShowEditProfile] = useState(false);
+    const [showJobWizard, setShowJobWizard] = useState(false);
 
     const [error, setError] = useState(null);
 
@@ -354,7 +356,7 @@ const ParentDashboard = () => {
                                             <CardTitle className="text-indigo-900">Quick Actions</CardTitle>
                                         </CardHeader>
                                         <CardContent className="space-y-3">
-                                            <Button className="w-full justify-start bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setActiveTab('jobs_posted')}>
+                                            <Button className="w-full justify-start bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setShowJobWizard(true)}>
                                                 <Briefcase className="mr-2 h-4 w-4" /> Post New Requirement
                                             </Button>
                                             <Button className="w-full justify-start bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700" onClick={() => setActiveTab('wallet')}>
@@ -396,7 +398,7 @@ const ParentDashboard = () => {
                                     <p className="text-slate-500 dark:text-slate-400 text-sm">Manage your active tuition requirements.</p>
                                 </div>
                                 <Button 
-                                    onClick={() => router.push('/parent-home')}
+                                    onClick={() => setShowJobWizard(true)}
                                     className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200"
                                 >
                                     <Briefcase className="mr-2 h-4 w-4" /> Post New Job
@@ -430,6 +432,32 @@ const ParentDashboard = () => {
 
                 </div>
             </main>
+
+            {/* Job Wizard Modal */}
+            <AnimatePresence>
+                {showJobWizard && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="bg-transparent w-full max-w-2xl relative"
+                        >
+                            <button 
+                                onClick={() => setShowJobWizard(false)}
+                                className="absolute right-4 top-4 z-50 p-2 bg-slate-100/50 hover:bg-slate-200 dark:bg-slate-800/50 dark:hover:bg-slate-700 rounded-full transition-colors backdrop-blur-sm"
+                            >
+                                <X size={20} className="text-slate-700 dark:text-slate-300" />
+                            </button>
+                            <JobWizard onSuccess={() => {
+                                setShowJobWizard(false);
+                                window.dispatchEvent(new Event('refreshJobs'));
+                                setActiveTab('jobs_posted');
+                            }} />
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
@@ -792,6 +820,9 @@ const JobsList = () => {
 
     useEffect(() => {
         fetchJobs();
+        const handleRefresh = () => fetchJobs();
+        window.addEventListener('refreshJobs', handleRefresh);
+        return () => window.removeEventListener('refreshJobs', handleRefresh);
     }, []);
 
     const fetchJobs = async () => {
