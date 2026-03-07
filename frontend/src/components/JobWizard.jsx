@@ -49,7 +49,7 @@ const iconMap = {
     'BarChart': Calculator,
 };
 
-const JobWizard = () => {
+const JobWizard = ({ onSuccess }) => {
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -257,10 +257,14 @@ const JobWizard = () => {
                 localStorage.removeItem('pendingJobPost');
                 localStorage.removeItem('jobWizardDraft');
                 toast.success(`Success! ${data.message}\nYour job posting is being reviewed by our team.`, { duration: 5000 });
-                if (role === 'TEACHER') {
-                    router.push('/tutor-home');
+                if (onSuccess) {
+                    onSuccess();
                 } else {
-                    router.push('/dashboard/parent');
+                    if (role === 'TEACHER') {
+                        router.push('/tutor-home');
+                    } else {
+                        router.push('/dashboard/parent');
+                    }
                 }
             } else if (response.status === 401) {
                 toast.error("Your session has expired. Please login again.");
