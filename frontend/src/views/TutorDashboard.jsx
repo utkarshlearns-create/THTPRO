@@ -186,10 +186,16 @@ const TutorDashboard = () => {
                     profile_imagePreview: null,
                     intro_videoPreview: null
                 }));
-                
                 setCompletionPercentage(data.profile_completion_percentage);
                 alert('Profile updated successfully!');
-            } else { alert('Failed to update profile.'); }
+            } else {
+                let errorMsg = 'Failed to update profile.';
+                try {
+                    const errorData = await response.json();
+                    errorMsg += ' Details: ' + JSON.stringify(errorData);
+                } catch(e) {}
+                alert(errorMsg);
+            }
         } catch (error) { console.error("Error updating profile:", error); alert('Error occurred.'); } 
         finally { setSaving(false); }
     };
