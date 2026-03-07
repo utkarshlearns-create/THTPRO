@@ -122,13 +122,25 @@ const TutorDashboard = () => {
                 headers: { 'Authorization': `Bearer ${token}` }
             };
 
+            const nullIfEmptyFields = ['dob', 'expected_fee', 'intermediate_year', 'highest_year'];
+            const zeroIfEmptyFields = ['teaching_experience_years', 'teaching_experience_school_years'];
+
             if (hasFiles) {
                 const submissionData = new FormData();
                 // Append all fields to FormData
                 Object.keys(formData).forEach(key => {
                     if (key.endsWith('Preview')) return; // skip preview URLs
                     
-                    const value = formData[key];
+                    let value = formData[key];
+                    
+                    if (value === '') {
+                        if (zeroIfEmptyFields.includes(key)) {
+                            value = 0;
+                        } else if (nullIfEmptyFields.includes(key)) {
+                            return; // Omit from FormData instead of sending empty string
+                        }
+                    }
+
                     if (value instanceof File) {
                         submissionData.append(key, value);
                     } else if (Array.isArray(value)) {
@@ -142,10 +154,22 @@ const TutorDashboard = () => {
             } else {
                 fetchOptions.headers['Content-Type'] = 'application/json';
                 
-                // Exclude File objects if any are accidentally stringified (though hasFiles check handles this)
+                // Exclude File objects if any are accidentally stringified
                 const jsonPayload = { ...formData };
                 delete jsonPayload.profile_imagePreview;
                 delete jsonPayload.intro_videoPreview;
+                
+                // Convert specific empty strings to null or 0 for backend validation
+                nullIfEmptyFields.forEach(field => {
+                     if (jsonPayload[field] === '') {
+                         jsonPayload[field] = null;
+                     }
+                });
+                zeroIfEmptyFields.forEach(field => {
+                     if (jsonPayload[field] === '') {
+                         jsonPayload[field] = 0;
+                     }
+                });
                 
                 fetchOptions.body = JSON.stringify(jsonPayload);
             }
