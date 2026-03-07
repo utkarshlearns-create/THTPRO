@@ -5,6 +5,7 @@ import { Save, User, Briefcase, ShieldCheck, Camera, RotateCcw, X } from 'lucide
 import { cn } from '../../../lib/utils';
 import KYCUpload from './KYCUpload';
 import MultiSelect from '../../ui/multi-select';
+import { State, City } from 'country-state-city';
 
 const CameraCapture = ({ onCapture, onClose }) => {
     const videoRef = useRef(null);
@@ -116,6 +117,11 @@ const CameraCapture = ({ onCapture, onClose }) => {
 const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange, handleSubmit, saving, isLocked, activeSection, setActiveSection, kycProps }) => {
     const [showCamera, setShowCamera] = useState(false);
 
+    // Country-State-City data for India
+    const indiaStates = State.getStatesOfCountry('IN');
+    const selectedStateObj = formData.state ? indiaStates.find(s => s.name === formData.state) : null;
+    const cities = selectedStateObj ? City.getCitiesOfState('IN', selectedStateObj.isoCode) : [];
+
     const onCameraCapture = (file) => {
         // Mocking an event object for the handler
         const event = {
@@ -125,6 +131,12 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
             }
         };
         handleProfileFileChange(event);
+    };
+
+    const handleStateChange = (e) => {
+        handleInputChange(e);
+        // Clear city when state changes to avoid mismatched data
+        handleInputChange({ target: { name: 'city', value: '' } });
     };
 
     return (
@@ -293,11 +305,21 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                         <FormGroup label="Landmark">
                                             <input type="text" name="landmark" value={formData.landmark || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Near Shiv Temple" />
                                         </FormGroup>
-                                        <FormGroup label="City">
-                                            <input type="text" name="city" value={formData.city || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Lucknow" />
-                                        </FormGroup>
                                         <FormGroup label="State">
-                                            <input type="text" name="state" value={formData.state || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Uttar Pradesh" />
+                                            <select name="state" value={formData.state || ''} onChange={handleStateChange} className="input-field">
+                                                <option value="">Select State</option>
+                                                {indiaStates.map(state => (
+                                                    <option key={state.isoCode} value={state.name}>{state.name}</option>
+                                                ))}
+                                            </select>
+                                        </FormGroup>
+                                        <FormGroup label="City">
+                                            <select name="city" value={formData.city || ''} onChange={handleInputChange} className="input-field" disabled={!formData.state}>
+                                                <option value="">Select City</option>
+                                                {cities.map(city => (
+                                                    <option key={city.name} value={city.name}>{city.name}</option>
+                                                ))}
+                                            </select>
                                         </FormGroup>
                                         <FormGroup label="Pincode">
                                             <input type="text" name="pincode" value={formData.pincode || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. 226016" />
