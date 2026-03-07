@@ -82,9 +82,9 @@ def run_verification():
     valid_image = b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00\x21\xf9\x04\x01\x00\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b'
     
     data = {
-        'aadhaar_document': SimpleUploadedFile("aadhaar.gif", valid_image, content_type="image/gif"),
-        'education_certificate': SimpleUploadedFile("edu.pdf", b"pdf", content_type="application/pdf"),
-        'photo': SimpleUploadedFile("photo.gif", valid_image, content_type="image/gif"),
+        'aadhaar_front': SimpleUploadedFile("aadhaar_front.gif", valid_image, content_type="image/gif"),
+        'aadhaar_back': SimpleUploadedFile("aadhaar_back.gif", valid_image, content_type="image/gif"),
+        'highest_qualification_certificate': SimpleUploadedFile("edu.pdf", b"pdf", content_type="application/pdf"),
     }
     
     print("📤 Submitting KYC...")
