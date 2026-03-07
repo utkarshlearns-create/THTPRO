@@ -34,6 +34,7 @@ const TutorDashboardLayout = ({ children, activeTab, setActiveTab, user }) => {
                 sidebarOpen={sidebarOpen} 
                 setSidebarOpen={setSidebarOpen} 
                 user={user}
+                setActiveTab={setActiveTab}
             />
 
             <main className={cn(
