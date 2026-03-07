@@ -13,9 +13,29 @@ const JobSearch = () => {
         subject: '',
         grade: '',
         location: '',
-        min_budget: ''
+        min_budget: '',
+        mode: '',
+        board: '',
+        gender: ''
     });
+    const [subjects, setSubjects] = useState([]);
     const [showFilters, setShowFilters] = useState(false);
+
+    // Fetch master data
+    useEffect(() => {
+        const fetchMasterData = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/jobs/master/subjects/`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setSubjects(data.results || data || []);
+                }
+            } catch (error) {
+                console.error("Error fetching master data:", error);
+            }
+        };
+        fetchMasterData();
+    }, []);
 
     // Fetch jobs when filters change (debounced)
     useEffect(() => {
@@ -103,14 +123,20 @@ const JobSearch = () => {
                                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Subject</label>
                                     <div className="relative">
                                         <BookOpen className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                                        <input
-                                            type="text"
+                                        <select
                                             name="subject"
                                             value={filters.subject}
                                             onChange={handleFilterChange}
-                                            placeholder="e.g. Physics"
-                                            className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-1 focus:ring-blue-500"
-                                        />
+                                            className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-1 focus:ring-blue-500 text-slate-600 dark:text-slate-300"
+                                        >
+                                            <option value="">Any Subject</option>
+                                            {subjects.map(s => (
+                                                <option key={s.id} value={s.name}>{s.name}</option>
+                                            ))}
+                                            {!subjects.length && <option value="Mathematics">Mathematics</option>}
+                                            {!subjects.length && <option value="Science">Science</option>}
+                                            {!subjects.length && <option value="English">English</option>}
+                                        </select>
                                     </div>
                                 </div>
 
@@ -148,6 +174,24 @@ const JobSearch = () => {
                                     </div>
                                 </div>
 
+                                <div>
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Tuition Mode</label>
+                                    <div className="relative">
+                                        <Filter className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                                        <select
+                                            name="mode"
+                                            value={filters.mode}
+                                            onChange={handleFilterChange}
+                                            className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-1 focus:ring-blue-500 text-slate-600 dark:text-slate-300"
+                                        >
+                                            <option value="">Any Mode</option>
+                                            <option value="Home">Home Tuition</option>
+                                            <option value="Online">Online</option>
+                                            <option value="Institution">Institution</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                  <div>
                                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Min Budget (₹)</label>
                                     <input
@@ -160,8 +204,39 @@ const JobSearch = () => {
                                     />
                                 </div>
 
+                                <div>
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Education Board</label>
+                                    <select
+                                        name="board"
+                                        value={filters.board}
+                                        onChange={handleFilterChange}
+                                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-1 focus:ring-blue-500 text-slate-600 dark:text-slate-300"
+                                    >
+                                        <option value="">Any Board</option>
+                                        <option value="CBSE">CBSE</option>
+                                        <option value="ICSE">ICSE</option>
+                                        <option value="ISC">ISC</option>
+                                        <option value="IB">IB</option>
+                                        <option value="State Board">State Board</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">Tutor Gender</label>
+                                    <select
+                                        name="gender"
+                                        value={filters.gender}
+                                        onChange={handleFilterChange}
+                                        className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-1 focus:ring-blue-500 text-slate-600 dark:text-slate-300"
+                                    >
+                                        <option value="">Any Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+
                                 <button 
-                                    onClick={() => setFilters({ q: '', subject: '', grade: '', location: '', min_budget: '' })}
+                                    onClick={() => setFilters({ q: '', subject: '', grade: '', location: '', min_budget: '', mode: '', board: '', gender: '' })}
                                     className="w-full mt-4 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 underline"
                                 >
                                     Reset Filters
