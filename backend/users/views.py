@@ -148,50 +148,6 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
 
 # ==================== ADMIN VIEWS (kept here for backward compat) ====================
 
-class KYCSubmissionView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request):
-        user = request.user
-        if user.role != 'TEACHER':
-            return Response({"error": "Only tutors can submit KYC."}, status=status.HTTP_403_FORBIDDEN)
-
-        profile = user.tutor_profile
-
-        if profile.profile_completion_percentage < 100:
-            return Response({
-                "error": "Profile must be 100% complete before KYC submission.",
-                "current_percentage": profile.profile_completion_percentage,
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        kyc_record = TutorKYC.objects.filter(tutor=profile).order_by('-created_at').first()
-        submission_count = kyc_record.submission_count if kyc_record else 0
-
-        if submission_count >= 3:
-            return Response({"error": "Maximum KYC attempts (3) exceeded. Contact support."}, status=status.HTTP_403_FORBIDDEN)
-
-        serializer = TutorKYCSerializer(data=request.data)
-        if serializer.is_valid():
-            kyc_instance = serializer.save(
-                tutor=profile,
-                status=TutorKYC.Status.SUBMITTED,
-                submission_count=submission_count + 1,
-            )
-
-            status_obj, _ = TutorStatus.objects.get_or_create(tutor=profile)
-            status_obj.status = TutorStatus.State.KYC_SUBMITTED
-            status_obj.save()
-            status_obj.status = TutorStatus.State.UNDER_REVIEW
-            status_obj.save()
-
-            return Response({
-                "message": "KYC Submitted successfully.",
-                "status": status_obj.status,
-            }, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class AdminTutorListView(generics.ListAPIView):
     """Retrieve all tutors for admin dashboard with filtering."""
     serializer_class = TutorProfileSerializer

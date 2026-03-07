@@ -74,6 +74,7 @@ urlpatterns = [
     path('tutor/applications/', TutorApplicationsView.as_view(), name='tutor-applications'),
 
     # Admin endpoints
+    path('admin/dashboard/stats/', AdminDashboardStatsView.as_view(), name='admin-dashboard-stats'),
     path('admin/pending/', AdminPendingJobsView.as_view(), name='admin-pending-jobs'),
     path('admin/<int:pk>/approve/', AdminApproveJobView.as_view(), name='admin-approve-job'),
     path('admin/<int:pk>/reject/', AdminRejectJobView.as_view(), name='admin-reject-job'),
@@ -84,6 +85,7 @@ urlpatterns = [
 
     # Parent endpoints
     path('parent/approved/', ParentJobListView.as_view(), name='parent-approved-jobs'),
+    path('search/', JobSearchFilterView.as_view(), name='job-search'),
     path('stats/parent/', ParentStatsView.as_view(), name='parent-stats'),
     path('', ParentJobListView.as_view(), name='job-list'),
     path('<int:pk>/', JobDetailView.as_view(), name='job-detail'),

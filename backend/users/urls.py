@@ -6,7 +6,6 @@ from .views import (
     CurrentUserView,
     SignupView,
     GoogleLoginView,
-    KYCSubmissionView,
     AdminTutorListView,
     AdminReviewView,
     CreateAdminUserView,
@@ -75,9 +74,6 @@ urlpatterns = [
     # Institution
     path('institution/profile/', InstitutionProfileView.as_view(), name='institution_profile'),
     path('institution/tutors/', InstitutionTutorListView.as_view(), name='institution_tutor_list'),
-
-    # Legacy KYC endpoint
-    path('kyc/submit/', KYCSubmissionView.as_view(), name='kyc_submission'),
 
     # KYC Endpoints
     path('kyc/upload/', KYCDocumentUploadView.as_view(), name='kyc_upload'),
