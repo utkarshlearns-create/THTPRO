@@ -487,13 +487,6 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                                 <option value="OFFLINE">Offline / Home Tuition</option>
                                             </select>
                                         </FormGroup>
-                                        <FormGroup label="Expected Fee">
-                                            <div className="relative">
-                                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">₹</span>
-                                                <input type="number" name="expected_fee" value={formData.expected_fee === null ? '' : formData.expected_fee} onChange={handleInputChange} className="input-field pl-8" placeholder="500" />
-                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">/hr</span>
-                                            </div>
-                                        </FormGroup>
                                         <FormGroup label="Total Experience">
                                             <div className="relative">
                                                 <input type="number" name="teaching_experience_years" value={formData.teaching_experience_years === null ? '' : formData.teaching_experience_years} onChange={handleInputChange} className="input-field" placeholder="0" />
