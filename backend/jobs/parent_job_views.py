@@ -8,7 +8,8 @@ from rest_framework import generics, permissions, status, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils import timezone
-from django.db.models import Q, Case, When, Value, IntegerField
+from django.db.models import Q, Case, When, Value, IntegerField, CharField
+from django.db.models.functions import Cast
 
 from .models import JobPost, Application, InstituteJob
 from .serializers import JobPostSerializer, InstituteJobSerializer
@@ -66,17 +67,23 @@ class JobSearchFilterView(generics.ListAPIView):
 
         params = self.request.query_params
 
+        queryset = queryset.annotate(subjects_str=Cast('subjects', CharField()))
+
         q = params.get('q')
         if q:
             queryset = queryset.filter(
-                Q(subjects__icontains=q) |
+                Q(subjects_str__icontains=q) |
                 Q(class_grade__icontains=q) |
                 Q(locality__icontains=q)
             )
 
         subject = params.get('subject')
         if subject:
-            queryset = queryset.filter(subjects__icontains=subject)
+            # Match if list contains subject OR "All Subjects"
+            queryset = queryset.filter(
+                Q(subjects_str__icontains=subject) | 
+                Q(subjects_str__icontains='All Subjects')
+            )
 
         grade = params.get('grade')
         if grade:
