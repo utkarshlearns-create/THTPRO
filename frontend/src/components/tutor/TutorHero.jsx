@@ -31,14 +31,31 @@ const TutorHero = () => {
                             and expand your reach.
                         </p>
                         
-                        <div className="pt-6">
+                        <div className="pt-6 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                             <Button 
                                 variant="default" 
                                 size="lg" 
-                                className="bg-[#4ab9e2] hover:bg-[#3ca8d1] text-white font-bold px-12 py-7 text-xl rounded-2xl shadow-xl hover:shadow-[#4ab9e2]/20 transition-all border-none transform hover:-translate-y-1"
+                                className="w-full sm:w-auto bg-[#4ab9e2] hover:bg-[#3ca8d1] text-white font-bold px-8 py-7 text-lg rounded-2xl shadow-xl hover:shadow-[#4ab9e2]/20 transition-all border-none transform hover:-translate-y-1"
                                 onClick={() => router.push('/dashboard/tutor')}
                             >
                                 Go to Your Dashboard
+                            </Button>
+                            
+                            <Button 
+                                variant="outline" 
+                                size="lg" 
+                                className="w-full sm:w-auto border-2 border-indigo-600/20 dark:border-indigo-400/20 bg-white/50 dark:bg-slate-900/50 text-indigo-700 dark:text-indigo-300 font-bold px-8 py-7 text-lg rounded-2xl shadow-lg hover:shadow-indigo-100 dark:hover:shadow-none transition-all transform hover:-translate-y-1 backdrop-blur-sm"
+                                onClick={() => {
+                                    const element = document.getElementById('browse-jobs');
+                                    if (element) {
+                                        element.scrollIntoView({ behavior: 'smooth' });
+                                    } else {
+                                        router.push('/find-jobs');
+                                    }
+                                }}
+                            >
+                                <Sparkles className="mr-2" size={20} />
+                                Browse All Jobs
                             </Button>
                         </div>
                     </div>
