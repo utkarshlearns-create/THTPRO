@@ -10,6 +10,7 @@ import KYCUpload from '../components/tutor/dashboard/KYCUpload';
 import WalletSection from '../components/tutor/dashboard/WalletSection';
 import JobMatchList from '../components/tutor/dashboard/JobMatchList';
 import MyApplications from '../components/tutor/dashboard/MyApplications';
+import { toast } from 'react-hot-toast';
 
 const TutorDashboard = () => {
     const searchParams = useSearchParams();
@@ -197,16 +198,16 @@ const TutorDashboard = () => {
                     intro_videoPreview: null
                 }));
                 setCompletionPercentage(data.profile_completion_percentage);
-                alert('Profile updated successfully!');
+                toast.success('Profile updated successfully!', { position: 'bottom-center' });
             } else {
                 let errorMsg = 'Failed to update profile.';
                 try {
                     const errorData = await response.json();
                     errorMsg += ' Details: ' + JSON.stringify(errorData);
                 } catch(e) {}
-                alert(errorMsg);
+                toast.error(errorMsg, { position: 'bottom-center' });
             }
-        } catch (error) { console.error("Error updating profile:", error); alert('Error occurred.'); } 
+        } catch (error) { console.error("Error updating profile:", error); toast.error('Error occurred.', { position: 'bottom-center' }); } 
         finally { setSaving(false); }
     };
 
