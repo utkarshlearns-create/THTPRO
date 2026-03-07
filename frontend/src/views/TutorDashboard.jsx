@@ -33,6 +33,7 @@ const TutorDashboard = () => {
         intermediate_stream: '', intermediate_school: '', intermediate_year: '', intermediate_board: '',
         highest_stream: '', highest_year: '', highest_university: '', highest_college: '',
         is_bed: false, is_tet: false, is_mphil: false, is_phd: false,
+        class_subjects: {},
     });
 
     const [kycFiles, setKycFiles] = useState({ aadhaar_document: null, education_certificate: null, photo: null });
@@ -151,7 +152,7 @@ const TutorDashboard = () => {
 
                     if (value instanceof File) {
                         submissionData.append(key, value);
-                    } else if (Array.isArray(value)) {
+                    } else if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
                         submissionData.append(key, JSON.stringify(value));
                     } else if (value !== null && value !== undefined) {
                         submissionData.append(key, value);

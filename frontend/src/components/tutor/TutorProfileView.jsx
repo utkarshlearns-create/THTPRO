@@ -188,28 +188,53 @@ const TutorProfileView = ({ tutorId }) => {
                             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center">
                                 <BookOpen className="mr-2 text-indigo-600" /> Operating Segments
                             </h2>
-                            
-                            <div className="mb-6">
-                                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Subjects</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {Array.isArray(tutor.subjects) && tutor.subjects.map((sub, i) => (
-                                        <span key={i} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-semibold">
-                                            {sub}
-                                        </span>
+
+                            {tutor.class_subjects && Object.keys(tutor.class_subjects).length > 0 ? (
+                                <div className="space-y-6">
+                                    {Object.entries(tutor.class_subjects).map(([className, subjects]) => (
+                                        <div key={className} className="border-l-2 border-indigo-200 dark:border-indigo-800 pl-4">
+                                            <h3 className="text-md font-bold text-slate-800 dark:text-slate-200 mb-2">{className}</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {Array.isArray(subjects) && subjects.length > 0 ? (
+                                                    subjects.map((sub, i) => (
+                                                        <span key={i} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-semibold">
+                                                            {sub}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-sm text-slate-400 italic">No specific subjects listed</span>
+                                                )}
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
-                            </div>
-                             
-                            <div>
-                                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Classes</h3>
-                                <div className="flex flex-wrap gap-2">
-                                     {Array.isArray(tutor.classes) && tutor.classes.map((cls, i) => (
-                                        <span key={i} className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-lg text-sm font-semibold">
-                                            {cls}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
+                            ) : (
+                                <>
+                                    <div className="mb-6">
+                                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Subjects</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {Array.isArray(tutor.subjects) && tutor.subjects.map((sub, i) => (
+                                                <span key={i} className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-sm font-semibold">
+                                                    {sub}
+                                                </span>
+                                            ))}
+                                            {(!tutor.subjects || tutor.subjects.length === 0) && <span className="text-sm text-slate-400 italic">No specific subjects listed</span>}
+                                        </div>
+                                    </div>
+                                     
+                                    <div>
+                                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Classes</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                             {Array.isArray(tutor.classes) && tutor.classes.map((cls, i) => (
+                                                <span key={i} className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-lg text-sm font-semibold">
+                                                    {cls}
+                                                </span>
+                                            ))}
+                                            {(!tutor.classes || tutor.classes.length === 0) && <span className="text-sm text-slate-400 italic">No specific classes listed</span>}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                          {/* Education & Info */}
