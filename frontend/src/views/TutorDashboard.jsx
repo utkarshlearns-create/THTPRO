@@ -224,7 +224,7 @@ const TutorDashboard = () => {
             const data = new FormData();
             Object.keys(kycFiles).forEach(key => data.append(key, kycFiles[key]));
             
-            const response = await fetch(`${API_BASE_URL}/api/users/kyc/submit/`, {
+            const response = await fetch(`${API_BASE_URL}/api/users/kyc/upload/`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: data
