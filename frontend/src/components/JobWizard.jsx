@@ -396,7 +396,7 @@ const JobWizard = ({ onSuccess }) => {
                 <Progress value={(step / 3) * 100} className="h-1.5 bg-slate-200 dark:bg-slate-700" indicatorClassName="bg-indigo-600 dark:bg-indigo-500" />
             </div>
 
-            <CardContent className="p-8 min-h-[420px] relative">
+            <CardContent className="p-6 md:p-8 min-h-[350px] relative">
                 <AnimatePresence custom={step} mode="wait">
                     <motion.div
                         key={step}
@@ -508,7 +508,7 @@ const JobWizard = ({ onSuccess }) => {
                                                         initial={{ opacity: 0, y: -10 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         exit={{ opacity: 0, y: -10 }}
-                                                        className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden"
+                                                        className="absolute z-[150] w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden"
                                                     >
                                                         <div className="p-2 pb-3 space-y-1 max-h-64 overflow-y-auto custom-scrollbar">
                                                             {(() => {
