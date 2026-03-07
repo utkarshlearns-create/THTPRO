@@ -2,7 +2,8 @@
 Utility functions for job posting workflow
 """
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Q
+from django.db.models import Count, Q, CharField
+from django.db.models.functions import Cast
 from django.utils import timezone
 import random
 import logging
@@ -10,6 +11,65 @@ import logging
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
+
+# Centralized Subject Synonyms for both Job and Tutor search
+SUBJECT_SYNONYMS = {
+    'Mathematics': ['Mathematics', 'Maths', 'Math', 'mathematics', 'maths', 'math'],
+    'Physics': ['Physics', 'physics'],
+    'Chemistry': ['Chemistry', 'chemistry'],
+    'Biology': ['Biology', 'biology', 'Bio'],
+    'Science': ['Science', 'science', 'General Science'],
+    'English': ['English', 'english', 'English Language', 'English Literature'],
+    'Hindi': ['Hindi', 'hindi'],
+    'Sanskrit': ['Sanskrit', 'sanskrit'],
+    'Social Science': ['Social Science', 'SST', 'Social Studies', 'social science'],
+    'History': ['History', 'history'],
+    'Geography': ['Geography', 'geography'],
+    'Civics': ['Civics', 'civics', 'Civic'],
+    'Political Science': ['Political Science', 'Pol Science', 'pol science'],
+    'Computer Science': ['Computer Science', 'Computer', 'Computers', 'CS', 'computer science', 'computer'],
+    'Information Technology': ['Information Technology', 'IT', 'information technology'],
+    'Coding': ['Coding', 'coding', 'Programming'],
+    'Accountancy': ['Accountancy', 'Accounts', 'accountancy', 'accounts', 'Accounting'],
+    'Business Studies': ['Business Studies', 'business studies', 'Business'],
+    'Economics': ['Economics', 'economics', 'Eco'],
+    'Commerce': ['Commerce', 'commerce'],
+    'EVS (Environmental Studies)': ['EVS', 'Environmental Studies', 'Environmental Science', 'evs'],
+    'Psychology': ['Psychology', 'psychology'],
+    'Sociology': ['Sociology', 'sociology'],
+    'Physical Education': ['Physical Education', 'physical education', 'PE'],
+    'Regional Languages': ['Regional Languages'],
+}
+
+def filter_by_subject(queryset, subject_name, field_name='subjects'):
+    """
+    Apply robust subject filtering to a queryset.
+    Handles:
+    1. JSON list field (using Cast to CharField)
+    2. Case-insensitive partial matching (icontains)
+    3. Synonyms (e.g. Maths -> Mathematics)
+    4. "All Subjects" catch-all
+    """
+    if not subject_name:
+        return queryset
+
+    # Get synonyms if they exist
+    synonyms = SUBJECT_SYNONYMS.get(subject_name, [subject_name])
+    
+    # Cast the JSON field to CharField if it hasn't been annotated yet
+    field_str = f"{field_name}_str"
+    if not hasattr(queryset, 'query') or field_str not in str(queryset.query):
+        queryset = queryset.annotate(**{field_str: Cast(field_name, CharField())})
+    
+    # Build OR query for all synonyms + "All Subjects"
+    # Also include tutors with no subject data populated (empty lists/nulls) if searching
+    subject_q = Q(**{f"{field_str}__icontains": "All Subjects"})
+    
+    for syn in synonyms:
+        subject_q |= Q(**{f"{field_str}__icontains": syn})
+        
+    return queryset.filter(subject_q)
+
 
 
 def assign_job_to_admin(job_post):

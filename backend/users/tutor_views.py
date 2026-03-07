@@ -13,6 +13,7 @@ from django.db.models.functions import Cast
 from .models import TutorProfile, TutorStatus, ContactUnlock
 from .serializers import TutorProfileSerializer, PublicTutorProfileSerializer
 from wallet.models import Wallet
+from jobs.utils import filter_by_subject
 
 
 class TutorProfileView(generics.RetrieveUpdateAPIView):
@@ -47,35 +48,6 @@ class PublicTutorSearchView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = PublicTutorProfileSerializer
 
-    # Synonym map: frontend dropdown value → alternative spellings in DB
-    SUBJECT_SYNONYMS = {
-        'Mathematics': ['Mathematics', 'Maths', 'Math', 'mathematics', 'maths', 'math'],
-        'Physics': ['Physics', 'physics'],
-        'Chemistry': ['Chemistry', 'chemistry'],
-        'Biology': ['Biology', 'biology', 'Bio'],
-        'Science': ['Science', 'science', 'General Science'],
-        'English': ['English', 'english', 'English Language', 'English Literature'],
-        'Hindi': ['Hindi', 'hindi'],
-        'Sanskrit': ['Sanskrit', 'sanskrit'],
-        'Social Science': ['Social Science', 'SST', 'Social Studies', 'social science'],
-        'History': ['History', 'history'],
-        'Geography': ['Geography', 'geography'],
-        'Civics': ['Civics', 'civics', 'Civic'],
-        'Political Science': ['Political Science', 'Pol Science', 'pol science'],
-        'Computer Science': ['Computer Science', 'Computer', 'Computers', 'CS', 'computer science', 'computer'],
-        'Information Technology': ['Information Technology', 'IT', 'information technology'],
-        'Coding': ['Coding', 'coding', 'Programming'],
-        'Accountancy': ['Accountancy', 'Accounts', 'accountancy', 'accounts', 'Accounting'],
-        'Business Studies': ['Business Studies', 'business studies', 'Business'],
-        'Economics': ['Economics', 'economics', 'Eco'],
-        'Commerce': ['Commerce', 'commerce'],
-        'EVS (Environmental Studies)': ['EVS', 'Environmental Studies', 'Environmental Science', 'evs'],
-        'Psychology': ['Psychology', 'psychology'],
-        'Sociology': ['Sociology', 'sociology'],
-        'Physical Education': ['Physical Education', 'physical education', 'PE'],
-        'Regional Languages': ['Regional Languages'],
-    }
-
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({"request": self.request})
@@ -101,14 +73,10 @@ class PublicTutorSearchView(generics.ListAPIView):
                 Q(subjects_str__icontains=q)
             )
 
-        # 2. Subject Filter — match synonyms, but also include tutors with no subject data
+        # 2. Subject Filter
         subject = params.get('subject')
         if subject:
-            synonyms = self.SUBJECT_SYNONYMS.get(subject, [subject])
-            subject_q = Q(subjects_str__in=['[]', '""', 'null', '']) | Q(subjects_str__isnull=True)
-            for syn in synonyms:
-                subject_q |= Q(subjects_str__icontains=syn)
-            queryset = queryset.filter(subject_q)
+            queryset = filter_by_subject(queryset, subject)
 
         # 3. Class/Grade Filter — also include tutors with no class data
         grade = params.get('class') or params.get('grade')

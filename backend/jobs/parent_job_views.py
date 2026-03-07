@@ -13,6 +13,7 @@ from django.db.models.functions import Cast
 
 from .models import JobPost, Application, InstituteJob
 from .serializers import JobPostSerializer, InstituteJobSerializer
+from .utils import filter_by_subject
 from users.models import TutorProfile
 
 
@@ -79,11 +80,8 @@ class JobSearchFilterView(generics.ListAPIView):
 
         subject = params.get('subject')
         if subject:
-            # Match if list contains subject OR "All Subjects"
-            queryset = queryset.filter(
-                Q(subjects_str__icontains=subject) | 
-                Q(subjects_str__icontains='All Subjects')
-            )
+            queryset = filter_by_subject(queryset, subject)
+
 
         grade = params.get('grade')
         if grade:
