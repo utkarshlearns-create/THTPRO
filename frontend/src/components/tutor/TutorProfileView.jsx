@@ -268,13 +268,6 @@ const TutorProfileView = ({ tutorId }) => {
                     {/* Sidebar / Contact Card */}
                     <div className="lg:col-span-1">
                         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-lg border border-slate-100 dark:border-slate-800 sticky top-24">
-                            <div className="text-center mb-6">
-                                <p className="text-slate-500 mb-1">Expected Fee</p>
-                                <div className="text-3xl font-bold text-slate-900 dark:text-white">
-                                    ₹{tutor.expected_fee} <span className="text-sm font-normal text-slate-400">/ month</span>
-                                </div>
-                            </div>
-
                             <div className="space-y-4">
                                 {tutor.is_unlocked ? (
                                     <div className="space-y-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800">
