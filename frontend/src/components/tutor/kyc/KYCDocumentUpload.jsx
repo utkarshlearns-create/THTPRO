@@ -6,9 +6,9 @@ import API_BASE_URL from '../../../config';
 
 const KYCDocumentUpload = () => {
     const [documents, setDocuments] = useState({
-        aadhaar: null,
-        education: null,
-        photo: null,
+        aadhaar_front: null,
+        aadhaar_back: null,
+        highest_qualification_certificate: null,
         pan: null,
         passport: null,
         police_verification: null,
@@ -40,9 +40,9 @@ const KYCDocumentUpload = () => {
         return { getRootProps, getInputProps, isDragActive };
     };
 
-    const aadhaarDropzone = createDropzone('aadhaar', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }, true);
-    const educationDropzone = createDropzone('education', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }, true);
-    const photoDropzone = createDropzone('photo', { 'image/*': ['.jpg', '.jpeg', '.png'] }, true);
+    const aadhaarFrontDropzone = createDropzone('aadhaar_front', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }, true);
+    const aadhaarBackDropzone = createDropzone('aadhaar_back', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }, true);
+    const educationDropzone = createDropzone('highest_qualification_certificate', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }, true);
     const panDropzone = createDropzone('pan', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
     const passportDropzone = createDropzone('passport', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
     const policeDropzone = createDropzone('police_verification', { 'application/pdf': ['.pdf'] });
@@ -50,8 +50,8 @@ const KYCDocumentUpload = () => {
 
     const handleSubmit = async () => {
         // Validate required documents
-        if (!documents.aadhaar || !documents.education || !documents.photo) {
-            alert('Please upload all required documents');
+        if (!documents.aadhaar_front || !documents.aadhaar_back || !documents.highest_qualification_certificate) {
+            alert('Please upload all required documents (Aadhaar Front, Back and Certificate)');
             return;
         }
 
@@ -59,9 +59,9 @@ const KYCDocumentUpload = () => {
         const formData = new FormData();
         
         // Append all uploaded documents
-        if (documents.aadhaar) formData.append('aadhaar_document', documents.aadhaar);
-        if (documents.education) formData.append('education_certificate', documents.education);
-        if (documents.photo) formData.append('photo', documents.photo);
+        if (documents.aadhaar_front) formData.append('aadhaar_front', documents.aadhaar_front);
+        if (documents.aadhaar_back) formData.append('aadhaar_back', documents.aadhaar_back);
+        if (documents.highest_qualification_certificate) formData.append('highest_qualification_certificate', documents.highest_qualification_certificate);
         if (documents.pan) formData.append('pan_document', documents.pan);
         if (documents.passport) formData.append('passport_document', documents.passport);
         if (documents.police_verification) formData.append('police_verification', documents.police_verification);
@@ -99,7 +99,7 @@ const KYCDocumentUpload = () => {
         }
     };
 
-    const requiredCount = [documents.aadhaar, documents.education, documents.photo].filter(Boolean).length;
+    const requiredCount = [documents.aadhaar_front, documents.aadhaar_back, documents.highest_qualification_certificate].filter(Boolean).length;
     const optionalCount = [documents.pan, documents.passport, documents.police_verification, documents.teaching_certificate].filter(Boolean).length;
 
     const UploadCard = ({ title, dropzone, document, required, accept }) => (
@@ -198,25 +198,25 @@ const KYCDocumentUpload = () => {
                 {/* Upload Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <UploadCard 
-                        title="📄 Government ID (Aadhaar/PAN/Passport)"
-                        dropzone={aadhaarDropzone}
-                        document={documents.aadhaar}
+                        title="📄 Aadhaar Card (Front)"
+                        dropzone={aadhaarFrontDropzone}
+                        document={documents.aadhaar_front}
                         required={true}
                         accept="image/pdf"
                     />
                     <UploadCard 
-                        title="🎓 Education Certificate"
+                        title="📄 Aadhaar Card (Back)"
+                        dropzone={aadhaarBackDropzone}
+                        document={documents.aadhaar_back}
+                        required={true}
+                        accept="image/pdf"
+                    />
+                    <UploadCard 
+                        title="🎓 Highest Qualification Certificate"
                         dropzone={educationDropzone}
-                        document={documents.education}
+                        document={documents.highest_qualification_certificate}
                         required={true}
                         accept="image/pdf"
-                    />
-                    <UploadCard 
-                        title="📸 Profile Photo"
-                        dropzone={photoDropzone}
-                        document={documents.photo}
-                        required={true}
-                        accept="image"
                     />
                     <UploadCard 
                         title="📜 Teaching Certificate"

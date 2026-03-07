@@ -242,7 +242,17 @@ class AdminReviewView(APIView):
         if action == 'approve':
             status_obj.status = TutorStatus.State.APPROVED
             status_obj.save()
-            TutorKYC.objects.filter(tutor=profile, status=TutorKYC.Status.SUBMITTED).update(status=TutorKYC.Status.VERIFIED)
+            
+            # Update KYC record and verification flags
+            TutorKYC.objects.filter(
+                tutor=profile, 
+                status=TutorKYC.Status.SUBMITTED
+            ).update(
+                status=TutorKYC.Status.VERIFIED,
+                aadhaar_front_verified=True,
+                aadhaar_back_verified=True,
+                qualification_verified=True
+            )
             return Response({"message": "Tutor approved successfully.", "status": "APPROVED"})
 
         elif action == 'reject':

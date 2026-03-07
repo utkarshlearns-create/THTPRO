@@ -157,9 +157,9 @@ class Command(BaseCommand):
                                     changed = True
                                 if changed:
                                     kyc.status = 'VERIFIED'
-                                    kyc.aadhaar_verified = True
-                                    kyc.education_verified = True
-                                    kyc.photo_verified = True
+                                    kyc.aadhaar_front_verified = True
+                                    kyc.aadhaar_back_verified = True
+                                    kyc.qualification_verified = True
                                     kyc.save()
                                     stats['updated'] += 1
                                     results.append((fname, phone, 'UPDATED', ''))
@@ -173,9 +173,9 @@ class Command(BaseCommand):
                                     external_education_url=edu,
                                     external_photo_url=photo,
                                     status='VERIFIED',
-                                    aadhaar_verified=bool(af or ab),
-                                    education_verified=bool(edu),
-                                    photo_verified=bool(photo),
+                                    aadhaar_front_verified=bool(af),
+                                    aadhaar_back_verified=bool(ab),
+                                    qualification_verified=bool(edu),
                                     submission_count=1,
                                 )
                                 stats['created'] += 1
