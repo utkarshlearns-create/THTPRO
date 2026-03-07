@@ -49,6 +49,10 @@ class TutorProfile(models.Model):
     teaching_mode = models.CharField(max_length=10, choices=TEACHING_MODE_CHOICES, default='BOTH')
     
     # Address
+    house_no = models.CharField(max_length=100, blank=True, null=True)
+    area = models.CharField(max_length=200, blank=True, null=True)
+    landmark = models.CharField(max_length=200, blank=True, null=True)
+    pincode = models.CharField(max_length=20, blank=True, null=True)
     local_address = models.TextField(blank=True, null=True)
     permanent_address = models.TextField(blank=True, null=True)
     

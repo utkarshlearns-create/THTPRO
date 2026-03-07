@@ -284,17 +284,28 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                         </div>
                                     </CardHeader>
                                     <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <FormGroup label="City / Locality">
-                                            <input type="text" name="locality" value={formData.locality || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Indrapuri, Gopalpura" />
+                                        <FormGroup label="House No.">
+                                            <input type="text" name="house_no" value={formData.house_no || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Flat 101, Bldg A" />
                                         </FormGroup>
-                                        <div className="hidden md:block"></div>
-                                        
-                                        <FormGroup label="Local Address">
-                                            <textarea name="local_address" value={formData.local_address || ''} onChange={handleInputChange} rows="2" className="input-field resize-none" placeholder="Current residential address"></textarea>
+                                        <FormGroup label="Area / Street">
+                                            <input type="text" name="area" value={formData.area || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Indrapuri, Gopalpura" />
+                                        </FormGroup>
+                                        <FormGroup label="Landmark">
+                                            <input type="text" name="landmark" value={formData.landmark || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Near Shiv Temple" />
+                                        </FormGroup>
+                                        <FormGroup label="City">
+                                            <input type="text" name="city" value={formData.city || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Lucknow" />
+                                        </FormGroup>
+                                        <FormGroup label="State">
+                                            <input type="text" name="state" value={formData.state || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. Uttar Pradesh" />
+                                        </FormGroup>
+                                        <FormGroup label="Pincode">
+                                            <input type="text" name="pincode" value={formData.pincode || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. 226016" />
                                         </FormGroup>
                                         <FormGroup label="Permanent Address">
                                             <textarea name="permanent_address" value={formData.permanent_address || ''} onChange={handleInputChange} rows="2" className="input-field resize-none" placeholder="Permanent address (if different)"></textarea>
                                         </FormGroup>
+                                        <div className="hidden md:block"></div>
                                         <div className="col-span-1 md:col-span-2">
                                             <FormGroup label="About Me">
                                                 <textarea 
