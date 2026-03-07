@@ -1006,6 +1006,30 @@ const MyProfile = ({ latestJob, stats, userProfile, onEdit }) => {
         locationStr = latestJob.locality;
     }
 
+    // Dynamic User Name
+    const getFullName = () => {
+        if (userProfile?.user?.first_name || userProfile?.user?.last_name) {
+            return `${userProfile.user.first_name || ''} ${userProfile.user.last_name || ''}`.trim();
+        }
+        if (userProfile?.name) return userProfile.name;
+        
+        return 'Parent Account';
+    };
+    
+    const displayName = getFullName();
+
+    // Dynamic Initials
+    const getInitials = (name) => {
+        if (!name || name === 'Parent Account') return 'PA';
+        const parts = name.trim().split(' ');
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+        return name.slice(0, 2).toUpperCase();
+    };
+
+    const initials = getInitials(displayName);
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-in fade-in duration-300">
             {/* Left Column: Identity */}
@@ -1016,9 +1040,9 @@ const MyProfile = ({ latestJob, stats, userProfile, onEdit }) => {
                         animate={{ scale: 1, opacity: 1 }} 
                         className="h-24 w-24 bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4 ring-4 ring-indigo-50 dark:ring-indigo-900/10"
                     >
-                        PA
+                        {initials}
                     </motion.div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Parent Account</h2>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white capitalize truncate">{displayName}</h2>
                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Active since {stats?.member_since || 'N/A'}</p>
                     
                     <div className="space-y-4 text-left">
