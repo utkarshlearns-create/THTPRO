@@ -80,7 +80,43 @@ class JobSearchFilterView(generics.ListAPIView):
 
         grade = params.get('grade')
         if grade:
-            queryset = queryset.filter(class_grade__icontains=grade)
+            # Handle common grade ranges
+            grade_ranges = {
+                'Class 1-5': ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5'],
+                'Class 6-8': ['Class 6', 'Class 7', 'Class 8'],
+                'Class 9-10': ['Class 9', 'Class 10'],
+                'Class 11-12': ['Class 11', 'Class 12'],
+                # User's shorthand from UI labels
+                '6-8': ['Class 6', 'Class 7', 'Class 8'],
+                '1-5': ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5'],
+                '9-10': ['Class 9', 'Class 10'],
+                '11-12': ['Class 11', 'Class 12'],
+            }
+            if grade in grade_ranges:
+                queryset = queryset.filter(class_grade__in=grade_ranges[grade])
+            else:
+                queryset = queryset.filter(class_grade__icontains=grade)
+
+        mode = params.get('mode')
+        if mode:
+            # Map common mode names to model choices if needed
+            mode_map = {
+                'Home': 'HOME',
+                'Online': 'ONLINE_ONE_TO_ONE',
+                'Institution': 'INSTITUTION',
+            }
+            db_mode = mode_map.get(mode, mode)
+            queryset = queryset.filter(tuition_mode=db_mode)
+
+        board = params.get('board')
+        if board:
+            queryset = queryset.filter(board__icontains=board)
+
+        gender = params.get('gender')
+        if gender:
+            # gender can be 'Male', 'Female', or 'Any'
+            # We filter for jobs that accept the tutor's gender or 'Any'
+            queryset = queryset.filter(Q(tutor_gender_preference=gender) | Q(tutor_gender_preference='Any'))
 
         location = params.get('location')
         if location:
@@ -88,7 +124,9 @@ class JobSearchFilterView(generics.ListAPIView):
 
         min_budget = params.get('min_budget')
         if min_budget:
-            queryset = queryset.filter(budget_min__gte=min_budget)
+            # budget_min is not on JobPost, budget_range is. 
+            # We'll stick to q or add more granular filtering if needed.
+            pass
 
         return queryset
 

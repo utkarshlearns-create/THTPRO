@@ -19,12 +19,13 @@ const TutorHome = () => {
     const [jobs, setJobs] = useState([]); // All Open Jobs
     const [loading, setLoading] = useState(true);
     const [profileStatus, setProfileStatus] = useState({ percent: 0, status: 'SIGNED_UP' });
+    const [activeCategory, setActiveCategory] = useState('All');
 
     // Fetch profile status and jobs
     useEffect(() => {
-        fetchJobs();
+        fetchJobs(activeCategory);
         fetchProfileStatus();
-    }, []);
+    }, [activeCategory]);
 
     const fetchProfileStatus = async () => {
         try {
@@ -45,11 +46,19 @@ const TutorHome = () => {
         }
     };
 
-    const fetchJobs = async () => {
+    const fetchJobs = async (category = 'All') => {
+        setLoading(true);
         try {
             const token = localStorage.getItem('access');
             const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-            const response = await fetch(`${API_BASE_URL}/api/jobs/`, { headers });
+            
+            let url = `${API_BASE_URL}/api/jobs/`;
+            if (category !== 'All') {
+                // We use the search endpoint for specific categories to leverage filters
+                url = `${API_BASE_URL}/api/jobs/search/?subject=${encodeURIComponent(category)}`;
+            }
+
+            const response = await fetch(url, { headers });
             if (response.ok) {
                 const data = await response.json();
                 setJobs(Array.isArray(data) ? data : (data.results || []));
@@ -94,11 +103,24 @@ const TutorHome = () => {
 
                     {/* Filters */}
                     <div className="bg-white dark:bg-slate-900 p-2 rounded-[1.5rem] shadow-premium border border-slate-100 dark:border-white/5 mb-12 flex gap-3 overflow-x-auto custom-scrollbar">
-                        <button className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold whitespace-nowrap hover:bg-indigo-700 transition-colors">All Categories</button>
-                        <button className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl font-bold whitespace-nowrap transition-colors">Mathematics</button>
-                        <button className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl font-bold whitespace-nowrap transition-colors">Science</button>
-                        <button className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl font-bold whitespace-nowrap transition-colors">English Language</button>
-                        <button className="px-6 py-3 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl font-bold whitespace-nowrap transition-colors">Nearby Jobs</button>
+                        {[
+                            { name: 'All', label: 'All Categories' },
+                            { name: 'Mathematics', label: 'Mathematics' },
+                            { name: 'Science', label: 'Science' },
+                            { name: 'English', label: 'English Language' },
+                            { name: 'Social Studies', label: 'Social Studies' }
+                        ].map((cat) => (
+                            <button 
+                                key={cat.name}
+                                onClick={() => setActiveCategory(cat.name)}
+                                className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all duration-300
+                                    ${activeCategory === cat.name 
+                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none scale-105' 
+                                        : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                            >
+                                {cat.label}
+                            </button>
+                        ))}
                     </div>
 
                     {/* Job List */}
