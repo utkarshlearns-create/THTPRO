@@ -84,7 +84,7 @@ class MyJobPostsView(generics.ListAPIView):
         from django.db.models import Q
         return JobPost.objects.filter(
             Q(posted_by=self.request.user) | Q(parent=self.request.user)
-        ).select_related('posted_by', 'parent', 'assigned_admin').order_by('-created_at')
+        ).select_related('posted_by', 'parent', 'assigned_admin').prefetch_related('applications').order_by('-created_at')
 
 
 class TutorApplicationsView(APIView):
