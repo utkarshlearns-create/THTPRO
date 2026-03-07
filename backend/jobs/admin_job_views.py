@@ -53,11 +53,11 @@ class AdminPendingJobsView(generics.ListAPIView):
         # If it's a superadmin or admin, maybe they should see all pending jobs?
         # Or if the system strictly assigns jobs to specific admins:
         if self.request.user.role == 'SUPERADMIN':
-            return JobPost.objects.filter(status='PENDING_APPROVAL').select_related('posted_by', 'assigned_admin').order_by('-created_at')
+            return JobPost.objects.filter(status='PENDING_APPROVAL').select_related('posted_by', 'assigned_admin').prefetch_related('applications').order_by('-created_at')
             
         return JobPost.objects.filter(
             status='PENDING_APPROVAL',
-        ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
+        ).select_related('posted_by', 'assigned_admin').prefetch_related('applications').order_by('-created_at')
 
 class AdminJobListView(generics.ListAPIView):
     """Admin views jobs strictly filtered by an optional status parameter."""
@@ -69,7 +69,7 @@ class AdminJobListView(generics.ListAPIView):
             return JobPost.objects.none()
             
         status_param = self.request.query_params.get('status')
-        queryset = JobPost.objects.all().select_related('posted_by', 'assigned_admin').order_by('-created_at')
+        queryset = JobPost.objects.all().select_related('posted_by', 'assigned_admin').prefetch_related('applications').order_by('-created_at')
         
         if status_param:
             queryset = queryset.filter(status=status_param.upper())
@@ -92,7 +92,7 @@ class AdminInstitutionJobListView(generics.ListAPIView):
         return JobPost.objects.filter(
             status='PENDING_APPROVAL',
             posted_by__role='INSTITUTION',
-        ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
+        ).select_related('posted_by', 'assigned_admin').prefetch_related('applications').order_by('-created_at')
 
 
 def _complete_admin_task(job_post, admin_user):
