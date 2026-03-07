@@ -110,9 +110,9 @@ class TutorKYC(models.Model):
     tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='kyc_records')
     
     # Required Documents
-    aadhaar_document = models.ImageField(upload_to='kyc_docs/', blank=True, null=True)
-    education_certificate = models.FileField(upload_to='kyc_docs/', blank=True, null=True)
-    photo = models.ImageField(upload_to='kyc_docs/', blank=True, null=True)
+    aadhaar_front = models.ImageField(upload_to='kyc_docs/', blank=True, null=True)
+    aadhaar_back = models.ImageField(upload_to='kyc_docs/', blank=True, null=True)
+    highest_qualification_certificate = models.FileField(upload_to='kyc_docs/', blank=True, null=True)
     
     # Additional Documents (NEW)
     pan_document = models.ImageField(upload_to='kyc_docs/', blank=True, null=True)
@@ -127,9 +127,9 @@ class TutorKYC(models.Model):
     external_photo_url = models.URLField(max_length=500, blank=True, null=True)
     
     # Document Verification Flags (NEW)
-    aadhaar_verified = models.BooleanField(default=False)
-    education_verified = models.BooleanField(default=False)
-    photo_verified = models.BooleanField(default=False)
+    aadhaar_front_verified = models.BooleanField(default=False)
+    aadhaar_back_verified = models.BooleanField(default=False)
+    qualification_verified = models.BooleanField(default=False)
     pan_verified = models.BooleanField(default=False)
     
     # Re-submission Tracking (NEW)

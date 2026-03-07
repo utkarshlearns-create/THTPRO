@@ -49,7 +49,7 @@ class FavouriteTutorSerializer(serializers.ModelSerializer):
 class TutorKYCSerializer(serializers.ModelSerializer):
     class Meta:
         model = TutorKYC
-        fields = ['id', 'status', 'submission_count', 'rejection_reason', 'created_at', 'aadhaar_document', 'education_certificate', 'photo']
+        fields = ['id', 'status', 'submission_count', 'rejection_reason', 'created_at', 'aadhaar_front', 'aadhaar_back', 'highest_qualification_certificate']
         read_only_fields = ['status', 'submission_count', 'rejection_reason', 'created_at']
 
 class TutorStatusSerializer(serializers.ModelSerializer):
