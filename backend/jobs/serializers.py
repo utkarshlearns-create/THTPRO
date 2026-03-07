@@ -35,6 +35,8 @@ class JobPostSerializer(serializers.ModelSerializer):
         read_only_fields = ('posted_by', 'assigned_admin', 'created_at', 'updated_at')
 
     def get_application_count(self, obj):
+        if hasattr(obj, '_prefetched_objects_cache') and 'applications' in obj._prefetched_objects_cache:
+            return len(obj.applications.all())
         return obj.applications.count()
 
 
