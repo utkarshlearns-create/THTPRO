@@ -253,6 +253,7 @@ const TutorDashboard = () => {
                     user={formData} 
                     completionPercentage={completionPercentage} 
                     stats={stats}
+                    setActiveTab={setActiveTab}
                 />
             )}
 
