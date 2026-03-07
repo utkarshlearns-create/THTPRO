@@ -127,12 +127,19 @@ const TutorDashboard = () => {
 
             if (hasFiles) {
                 const submissionData = new FormData();
+                const fileFields = ['profile_image', 'intro_video', 'resume'];
+
                 // Append all fields to FormData
                 Object.keys(formData).forEach(key => {
                     if (key.endsWith('Preview')) return; // skip preview URLs
                     
                     let value = formData[key];
                     
+                    // Prevent sending existing string URLs to FileFields (causes "submitted data was not a file" error)
+                    if (fileFields.includes(key) && !(value instanceof File)) {
+                        return; 
+                    }
+
                     if (value === '') {
                         if (zeroIfEmptyFields.includes(key)) {
                             value = 0;
@@ -154,10 +161,13 @@ const TutorDashboard = () => {
             } else {
                 fetchOptions.headers['Content-Type'] = 'application/json';
                 
-                // Exclude File objects if any are accidentally stringified
+                // Exclude File objects and string URLs for file fields from JSON payload
                 const jsonPayload = { ...formData };
                 delete jsonPayload.profile_imagePreview;
                 delete jsonPayload.intro_videoPreview;
+                delete jsonPayload.profile_image;
+                delete jsonPayload.intro_video;
+                delete jsonPayload.resume;
                 
                 // Convert specific empty strings to null or 0 for backend validation
                 nullIfEmptyFields.forEach(field => {
