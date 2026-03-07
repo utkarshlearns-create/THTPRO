@@ -359,25 +359,94 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                         </div>
                                     </CardHeader>
                                     <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                             <FormGroup label="Subjects You Teach">
-                                                <MultiSelect 
-                                                    options={['Mathematics', 'Science', 'English', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography', 'Computer Science', 'Economics', 'Accountancy']}
-                                                    value={formData.subjects || []}
-                                                    onChange={(val) => handleInputChange({ target: { name: 'subjects', value: val } })}
-                                                    placeholder="Select Subjects"
-                                                />
-                                            </FormGroup>
-                                            <FormGroup label="Classes You Teach">
-                                                <MultiSelect 
-                                                    options={['Class 1-5', 'Class 6-8', 'Class 9-10', 'Class 11-12', 'Competitive Eras']}
-                                                    value={formData.classes || []}
-                                                    onChange={(val) => handleInputChange({ target: { name: 'classes', value: val } })}
-                                                    placeholder="Select Classes"
-                                                />
-                                            </FormGroup>
+                                        {/* Dynamic Class & Subject Mapping */}
+                                        <div className="col-span-1 md:col-span-2 space-y-4">
+                                            <div className="flex justify-between items-end mb-2">
+                                                <div>
+                                                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1 block">Classes & Subjects You Teach</label>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400 ml-1 mt-1">Add a class to specify which subjects you teach for it.</p>
+                                                </div>
+                                                <div className="flex gap-2 items-center">
+                                                    <select id="new-class-select" className="input-field py-1 text-sm bg-slate-50 border-slate-200">
+                                                        <option value="">Add Class</option>
+                                                        {['Class 1-5', 'Class 6-8', 'Class 9-10', 'Class 11-12', 'Competitive Exams'].filter(c => !formData.class_subjects || !Object.keys(formData.class_subjects).includes(c)).map(opt => (
+                                                            <option key={opt} value={opt}>{opt}</option>
+                                                        ))}
+                                                    </select>
+                                                    <Button 
+                                                        type="button" 
+                                                        size="sm" 
+                                                        variant="sapphire" 
+                                                        className="whitespace-nowrap px-3 h-9"
+                                                        onClick={() => {
+                                                            const select = document.getElementById('new-class-select');
+                                                            const val = select.value;
+                                                            if (val) {
+                                                                const newMapping = { ...(formData.class_subjects || {}) };
+                                                                newMapping[val] = [];
+                                                                handleInputChange({ target: { name: 'class_subjects', value: newMapping } });
+                                                                select.value = "";
+                                                            }
+                                                        }}
+                                                    >
+                                                        + Add
+                                                    </Button>
+                                                </div>
+                                            </div>
 
-                                            {/* Intro Video Upload */}
+                                            {(!formData.class_subjects || Object.keys(formData.class_subjects).length === 0) ? (
+                                                <div className="p-8 text-center border-2 border-dashed border-slate-200 dark:border-white/5 rounded-xl text-slate-500">
+                                                    No classes added yet. Select a class from the dropdown above.
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    {Object.entries(formData.class_subjects).map(([className, subjects]) => (
+                                                        <div key={className} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row gap-4 md:items-start group">
+                                                            <div className="md:w-1/3 flex items-center justify-between">
+                                                                <span className="font-semibold text-slate-800 dark:text-slate-200">{className}</span>
+                                                                <button 
+                                                                    type="button"
+                                                                    className="md:hidden text-red-500 p-1 hover:bg-red-50 dark:hover:bg-red-500/10 rounded"
+                                                                    onClick={() => {
+                                                                        const newMapping = { ...formData.class_subjects };
+                                                                        delete newMapping[className];
+                                                                        handleInputChange({ target: { name: 'class_subjects', value: newMapping } });
+                                                                    }}
+                                                                >
+                                                                    <X size={16} />
+                                                                </button>
+                                                            </div>
+                                                            <div className="md:w-2/3 flex-1 flex gap-2 items-start">
+                                                                <div className="w-full">
+                                                                    <MultiSelect 
+                                                                        options={['Mathematics', 'Science', 'English', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography', 'Computer Science', 'Economics', 'Accountancy']}
+                                                                        value={subjects}
+                                                                        onChange={(val) => {
+                                                                            const newMapping = { ...formData.class_subjects };
+                                                                            newMapping[className] = val;
+                                                                            handleInputChange({ target: { name: 'class_subjects', value: newMapping } });
+                                                                        }}
+                                                                        placeholder={`Select subjects for ${className}`}
+                                                                    />
+                                                                </div>
+                                                                <button 
+                                                                    type="button"
+                                                                    className="hidden md:block mt-2 text-slate-400 hover:text-red-500 p-1.5 hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                                                    title={`Remove ${className}`}
+                                                                    onClick={() => {
+                                                                        const newMapping = { ...formData.class_subjects };
+                                                                        delete newMapping[className];
+                                                                        handleInputChange({ target: { name: 'class_subjects', value: newMapping } });
+                                                                    }}
+                                                                >
+                                                                    <X size={18} />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                             <div className="col-span-1 md:col-span-2">
                                                 <FormGroup label="Video Confession / Introduction (Max 50MB)">
                                                     <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 dark:border-slate-700 border-dashed rounded-xl transition-colors hover:border-indigo-400 dark:hover:border-indigo-500">
@@ -410,7 +479,6 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                                     </div>
                                                 </FormGroup>
                                             </div>
-                                        </div>
 
                                         <FormGroup label="Teaching Mode">
                                             <select name="teaching_mode" value={formData.teaching_mode || ''} onChange={handleInputChange} className="input-field">

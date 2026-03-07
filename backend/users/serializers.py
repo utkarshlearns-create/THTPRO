@@ -67,6 +67,25 @@ class TutorProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['user', 'profile_completion_percentage']
 
+    def update(self, instance, validated_data):
+        # Automatically sync classes and subjects lists from class_subjects mapping
+        if 'class_subjects' in validated_data:
+            class_subjects = validated_data['class_subjects']
+            
+            # Extract unique classes
+            unique_classes = list(class_subjects.keys())
+            
+            # Extract unique subjects
+            unique_subjects = set()
+            for subjects_list in class_subjects.values():
+                if isinstance(subjects_list, list):
+                    unique_subjects.update(subjects_list)
+            
+            validated_data['classes'] = unique_classes
+            validated_data['subjects'] = list(unique_subjects)
+            
+        return super().update(instance, validated_data)
+
     def get_image(self, obj):
         if obj.profile_image:
             return obj.profile_image.url
@@ -129,7 +148,7 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
         model = TutorProfile
         fields = [
             'id', 'name', 'gender', 'about_me', 
-            'subjects', 'classes', 'locality', 'teaching_mode', 
+            'subjects', 'classes', 'class_subjects', 'locality', 'teaching_mode', 
             'teaching_experience_years', 'expected_fee', 
             'highest_qualification', 'is_bed', 'is_tet', 
             'profile_completion_percentage', 'image', 'intro_video',

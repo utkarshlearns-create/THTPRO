@@ -66,6 +66,10 @@ class TutorProfile(models.Model):
     subjects = models.JSONField(default=list, blank=True) # e.g. ["Maths", "Science"]
     classes = models.JSONField(default=list, blank=True)  # e.g. ["Class 10", "Class 12"]
     
+    # NEW: Structured mapping of what subjects they teach per class.
+    # Format: {"Class 10": ["Maths", "Science"], "Class 12": ["Physics"]}
+    class_subjects = models.JSONField(default=dict, blank=True)
+    
     # Qualification Details (Intermediate)
     intermediate_stream = models.CharField(max_length=100, blank=True, null=True)
     intermediate_school = models.CharField(max_length=200, blank=True, null=True)
