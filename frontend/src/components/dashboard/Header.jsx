@@ -4,7 +4,7 @@ import { Bell, Menu, Sparkles, Gem, Sun, Moon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../context/ThemeContext';
 
-const Header = ({ sidebarOpen, setSidebarOpen, user }) => {
+const Header = ({ sidebarOpen, setSidebarOpen, user, setActiveTab }) => {
     const { theme, toggleTheme } = useTheme();
 
     return (
@@ -39,10 +39,13 @@ const Header = ({ sidebarOpen, setSidebarOpen, user }) => {
                  </button>
 
                  {/* Wallet Jewel */}
-                 <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-indigo-500/30 rounded-full shadow-sm hover:border-indigo-500/60 transition-colors cursor-pointer">
+                 <button 
+                    onClick={() => setActiveTab && setActiveTab('wallet')}
+                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-indigo-500/30 rounded-full shadow-sm hover:border-indigo-500/60 transition-colors cursor-pointer"
+                 >
                     <Gem className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
                     <span className="text-sm font-bold text-slate-700 dark:text-indigo-100">500 Credits</span>
-                 </div>
+                 </button>
 
                  {/* Notification Bell */}
                  <button className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white transition-colors group">
