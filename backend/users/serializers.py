@@ -1,7 +1,10 @@
+import json
+import logging
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -66,6 +69,32 @@ class TutorProfileSerializer(serializers.ModelSerializer):
         model = TutorProfile
         fields = '__all__'
         read_only_fields = ['user', 'profile_completion_percentage']
+
+    def to_internal_value(self, data):
+        """
+        Handle JSON stringified fields for multipart/form-data requests.
+        Frontend often sends JSON as a string when including files.
+        """
+        mutable_data = data.copy() if hasattr(data, 'copy') else data
+        
+        # List of JSON fields that might be stringified from frontend
+        json_fields = ['class_subjects', 'subjects', 'classes', 'other_certifications']
+        
+        for field in json_fields:
+            if field in mutable_data:
+                val = mutable_data[field]
+                if isinstance(val, str):
+                    try:
+                        # Only try to load if it looks like JSON
+                        if val.strip().startswith(('[', '{')):
+                            mutable_data[field] = json.loads(val)
+                    except (ValueError, TypeError) as e:
+                        logger.warning(f"Failed to parse JSON for field {field}: {e}")
+                        # Keep original value (might be a simple string)
+                        pass
+        
+        return super().to_internal_value(mutable_data)
+
 
     def update(self, instance, validated_data):
         # Automatically sync classes and subjects lists from class_subjects mapping

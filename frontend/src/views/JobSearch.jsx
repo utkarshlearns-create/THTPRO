@@ -8,6 +8,10 @@ import API_BASE_URL from '../config';
 const JobSearch = () => {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [nextUrl, setNextUrl] = useState(null);
+    const [totalCount, setTotalCount] = useState(0);
+
     const [filters, setFilters] = useState({
         q: '',
         subject: '',
@@ -37,40 +41,71 @@ const JobSearch = () => {
         fetchMasterData();
     }, []);
 
-    // Fetch jobs when filters change (debounced)
-    useEffect(() => {
-        const fetchJobs = async () => {
+    const fetchJobs = async (isLoadMore = false) => {
+        if (isLoadMore) {
+            if (!nextUrl) return;
+            setLoadingMore(true);
+        } else {
             setLoading(true);
-            try {
+            setJobs([]);
+        }
+
+        try {
+            let url = '';
+            if (isLoadMore && nextUrl) {
+                url = nextUrl;
+            } else {
                 const queryParams = new URLSearchParams();
                 Object.entries(filters).forEach(([key, value]) => {
                     if (value) queryParams.append(key, value);
                 });
-
-                const response = await fetch(`${API_BASE_URL}/api/jobs/search/?${queryParams.toString()}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.results && Array.isArray(data.results)) {
-                        setJobs(data.results);
-                    } else if (Array.isArray(data)) {
-                        setJobs(data);
-                    } else {
-                        setJobs([]);
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching jobs:", error);
-            } finally {
-                setLoading(false);
+                url = `${API_BASE_URL}/api/jobs/search/?${queryParams.toString()}`;
             }
-        };
 
+            const response = await fetch(url);
+            if (response.ok) {
+                const data = await response.json();
+                
+                let newJobs = [];
+                let next = null;
+                let count = 0;
+
+                if (data.results && Array.isArray(data.results)) {
+                    newJobs = data.results;
+                    next = data.next;
+                    count = data.count;
+                } else if (Array.isArray(data)) {
+                    newJobs = data;
+                    next = null;
+                    count = data.length;
+                }
+
+                if (isLoadMore) {
+                    setJobs(prev => [...prev, ...newJobs]);
+                } else {
+                    setJobs(newJobs);
+                }
+                
+                setNextUrl(next);
+                setTotalCount(count);
+            }
+        } catch (error) {
+            console.error("Error fetching jobs:", error);
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+        }
+    };
+
+    // Fetch jobs when filters change (debounced)
+    useEffect(() => {
         const timer = setTimeout(() => {
-            fetchJobs();
+            fetchJobs(false);
         }, 500); // 500ms debounce
 
         return () => clearTimeout(timer);
     }, [filters]);
+
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -249,7 +284,8 @@ const JobSearch = () => {
                     <div className="flex-1">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-slate-900 dark:text-white font-semibold">
-                                {jobs.length} Results Found
+                                {totalCount} Results Found
+
                             </h2>
                             <div className="text-sm text-slate-500">
                                 Sorted by Newest
@@ -263,11 +299,33 @@ const JobSearch = () => {
                                 ))}
                             </div>
                         ) : jobs.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {jobs.map(job => (
-                                    <JobCard key={job.id} job={job} />
-                                ))}
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {jobs.map(job => (
+                                        <JobCard key={job.id} job={job} />
+                                    ))}
+                                </div>
+                                
+                                {nextUrl && (
+                                    <div className="flex justify-center pt-8 pb-12">
+                                        <button
+                                            onClick={() => fetchJobs(true)}
+                                            disabled={loadingMore}
+                                            className="px-8 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm"
+                                        >
+                                            {loadingMore ? (
+                                                <>
+                                                    <div className="animate-spin h-4 w-4 border-2 border-slate-400 border-t-transparent rounded-full"></div>
+                                                    Loading...
+                                                </>
+                                            ) : (
+                                                "Load More Results"
+                                            )}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
+
                         ) : (
                             <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-800">
                                 <div className="h-16 w-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
