@@ -419,7 +419,7 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                                             <div className="md:w-2/3 flex-1 flex gap-2 items-start">
                                                                 <div className="w-full">
                                                                     <MultiSelect 
-                                                                        options={['Mathematics', 'Science', 'English', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography', 'Computer Science', 'Economics', 'Accountancy']}
+                                                                        options={['Class 1-5', 'Class 6-8'].includes(className) ? ['All Subjects', 'Mathematics', 'Science', 'English', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography', 'Computer Science', 'Economics', 'Accountancy'] : ['Mathematics', 'Science', 'English', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography', 'Computer Science', 'Economics', 'Accountancy']}
                                                                         value={subjects}
                                                                         onChange={(val) => {
                                                                             const newMapping = { ...formData.class_subjects };
