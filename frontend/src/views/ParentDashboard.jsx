@@ -1008,10 +1008,11 @@ const MyProfile = ({ latestJob, stats, userProfile, onEdit }) => {
 
     // Dynamic User Name
     const getFullName = () => {
-        if (userProfile?.user?.first_name || userProfile?.user?.last_name) {
-            return `${userProfile.user.first_name || ''} ${userProfile.user.last_name || ''}`.trim();
+        if (userProfile?.first_name || userProfile?.last_name) {
+            return `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim();
         }
         if (userProfile?.name) return userProfile.name;
+        if (userProfile?.username) return userProfile.username;
         
         return 'Parent Account';
     };
