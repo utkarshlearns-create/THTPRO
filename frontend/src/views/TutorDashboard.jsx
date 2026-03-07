@@ -36,7 +36,7 @@ const TutorDashboard = () => {
         class_subjects: {},
     });
 
-    const [kycFiles, setKycFiles] = useState({ aadhaar_document: null, education_certificate: null, photo: null });
+    const [kycFiles, setKycFiles] = useState({ aadhaar_front: null, aadhaar_back: null, highest_qualification_certificate: null });
     const [kycUploading, setKycUploading] = useState(false);
 
     useEffect(() => {
@@ -217,7 +217,7 @@ const TutorDashboard = () => {
     };
 
     const handleKycSubmit = async () => {
-        if (!kycFiles.aadhaar_document || !kycFiles.education_certificate || !kycFiles.photo) return alert("Please select all documents.");
+        if (!kycFiles.aadhaar_front || !kycFiles.aadhaar_back || !kycFiles.highest_qualification_certificate) return alert("Please select all Aadhaar Front, Aadhaar Back and Certificate.");
         setKycUploading(true);
         try {
             const token = localStorage.getItem('access');

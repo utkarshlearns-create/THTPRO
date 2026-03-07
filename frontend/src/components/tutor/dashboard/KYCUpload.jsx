@@ -21,20 +21,19 @@ const KYCUpload = ({ kycFiles, handleFileChange, handleKycSubmit, kycUploading, 
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <UploadZone 
-                    label="Aadhaar Card" 
-                    file={kycFiles.aadhaar_document} 
-                    onChange={(e) => handleFileChange(e, 'aadhaar_document')} 
+                    label="Aadhaar Card (Front)" 
+                    file={kycFiles.aadhaar_front} 
+                    onChange={(e) => handleFileChange(e, 'aadhaar_front')} 
                 />
                  <UploadZone 
-                    label="Education Certificate" 
-                    file={kycFiles.education_certificate} 
-                    onChange={(e) => handleFileChange(e, 'education_certificate')} 
+                    label="Aadhaar Card (Back)" 
+                    file={kycFiles.aadhaar_back} 
+                    onChange={(e) => handleFileChange(e, 'aadhaar_back')} 
                 />
                  <UploadZone 
-                    label="Profile Photo" 
-                    file={kycFiles.photo} 
-                    onChange={(e) => handleFileChange(e, 'photo')} 
-                    accept="image/*"
+                    label="Highest Qualification Certificate" 
+                    file={kycFiles.highest_qualification_certificate} 
+                    onChange={(e) => handleFileChange(e, 'highest_qualification_certificate')} 
                 />
             </div>
         </div>

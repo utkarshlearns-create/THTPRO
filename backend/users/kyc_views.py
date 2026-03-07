@@ -201,9 +201,9 @@ class AdminKYCVerifyView(APIView):
         
         if action == 'approve':
             # Mark all documents as verified
-            kyc_record.aadhaar_verified = True
-            kyc_record.education_verified = True
-            kyc_record.photo_verified = True
+            kyc_record.aadhaar_front_verified = True
+            kyc_record.aadhaar_back_verified = True
+            kyc_record.qualification_verified = True
             if kyc_record.pan_document:
                 kyc_record.pan_verified = True
             
