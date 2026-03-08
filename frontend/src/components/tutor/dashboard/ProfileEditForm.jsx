@@ -126,12 +126,13 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
             .catch(console.error);
     }, []);
 
-    const uniqueStates = [...new Set(locations.map(l => l.state))].filter(Boolean);
+    const safeLocations = Array.isArray(locations) ? locations : [];
+    const uniqueStates = [...new Set(safeLocations.map(l => l.state))].filter(Boolean);
     const availableCities = formData.state 
-        ? locations.filter(l => l.state === formData.state).map(l => l.city)
-        : locations.map(l => l.city);
-    const currentLocalityObj = locations.find(l => l.city === formData.city);
-    const availableLocalities = currentLocalityObj ? currentLocalityObj.localities : [];
+        ? safeLocations.filter(l => l.state === formData.state).map(l => l.city)
+        : safeLocations.map(l => l.city);
+    const currentLocalityObj = safeLocations.find(l => l.city === formData.city);
+    const availableLocalities = currentLocalityObj ? (Array.isArray(currentLocalityObj.localities) ? currentLocalityObj.localities : []) : [];
 
     const onCameraCapture = (file) => {
         // Mocking an event object for the handler
