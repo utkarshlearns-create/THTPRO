@@ -204,6 +204,7 @@ class AdminAssignTutorView(APIView):
 
         job_post = get_object_or_404(JobPost, pk=pk)
         tutor_id = request.data.get('tutor_id')
+        demo_date = request.data.get('demo_date')
 
         if not tutor_id:
             return Response({"error": "Tutor ID is required"}, status=400)
@@ -215,15 +216,19 @@ class AdminAssignTutorView(APIView):
 
         application, created = Application.objects.get_or_create(job=job_post, tutor=tutor_profile)
         application.status = 'HIRED'
+        if demo_date:
+            application.demo_date = demo_date
         application.save()
 
         job_post.status = 'ASSIGNED'
         job_post.save()
 
+        demo_msg = f" A demo has been scheduled for {demo_date}." if demo_date else ""
+
         send_notification(
             user=tutor_profile.user,
             notification_type='SYSTEM',
-            message=f"You have been manually assigned to the job: {job_post.class_grade} - {job_post.subjects}",
+            message=f"You have been manually assigned to the job: {job_post.class_grade} - {job_post.subjects}.{demo_msg}",
             related_job=job_post,
         )
 
@@ -231,7 +236,7 @@ class AdminAssignTutorView(APIView):
             send_notification(
                 user=job_post.parent,
                 notification_type='SYSTEM',
-                message=f"A tutor ({tutor_profile.full_name}) has been assigned to your job request.",
+                message=f"A tutor ({tutor_profile.full_name}) has been assigned to your job request.{demo_msg}",
                 related_job=job_post,
             )
 

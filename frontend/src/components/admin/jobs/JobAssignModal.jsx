@@ -7,6 +7,7 @@ export default function JobAssignModal({ jobId, onClose, onAssigned }) {
     const [applicants, setApplicants] = useState([]);
     const [loading, setLoading] = useState(true);
     const [assigningId, setAssigningId] = useState(null);
+    const [demoDate, setDemoDate] = useState('');
 
     useEffect(() => {
         const fetchApplicants = async () => {
@@ -44,7 +45,10 @@ export default function JobAssignModal({ jobId, onClose, onAssigned }) {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ tutor_id: tutorId })
+                body: JSON.stringify({ 
+                    tutor_id: tutorId,
+                    demo_date: demoDate || null 
+                })
             });
 
             if (response.ok) {
@@ -78,6 +82,20 @@ export default function JobAssignModal({ jobId, onClose, onAssigned }) {
                     >
                         <X size={20} />
                     </button>
+                </div>
+
+                {/* Demo Scheduling */}
+                <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        Schedule Demo Date & Time (Optional)
+                    </label>
+                    <input 
+                        type="datetime-local" 
+                        value={demoDate}
+                        onChange={(e) => setDemoDate(e.target.value)}
+                        className="w-full sm:w-2/3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+                    />
+                    <p className="text-xs text-slate-500 mt-1.5 font-medium">If set, the parent will be notified of this demo schedule when the tutor is assigned.</p>
                 </div>
 
                 {/* Content */}
