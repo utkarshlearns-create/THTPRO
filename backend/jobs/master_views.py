@@ -5,7 +5,7 @@ Handles Subject, Board, ClassLevel, Location management
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Subject, Board, ClassLevel, Location
+from .models import Subject, Board, ClassLevel, Location, Locality
 from .master_serializers import SubjectSerializer, BoardSerializer, ClassLevelSerializer, LocationSerializer
 from users.admin_views import IsSuperAdmin
 
@@ -223,6 +223,21 @@ class SeedMasterDataView(APIView):
                     created['locations'] += 1
                 else:
                     skipped['locations'] += 1
+
+            # Seed Localities (For Lucknow primarily right now)
+            lucknow = Location.objects.filter(city='Lucknow').first()
+            if lucknow:
+                lucknow_areas = [
+                    'Gomti Nagar', 'Indira Nagar', 'Aliganj', 'Hazratganj', 
+                    'Mahanagar', 'Aashiana', 'Vikas Nagar', 'Rajajipuram',
+                    'Kapurthala', 'Jankipuram', 'Chowk', 'Aminabad', 
+                    'Gomti Nagar Extension', 'Sushant Golf City', 'Transport Nagar'
+                ]
+                for area in lucknow_areas:
+                    obj, was_created = Locality.objects.get_or_create(
+                        location=lucknow, name=area
+                    )
+                    # We don't strictly track locality counts in the response right now safely, but we can do it silently.
 
             logger.info(f"Master Seed Data: Created={created}, Skipped={skipped}")
             

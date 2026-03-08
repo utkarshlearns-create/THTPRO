@@ -82,6 +82,7 @@ const JobWizard = ({ onSuccess }) => {
     const [subjects, setSubjects] = useState([]);
     const [boards, setBoards] = useState([]);
     const [classLevels, setClassLevels] = useState([]);
+    const [locations, setLocations] = useState([]);
     
     const [formData, setFormData] = useState(() => {
         if (typeof window !== 'undefined') {
@@ -101,6 +102,7 @@ const JobWizard = ({ onSuccess }) => {
             class_grade: '',
             board: '',
             subjects: [],
+            city: 'Lucknow',
             locality: '',
             preferred_time: '',
             budget_range: '',
@@ -151,6 +153,7 @@ const JobWizard = ({ onSuccess }) => {
                     setSubjects(data.subjects || []);
                     setBoards(data.boards || []);
                     setClassLevels(data.class_levels || []);
+                    setLocations(data.locations || []);
                 }
 
                 // Fetch Profile info to auto-fill WhatsApp number if available
@@ -568,35 +571,49 @@ const JobWizard = ({ onSuccess }) => {
                                     </Select>
                                 </div>
                                 <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Your Locality / Area</Label>
-                                    <div className="flex gap-2">
-                                        <div className="relative group flex-1">
-                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                                <MapPin className="h-5 w-5 text-indigo-500 dark:text-indigo-400 group-focus-within:animate-bounce" />
-                                            </div>
-                                            <Input 
+                                    <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Your Location</Label>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-sm text-slate-500">City</Label>
+                                            <Select 
+                                                name="city" 
+                                                value={formData.city || 'Lucknow'} 
+                                                onValueChange={(val) => {
+                                                    setFormData(prev => ({ ...prev, city: val, locality: '' }));
+                                                }}
+                                            >
+                                                <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                                                    <SelectValue placeholder="Select City" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {locations.map(loc => (
+                                                        <SelectItem key={loc.id} value={loc.city}>{loc.city}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-sm text-slate-500">Area / Locality</Label>
+                                            <Select 
                                                 name="locality" 
                                                 value={formData.locality} 
-                                                onChange={handleInputChange} 
-                                                className="pl-12 py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-shadow" 
-                                                placeholder="e.g. Indiranagar, Sector 14" 
-                                            />
+                                                onValueChange={(val) => handleSelectChange('locality', val)}
+                                            >
+                                                <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                                                    <SelectValue placeholder="Select Area" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {locations.find(l => l.city === (formData.city || 'Lucknow'))?.localities?.map(loc => (
+                                                        <SelectItem key={loc.id} value={loc.name}>{loc.name}</SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
-                                        <Button 
-                                            type="button" 
-                                            variant="outline"
-                                            onClick={detectLocation}
-                                            disabled={isDetectingLocation}
-                                            className="py-6 px-4 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40"
-                                            title="Detect my location"
-                                        >
-                                            {isDetectingLocation ? (
-                                                <Loader2 className="h-5 w-5 animate-spin" />
-                                            ) : (
-                                                <Navigation className="h-5 w-5" />
-                                            )}
-                                        </Button>
                                     </div>
+                                    <div className="flex justify-end mt-2 text-sm text-slate-500">
+                                       <span className="flex items-center gap-1"><MapPin size={14}/> Can't find your exact area? Choose the nearest available one.</span>
+                                    </div>
+
                                 </div>
                                 <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                                     <Label className="text-base font-semibold text-slate-700 dark:text-slate-200">Preferred Timing</Label>

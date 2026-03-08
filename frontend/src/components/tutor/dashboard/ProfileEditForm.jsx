@@ -5,8 +5,7 @@ import { Save, User, Briefcase, ShieldCheck, Camera, RotateCcw, X } from 'lucide
 import { cn } from '../../../lib/utils';
 import KYCUpload from './KYCUpload';
 import MultiSelect from '../../ui/multi-select';
-import { State, City } from 'country-state-city';
-
+import { API_BASE_URL } from '../../../config';
 const CameraCapture = ({ onCapture, onClose }) => {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
@@ -117,10 +116,21 @@ const CameraCapture = ({ onCapture, onClose }) => {
 const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange, handleSubmit, saving, isLocked, activeSection, setActiveSection, kycProps }) => {
     const [showCamera, setShowCamera] = useState(false);
 
-    // Country-State-City data for India
-    const indiaStates = State.getStatesOfCountry('IN');
-    const selectedStateObj = formData.state ? indiaStates.find(s => s.name === formData.state) : null;
-    const cities = selectedStateObj ? City.getCitiesOfState('IN', selectedStateObj.isoCode) : [];
+    const [locations, setLocations] = useState([]);
+
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/api/jobs/master/`)
+            .then(res => res.json())
+            .then(data => setLocations(data.locations || []))
+            .catch(console.error);
+    }, []);
+
+    const uniqueStates = [...new Set(locations.map(l => l.state))].filter(Boolean);
+    const availableCities = formData.state 
+        ? locations.filter(l => l.state === formData.state).map(l => l.city)
+        : locations.map(l => l.city);
+    const currentLocalityObj = locations.find(l => l.city === formData.city);
+    const availableLocalities = currentLocalityObj ? currentLocalityObj.localities : [];
 
     const onCameraCapture = (file) => {
         // Mocking an event object for the handler
@@ -135,8 +145,20 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
 
     const handleStateChange = (e) => {
         handleInputChange(e);
-        // Clear city when state changes to avoid mismatched data
         handleInputChange({ target: { name: 'city', value: '' } });
+        handleInputChange({ target: { name: 'locality', value: '' } });
+    };
+
+    const handleCityChange = (e) => {
+        handleInputChange(e);
+        handleInputChange({ target: { name: 'locality', value: '' } });
+        
+        // Auto-select state if a city is chosen and state is empty
+        const selectedCity = e.target.value;
+        const matchedLocation = locations.find(l => l.city === selectedCity);
+        if (matchedLocation && !formData.state) {
+            handleInputChange({ target: { name: 'state', value: matchedLocation.state } });
+        }
     };
 
     return (
@@ -308,19 +330,30 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                         <FormGroup label="State">
                                             <select name="state" value={formData.state || ''} onChange={handleStateChange} className="input-field">
                                                 <option value="">Select State</option>
-                                                {indiaStates.map(state => (
-                                                    <option key={state.isoCode} value={state.name}>{state.name}</option>
+                                                {uniqueStates.map(stateName => (
+                                                    <option key={stateName} value={stateName}>{stateName}</option>
                                                 ))}
                                             </select>
                                         </FormGroup>
-                                        <FormGroup label="City">
-                                            <select name="city" value={formData.city || ''} onChange={handleInputChange} className="input-field" disabled={!formData.state}>
+                                        <FormGroup label="City (Location)">
+                                            <select name="city" value={formData.city || ''} onChange={handleCityChange} className="input-field">
                                                 <option value="">Select City</option>
-                                                {cities.map(city => (
-                                                    <option key={city.name} value={city.name}>{city.name}</option>
+                                                {availableCities.map(cityName => (
+                                                    <option key={cityName} value={cityName}>{cityName}</option>
                                                 ))}
                                             </select>
                                         </FormGroup>
+                                        <div className="md:col-span-2">
+                                            <FormGroup label="Area / Locality">
+                                                <select name="locality" value={formData.locality || ''} onChange={handleInputChange} className="input-field" disabled={!formData.city}>
+                                                    <option value="">Select Primary Locality</option>
+                                                    {availableLocalities?.map(loc => (
+                                                        <option key={loc.id} value={loc.name}>{loc.name}</option>
+                                                    ))}
+                                                </select>
+                                                <p className="text-xs text-slate-500 mt-1">This is your primary area used to match you with nearby jobs.</p>
+                                            </FormGroup>
+                                        </div>
                                         <FormGroup label="Pincode">
                                             <input type="text" name="pincode" value={formData.pincode || ''} onChange={handleInputChange} className="input-field" placeholder="e.g. 226016" />
                                         </FormGroup>
