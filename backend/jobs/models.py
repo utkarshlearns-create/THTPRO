@@ -176,6 +176,23 @@ class Location(models.Model):
         return f"{self.city}" + (f" - {self.pincode}" if self.pincode else "")
 
 
+class Locality(models.Model):
+    """Specific areas/localities within a Location (City)"""
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='localities')
+    name = models.CharField(max_length=200)
+    pincode = models.CharField(max_length=10, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+        unique_together = ('location', 'name')
+        verbose_name_plural = 'Localities'
+
+    def __str__(self):
+        return f"{self.name}, {self.location.city}"
+
+
 # Import additional models
 from .admin_models import AdminTask, Notification, AdminProfile
 
