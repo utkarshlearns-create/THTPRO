@@ -45,14 +45,7 @@ const TutorHero = () => {
                                 variant="outline" 
                                 size="lg" 
                                 className="w-full sm:w-auto border-2 border-indigo-600/20 dark:border-indigo-400/20 bg-white/50 dark:bg-slate-900/50 text-indigo-700 dark:text-indigo-300 font-bold px-8 py-7 text-lg rounded-2xl shadow-lg hover:shadow-indigo-100 dark:hover:shadow-none transition-all transform hover:-translate-y-1 backdrop-blur-sm"
-                                onClick={() => {
-                                    const element = document.getElementById('browse-jobs');
-                                    if (element) {
-                                        element.scrollIntoView({ behavior: 'smooth' });
-                                    } else {
-                                        router.push('/find-jobs');
-                                    }
-                                }}
+                                onClick={() => router.push('/find-jobs')}
                             >
                                 <Sparkles className="mr-2" size={20} />
                                 Browse All Jobs
