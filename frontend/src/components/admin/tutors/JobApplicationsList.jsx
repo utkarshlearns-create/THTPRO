@@ -94,7 +94,7 @@ export default function JobApplicationsList() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            applications.map((app) => (
+                            Array.isArray(applications) && applications.map((app) => (
                                 <TableRow key={app.id}>
                                     <TableCell className="font-medium text-slate-900 dark:text-white">APP-{app.id}</TableCell>
                                     <TableCell className="text-blue-600">JD-{app.job}</TableCell>

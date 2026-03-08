@@ -230,7 +230,7 @@ const PendingJobApprovals = () => {
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <CardTitle className="text-lg">
-                                            {job.class_grade} {job.board} - {job.subjects.join(', ')}
+                                            {job.class_grade} {job.board} - {Array.isArray(job.subjects) ? job.subjects.join(', ') : ''}
                                         </CardTitle>
                                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                                             Posted by: {job.posted_by_username || 'Tutor'}
@@ -259,7 +259,7 @@ const PendingJobApprovals = () => {
                                     )}
                                     <div className="flex items-center gap-2">
                                         <BookOpen className="h-4 w-4 text-slate-400" />
-                                        <span className="text-sm text-slate-600 dark:text-slate-300">{job.subjects.length} subjects</span>
+                                        <span className="text-sm text-slate-600 dark:text-slate-300">{Array.isArray(job.subjects) ? job.subjects.length : 0} subjects</span>
                                     </div>
                                 </div>
 

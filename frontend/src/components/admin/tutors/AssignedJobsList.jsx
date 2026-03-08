@@ -91,7 +91,7 @@ export default function AssignedJobsList() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            jobs.map((app) => (
+                            Array.isArray(jobs) && jobs.map((app) => (
                                 <TableRow key={app.id}>
                                     <TableCell className="font-medium text-slate-900 dark:text-white">JD-{app.job}</TableCell>
                                     <TableCell>{app.job_details?.parent_name || 'N/A'}</TableCell>

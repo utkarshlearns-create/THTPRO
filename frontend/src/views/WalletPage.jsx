@@ -148,7 +148,7 @@ const WalletPage = () => {
                             <div className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {loading ? (
                                     <div className="p-8 text-center text-slate-500">Loading history...</div>
-                                ) : transactions.length > 0 ? (
+                                ) : Array.isArray(transactions) && transactions.length > 0 ? (
                                     transactions.map(tx => (
                                         <div key={tx.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center justify-between">
                                             <div className="flex items-center gap-4">

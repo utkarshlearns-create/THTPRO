@@ -91,7 +91,7 @@ const MyPostedJobs = () => {
 
                 {loading ? (
                     <div className="text-center py-12">Loading...</div>
-                ) : jobs.length > 0 ? (
+                ) : Array.isArray(jobs) && jobs.length > 0 ? (
                     <div className="space-y-6">
                         {jobs.map(job => (
                             <div key={job.id} className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
@@ -137,7 +137,7 @@ const MyPostedJobs = () => {
                                         </h4>
                                         {loadingApplicants ? (
                                             <div>Loading applicants...</div>
-                                        ) : applicants.length > 0 ? (
+                                        ) : Array.isArray(applicants) && applicants.length > 0 ? (
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 {applicants.map(app => (
                                                     <div key={app.id} className="bg-white dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
