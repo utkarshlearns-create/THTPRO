@@ -5,7 +5,8 @@ import { Save, User, Briefcase, ShieldCheck, Camera, RotateCcw, X } from 'lucide
 import { cn } from '../../../lib/utils';
 import KYCUpload from './KYCUpload';
 import MultiSelect from '../../ui/multi-select';
-import { API_BASE_URL } from '../../../config';
+import API_BASE_URL from '../../../config';
+
 const CameraCapture = ({ onCapture, onClose }) => {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
