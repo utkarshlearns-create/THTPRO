@@ -101,7 +101,7 @@ const WalletSection = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="divide-y divide-slate-100 dark:divide-white/5">
-                        {wallet?.transactions?.length > 0 ? (
+                        {Array.isArray(wallet?.transactions) && wallet.transactions.length > 0 ? (
                             wallet.transactions.map((tx) => (
                                 <div key={tx.id} className="p-4 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                                     <div className="flex items-center gap-4">

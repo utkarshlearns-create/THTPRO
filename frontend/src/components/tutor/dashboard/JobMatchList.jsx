@@ -57,7 +57,7 @@ const JobMatchList = ({ onViewAll, userLocality }) => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {jobs.length > 0 ? (
+                {Array.isArray(jobs) && jobs.length > 0 ? (
                     jobs.map((job) => (
                         <Card key={job.id} className="p-6 border group relative overflow-hidden text-left bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all">
                             {/* Shimmer Effect on Hover */}
@@ -71,7 +71,7 @@ const JobMatchList = ({ onViewAll, userLocality }) => {
                             </div>
                             
                             <h4 className="font-bold text-slate-900 dark:text-slate-100 text-lg mb-1 leading-tight">
-                                {job.subjects?.join(', ') || 'General'} Tutor
+                                {Array.isArray(job.subjects) ? job.subjects.join(', ') : 'General'} Tutor
                             </h4>
                             <p className="text-xs text-slate-500 mb-4">{job.board || 'Any Board'}</p>
                             

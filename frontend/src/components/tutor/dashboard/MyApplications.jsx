@@ -84,7 +84,7 @@ const MyApplications = () => {
     ];
 
     // Filter applications by search term
-    const filteredApplications = applications.filter(app => {
+    const filteredApplications = (Array.isArray(applications) ? applications : []).filter(app => {
         if (!searchTerm) return true;
         const searchLower = searchTerm.toLowerCase();
         return (
@@ -162,7 +162,7 @@ const MyApplications = () => {
                         <Loader className="h-8 w-8 animate-spin text-indigo-600" />
                     </CardContent>
                 </Card>
-            ) : filteredApplications.length === 0 ? (
+            ) : (!Array.isArray(filteredApplications) || filteredApplications.length === 0) ? (
                 <Card>
                     <CardContent className="p-12 text-center">
                         <Briefcase className="h-16 w-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
@@ -189,7 +189,7 @@ const MyApplications = () => {
                 </Card>
             ) : (
                 <div className="space-y-4">
-                    {filteredApplications.map(application => {
+                    {Array.isArray(filteredApplications) && filteredApplications.map(application => {
                         const statusConfig = getStatusConfig(application.status);
                         const StatusIcon = statusConfig.icon;
                         const job = application.job_details;

@@ -404,7 +404,7 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                                 <div className="flex gap-2 items-center">
                                                     <select id="new-class-select" className="input-field py-1 text-sm bg-slate-50 border-slate-200">
                                                         <option value="">Add Class</option>
-                                                        {['Class 1-5', 'Class 6-8', 'Class 9-10', 'Class 11-12', 'Competitive Exams'].filter(c => !formData.class_subjects || !Object.keys(formData.class_subjects).includes(c)).map(opt => (
+                                                        {['Class 1-5', 'Class 6-8', 'Class 9-10', 'Class 11-12', 'Competitive Exams'].filter(c => !formData.class_subjects || !Object.keys(formData.class_subjects || {}).includes(c)).map(opt => (
                                                             <option key={opt} value={opt}>{opt}</option>
                                                         ))}
                                                     </select>
@@ -435,7 +435,7 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                                 </div>
                                             ) : (
                                                 <div className="space-y-4">
-                                                    {Object.entries(formData.class_subjects).map(([className, subjects]) => (
+                                                    {Object.entries(formData.class_subjects || {}).map(([className, subjects]) => (
                                                         <div key={className} className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row gap-4 md:items-start group">
                                                             <div className="md:w-1/3 flex items-center justify-between">
                                                                 <span className="font-semibold text-slate-800 dark:text-slate-200">{className}</span>
