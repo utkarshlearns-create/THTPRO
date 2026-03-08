@@ -17,10 +17,15 @@ export default function JobDetailsPage() {
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [userRole, setUserRole] = useState(null);
+    const [isApplying, setIsApplying] = useState(false);
 
     useEffect(() => {
         const fetchJob = async () => {
             const token = localStorage.getItem('access');
+            const role = localStorage.getItem('userRole');
+            setUserRole(role);
+
             try {
                 const res = await fetch(`${API_BASE_URL}/api/jobs/${id}/`, {
                     headers: token ? { 'Authorization': `Bearer ${token}` } : {}
@@ -44,6 +49,34 @@ export default function JobDetailsPage() {
 
         if (id) fetchJob();
     }, [id]);
+
+    const handleApply = async () => {
+        setIsApplying(true);
+        const token = localStorage.getItem('access');
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/jobs/${id}/apply/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cover_message: '' })
+            });
+
+            if (res.ok) {
+                toast.success('Application successful!');
+                setJob(prev => ({ ...prev, has_applied: true }));
+            } else {
+                const data = await res.json();
+                toast.error(data.error?.non_field_errors?.[0] || data.error || 'Failed to apply for job');
+            }
+        } catch (err) {
+            console.error('Apply error:', err);
+            toast.error('Network error. Please try again.');
+        } finally {
+            setIsApplying(false);
+        }
+    };
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -150,6 +183,44 @@ export default function JobDetailsPage() {
                                 </div>
                             </div>
                         )}
+
+                        {job.status === 'ASSIGNED' && job.assigned_tutor && userRole !== 'TEACHER' && (
+                            <div className="mb-6 p-6 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/50 rounded-xl">
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                                    <User className="text-indigo-600" size={20} />
+                                    Assigned Tutor
+                                </h3>
+                                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                                    <div className="h-16 w-16 bg-white dark:bg-slate-800 rounded-full border-2 border-indigo-200 dark:border-indigo-800 overflow-hidden flex items-center justify-center shrink-0">
+                                        {job.assigned_tutor.image ? (
+                                            <img src={job.assigned_tutor.image} alt="Tutor Profile" className="h-full w-full object-cover" />
+                                        ) : (
+                                            <User size={32} className="text-slate-400" />
+                                        )}
+                                    </div>
+                                    <div className="text-center sm:text-left flex-1">
+                                        <h4 className="font-bold text-slate-900 dark:text-white text-lg">{job.assigned_tutor.name}</h4>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                                            {job.assigned_tutor.gender} • {job.assigned_tutor.teaching_experience_years || 0} years experience
+                                        </p>
+                                        <div className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+                                            <span className="font-medium">Qualification:</span> {job.assigned_tutor.highest_qualification || 'Not Specified'}
+                                        </div>
+                                    </div>
+                                </div>
+                                {job.demo_date && (
+                                    <div className="mt-4 pt-4 border-t border-indigo-200/50 dark:border-indigo-800/50 flex items-start text-indigo-800 dark:text-indigo-300">
+                                        <Calendar size={18} className="mr-2 mt-0.5 shrink-0" />
+                                        <div>
+                                            <p className="font-semibold text-sm">Demo Scheduled</p>
+                                            <p className="text-sm mt-0.5 bg-white dark:bg-slate-900 px-3 py-1.5 rounded border border-indigo-100 dark:border-indigo-800 inline-block font-medium">
+                                                {formatDate(job.demo_date)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="p-6 sm:p-10 bg-slate-50/50 dark:bg-slate-900/50">
@@ -230,6 +301,18 @@ export default function JobDetailsPage() {
                                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
                                     {job.requirements}
                                 </p>
+                            </div>
+                        )}
+
+                        {userRole === 'TEACHER' && job.status === 'APPROVED' && (
+                            <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+                                <Button
+                                    onClick={handleApply}
+                                    disabled={job.has_applied || isApplying}
+                                    className={`px-8 py-6 text-lg font-semibold shadow-lg transition-transform hover:scale-105 active:scale-95 ${job.has_applied ? 'bg-emerald-600 hover:bg-emerald-700 opacity-90' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}
+                                >
+                                    {isApplying ? 'Applying...' : job.has_applied ? 'Applied Successfully' : 'Quick Apply'}
+                                </Button>
                             </div>
                         )}
                     </div>

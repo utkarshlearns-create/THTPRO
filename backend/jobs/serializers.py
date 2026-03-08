@@ -28,6 +28,9 @@ class JobPostSerializer(serializers.ModelSerializer):
     posted_by_username = serializers.CharField(source='posted_by.username', read_only=True)
     assigned_admin_username = serializers.CharField(source='assigned_admin.username', read_only=True)
     application_count = serializers.SerializerMethodField()
+    has_applied = serializers.SerializerMethodField()
+    assigned_tutor = serializers.SerializerMethodField()
+    demo_date = serializers.SerializerMethodField()
     
     class Meta:
         model = JobPost
@@ -37,6 +40,24 @@ class JobPostSerializer(serializers.ModelSerializer):
     def get_application_count(self, obj):
         return obj.applications.count()
 
+    def get_has_applied(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated and request.user.role == 'TEACHER':
+            return obj.applications.filter(tutor__user=request.user).exists()
+        return False
+
+    def get_assigned_tutor(self, obj):
+        hired_app = obj.applications.filter(status='HIRED').first()
+        if hired_app:
+            from users.serializers import PublicTutorProfileSerializer
+            return PublicTutorProfileSerializer(hired_app.tutor, context=self.context).data
+        return None
+
+    def get_demo_date(self, obj):
+        hired_app = obj.applications.filter(status='HIRED').first()
+        if hired_app and hired_app.demo_date:
+            return hired_app.demo_date
+        return None
 
 class TutorJobPostSerializer(serializers.ModelSerializer):
     """Serializer for tutors creating job opportunities"""
