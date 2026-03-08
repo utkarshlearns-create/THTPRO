@@ -282,12 +282,16 @@ class AdminApplicationListView(generics.ListAPIView):
     """
     from .serializers import ApplicationSerializer
     serializer_class = ApplicationSerializer
-    permission_classes = [IsSuperAdmin] # Or IsAdminUser
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrSuperAdmin]
     pagination_class = StandardPagination
 
     def get_queryset(self):
         queryset = Application.objects.all().select_related('tutor', 'job').order_by('-created_at')
         
+        # If user is a COUNSELLOR, only show applications for jobs assigned to them
+        if self.request.user.role == 'COUNSELLOR':
+            queryset = queryset.filter(job__assigned_admin=self.request.user)
+
         # Filter by Status
         status_param = self.request.query_params.get('status')
         if status_param and status_param != 'ALL':
