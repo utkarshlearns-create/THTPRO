@@ -317,7 +317,7 @@ const FindTutors = () => {
                                     <div key={i} className="h-64 bg-slate-200 dark:bg-slate-800/50 rounded-2xl animate-pulse"></div>
                                 ))}
                             </div>
-                        ) : tutors.length > 0 ? (
+                        ) : Array.isArray(tutors) && tutors.length > 0 ? (
                             <div className="space-y-8">
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     {tutors.map(tutor => (

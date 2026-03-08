@@ -165,12 +165,12 @@ const JobSearch = () => {
                                             className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm focus:ring-1 focus:ring-blue-500 text-slate-600 dark:text-slate-300"
                                         >
                                             <option value="">Any Subject</option>
-                                            {subjects.map(s => (
+                                            {Array.isArray(subjects) && subjects.map(s => (
                                                 <option key={s.id} value={s.name}>{s.name}</option>
                                             ))}
-                                            {!subjects.length && <option value="Mathematics">Mathematics</option>}
-                                            {!subjects.length && <option value="Science">Science</option>}
-                                            {!subjects.length && <option value="English">English</option>}
+                                            {(!subjects || !Array.isArray(subjects) || !subjects.length) && <option value="Mathematics">Mathematics</option>}
+                                            {(!subjects || !Array.isArray(subjects) || !subjects.length) && <option value="Science">Science</option>}
+                                            {(!subjects || !Array.isArray(subjects) || !subjects.length) && <option value="English">English</option>}
                                         </select>
                                     </div>
                                 </div>
@@ -298,7 +298,7 @@ const JobSearch = () => {
                                     <div key={i} className="h-48 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse"></div>
                                 ))}
                             </div>
-                        ) : jobs.length > 0 ? (
+                        ) : Array.isArray(jobs) && jobs.length > 0 ? (
                             <div className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {jobs.map(job => (
