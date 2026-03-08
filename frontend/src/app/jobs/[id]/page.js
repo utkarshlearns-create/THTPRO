@@ -305,14 +305,25 @@ export default function JobDetailsPage() {
                         )}
 
                         {userRole === 'TEACHER' && job.status === 'APPROVED' && (
-                            <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800 flex justify-end">
-                                <Button
-                                    onClick={handleApply}
-                                    disabled={job.has_applied || isApplying}
-                                    className={`px-8 py-6 text-lg font-semibold shadow-lg transition-transform hover:scale-105 active:scale-95 ${job.has_applied ? 'bg-emerald-600 hover:bg-emerald-700 opacity-90' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}
-                                >
-                                    {isApplying ? 'Applying...' : job.has_applied ? 'Applied Successfully' : 'Quick Apply'}
-                                </Button>
+                            <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
+                                {job.has_applied && (
+                                    <div className="mb-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/50 rounded-xl flex items-start text-indigo-800 dark:text-indigo-300">
+                                        <AlertCircle size={20} className="mr-3 mt-0.5 flex-shrink-0" />
+                                        <div>
+                                            <p className="font-semibold text-sm">Application is under review</p>
+                                            <p className="text-xs mt-1 opacity-90">Your application has been received and is currently being reviewed by the counsellor.</p>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="flex justify-end">
+                                    <Button
+                                        onClick={handleApply}
+                                        disabled={job.has_applied || isApplying}
+                                        className={`px-8 py-6 text-lg font-semibold shadow-lg transition-transform hover:scale-105 active:scale-95 ${job.has_applied ? 'bg-emerald-600 hover:bg-emerald-700 opacity-90' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}
+                                    >
+                                        {isApplying ? 'Applying...' : job.has_applied ? 'Applied Successfully' : 'Quick Apply'}
+                                    </Button>
+                                </div>
                             </div>
                         )}
                     </div>
