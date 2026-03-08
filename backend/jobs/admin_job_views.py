@@ -129,6 +129,7 @@ class AdminApproveJobView(APIView):
         if job_post.posted_by:
             send_notification(
                 user=job_post.posted_by,
+                title='Job Approved',
                 notification_type='JOB_APPROVED',
                 message=f"Your job post for {job_post.class_grade} has been approved!",
                 related_job=job_post,
@@ -159,6 +160,7 @@ class AdminRejectJobView(APIView):
         if job_post.posted_by:
             send_notification(
                 user=job_post.posted_by,
+                title='Job Rejected',
                 notification_type='JOB_REJECTED',
                 message=f"Your job post was rejected. Reason: {reason}",
                 related_job=job_post,
@@ -187,6 +189,7 @@ class AdminRequestModificationsView(APIView):
         if job_post.posted_by:
             send_notification(
                 user=job_post.posted_by,
+                title='Modifications Needed',
                 notification_type='JOB_MODIFICATION_NEEDED',
                 message=f"Modifications needed for your job post. Feedback: {feedback}",
                 related_job=job_post,
@@ -227,6 +230,7 @@ class AdminAssignTutorView(APIView):
 
         send_notification(
             user=tutor_profile.user,
+            title='Job Assigned',
             notification_type='SYSTEM',
             message=f"You have been manually assigned to the job: {job_post.class_grade} - {job_post.subjects}.{demo_msg}",
             related_job=job_post,
@@ -235,6 +239,7 @@ class AdminAssignTutorView(APIView):
         if job_post.parent:
             send_notification(
                 user=job_post.parent,
+                title='Tutor Assigned',
                 notification_type='SYSTEM',
                 message=f"A tutor ({tutor_profile.full_name}) has been assigned to your job request.{demo_msg}",
                 related_job=job_post,
