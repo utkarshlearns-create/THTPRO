@@ -294,7 +294,7 @@ const TutorDashboard = () => {
                     <div className="flex justify-between items-center">
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Browse Jobs</h1>
                     </div>
-                    <JobMatchList />
+                    <JobMatchList userLocality={formData?.locality} />
                      {/* We can add more 'all jobs' list later */}
                 </div>
             )}
