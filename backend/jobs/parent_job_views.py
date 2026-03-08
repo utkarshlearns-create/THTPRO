@@ -13,7 +13,7 @@ from django.db.models.functions import Cast
 
 from .models import JobPost, Application, InstituteJob
 from .serializers import JobPostSerializer, InstituteJobSerializer
-from .utils import filter_by_subject
+from .utils import filter_by_subject, send_notification
 from users.models import TutorProfile
 
 
@@ -433,18 +433,42 @@ class ParentDemoActionView(APIView):
         if job.posted_by != request.user and job.parent != request.user:
             return Response({"error": "You do not have permission for this job."}, status=status.HTTP_403_FORBIDDEN)
             
+        notification_title = ""
+        notification_msg = ""
+            
         if action == 'ACCEPT':
             application.demo_status = 'ACCEPTED'
+            notification_title = 'Demo Accepted'
+            notification_msg = f"Parent has accepted the demo for {job.class_grade} ({job.subjects})."
         elif action == 'REJECT':
             application.demo_status = 'REJECTED'
             application.demo_remarks = remarks
+            notification_title = 'Demo Rejected'
+            notification_msg = f"Parent has rejected the demo for {job.class_grade}. Reason: {remarks}"
         elif action == 'RESCHEDULE':
             application.demo_status = 'RESCHEDULE_REQUESTED'
             application.demo_remarks = remarks
+            notification_title = 'Demo Reschedule Requested'
+            notification_msg = f"Parent requested to reschedule the demo for {job.class_grade}. Remarks: {remarks}"
         elif action in ['COMPLETE', 'COMPLETED']:
             application.demo_status = 'COMPLETED'
+            notification_title = 'Demo Completed'
+            notification_msg = f"Parent has marked the demo for {job.class_grade} as completed."
         else:
             return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        application.save()
+        
+        # Notify the tutor
+        if notification_title and application.tutor and application.tutor.user:
+            send_notification(
+                user=application.tutor.user,
+                title=notification_title,
+                message=notification_msg,
+                notification_type='SYSTEM',
+                related_job=job
+            )
+            
             
         application.save()
         return Response({
@@ -473,6 +497,16 @@ class ParentConfirmTutorView(APIView):
         application.status = 'HIRED'
         application.is_confirmed = True
         application.save()
+        
+        # Notify tutor they are hired
+        if application.tutor and application.tutor.user:
+            send_notification(
+                user=application.tutor.user,
+                title='You have been Hired!',
+                message=f"Parent has confirmed you as the tutor for {job.class_grade} ({job.subjects}).",
+                notification_type='SYSTEM',
+                related_job=job
+            )
         
         return Response({
             "message": "Tutor successfully confirmed for this job.", 
