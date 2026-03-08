@@ -9,6 +9,7 @@ import {
   AlertCircle,
   UserPlus
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import API_BASE_URL from '../config';
 import TutorHero from '../components/tutor/TutorHero';
 import TutorFeatureCards from '../components/tutor/TutorFeatureCards';
@@ -20,6 +21,7 @@ const TutorHome = () => {
     const [loading, setLoading] = useState(true);
     const [profileStatus, setProfileStatus] = useState({ percent: 0, status: 'SIGNED_UP' });
     const [activeCategory, setActiveCategory] = useState('All');
+    const router = useRouter();
 
     // Fetch profile status and jobs
     useEffect(() => {
@@ -163,6 +165,7 @@ const TutorHome = () => {
                                         <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
                                             <button 
                                                 disabled={!canApply}
+                                                onClick={() => router.push(`/jobs/${job.id}`)}
                                                 className={`px-8 py-4 rounded-2xl font-black transition-all w-full text-lg shadow-xl
                                                 ${canApply 
                                                     ? 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-200 dark:hover:shadow-none' 
