@@ -22,7 +22,7 @@ class AdminDashboardStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN']:
+        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
             return Response({"error": "Admin access required"}, status=403)
 
         department = 'SUPERADMIN'
@@ -218,9 +218,16 @@ class AdminAssignTutorView(APIView):
             return Response({"error": "Tutor not found"}, status=404)
 
         application, created = Application.objects.get_or_create(job=job_post, tutor=tutor_profile)
-        application.status = 'HIRED'
+        
         if demo_date:
+            application.status = 'SHORTLISTED'
             application.demo_date = demo_date
+            application.demo_status = 'PENDING'
+            application.is_confirmed = False
+        else:
+            application.status = 'HIRED'
+            application.is_confirmed = True
+            
         application.save()
 
         job_post.status = 'ASSIGNED'
@@ -230,7 +237,7 @@ class AdminAssignTutorView(APIView):
 
         send_notification(
             user=tutor_profile.user,
-            title='Job Assigned',
+            title='Job Assigned' if not demo_date else 'Demo Scheduled',
             notification_type='SYSTEM',
             message=f"You have been manually assigned to the job: {job_post.class_grade} - {job_post.subjects}.{demo_msg}",
             related_job=job_post,

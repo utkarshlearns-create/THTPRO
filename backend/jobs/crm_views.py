@@ -289,9 +289,10 @@ class AdminApplicationListView(generics.ListAPIView):
         queryset = Application.objects.all().select_related('tutor', 'job').order_by('-created_at')
         
         # Filter by Status
-        status = self.request.query_params.get('status')
-        if status and status != 'ALL':
-            queryset = queryset.filter(status=status)
+        status_param = self.request.query_params.get('status')
+        if status_param and status_param != 'ALL':
+            status_list = [s.strip() for s in status_param.split(',')]
+            queryset = queryset.filter(status__in=status_list)
             
         # Search (Tutor Name, Job Title)
         q = self.request.query_params.get('q')

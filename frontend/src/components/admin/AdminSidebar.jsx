@@ -71,7 +71,7 @@ const MENU_ITEMS = [
         id: 'select-tutor',
         subItems: [
             { label: 'Applications List', id: 'select-tutor-apply-job' },
-            { label: 'Assigned Jobs', id: 'select-tutor-assigned' }
+            { label: 'Assigned Tutors / Demos', id: 'select-tutor-assigned' }
         ]
     },
     {
@@ -204,8 +204,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
         
         // Specific section handling mapping roles to dashboard features
         if (mode === 'COUNSELLOR') {
-            if (item.header === 'TUTOR MANAGEMENT') return false;
-            if (['approve-tutor', 'select-tutor', 'tutor-package', 'parent-package'].includes(item.id)) return false;
+            if (['approve-tutor', 'tutor-package', 'parent-package'].includes(item.id)) return false;
             return true;
         }
         

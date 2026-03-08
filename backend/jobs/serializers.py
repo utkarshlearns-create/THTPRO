@@ -54,7 +54,8 @@ class JobPostSerializer(serializers.ModelSerializer):
         return None
 
     def get_demo_date(self, obj):
-        hired_app = obj.applications.filter(status='HIRED').first()
+        # We also need to get the demo date for 'SHORTLISTED' apps, not just 'HIRED'
+        hired_app = obj.applications.filter(status__in=['HIRED', 'SHORTLISTED']).first()
         if hired_app and hired_app.demo_date:
             return hired_app.demo_date
         return None
@@ -80,8 +81,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
         fields = ['id', 'job', 'job_details', 'tutor', 'tutor_name', 'tutor_details', 'cover_message', 
-                  'status', 'demo_date', 'created_at', 'updated_at']
-        read_only_fields = ('job', 'tutor', 'demo_date', 'status', 'created_at', 'updated_at')
+                  'status', 'demo_date', 'demo_status', 'demo_remarks', 'is_confirmed', 'created_at', 'updated_at']
+        read_only_fields = ('job', 'tutor', 'demo_date', 'demo_status', 'demo_remarks', 'is_confirmed', 'status', 'created_at', 'updated_at')
 
     def get_tutor_details(self, obj):
         """Return tutor profile details for admin/parent review"""
