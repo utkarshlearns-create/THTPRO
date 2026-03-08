@@ -75,12 +75,18 @@ class ApplicationSerializer(serializers.ModelSerializer):
     """Serializer for tutor job applications"""
     job_details = serializers.SerializerMethodField()
     tutor_name = serializers.CharField(source='tutor.full_name', read_only=True)
+    tutor_details = serializers.SerializerMethodField()
     
     class Meta:
         model = Application
-        fields = ['id', 'job', 'job_details', 'tutor', 'tutor_name', 'cover_message', 
+        fields = ['id', 'job', 'job_details', 'tutor', 'tutor_name', 'tutor_details', 'cover_message', 
                   'status', 'demo_date', 'created_at', 'updated_at']
         read_only_fields = ('job', 'tutor', 'demo_date', 'status', 'created_at', 'updated_at')
+
+    def get_tutor_details(self, obj):
+        """Return tutor profile details for admin/parent review"""
+        from users.serializers import PublicTutorProfileSerializer
+        return PublicTutorProfileSerializer(obj.tutor, context=self.context).data
     
     def get_job_details(self, obj):
         """Return job details for the application"""

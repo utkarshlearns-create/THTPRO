@@ -164,8 +164,15 @@ class JobApplicantsView(generics.ListAPIView):
 
     def get_queryset(self):
         job = get_object_or_404(JobPost, pk=self.kwargs['pk'])
-        if job.posted_by != self.request.user and job.parent != self.request.user:
+        user = self.request.user
+        
+        # Check permissions: Poster, assigned parent, or Admin/Counsellor
+        is_owner = (job.posted_by == user or job.parent == user)
+        is_admin = (user.role in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR'])
+        
+        if not (is_owner or is_admin):
             return Application.objects.none()
+            
         return Application.objects.filter(
             job=job
         ).select_related('tutor__user').order_by('-created_at')
