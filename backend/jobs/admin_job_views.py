@@ -236,9 +236,11 @@ class AdminAssignTutorView(APIView):
             related_job=job_post,
         )
 
-        if job_post.parent:
+        # Find the parent user - could be stored in either 'parent' or 'posted_by' field
+        parent_user = job_post.parent or job_post.posted_by
+        if parent_user and parent_user != tutor_profile.user:
             send_notification(
-                user=job_post.parent,
+                user=parent_user,
                 title='Tutor Assigned',
                 notification_type='SYSTEM',
                 message=f"A tutor ({tutor_profile.full_name}) has been assigned to your job request.{demo_msg}",

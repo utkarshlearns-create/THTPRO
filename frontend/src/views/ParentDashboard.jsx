@@ -1281,7 +1281,20 @@ const TutorAssigned = () => {
                                         <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">{job.class_grade} - {job.subjects?.join(', ')}</p>
                                     </div>
                                 </div>
-                                <div className="mt-6 flex gap-3">
+                                {application.demo_date && (
+                                    <div className="mt-4 flex items-center gap-2 text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-3 py-2 rounded-lg">
+                                        <Clock size={14} />
+                                        <span>Demo scheduled: {new Date(application.demo_date).toLocaleString()}</span>
+                                    </div>
+                                )}
+                                <div className="mt-6 flex gap-3 flex-wrap">
+                                    <Button 
+                                        variant="outline" 
+                                        className="flex-1 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                        onClick={() => router.push(`/tutors/${application.tutor}`)}
+                                    >
+                                        <User size={16} className="mr-2" /> View Profile
+                                    </Button>
                                     <Button 
                                         variant="outline" 
                                         className="flex-1 text-slate-700 dark:text-slate-300"
