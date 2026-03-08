@@ -23,7 +23,7 @@ export default function JobDetailsPage() {
     useEffect(() => {
         const fetchJob = async () => {
             const token = localStorage.getItem('access');
-            const role = localStorage.getItem('userRole');
+            const role = localStorage.getItem('role');
             setUserRole(role);
 
             try {
