@@ -424,7 +424,7 @@ class ParentDemoActionView(APIView):
         if request.user.role != 'PARENT':
             return Response({"error": "Only parents can perform this action"}, status=status.HTTP_403_FORBIDDEN)
             
-        action = request.data.get('action') # 'accept', 'reschedule', 'reject', 'complete'
+        action = request.data.get('action', '').upper()
         remarks = request.data.get('remarks', '')
         
         application = get_object_or_404(Application, pk=pk)
@@ -433,15 +433,15 @@ class ParentDemoActionView(APIView):
         if job.posted_by != request.user and job.parent != request.user:
             return Response({"error": "You do not have permission for this job."}, status=status.HTTP_403_FORBIDDEN)
             
-        if action == 'accept':
+        if action == 'ACCEPT':
             application.demo_status = 'ACCEPTED'
-        elif action == 'reject':
+        elif action == 'REJECT':
             application.demo_status = 'REJECTED'
             application.demo_remarks = remarks
-        elif action == 'reschedule':
+        elif action == 'RESCHEDULE':
             application.demo_status = 'RESCHEDULE_REQUESTED'
             application.demo_remarks = remarks
-        elif action == 'complete':
+        elif action in ['COMPLETE', 'COMPLETED']:
             application.demo_status = 'COMPLETED'
         else:
             return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
