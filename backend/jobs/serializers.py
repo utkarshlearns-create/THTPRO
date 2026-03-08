@@ -79,8 +79,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
         fields = ['id', 'job', 'job_details', 'tutor', 'tutor_name', 'cover_message', 
-                  'status', 'created_at', 'updated_at']
-        read_only_fields = ('tutor', 'created_at', 'updated_at')
+                  'status', 'demo_date', 'created_at', 'updated_at']
+        read_only_fields = ('job', 'tutor', 'demo_date', 'status', 'created_at', 'updated_at')
     
     def get_job_details(self, obj):
         """Return job details for the application"""
