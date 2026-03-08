@@ -231,6 +231,9 @@ class AdminAssignTutorView(APIView):
         application.save()
 
         job_post.status = 'ASSIGNED'
+        # Automatically assign the job to the counsellor/admin who is assigning the tutor
+        if request.user.role in ['ADMIN', 'COUNSELLOR'] and not job_post.assigned_admin:
+            job_post.assigned_admin = request.user
         job_post.save()
 
         demo_msg = f" A demo has been scheduled for {demo_date}." if demo_date else ""
