@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { MapPin, Clock, IndianRupee } from 'lucide-react';
 
-const JobMatchList = ({ onViewAll }) => {
+const JobMatchList = ({ onViewAll, userLocality }) => {
     const router = useRouter();
     const [jobs, setJobs] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
@@ -18,7 +18,11 @@ const JobMatchList = ({ onViewAll }) => {
         try {
             const token = localStorage.getItem('access');
             const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-            const response = await fetch(`${API_BASE_URL}/api/jobs/`, { headers });
+            let url = `${API_BASE_URL}/api/jobs/`;
+            if (userLocality) {
+                url = `${API_BASE_URL}/api/jobs/search/?location=${encodeURIComponent(userLocality)}`;
+            }
+            const response = await fetch(url, { headers });
             if (response.ok) {
                 const data = await response.json();
                 setJobs(Array.isArray(data) ? data : (data.results || []));
@@ -42,12 +46,14 @@ const JobMatchList = ({ onViewAll }) => {
         <div className="col-span-4 space-y-4">
             <div className="flex justify-between items-end">
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Recommended Jobs</h3>
-                <button 
+                <Button 
+                    variant="outline"
+                    size="sm"
                     onClick={() => onViewAll ? onViewAll() : router.push('/find-jobs')}
-                    className="text-xs text-indigo-600 dark:text-sky-400 hover:text-indigo-700 dark:hover:text-sky-300"
+                    className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:text-sky-400 dark:border-sky-900/50 dark:hover:bg-sky-900/20"
                 >
-                    View All
-                </button>
+                    View All Jobs
+                </Button>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -66,7 +66,7 @@ const DashboardHome = ({ user, completionPercentage, stats, setActiveTab }) => {
                 <EngagementStats />
                 
                 {/* Job Matches */}
-                <JobMatchList onViewAll={() => setActiveTab('tuitions')} />
+                <JobMatchList userLocality={user?.locality} onViewAll={() => setActiveTab('tuitions')} />
             </div>
         </div>
     );
