@@ -1134,54 +1134,66 @@ const ProfileField = ({ label, value, icon }) => (
 
 const TutorAssigned = () => {
     const [assignedJobs, setAssignedJobs] = useState([]);
+    const [scheduledDemos, setScheduledDemos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [ratingModal, setRatingModal] = useState({ open: false, app: null, job: null });
-    const [attendanceModal, setAttendanceModal] = useState({ open: false, app: null, job: null });
+    const [demoActionModal, setDemoActionModal] = useState({ open: false, app: null, job: null, action: '' });
     
     // Ratings Form State
     const [rating, setRating] = useState(5);
     const [review, setReview] = useState('');
     
-    // Attendance Form State
-    const [attendanceDate, setAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
-    const [attendanceStatus, setAttendanceStatus] = useState('PRESENT');
+    // Demo Form State
+    const [demoRemarks, setDemoRemarks] = useState('');
 
-    useEffect(() => {
-        const fetchAssignedTutors = async () => {
-            try {
-                const token = localStorage.getItem('access');
-                const jobsRes = await fetch(`${API_BASE_URL}/api/jobs/my-jobs/`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (jobsRes.ok) {
-                    const jobsData = await jobsRes.json();
-                    const jobs = Array.isArray(jobsData) ? jobsData : jobsData.results || [];
-                    
-                    const myAssignedJobs = jobs.filter(j => j.status === 'ASSIGNED');
-                    
-                    const tutorsData = await Promise.all(myAssignedJobs.map(async (job) => {
-                        const appRes = await fetch(`${API_BASE_URL}/api/jobs/${job.id}/applicants/`, {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        });
-                        if (appRes.ok) {
-                            const appsData = await appRes.json();
-                            const apps = appsData.results || appsData;
-                            const hiredApp = apps.find(a => a.status === 'HIRED');
-                            if (hiredApp) {
-                                return { job, application: hiredApp };
+    const fetchAssignedTutors = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const jobsRes = await fetch(`${API_BASE_URL}/api/jobs/my-jobs/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (jobsRes.ok) {
+                const jobsData = await jobsRes.json();
+                const jobs = Array.isArray(jobsData) ? jobsData : jobsData.results || [];
+                
+                const myAssignedJobs = jobs.filter(j => j.status === 'ASSIGNED');
+                
+                const ConfirmedTutors = [];
+                const DemoTutors = [];
+
+                await Promise.all(myAssignedJobs.map(async (job) => {
+                    const appRes = await fetch(`${API_BASE_URL}/api/jobs/${job.id}/applicants/`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (appRes.ok) {
+                        const appsData = await appRes.json();
+                        const apps = appsData.results || appsData;
+                        
+                        // Check for Hired / Confirmed
+                        const hiredApp = apps.find(a => a.status === 'HIRED' && a.is_confirmed);
+                        if (hiredApp) {
+                            ConfirmedTutors.push({ job, application: hiredApp });
+                        } else {
+                            // Check for Demo/Shortlisted
+                            const demoApp = apps.find(a => a.status === 'SHORTLISTED' || (a.status === 'HIRED' && !a.is_confirmed));
+                            if (demoApp) {
+                                DemoTutors.push({ job, application: demoApp });
                             }
                         }
-                        return null;
-                    }));
-                    
-                    setAssignedJobs(tutorsData.filter(Boolean));
-                }
-            } catch (error) {
-                console.error("Error fetching assigned tutors:", error);
-            } finally {
-                setLoading(false);
+                    }
+                }));
+                
+                setAssignedJobs(ConfirmedTutors);
+                setScheduledDemos(DemoTutors);
             }
-        };
+        } catch (error) {
+            console.error("Error fetching assigned tutors:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchAssignedTutors();
     }, []);
 
@@ -1215,180 +1227,239 @@ const TutorAssigned = () => {
         }
     };
 
-    const handleAttendanceSubmit = async () => {
+    const handleDemoActionSubmit = async () => {
         try {
             const token = localStorage.getItem('access');
-            const response = await fetch(`${API_BASE_URL}/api/jobs/parent/tutor-attendance/`, {
+            const { app, action } = demoActionModal;
+            const endpoint = action === 'confirm' 
+                ? `/api/jobs/parent/application-action/${app.id}/confirm/`
+                : `/api/jobs/parent/application-action/${app.id}/demo/`;
+                
+            const payload = action === 'confirm' ? {} : { action: action === 'complete' ? 'COMPLETED' : action.toUpperCase(), remarks: demoRemarks };
+                
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    tutor: attendanceModal.app.tutor, 
-                    job: attendanceModal.job.id,
-                    date: attendanceDate,
-                    status: attendanceStatus
-                })
+                body: JSON.stringify(payload)
             });
+            
             if (response.ok) {
-                alert('Attendance marked successfully!');
-                setAttendanceModal({ open: false, app: null, job: null });
-                setAttendanceDate(new Date().toISOString().split('T')[0]);
-                setAttendanceStatus('PRESENT');
+                alert(`Action successfully submitted!`);
+                setDemoActionModal({ open: false, app: null, job: null, action: '' });
+                setDemoRemarks('');
+                fetchAssignedTutors(); 
             } else {
                 const err = await response.json();
                 alert(`Error: ${JSON.stringify(err)}`);
             }
         } catch (error) {
-            console.error("Error marking attendance:", error);
+            console.error("Error submitting demo action:", error);
+            alert("Network error while submitting action.");
+        }
+    };
+
+    const getDemoStatusBadge = (dmStatus) => {
+        switch(dmStatus) {
+            case 'PENDING': return <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Pending</span>;
+            case 'ACCEPTED': return <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Accepted</span>;
+            case 'REJECTED': return <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Rejected</span>;
+            case 'RESCHEDULE_REQUESTED': return <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Reschedule Req</span>;
+            case 'COMPLETED': return <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Completed</span>;
+            default: return <span className="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Unknown</span>;
         }
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-300 relative">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Your Tutor</h1>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">Manage tutors assigned to your active jobs.</p>
-                </div>
-            </div>
-
-            {loading ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Skeleton className="h-64 rounded-2xl" />
-                    <Skeleton className="h-64 rounded-2xl" />
-                </div>
-            ) : assignedJobs.length === 0 ? (
-                <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div className="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-                        <User size={32} className="text-indigo-500 dark:text-indigo-400" />
-                        <span className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 border-3 border-white dark:border-slate-900 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">+</span>
+        <div className="space-y-10 animate-in fade-in duration-300 relative">
+            
+            {/* SCHEDULED DEMOS SECTION */}
+            <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Scheduled Demos</h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">Review tutors shortlisted for a demo before confirming them.</p>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">No Tutors Assigned Yet</h3>
-                    <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto">Once a counsellor assigns a tutor to your job, they will appear here.</p>
                 </div>
-            ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {Array.isArray(assignedJobs) && assignedJobs.map(({ job, application }) => (
-                        <div key={job.id} className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group">
-                            {/* Top accent gradient */}
-                            <div className="h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-                            
-                            <div className="p-6">
-                                {/* Header section */}
-                                <div className="flex items-start gap-4">
-                                    {/* Avatar */}
-                                    <div className="relative">
-                                        <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform overflow-hidden">
+
+                {loading ? (
+                    <Skeleton className="h-32 rounded-2xl" />
+                ) : scheduledDemos.length === 0 ? (
+                    <div className="text-center py-10 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-slate-500 dark:text-slate-400">
+                        No scheduled demos at the moment.
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {scheduledDemos.map(({ job, application }) => (
+                            <div key={application.id} className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden group">
+                                <div className="h-1.5 bg-gradient-to-r from-blue-400 to-indigo-500" />
+                                <div className="p-6">
+                                    <div className="flex items-start gap-4">
+                                        <div className="h-14 w-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex flex-shrink-0 items-center justify-center font-bold text-xl overflow-hidden">
                                             {application.tutor_details?.image ? (
                                                 <img src={application.tutor_details.image} alt={application.tutor_name} className="h-full w-full object-cover" />
-                                            ) : (
-                                                application.tutor_name?.charAt(0) || 'T'
-                                            )}
+                                            ) : application.tutor_name?.charAt(0) || 'D'}
                                         </div>
-                                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full flex items-center justify-center">
-                                            <CheckCircle size={10} className="text-white" />
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{application.tutor_name}</h3>
+                                                {getDemoStatusBadge(application.demo_status)}
+                                            </div>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                                                <Briefcase size={13} className="shrink-0" />
+                                                <span className="truncate">{job.class_grade} • {Array.isArray(job.subjects) ? job.subjects.join(', ') : job.subjects}</span>
+                                            </p>
                                         </div>
                                     </div>
                                     
-                                    {/* Info */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{application.tutor_name}</h3>
-                                            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full">Assigned</span>
+                                    {application.demo_date && (
+                                        <div className="mt-4 flex items-center gap-2 text-sm bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-300 px-3 py-2 rounded-lg border border-blue-100 dark:border-blue-800/30">
+                                            <Clock size={16} className="text-blue-500" />
+                                            <span className="font-semibold">{new Date(application.demo_date).toLocaleString()}</span>
                                         </div>
-                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
-                                            <Briefcase size={13} className="shrink-0" />
-                                            <span className="truncate">{job.class_grade} • {Array.isArray(job.subjects) ? job.subjects.join(', ') : job.subjects}</span>
-                                        </p>
-                                        {application.tutor_details?.teaching_experience_years > 0 && (
-                                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
-                                                <Star size={11} className="text-amber-400" />
-                                                {application.tutor_details.teaching_experience_years} years experience
-                                            </p>
+                                    )}
+
+                                    <div className="mt-4 flex gap-2 overflow-x-auto pb-1 custom-scrollbar">
+                                        <Button variant="outline" size="sm" onClick={() => window.open(`/tutors/${application.tutor}`, '_blank')} className="flex-shrink-0 h-8">
+                                            View Profile
+                                        </Button>
+                                        
+                                        {['PENDING', 'RESCHEDULE_REQUESTED'].includes(application.demo_status) && (
+                                            <>
+                                                <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white flex-shrink-0 h-8" onClick={() => setDemoActionModal({ open: true, app: application, job, action: 'accept' })}>Accept</Button>
+                                                <Button size="sm" variant="outline" className="text-orange-600 border-orange-200 hover:bg-orange-50 dark:hover:bg-orange-900/20 flex-shrink-0 h-8" onClick={() => setDemoActionModal({ open: true, app: application, job, action: 'reschedule' })}>Reschedule</Button>
+                                                <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0 h-8" onClick={() => setDemoActionModal({ open: true, app: application, job, action: 'reject' })}>Reject</Button>
+                                            </>
+                                        )}
+                                        
+                                        {application.demo_status === 'ACCEPTED' && (
+                                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white flex-shrink-0 h-8" onClick={() => setDemoActionModal({ open: true, app: application, job, action: 'complete' })}>Mark Completed</Button>
+                                        )}
+                                        
+                                        {application.demo_status === 'COMPLETED' && (
+                                            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white flex-shrink-0 h-8 px-6" onClick={() => setDemoActionModal({ open: true, app: application, job, action: 'confirm' })}>
+                                                Confirm Tutor (Hire)
+                                            </Button>
                                         )}
                                     </div>
                                 </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
 
-                                {/* Demo date banner */}
-                                {application.demo_date && (
-                                    <div className="mt-4 flex items-center gap-2 text-sm bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 px-4 py-2.5 rounded-xl border border-blue-100 dark:border-blue-800/30">
-                                        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-800/30 rounded-lg flex items-center justify-center shrink-0">
-                                            <Clock size={15} className="text-blue-600 dark:text-blue-400" />
+            {/* CONFIRMED TUTORS SECTION */}
+            <div className="space-y-6 mt-12 pb-6 border-t border-slate-200 dark:border-slate-800 pt-8">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Your Tutor</h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">Manage tutors assigned and confirmed for your active jobs.</p>
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <Skeleton className="h-48 rounded-2xl" />
+                        <Skeleton className="h-48 rounded-2xl" />
+                    </div>
+                ) : assignedJobs.length === 0 ? (
+                    <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <div className="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                            <User size={32} className="text-indigo-500 dark:text-indigo-400" />
+                            <span className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 border-3 border-white dark:border-slate-900 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">✓</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">No Tutors Confirmed Yet</h3>
+                        <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto">Once you confirm a tutor after a successful demo, they will appear here.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {assignedJobs.map(({ job, application }) => (
+                            <div key={job.id} className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group">
+                                <div className="h-1.5 bg-gradient-to-r from-emerald-400 to-teal-500" />
+                                
+                                <div className="p-6">
+                                    <div className="flex items-start gap-4">
+                                        <div className="relative">
+                                            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform overflow-hidden">
+                                                {application.tutor_details?.image ? (
+                                                    <img src={application.tutor_details.image} alt={application.tutor_name} className="h-full w-full object-cover" />
+                                                ) : (
+                                                    application.tutor_name?.charAt(0) || 'T'
+                                                )}
+                                            </div>
+                                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full flex items-center justify-center">
+                                                <CheckCircle size={10} className="text-white" />
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400">Demo Scheduled</p>
-                                            <p className="font-semibold text-sm">{new Date(application.demo_date).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                                        
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                                                <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{application.tutor_name}</h3>
+                                                <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full">Confirmed</span>
+                                            </div>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
+                                                <Briefcase size={13} className="shrink-0" />
+                                                <span className="truncate">{job.class_grade} • {Array.isArray(job.subjects) ? job.subjects.join(', ') : job.subjects}</span>
+                                            </p>
                                         </div>
                                     </div>
-                                )}
 
-                                {/* Action buttons */}
-                                <div className="mt-5 grid grid-cols-3 gap-2">
-                                    <button 
-                                        onClick={() => window.open(`/tutors/${application.tutor}`, '_blank')}
-                                        className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 transition-colors group/btn"
-                                    >
-                                        <User size={18} className="group-hover/btn:scale-110 transition-transform" />
-                                        <span className="text-[11px] font-bold">View Profile</span>
-                                    </button>
-                                    <button 
-                                        onClick={() => setAttendanceModal({ open: true, app: application, job })}
-                                        className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors group/btn"
-                                    >
-                                        <Clock size={18} className="group-hover/btn:scale-110 transition-transform" />
-                                        <span className="text-[11px] font-bold">Attendance</span>
-                                    </button>
-                                    <button 
-                                        onClick={() => setRatingModal({ open: true, app: application, job })}
-                                        className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 transition-colors group/btn"
-                                    >
-                                        <Star size={18} className="group-hover/btn:scale-110 transition-transform" />
-                                        <span className="text-[11px] font-bold">Rate Tutor</span>
-                                    </button>
+                                    <div className="mt-5 grid grid-cols-2 gap-2">
+                                        <button 
+                                            onClick={() => window.open(`/tutors/${application.tutor}`, '_blank')}
+                                            className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 transition-colors group/btn"
+                                        >
+                                            <User size={18} className="group-hover/btn:scale-110 transition-transform" />
+                                            <span className="text-[11px] font-bold">View Profile</span>
+                                        </button>
+                                        <button 
+                                            onClick={() => setRatingModal({ open: true, app: application, job })}
+                                            className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 transition-colors group/btn"
+                                        >
+                                            <Star size={18} className="group-hover/btn:scale-110 transition-transform" />
+                                            <span className="text-[11px] font-bold">Rate Tutor</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            )}
+                        ))}
+                    </div>
+                )}
+            </div>
 
-            {/* Attendance Modal */}
-            {attendanceModal.open && (
+            {/* Demo Action Modal */}
+            {demoActionModal.open && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
                     <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
                         <div className="p-6">
-                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Mark Attendance</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Record a session for {attendanceModal.app?.tutor_name}.</p>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white capitalize mb-2">{demoActionModal.action} Demo / Tutor</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                                {demoActionModal.action === 'confirm' 
+                                    ? `Are you sure you want to hire ${demoActionModal.app?.tutor_name}?`
+                                    : `You are about to ${demoActionModal.action} the demo for ${demoActionModal.app?.tutor_name}.`}
+                            </p>
                             
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date</label>
-                                    <input 
-                                        type="date" 
-                                        value={attendanceDate}
-                                        onChange={(e) => setAttendanceDate(e.target.value)}
-                                        className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    />
+                            {['reject', 'reschedule'].includes(demoActionModal.action) && (
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Remarks / Reason</label>
+                                        <textarea 
+                                            rows="3"
+                                            placeholder="Please provide a reason..."
+                                            value={demoRemarks}
+                                            onChange={(e) => setDemoRemarks(e.target.value)}
+                                            className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                                        />
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Status</label>
-                                    <select 
-                                        value={attendanceStatus}
-                                        onChange={(e) => setAttendanceStatus(e.target.value)}
-                                        className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                    >
-                                        <option value="PRESENT">Present</option>
-                                        <option value="ABSENT">Absent</option>
-                                        <option value="RESCHEDULED">Rescheduled</option>
-                                    </select>
-                                </div>
-                            </div>
+                            )}
                         </div>
                         <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                            <Button variant="ghost" onClick={() => setAttendanceModal({ open: false, app: null, job: null })}>Cancel</Button>
-                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleAttendanceSubmit}>Submit</Button>
+                            <Button variant="ghost" onClick={() => setDemoActionModal({ open: false, app: null, job: null, action: '' })}>Cancel</Button>
+                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={handleDemoActionSubmit}>Submit Action</Button>
                         </div>
                     </div>
                 </div>

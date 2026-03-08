@@ -60,6 +60,14 @@ class Application(models.Model):
         ('REJECTED', 'Rejected'),
     )
 
+    DEMO_STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('ACCEPTED', 'Accepted'),
+        ('REJECTED', 'Rejected'),
+        ('RESCHEDULE_REQUESTED', 'Reschedule Requested'),
+        ('COMPLETED', 'Completed'),
+    )
+
     job = models.ForeignKey(JobPost, on_delete=models.CASCADE, related_name='applications')
     # We use 'users.TutorProfile' as string to avoid circular imports if possible,
     # or import it carefully. But generally User is fine if we check role, 
@@ -70,6 +78,9 @@ class Application(models.Model):
     cover_message = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='APPLIED')
     demo_date = models.DateTimeField(null=True, blank=True)
+    demo_status = models.CharField(max_length=30, choices=DEMO_STATUS_CHOICES, default='PENDING')
+    demo_remarks = models.TextField(blank=True, null=True)
+    is_confirmed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

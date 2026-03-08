@@ -414,3 +414,68 @@ class ParentCloseJobView(APIView):
         job.save()
         
         return Response({"message": "Job successfully closed.", "status": job.status}, status=status.HTTP_200_OK)
+
+
+class ParentDemoActionView(APIView):
+    """Parent accepts, rejects, requests reschedule, or completes a demo."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role != 'PARENT':
+            return Response({"error": "Only parents can perform this action"}, status=status.HTTP_403_FORBIDDEN)
+            
+        action = request.data.get('action') # 'accept', 'reschedule', 'reject', 'complete'
+        remarks = request.data.get('remarks', '')
+        
+        application = get_object_or_404(Application, pk=pk)
+        job = application.job
+        
+        if job.posted_by != request.user and job.parent != request.user:
+            return Response({"error": "You do not have permission for this job."}, status=status.HTTP_403_FORBIDDEN)
+            
+        if action == 'accept':
+            application.demo_status = 'ACCEPTED'
+        elif action == 'reject':
+            application.demo_status = 'REJECTED'
+            application.demo_remarks = remarks
+        elif action == 'reschedule':
+            application.demo_status = 'RESCHEDULE_REQUESTED'
+            application.demo_remarks = remarks
+        elif action == 'complete':
+            application.demo_status = 'COMPLETED'
+        else:
+            return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        application.save()
+        return Response({
+            "message": f"Demo marked as {application.demo_status}", 
+            "demo_status": application.demo_status
+        }, status=status.HTTP_200_OK)
+
+
+class ParentConfirmTutorView(APIView):
+    """Parent confirms the tutor after a successful completed demo."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role != 'PARENT':
+            return Response({"error": "Only parents can perform this action"}, status=status.HTTP_403_FORBIDDEN)
+            
+        application = get_object_or_404(Application, pk=pk)
+        job = application.job
+        
+        if job.posted_by != request.user and job.parent != request.user:
+            return Response({"error": "You do not have permission for this job."}, status=status.HTTP_403_FORBIDDEN)
+            
+        if application.demo_status != 'COMPLETED':
+            return Response({"error": "Demo must be marked as COMPLETED before confirming the tutor."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        application.status = 'HIRED'
+        application.is_confirmed = True
+        application.save()
+        
+        return Response({
+            "message": "Tutor successfully confirmed for this job.", 
+            "status": application.status,
+            "is_confirmed": application.is_confirmed
+        }, status=status.HTTP_200_OK)
