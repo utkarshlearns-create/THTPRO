@@ -1255,62 +1255,101 @@ const TutorAssigned = () => {
             </div>
 
             {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Skeleton className="h-48 rounded-xl" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Skeleton className="h-64 rounded-2xl" />
+                    <Skeleton className="h-64 rounded-2xl" />
                 </div>
             ) : assignedJobs.length === 0 ? (
-                <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div className="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6 relative">
                         <User size={32} className="text-indigo-500 dark:text-indigo-400" />
-                        <span className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full flex items-center justify-center text-white text-xs font-bold">+</span>
+                        <span className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 border-3 border-white dark:border-slate-900 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg">+</span>
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">No Tutors Assigned Yet</h3>
-                    <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto">Once you approve an application, your assigned tutor will appear here.</p>
+                    <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto">Once a counsellor assigns a tutor to your job, they will appear here.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {Array.isArray(assignedJobs) && assignedJobs.map(({ job, application }) => (
-                        <Card key={job.id} className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-                            <CardContent className="p-6">
-                                <div className="flex gap-4">
-                                    <div className="h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 border-2 border-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xl overflow-hidden">
-                                        {application.tutor_name ? application.tutor_name.charAt(0) : 'T'}
+                        <div key={job.id} className="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden hover:shadow-lg transition-all duration-300 group">
+                            {/* Top accent gradient */}
+                            <div className="h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+                            
+                            <div className="p-6">
+                                {/* Header section */}
+                                <div className="flex items-start gap-4">
+                                    {/* Avatar */}
+                                    <div className="relative">
+                                        <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform overflow-hidden">
+                                            {application.tutor_details?.image ? (
+                                                <img src={application.tutor_details.image} alt={application.tutor_name} className="h-full w-full object-cover" />
+                                            ) : (
+                                                application.tutor_name?.charAt(0) || 'T'
+                                            )}
+                                        </div>
+                                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full flex items-center justify-center">
+                                            <CheckCircle size={10} className="text-white" />
+                                        </div>
                                     </div>
-                                    <div className="flex-1">
-                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{application.tutor_name}</h3>
-                                        <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">{job.class_grade} - {job.subjects?.join(', ')}</p>
+                                    
+                                    {/* Info */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{application.tutor_name}</h3>
+                                            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full">Assigned</span>
+                                        </div>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
+                                            <Briefcase size={13} className="shrink-0" />
+                                            <span className="truncate">{job.class_grade} • {Array.isArray(job.subjects) ? job.subjects.join(', ') : job.subjects}</span>
+                                        </p>
+                                        {application.tutor_details?.teaching_experience_years > 0 && (
+                                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-1">
+                                                <Star size={11} className="text-amber-400" />
+                                                {application.tutor_details.teaching_experience_years} years experience
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
+
+                                {/* Demo date banner */}
                                 {application.demo_date && (
-                                    <div className="mt-4 flex items-center gap-2 text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-3 py-2 rounded-lg">
-                                        <Clock size={14} />
-                                        <span>Demo scheduled: {new Date(application.demo_date).toLocaleString()}</span>
+                                    <div className="mt-4 flex items-center gap-2 text-sm bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 px-4 py-2.5 rounded-xl border border-blue-100 dark:border-blue-800/30">
+                                        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-800/30 rounded-lg flex items-center justify-center shrink-0">
+                                            <Clock size={15} className="text-blue-600 dark:text-blue-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400">Demo Scheduled</p>
+                                            <p className="font-semibold text-sm">{new Date(application.demo_date).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                                        </div>
                                     </div>
                                 )}
-                                <div className="mt-6 flex gap-3 flex-wrap">
-                                    <Button 
-                                        variant="outline" 
-                                        className="flex-1 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                                        onClick={() => router.push(`/tutors/${application.tutor}`)}
+
+                                {/* Action buttons */}
+                                <div className="mt-5 grid grid-cols-3 gap-2">
+                                    <button 
+                                        onClick={() => window.open(`/tutors/${application.tutor}`, '_blank')}
+                                        className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 transition-colors group/btn"
                                     >
-                                        <User size={16} className="mr-2" /> View Profile
-                                    </Button>
-                                    <Button 
-                                        variant="outline" 
-                                        className="flex-1 text-slate-700 dark:text-slate-300"
+                                        <User size={18} className="group-hover/btn:scale-110 transition-transform" />
+                                        <span className="text-[11px] font-bold">View Profile</span>
+                                    </button>
+                                    <button 
                                         onClick={() => setAttendanceModal({ open: true, app: application, job })}
+                                        className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors group/btn"
                                     >
-                                        <Clock size={16} className="mr-2" /> Attendance
-                                    </Button>
-                                    <Button 
+                                        <Clock size={18} className="group-hover/btn:scale-110 transition-transform" />
+                                        <span className="text-[11px] font-bold">Attendance</span>
+                                    </button>
+                                    <button 
                                         onClick={() => setRatingModal({ open: true, app: application, job })}
-                                        className="flex-1 bg-amber-100 hover:bg-amber-200 text-amber-800 dark:bg-amber-900/30 dark:hover:bg-amber-900/60 dark:text-amber-400 border-amber-200 dark:border-amber-800"
+                                        className="flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-700 dark:text-amber-400 transition-colors group/btn"
                                     >
-                                        <Star size={16} className="mr-2" /> Rate Tutor
-                                    </Button>
+                                        <Star size={18} className="group-hover/btn:scale-110 transition-transform" />
+                                        <span className="text-[11px] font-bold">Rate Tutor</span>
+                                    </button>
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}

@@ -55,7 +55,7 @@ class PublicTutorSearchView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = TutorProfile.objects.filter(
-            status_record__status='ACTIVE'
+            status_record__status__in=['ACTIVE', 'APPROVED']
         ).select_related('user', 'status_record').annotate(
             subjects_str=Cast('subjects', CharField()),
             classes_str=Cast('classes', CharField()),
@@ -119,7 +119,7 @@ class PublicTutorDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = PublicTutorProfileSerializer
     queryset = TutorProfile.objects.filter(
-        status_record__status='ACTIVE'
+        status_record__status__in=['ACTIVE', 'APPROVED']
     ).select_related('user', 'status_record')
 
     def get_serializer_context(self):
