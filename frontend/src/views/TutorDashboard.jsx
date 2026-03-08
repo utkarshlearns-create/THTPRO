@@ -10,6 +10,7 @@ import KYCUpload from '../components/tutor/dashboard/KYCUpload';
 import WalletSection from '../components/tutor/dashboard/WalletSection';
 import JobMatchList from '../components/tutor/dashboard/JobMatchList';
 import MyApplications from '../components/tutor/dashboard/MyApplications';
+import NotificationsTab from '../components/tutor/dashboard/NotificationsTab';
 import { toast } from 'react-hot-toast';
 
 const TutorDashboard = () => {
@@ -299,8 +300,10 @@ const TutorDashboard = () => {
                 </div>
             )}
 
+            {activeTab === 'notifications' && <NotificationsTab />}
+
             {/* Placeholder for other tabs */}
-            {(activeTab === 'locations' || activeTab === 'settings' || activeTab === 'support' || activeTab === 'notifications') && (
+            {(activeTab === 'locations' || activeTab === 'settings' || activeTab === 'support') && (
                 <div className="flex flex-col items-center justify-center h-[50vh] text-slate-500">
                     <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Coming Soon</h2>
                     <p>This module is under development.</p>

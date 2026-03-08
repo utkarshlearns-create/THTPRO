@@ -13,6 +13,7 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }) => {
         { id: 'profile', icon: User, label: 'My Profile' },
         { id: 'applications', icon: FileText, label: 'My Applications' },
         { id: 'tuitions', icon: BookOpen, label: 'Browse Jobs' },
+        { id: 'notifications', icon: Bell, label: 'Notifications' },
         { id: 'settings', icon: Settings, label: 'Settings' },
         { id: 'support', icon: HelpCircle, label: 'Support' },
     ];
