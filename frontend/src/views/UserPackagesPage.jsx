@@ -121,7 +121,7 @@ export default function UserPackagesPage() {
             });
             if (response.ok) {
                 const data = await response.json();
-                setPackages(data);
+                setPackages(Array.isArray(data) ? data : data.results || []);
             }
         } catch (error) {
             console.error("Error fetching packages:", error);

@@ -3,7 +3,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Check, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-const MultiSelect = ({ options, value, onChange, placeholder }) => {
+const MultiSelect = ({ options, value: rawValue, onChange, placeholder }) => {
+    const value = Array.isArray(rawValue) ? rawValue : [];
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
 

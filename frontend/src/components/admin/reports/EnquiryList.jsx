@@ -27,7 +27,7 @@ export default function EnquiryList() {
             });
             if (response.ok) {
                 const data = await response.json();
-                setEnquiries(data);
+                setEnquiries(Array.isArray(data) ? data : data.results || []);
             }
         } catch (error) {
             console.error("Error fetching enquiries:", error);
