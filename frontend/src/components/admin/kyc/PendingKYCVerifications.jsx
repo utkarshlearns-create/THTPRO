@@ -25,7 +25,7 @@ const PendingKYCVerifications = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                setKycList(data);
+                setKycList(Array.isArray(data) ? data : data.results || []);
             }
         } catch (error) {
             console.error('Error fetching KYC list:', error);

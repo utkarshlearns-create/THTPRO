@@ -29,7 +29,7 @@ export default function ApproveTutorList() {
             });
             if (response.ok) {
                 const data = await response.json();
-                setTutors(data);
+                setTutors(Array.isArray(data) ? data : data.results || []);
             }
         } catch (error) {
             console.error("Error fetching tutors:", error);

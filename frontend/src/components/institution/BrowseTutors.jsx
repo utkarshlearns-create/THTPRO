@@ -32,7 +32,7 @@ const BrowseTutors = () => {
             
             if (res.ok) {
                 const data = await res.json();
-                setTutors(data);
+                setTutors(Array.isArray(data) ? data : data.results || []);
             }
         } catch (error) {
             console.error("Error fetching tutors:", error);

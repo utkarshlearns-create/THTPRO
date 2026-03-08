@@ -25,7 +25,7 @@ const WalletPage = () => {
             // Fetch Transactions
             const transRes = await fetch(`${API_BASE_URL}/api/wallet/transactions/`, { headers });
             const transData = await transRes.json();
-            if (transRes.ok) setTransactions(transData);
+            if (transRes.ok) setTransactions(Array.isArray(transData) ? transData : transData.results || []);
 
         } catch (error) {
             console.error("Error fetching wallet:", error);

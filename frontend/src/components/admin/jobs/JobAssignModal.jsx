@@ -18,7 +18,7 @@ export default function JobAssignModal({ jobId, onClose, onAssigned }) {
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    setApplicants(data);
+                    setApplicants(Array.isArray(data) ? data : data.results || []);
                 } else {
                     toast.error("Failed to load applicants");
                 }
