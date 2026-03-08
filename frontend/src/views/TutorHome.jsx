@@ -132,14 +132,14 @@ const TutorHome = () => {
                                 <div className="animate-spin h-10 w-10 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"></div>
                                 <p className="text-slate-500">Loading live opportunities...</p>
                             </div>
-                        ) : jobs.length === 0 ? (
+                        ) : (!Array.isArray(jobs) || jobs.length === 0) ? (
                             <div className="col-span-2 text-center py-20 bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
                                 <Briefcase size={64} className="text-slate-300 dark:text-slate-700 mx-auto mb-6" />
                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white">No Jobs Found</h3>
                                 <p className="text-slate-500 dark:text-slate-400">Check back later for new student requirements.</p>
                             </div>
                         ) : (
-                            jobs.map(job => (
+                            Array.isArray(jobs) && jobs.map(job => (
                                 <div key={job.id} className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] shadow-premium border border-slate-100 dark:border-white/5 hover:border-indigo-200 dark:hover:border-indigo-900/50 transition-all group">
                                     <div className="flex flex-col h-full justify-between gap-6">
                                         <div>
@@ -152,7 +152,7 @@ const TutorHome = () => {
                                                 </span>
                                             </div>
                                             <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-4 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-tight">
-                                                {job.subjects && job.subjects.join('/')} Tutor Needed
+                                                {Array.isArray(job.subjects) ? job.subjects.join('/') : ''} Tutor Needed
                                             </h2>
                                             <div className="grid grid-cols-2 gap-4 text-slate-600 dark:text-slate-400 text-sm mb-6">
                                                 <span className="flex items-center gap-2 font-medium bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl"><MapPin size={18} className="text-indigo-500" /> {job.locality}</span>
