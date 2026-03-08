@@ -544,7 +544,7 @@ const UnlockedContactsList = () => {
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Unlocked Contacts</h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Tutors whose contact details you have unlocked using credits.</p>
             
-            {contacts.length > 0 ? (
+            {Array.isArray(contacts) && contacts.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {contacts.map((contact, idx) => (
                         <Card key={contact.id || idx} className="border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 hover:shadow-md transition-shadow">
@@ -754,7 +754,7 @@ const JobApplicationsView = ({ job, onBack }) => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {applications.map((app) => (
+                    {Array.isArray(applications) && applications.map((app) => (
                         <Card key={app.id} className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                             <CardContent className="p-6">
                                 <div className="flex gap-4">
@@ -898,7 +898,7 @@ const JobsList = () => {
 
     return (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {jobs.map((job) => (
+            {Array.isArray(jobs) && jobs.map((job) => (
                 <div key={job.id} className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                     {/* Status Badge & Actions */}
                     <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
@@ -1269,7 +1269,7 @@ const TutorAssigned = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {assignedJobs.map(({ job, application }) => (
+                    {Array.isArray(assignedJobs) && assignedJobs.map(({ job, application }) => (
                         <Card key={job.id} className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
                             <CardContent className="p-6">
                                 <div className="flex gap-4">
@@ -1443,7 +1443,7 @@ const WalletSection = ({ wallet }) => (
                 <CardTitle className="text-slate-900 dark:text-white">Recent Transactions</CardTitle>
             </CardHeader>
             <CardContent>
-                {wallet?.transactions?.length > 0 ? (
+                {Array.isArray(wallet?.transactions) && wallet.transactions.length > 0 ? (
                     <div className="space-y-4">
                         {wallet.transactions.map((tx) => (
                              <div key={tx.id} className="flex justify-between items-center p-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
