@@ -62,7 +62,7 @@ class AdminJobListView(generics.ListAPIView):
     serializer_class = JobPostSerializer
     permission_classes = [IsAdminOrSuperAdmin]
 
-            
+    def get_queryset(self):
         status_param = self.request.query_params.get('status')
         queryset = JobPost.objects.all().select_related('posted_by', 'assigned_admin').order_by('-created_at')
         
