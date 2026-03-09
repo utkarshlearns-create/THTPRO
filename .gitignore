@@ -17,3 +17,15 @@ dist/
 # IDE
 .vscode/
 .idea/
+
+# PII & Sensitive Data
+*.csv
+backend/kyc_docs/
+backend/tutor_videos/
+media/kyc_docs/
+media/tutor_videos/
+*.gif
+*.pdf
+*.mp4
+*.mov
+*.avi
