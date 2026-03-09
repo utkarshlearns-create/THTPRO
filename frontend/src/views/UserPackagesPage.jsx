@@ -108,11 +108,11 @@ export default function UserPackagesPage() {
         try {
             const token = localStorage.getItem('access');
             const userData = localStorage.getItem('user');
-            let role = 'TUTOR'; // Default
+            let role = 'TEACHER'; // Default
             if (userData) {
                 try {
                     const user = JSON.parse(userData);
-                    role = user.role === 'TEACHER' ? 'TUTOR' : user.role;
+                    role = user.role;
                 } catch (e) {}
             }
             

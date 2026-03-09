@@ -12,7 +12,7 @@ export default function CreatePackageModal({ onClose, onSuccess, defaultRole = '
         description: '',
         price: '',
         credits: '',
-        target_role: defaultRole || 'TUTOR',
+        target_role: defaultRole || 'TEACHER',
         is_active: true
     });
 
@@ -168,7 +168,7 @@ export default function CreatePackageModal({ onClose, onSuccess, defaultRole = '
                             onChange={handleChange}
                             className="w-full px-4 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 outline-none transition-all"
                         >
-                            <option value="TUTOR">Tutor</option>
+                            <option value="TEACHER">Teacher</option>
                             <option value="PARENT">Parent</option>
                         </select>
                     </div>

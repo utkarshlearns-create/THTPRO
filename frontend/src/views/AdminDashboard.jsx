@@ -56,10 +56,9 @@ const AdminDashboard = ({ mode }) => { // Accept mode prop
 
         // Tutor Package
         if (activeView === 'tutor-package-master') return <TutorPackageMaster />;
-        if (activeView === 'tutor-pending-purchase') return <PurchaseList role="Tutor" status="Pending" />;
-        if (activeView === 'tutor-approved-purchase') return <PurchaseList role="Tutor" status="Approved" />;
-        if (activeView === 'tutor-approved-purchase') return <PurchaseList role="Tutor" status="Approved" />;
-        if (activeView === 'tutor-rejected-purchase') return <PurchaseList role="Tutor" status="Rejected" />;
+        if (activeView === 'tutor-pending-purchase') return <PurchaseList role="TEACHER" status="Pending" />;
+        if (activeView === 'tutor-approved-purchase') return <PurchaseList role="TEACHER" status="Approved" />;
+        if (activeView === 'tutor-rejected-purchase') return <PurchaseList role="TEACHER" status="Rejected" />;
 
         // Institute Management
         if (activeView === 'institute-jobs-approve') return <InstituteJobApprovals />;
