@@ -2,6 +2,7 @@
 Utility functions for job posting workflow
 """
 from django.contrib.auth import get_user_model
+from core.roles import COUNSELLOR, SUPERADMIN, TUTOR_ADMIN
 from django.db.models import Count, Q, CharField
 from django.db.models.functions import Cast
 from django.utils import timezone
@@ -229,7 +230,7 @@ def assign_kyc_to_admin(kyc_record):
     
     if not admin_profiles.exists():
         logger.warning("No TUTOR_OPS admins available. Falling back to any admin.")
-        admins = User.objects.filter(role='ADMIN', is_active=True)
+        admins = User.objects.filter(role__in=[TUTOR_ADMIN, COUNSELLOR, SUPERADMIN], is_active=True)
         if not admins.exists():
              logger.error("No active admins available for KYC assignment")
              raise Exception("No active admins available")

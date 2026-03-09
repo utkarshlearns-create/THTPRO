@@ -1,0 +1,7 @@
+"""Role constants shared across backend authorization code."""
+
+COUNSELLOR = 'COUNSELLOR'
+TUTOR_ADMIN = 'TUTOR_ADMIN'
+SUPERADMIN = 'SUPERADMIN'
+
+ADMIN_ROLES = [COUNSELLOR, TUTOR_ADMIN, SUPERADMIN]
