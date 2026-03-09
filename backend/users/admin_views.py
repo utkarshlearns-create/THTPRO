@@ -158,7 +158,8 @@ class SuperAdminAnalyticsView(APIView):
         
         # User counts
         total_parents = User.objects.filter(role='PARENT').count()
-        total_tutors = User.objects.filter(role='TUTOR').count()
+        # Role name inconsistency fix: 'TEACHER' is used for tutors in DB
+        total_tutors = User.objects.filter(role__in=['TEACHER', 'TUTOR']).count()
         total_admins = User.objects.filter(role__in=['COUNSELLOR', 'TUTOR_ADMIN']).count()
         total_institutions = User.objects.filter(role='INSTITUTION').count()
         
@@ -206,7 +207,7 @@ class SuperAdminAnalyticsView(APIView):
         lead_distribution = [
             {"name": "Fresh", "value": fresh_leads, "color": "#10b981"},
             {"name": "Pending", "value": pending_jobs, "color": "#f59e0b"},
-            {"name": "Approved", "value": JobPost.objects.filter(status='APPROVED').count(), "color": "#3b82f6"},
+            {"name": "Approved", "value": JobPost.objects.filter(status__in=['APPROVED', 'ACTIVE', 'ASSIGNED']).count(), "color": "#3b82f6"},
             {"name": "Rejected", "value": rejected_leads, "color": "#ef4444"},
         ]
 

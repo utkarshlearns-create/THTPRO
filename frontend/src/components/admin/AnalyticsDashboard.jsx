@@ -59,6 +59,7 @@ export default function AnalyticsDashboard() {
         active_jobs: 0,
         pending_jobs: 0,
         pending_kyc: 0,
+        total_revenue: 0,
         department: 'Loading...'
     });
     const [loading, setLoading] = useState(true);
@@ -94,6 +95,8 @@ export default function AnalyticsDashboard() {
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                         {stats.department === 'SUPERADMIN' ? 'Super Admin Dashboard' : 
                          stats.department === 'COUNSELLOR' ? 'Counsellor Dashboard' :
+                         stats.department === 'PARENT_OPS' ? 'Parent Operations Dashboard' :
+                         stats.department === 'INSTITUTION_OPS' ? 'Institution Operations Dashboard' :
                          stats.department === 'TUTOR_OPS' ? 'Tutor Operations Dashboard' : 'Admin Dashboard'}
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400">Overview of platform performance and key metrics.</p>
@@ -129,9 +132,9 @@ export default function AnalyticsDashboard() {
                     gradient="bg-gradient-to-br from-amber-400 to-yellow-600"
                 />
                 <KPICard 
-                    title="Total Parents" 
-                    value={stats.total_parents?.toLocaleString() || "0"} 
-                    icon={Users} 
+                    title="Total Revenue" 
+                    value={`₹${stats.total_revenue?.toLocaleString() || "0"}`} 
+                    icon={DollarSign} 
                     gradient="bg-gradient-to-br from-indigo-400 to-cyan-600"
                 />
             </div>

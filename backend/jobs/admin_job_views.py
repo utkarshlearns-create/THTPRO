@@ -23,17 +23,34 @@ class AdminDashboardStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated, IsAdminOrSuperAdmin]
 
     def get(self, request):
+        from wallet.models import Transaction, Wallet
+        from django.db.models import Sum
+
         department = 'SUPERADMIN'
         if hasattr(request.user, 'admin_profile'):
             department = request.user.admin_profile.department
 
+        # Fix role name inconsistency: database uses 'TEACHER' for tutors
+        total_tutors = User.objects.filter(role__in=['TEACHER', 'TUTOR']).count()
+        total_parents = User.objects.filter(role='PARENT').count()
+        
+        # Consider APPROVED and ASSIGNED as active jobs
+        active_jobs = JobPost.objects.filter(status__in=['APPROVED', 'ASSIGNED', 'ACTIVE']).count()
+        pending_jobs = JobPost.objects.filter(status='PENDING_APPROVAL').count()
+        pending_kyc = TutorKYC.objects.filter(status='SUBMITTED').count()
+        
+        # Calculate real revenue from successful credits
+        total_revenue = Transaction.objects.filter(
+            transaction_type='CREDIT'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+
         stats = {
-            "total_tutors": TutorProfile.objects.count(),
-            "total_parents": User.objects.filter(role='PARENT').count(),
-            "active_jobs": JobPost.objects.filter(status='APPROVED').count(),
-            "pending_jobs": JobPost.objects.filter(status='PENDING_APPROVAL').count(),
-            "pending_kyc": TutorKYC.objects.filter(status='SUBMITTED').count(),
-            "total_revenue": 0,
+            "total_tutors": total_tutors,
+            "total_parents": total_parents,
+            "active_jobs": active_jobs,
+            "pending_jobs": pending_jobs,
+            "pending_kyc": pending_kyc,
+            "total_revenue": float(total_revenue),
             "department": department,
         }
         return Response(stats)
