@@ -29,7 +29,7 @@ export default function TutorPackageMaster() {
                 const data = await response.json();
                 // Handle paginated response (data.results) or plain array
                 const items = Array.isArray(data) ? data : (data.results || []);
-                const tutorPackages = items.filter(p => p.target_role === 'TUTOR');
+                const tutorPackages = items.filter(p => p.target_role === 'TEACHER');
                 setPackages(tutorPackages);
             }
         } catch (error) {
