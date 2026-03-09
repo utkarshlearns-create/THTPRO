@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Menu, Sparkles, Gem, Sun, Moon, Check } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../context/ThemeContext';
-import API_BASE_URL from '../../../config';
+import API_BASE_URL from '../../config';
 
 const Header = ({ sidebarOpen, setSidebarOpen, user, setActiveTab }) => {
     const { theme, toggleTheme } = useTheme();
