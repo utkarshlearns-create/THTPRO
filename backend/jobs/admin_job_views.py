@@ -60,11 +60,8 @@ class AdminPendingJobsView(generics.ListAPIView):
 class AdminJobListView(generics.ListAPIView):
     """Admin views jobs strictly filtered by an optional status parameter."""
     serializer_class = JobPostSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAdminOrSuperAdmin]
 
-    def get_queryset(self):
-        if self.request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR', 'TUTOR_ADMIN']:
-            return JobPost.objects.none()
             
         status_param = self.request.query_params.get('status')
         queryset = JobPost.objects.all().select_related('posted_by', 'assigned_admin').order_by('-created_at')
@@ -80,7 +77,7 @@ class AdminJobListView(generics.ListAPIView):
 class AdminInstitutionJobListView(generics.ListAPIView):
     """List all pending jobs posted by Institutions for Admin approval."""
     serializer_class = JobPostSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAdminOrSuperAdmin]
     pagination_class = None
 
     def get_queryset(self):
