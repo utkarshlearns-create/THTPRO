@@ -125,7 +125,7 @@ const InlineContactForm = () => {
                                                 >
                                                     <option value="Parent">Parent</option>
                                                     <option value="Student">Student</option>
-                                                    <option value="Tutor">Tutor</option>
+                                                    <option value="TEACHER">Tutor</option>
                                                     <option value="School/Institute">School/Institute</option>
                                                 </select>
                                             </div>
