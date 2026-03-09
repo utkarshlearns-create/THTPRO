@@ -43,6 +43,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 from .models import TutorProfile
 
 from .models import TutorProfile, TutorKYC, TutorStatus, Enquiry, InstitutionProfile, FavouriteTutor
+from .utils import generate_signed_kyc_url
+from core.roles import ADMIN_ROLES
 
 class FavouriteTutorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,10 +52,53 @@ class FavouriteTutorSerializer(serializers.ModelSerializer):
         fields = ['id', 'tutor', 'created_at']
 
 class TutorKYCSerializer(serializers.ModelSerializer):
+    """Serialize KYC records and expose signed document URLs for authorized users only."""
+
+    aadhaar_document = serializers.SerializerMethodField()
+    education_certificate = serializers.SerializerMethodField()
+    photo = serializers.SerializerMethodField()
+
     class Meta:
         model = TutorKYC
-        fields = ['id', 'status', 'submission_count', 'rejection_reason', 'created_at', 'aadhaar_front', 'aadhaar_back', 'highest_qualification_certificate']
+        fields = ['id', 'status', 'submission_count', 'rejection_reason', 'created_at', 'aadhaar_document', 'education_certificate', 'photo']
         read_only_fields = ['status', 'submission_count', 'rejection_reason', 'created_at']
+
+    def _can_view_sensitive_docs(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        if request.user.role in ADMIN_ROLES:
+            return True
+        return getattr(obj.tutor, 'user_id', None) == request.user.id
+
+    def _signed_url(self, field):
+        if not field:
+            return None
+        if not self._can_view_sensitive_docs(self.instance if isinstance(self.instance, TutorKYC) else None):
+            return None
+        public_id = getattr(field, 'public_id', None)
+        if public_id:
+            return generate_signed_kyc_url(public_id, expiry_seconds=3600)
+        return field.url
+
+    def get_aadhaar_document(self, obj):
+        if not self._can_view_sensitive_docs(obj):
+            return None
+        public_id = getattr(obj.aadhaar_document, 'public_id', None) if obj.aadhaar_document else None
+        return generate_signed_kyc_url(public_id, expiry_seconds=3600) if public_id else (obj.aadhaar_document.url if obj.aadhaar_document else None)
+
+    def get_education_certificate(self, obj):
+        if not self._can_view_sensitive_docs(obj):
+            return None
+        public_id = getattr(obj.education_certificate, 'public_id', None) if obj.education_certificate else None
+        return generate_signed_kyc_url(public_id, expiry_seconds=3600) if public_id else (obj.education_certificate.url if obj.education_certificate else None)
+
+    def get_photo(self, obj):
+        if not self._can_view_sensitive_docs(obj):
+            return None
+        public_id = getattr(obj.photo, 'public_id', None) if obj.photo else None
+        return generate_signed_kyc_url(public_id, expiry_seconds=3600) if public_id else (obj.photo.url if obj.photo else None)
+
 
 class TutorStatusSerializer(serializers.ModelSerializer):
     class Meta:

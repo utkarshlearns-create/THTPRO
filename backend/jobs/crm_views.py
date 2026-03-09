@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q, Count
 from django.contrib.auth import get_user_model
+from core.roles import ADMIN_ROLES, COUNSELLOR, SUPERADMIN, TUTOR_ADMIN
 from .models import JobPost, Application
 from .serializers import JobPostSerializer
 from users.admin_views import IsSuperAdmin, IsAdminOrSuperAdmin
@@ -154,7 +155,7 @@ class CRMAssignAdminView(APIView):
             admin_id = request.data.get('admin_id')
             
             if admin_id:
-                admin = User.objects.get(pk=admin_id, role__in=['COUNSELLOR', 'TUTOR_ADMIN'])
+                admin = User.objects.get(pk=admin_id, role__in=[COUNSELLOR, TUTOR_ADMIN])
                 job.assigned_admin = admin
                 job.save()
                 return Response({
@@ -221,7 +222,7 @@ class CRMAdminListView(APIView):
     permission_classes = [IsSuperAdmin]
 
     def get(self, request):
-        admins = User.objects.filter(role__in=['COUNSELLOR', 'TUTOR_ADMIN'], is_active=True)
+        admins = User.objects.filter(role__in=[COUNSELLOR, TUTOR_ADMIN], is_active=True)
         return Response([
             {
                 'id': admin.id,
@@ -289,7 +290,7 @@ class AdminApplicationListView(generics.ListAPIView):
         queryset = Application.objects.all().select_related('tutor', 'job').order_by('-created_at')
         
         # If user is a COUNSELLOR, only show applications for jobs assigned to them
-        if self.request.user.role == 'COUNSELLOR':
+        if self.request.user.role == COUNSELLOR:
             queryset = queryset.filter(job__assigned_admin=self.request.user)
 
         # Filter by Status

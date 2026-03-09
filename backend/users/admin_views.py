@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .serializers import UserAdminSerializer
+from core.roles import ADMIN_ROLES, COUNSELLOR, SUPERADMIN, TUTOR_ADMIN
 
 User = get_user_model()
 
@@ -12,7 +13,7 @@ class IsSuperAdmin(permissions.BasePermission):
     Allows access only to superusers or users with role='SUPERADMIN'.
     """
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.role == 'SUPERADMIN')
+        return bool(request.user and request.user.is_authenticated and request.user.role == SUPERADMIN)
 
 
 class IsAdminOrSuperAdmin(permissions.BasePermission):
@@ -20,7 +21,7 @@ class IsAdminOrSuperAdmin(permissions.BasePermission):
     Allows access to both SUPERADMIN and ADMIN (Counsellors, Tutor Ops, etc.)
     """
     def has_permission(self, request, view):
-        return bool(request.user and request.user.is_authenticated and request.user.role in ['COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN'])
+        return bool(request.user and request.user.is_authenticated and request.user.role in ADMIN_ROLES)
 
 class UserManagementView(generics.ListAPIView):
     """
@@ -160,7 +161,7 @@ class SuperAdminAnalyticsView(APIView):
         total_parents = User.objects.filter(role='PARENT').count()
         # Role name inconsistency fix: 'TEACHER' is used for tutors in DB
         total_tutors = User.objects.filter(role='TEACHER').count()
-        total_admins = User.objects.filter(role__in=['COUNSELLOR', 'TUTOR_ADMIN']).count()
+        total_admins = User.objects.filter(role__in=[COUNSELLOR, TUTOR_ADMIN]).count()
         total_institutions = User.objects.filter(role='INSTITUTION').count()
         
         # KYC stats
@@ -271,7 +272,7 @@ class AdminPerformanceView(APIView):
         department = request.query_params.get('department')  # COUNSELLOR or TUTOR_OPS
         
         # Fetch all admin staff (counsellors and tutor admins)
-        admins_query = User.objects.filter(role__in=['COUNSELLOR', 'TUTOR_ADMIN'], is_active=True).select_related('admin_profile')
+        admins_query = User.objects.filter(role__in=[COUNSELLOR, TUTOR_ADMIN], is_active=True).select_related('admin_profile')
         if department:
             admins_query = admins_query.filter(admin_profile__department=department)
         
