@@ -79,9 +79,10 @@ class TutorScheduledDemosView(APIView):
         demos = Application.objects.filter(
             tutor=tutor_profile,
             demo_date__isnull=False,
-            status__in=['SHORTLISTED', 'APPLIED'],
         ).exclude(
             is_confirmed=True
+        ).exclude(
+            demo_status='REJECTED'
         ).select_related('job', 'tutor').order_by('-demo_date')
 
         serializer = ApplicationSerializer(demos, many=True)
