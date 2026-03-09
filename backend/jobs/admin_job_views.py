@@ -19,12 +19,10 @@ User = get_user_model()
 
 class AdminDashboardStatsView(APIView):
     """Get aggregated statistics for Admin Dashboard."""
-    permission_classes = [permissions.IsAuthenticated]
+    from users.admin_views import IsAdminOrSuperAdmin
+    permission_classes = [permissions.IsAuthenticated, IsAdminOrSuperAdmin]
 
     def get(self, request):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
-            return Response({"error": "Admin access required"}, status=403)
-
         department = 'SUPERADMIN'
         if hasattr(request.user, 'admin_profile'):
             department = request.user.admin_profile.department
