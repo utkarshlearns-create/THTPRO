@@ -81,6 +81,8 @@ class Application(models.Model):
     demo_status = models.CharField(max_length=30, choices=DEMO_STATUS_CHOICES, default='PENDING')
     demo_remarks = models.TextField(blank=True, null=True)
     is_confirmed = models.BooleanField(default=False)
+    demo_completed_at = models.DateTimeField(null=True, blank=True)
+    parent_notified_for_review = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
