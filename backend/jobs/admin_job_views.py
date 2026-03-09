@@ -39,14 +39,11 @@ class AdminDashboardStatsView(APIView):
         
         if is_counsellor:
             jobs_qs = jobs_qs.filter(assigned_admin=request.user)
-            # For counsellors, show tutors who have applied to their assigned jobs
-            tutor_ids = Application.objects.filter(job__assigned_admin=request.user).values_list('tutor_id', flat=True)
-            tutors_qs = tutors_qs.filter(id__in=tutor_ids)
-            # Filter KYC to only show for tutors in their scope? Maybe KYC is global.
-            # Leaving KYC and total_parents as is for now unless asked.
+            # We keep jobs_qs filtered by counsellor, but we show TOTAL tutors and parents 
+            # so the dashboard feels active and they know the total pool they can work with.
 
         stats = {
-            "total_tutors": tutors_qs.count(),
+            "total_tutors": TutorProfile.objects.count(),
             "total_parents": User.objects.filter(role='PARENT').count(),
             "active_jobs": jobs_qs.filter(status__in=['APPROVED', 'ACTIVE', 'ASSIGNED']).count(),
             "pending_jobs": jobs_qs.filter(status='PENDING_APPROVAL').count(),
