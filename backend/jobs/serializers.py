@@ -38,24 +38,42 @@ class JobPostSerializer(serializers.ModelSerializer):
         read_only_fields = ('posted_by', 'assigned_admin', 'created_at', 'updated_at')
 
     def get_application_count(self, obj):
+        # Use prefetched data if available to avoid N+1 queries
+        if hasattr(obj, '_prefetched_objects_cache') and 'applications' in obj._prefetched_objects_cache:
+            return len(obj.applications.all())
         return obj.applications.count()
 
     def get_has_applied(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated and request.user.role == 'TEACHER':
+            # Use prefetched data if available to avoid N+1 queries
+            if hasattr(obj, '_prefetched_objects_cache') and 'applications' in obj._prefetched_objects_cache:
+                # Checks tutor.user_id in memory. Assumes applications__tutor is also prefetched
+                # to avoid triggering queries for app.tutor here.
+                return any(app.tutor.user_id == request.user.id for app in obj.applications.all())
             return obj.applications.filter(tutor__user=request.user).exists()
         return False
 
     def get_assigned_tutor(self, obj):
-        hired_app = obj.applications.filter(status='HIRED').first()
+        # Use prefetched data if available to avoid N+1 queries
+        if hasattr(obj, '_prefetched_objects_cache') and 'applications' in obj._prefetched_objects_cache:
+            hired_app = next((app for app in obj.applications.all() if app.status == 'HIRED'), None)
+        else:
+            hired_app = obj.applications.filter(status='HIRED').first()
+
         if hired_app:
             from users.serializers import PublicTutorProfileSerializer
             return PublicTutorProfileSerializer(hired_app.tutor, context=self.context).data
         return None
 
     def get_demo_date(self, obj):
-        # We also need to get the demo date for 'SHORTLISTED' apps, not just 'HIRED'
-        hired_app = obj.applications.filter(status__in=['HIRED', 'SHORTLISTED']).first()
+        # Use prefetched data if available to avoid N+1 queries
+        if hasattr(obj, '_prefetched_objects_cache') and 'applications' in obj._prefetched_objects_cache:
+            # We also need to get the demo date for 'SHORTLISTED' apps, not just 'HIRED'
+            hired_app = next((app for app in obj.applications.all() if app.status in ['HIRED', 'SHORTLISTED']), None)
+        else:
+            hired_app = obj.applications.filter(status__in=['HIRED', 'SHORTLISTED']).first()
+
         if hired_app and hired_app.demo_date:
             return hired_app.demo_date
         return None
