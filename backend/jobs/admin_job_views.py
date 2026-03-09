@@ -13,6 +13,7 @@ from .serializers import JobPostSerializer
 from .utils import send_notification
 from users.models import TutorProfile, TutorKYC
 from django.contrib.auth import get_user_model
+from core.roles import ADMIN_ROLES, COUNSELLOR, SUPERADMIN, TUTOR_ADMIN
 
 User = get_user_model()
 
@@ -22,15 +23,15 @@ class AdminDashboardStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+        if request.user.role not in [TUTOR_ADMIN, SUPERADMIN, COUNSELLOR]:
             return Response({"error": "Admin access required"}, status=403)
 
-        department = 'SUPERADMIN'
+        department = SUPERADMIN
         if hasattr(request.user, 'admin_profile'):
             department = request.user.admin_profile.department
 
         # Filtration context
-        is_counsellor = request.user.role == 'COUNSELLOR'
+        is_counsellor = request.user.role == COUNSELLOR
         
         # Base querysets
         jobs_qs = JobPost.objects.all()
@@ -60,16 +61,17 @@ class AdminPendingJobsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+        if self.request.user.role not in [TUTOR_ADMIN, SUPERADMIN, COUNSELLOR]:
             return JobPost.objects.none()
         
         # If it's a superadmin or admin, maybe they should see all pending jobs?
         # Or if the system strictly assigns jobs to specific admins:
-        if self.request.user.role == 'SUPERADMIN':
+        if self.request.user.role == SUPERADMIN:
             return JobPost.objects.filter(status='PENDING_APPROVAL').select_related('posted_by', 'assigned_admin').order_by('-created_at')
-            
+
         return JobPost.objects.filter(
             status='PENDING_APPROVAL',
+            assigned_admin=self.request.user,
         ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
 
 class AdminJobListView(generics.ListAPIView):
@@ -78,7 +80,7 @@ class AdminJobListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        if self.request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR', 'TUTOR_ADMIN']:
+        if self.request.user.role not in ADMIN_ROLES:
             return JobPost.objects.none()
             
         status_param = self.request.query_params.get('status')
@@ -100,7 +102,7 @@ class AdminInstitutionJobListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+        if user.role not in [TUTOR_ADMIN, SUPERADMIN, COUNSELLOR]:
             return JobPost.objects.none()
         return JobPost.objects.filter(
             status='PENDING_APPROVAL',
@@ -124,11 +126,11 @@ class AdminApproveJobView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def put(self, request, pk):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+        if request.user.role not in [TUTOR_ADMIN, SUPERADMIN, COUNSELLOR]:
             return Response({"error": "Admin access required"}, status=403)
 
         # Allow Superadmins to approve any job, but Admins/Counsellors only if assigned to them or if it's currently unassigned.
-        if request.user.role == 'SUPERADMIN':
+        if request.user.role == SUPERADMIN:
             job_post = get_object_or_404(JobPost, pk=pk)
         else:
             # You might want to allow counsellors to approve any pending job, not just those assigned.
@@ -155,10 +157,10 @@ class AdminRejectJobView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def put(self, request, pk):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+        if request.user.role not in [TUTOR_ADMIN, SUPERADMIN, COUNSELLOR]:
             return Response({"error": "Admin access required"}, status=403)
 
-        if request.user.role == 'SUPERADMIN':
+        if request.user.role == SUPERADMIN:
             job_post = get_object_or_404(JobPost, pk=pk)
         else:
             job_post = get_object_or_404(JobPost, pk=pk)
@@ -186,10 +188,10 @@ class AdminRequestModificationsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def put(self, request, pk):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+        if request.user.role not in [TUTOR_ADMIN, SUPERADMIN, COUNSELLOR]:
             return Response({"error": "Admin access required"}, status=403)
 
-        if request.user.role == 'SUPERADMIN':
+        if request.user.role == SUPERADMIN:
             job_post = get_object_or_404(JobPost, pk=pk)
         else:
             job_post = get_object_or_404(JobPost, pk=pk)
@@ -215,7 +217,7 @@ class AdminAssignTutorView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+        if request.user.role not in [TUTOR_ADMIN, SUPERADMIN, COUNSELLOR]:
             return Response({"error": "Admin access required"}, status=403)
 
         job_post = get_object_or_404(JobPost, pk=pk)
@@ -245,7 +247,7 @@ class AdminAssignTutorView(APIView):
 
         job_post.status = 'ASSIGNED'
         # Automatically assign the job to the counsellor/admin who is assigning the tutor
-        if request.user.role in ['ADMIN', 'COUNSELLOR'] and not job_post.assigned_admin:
+        if request.user.role in [TUTOR_ADMIN, COUNSELLOR] and not job_post.assigned_admin:
             job_post.assigned_admin = request.user
         job_post.save()
 

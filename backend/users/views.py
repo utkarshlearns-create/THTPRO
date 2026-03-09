@@ -6,6 +6,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -16,6 +17,8 @@ from .serializers import (
 )
 from .models import TutorProfile, TutorKYC, TutorStatus, InstitutionProfile
 from .utils import verify_google_token
+from core.permissions import IsAdminRole
+from core.throttles import LoginThrottle
 
 import sys
 import uuid
@@ -28,7 +31,10 @@ User = get_user_model()
 # ==================== AUTH VIEWS ====================
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    """JWT login endpoint with stricter throttling."""
+
     serializer_class = CustomTokenObtainPairSerializer
+    throttle_classes = [LoginThrottle]
 
 
 class SignupView(generics.CreateAPIView):
@@ -52,7 +58,10 @@ class SignupView(generics.CreateAPIView):
 
 
 class GoogleLoginView(APIView):
+    """Google login endpoint with strict audience validation and throttling."""
+
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [LoginThrottle]
 
     def post(self, request):
         import traceback
@@ -64,6 +73,9 @@ class GoogleLoginView(APIView):
 
             if not token:
                 return Response({"error": "Token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not settings.GOOGLE_CLIENT_ID:
+                return Response({"error": "google_client_not_configured"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             google_data = verify_google_token(token)
             logger.info(f"GoogleLoginView: google_data keys={list(google_data.keys()) if google_data else 'None'}")
@@ -151,7 +163,7 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
 class AdminTutorListView(generics.ListAPIView):
     """Retrieve all tutors for admin dashboard with filtering."""
     serializer_class = TutorProfileSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsAdminRole]
 
     def get_queryset(self):
         from django.db.models import Q
@@ -184,7 +196,7 @@ class AdminTutorListView(generics.ListAPIView):
 
 
 class AdminReviewView(APIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsAdminRole]
 
     def post(self, request, pk):
         from django.shortcuts import get_object_or_404
