@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from django.conf import settings
 from .models import Wallet
 from .serializers import WalletSerializer, TransactionSerializer, SubscriptionPackageSerializer
-from users.admin_views import IsAdminOrSuperAdmin
 
 class WalletView(generics.RetrieveAPIView):
     """
@@ -75,7 +74,7 @@ class SubscriptionPackageListView(generics.ListAPIView):
 class AdminPackageView(generics.ListCreateAPIView):
     """Admin view to manage packages"""
     serializer_class = SubscriptionPackageSerializer
-    permission_classes = [IsAdminOrSuperAdmin]
+    permission_classes = [permissions.IsAdminUser]
 
     def get_queryset(self):
         from .models import SubscriptionPackage
@@ -85,7 +84,7 @@ class AdminPackageView(generics.ListCreateAPIView):
 class AdminTransactionListView(generics.ListAPIView):
     """Admin view to see all transactions"""
     serializer_class = TransactionSerializer
-    permission_classes = [IsAdminOrSuperAdmin]
+    permission_classes = [permissions.IsAdminUser]
 
     def get_queryset(self):
         from .models import Transaction
