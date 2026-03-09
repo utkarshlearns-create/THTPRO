@@ -352,6 +352,7 @@ class ParentApplicationActionView(APIView):
         
         if action == 'ACCEPT':
             application.status = 'HIRED'
+            application.is_confirmed = True
             application.save()
             job.status = 'ASSIGNED'
             job.save()
@@ -497,6 +498,11 @@ class ParentConfirmTutorView(APIView):
         application.status = 'HIRED'
         application.is_confirmed = True
         application.save()
+
+        # Update Job status and reject other applications
+        job.status = 'ASSIGNED'
+        job.save()
+        Application.objects.filter(job=job).exclude(pk=pk).update(status='REJECTED')
         
         # Notify tutor they are hired
         if application.tutor and application.tutor.user:
@@ -511,5 +517,6 @@ class ParentConfirmTutorView(APIView):
         return Response({
             "message": "Tutor successfully confirmed for this job.", 
             "status": application.status,
-            "is_confirmed": application.is_confirmed
+            "is_confirmed": application.is_confirmed,
+            "job_status": job.status
         }, status=status.HTTP_200_OK)
