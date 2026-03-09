@@ -30,8 +30,8 @@ class AdminDashboardStatsView(APIView):
         if hasattr(request.user, 'admin_profile'):
             department = request.user.admin_profile.department
 
-        # Fix role name inconsistency: database uses 'TEACHER' for tutors
-        total_tutors = User.objects.filter(role__in=['TEACHER', 'TUTOR']).count()
+        # Database uses 'TEACHER' for tutors
+        total_tutors = User.objects.filter(role='TEACHER').count()
         total_parents = User.objects.filter(role='PARENT').count()
         
         # Consider APPROVED and ASSIGNED as active jobs

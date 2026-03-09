@@ -69,7 +69,7 @@ class SubscriptionPackage(models.Model):
     """Packages for purchasing credits"""
     ROLE_CHOICES = (
         ('PARENT', 'Parent'),
-        ('TUTOR', 'Tutor'),
+        ('TEACHER', 'Teacher'),
         ('INSTITUTION', 'Institution'),
     )
     

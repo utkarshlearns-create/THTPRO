@@ -136,12 +136,19 @@ class TutorProfileSerializer(serializers.ModelSerializer):
     contact_info = serializers.SerializerMethodField()
 
     def get_is_unlocked(self, obj):
-        user = self.context.get('request').user
-        if not user.is_authenticated:
+        request = self.context.get('request')
+        if not request or not request.user or not request.user.is_authenticated:
             return False
+        
+        user = request.user
         # If user is the tutor themselves, always unlocked
         if user == obj.user:
             return True
+        
+        # Admin roles
+        if user.role in ['COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN']:
+            return True
+
         # Check if ContactUnlock record exists
         # We need to import ContactUnlock model inside method or at top (it is imported at top in views, but here in serializers?)
         # Let's check imports.
@@ -203,7 +210,7 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
             return True
         
         # Superadmins/Admins can see everything
-        if request.user.role in ['COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN', 'TEACHER']: # Allowing other teachers to see? Maybe not. Let's start with Admin.
+        if request.user.role in ['COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN', 'TEACHER']:
              if request.user.role in ['COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN']:
                  return True
         
