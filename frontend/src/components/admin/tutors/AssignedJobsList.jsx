@@ -46,7 +46,7 @@ export default function AssignedJobsList() {
 
     // Helper for demo status badges
     const getDemoStatusBadge = (app) => {
-        if (app.is_confirmed || app.status === 'HIRED') {
+        if (app.is_confirmed) {
             return <Badge variant="success">Confirmed (Hired)</Badge>;
         }
         

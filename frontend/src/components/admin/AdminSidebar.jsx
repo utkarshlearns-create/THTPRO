@@ -71,7 +71,8 @@ const MENU_ITEMS = [
         id: 'select-tutor',
         subItems: [
             { label: 'Applications List', id: 'select-tutor-apply-job' },
-            { label: 'Assigned Tutors / Demos', id: 'select-tutor-assigned' }
+            { label: 'Assigned Tutors / Demos', id: 'select-tutor-assigned' },
+            { label: 'Finalized Tutors', id: 'select-tutor-finalized' }
         ]
     },
     {

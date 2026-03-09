@@ -13,6 +13,7 @@ import InstituteJobApprovals from '../components/admin/institutions/InstituteJob
 import ApproveTutorList from '../components/admin/tutors/ApproveTutorList';
 import JobApplicationsList from '../components/admin/tutors/JobApplicationsList';
 import AssignedJobsList from '../components/admin/tutors/AssignedJobsList';
+import FinalizedTutorsList from '../components/admin/tutors/FinalizedTutorsList';
 import EnquiryList from '../components/admin/enquiries/EnquiryList';
 import UnlockedJobsList from '../components/admin/reports/UnlockedJobsList';
 import ParentViewHistory from '../components/admin/reports/ParentViewHistory';
@@ -69,6 +70,7 @@ const AdminDashboard = ({ mode }) => { // Accept mode prop
         // Select Tutor
         if (activeView === 'select-tutor-apply-job') return <JobApplicationsList />;
         if (activeView === 'select-tutor-assigned') return <AssignedJobsList />;
+        if (activeView === 'select-tutor-finalized') return <FinalizedTutorsList />;
 
         // Reports
         if (activeView === 'enquiries') return <EnquiryList />;
