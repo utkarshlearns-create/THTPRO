@@ -106,7 +106,7 @@ class ApplicationSerializer(serializers.ModelSerializer):
             'requirements': job.requirements,
             'status': job.status,
             'student_name': job.student_name,
-            'parent_name': job.parent.username if job.parent else "N/A",  
+            'parent_name': (job.parent or job.posted_by).username if (job.parent or job.posted_by) else "N/A",
         }
 
 

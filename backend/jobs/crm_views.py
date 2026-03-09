@@ -31,7 +31,7 @@ class CRMJobListView(generics.ListAPIView):
     pagination_class = StandardPagination
 
     def get_queryset(self):
-        queryset = JobPost.objects.all().order_by('-created_at')
+        queryset = JobPost.objects.all().select_related('posted_by', 'assigned_admin', 'parent').order_by('-created_at')
         
         # Filter by status
         status_filter = self.request.query_params.get('status')
@@ -86,7 +86,7 @@ class CRMJobListView(generics.ListAPIView):
         response.data['stats'] = {
             'total': all_jobs.count(),
             'pending': all_jobs.filter(status='PENDING_APPROVAL').count(),
-            'approved': all_jobs.filter(status='APPROVED').count(),
+            'approved': all_jobs.filter(status__in=['APPROVED', 'ACTIVE', 'ASSIGNED']).count(),
             'rejected': all_jobs.filter(status='REJECTED').count(),
             'assigned': all_jobs.filter(status='ASSIGNED').count(),
             'closed': all_jobs.filter(status='CLOSED').count(),
@@ -109,7 +109,7 @@ class CRMJobDetailView(generics.RetrieveAPIView):
         data = serializer.data
         
         # Add applications data
-        applications = Application.objects.filter(job=instance)
+        applications = Application.objects.filter(job=instance).select_related('tutor__user')
         data['applications'] = [
             {
                 'id': app.id,
@@ -255,7 +255,7 @@ class CRMPipelineStatsView(APIView):
             # Pipeline stages
             'pipeline': {
                 'pending': jobs.filter(status='PENDING_APPROVAL').count(),
-                'approved': jobs.filter(status='APPROVED').count(),
+                'approved': jobs.filter(status__in=['APPROVED', 'ACTIVE', 'ASSIGNED']).count(),
                 'assigned': jobs.filter(status='ASSIGNED').count(),
                 'closed': jobs.filter(status='CLOSED').count(),
                 'rejected': jobs.filter(status='REJECTED').count(),
@@ -286,7 +286,9 @@ class AdminApplicationListView(generics.ListAPIView):
     pagination_class = StandardPagination
 
     def get_queryset(self):
-        queryset = Application.objects.all().select_related('tutor', 'job').order_by('-created_at')
+        queryset = Application.objects.all().select_related(
+            'tutor', 'tutor__user', 'job', 'job__assigned_admin', 'job__parent', 'job__posted_by'
+        ).order_by('-created_at')
         
         # If user is a COUNSELLOR, only show applications for jobs assigned to them or posted by them
         if self.request.user.role == 'COUNSELLOR':
