@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import API_BASE_URL from '../../config';
 import {
     LayoutDashboard,
     Briefcase,
@@ -198,7 +199,28 @@ const NavItem = ({ item, activeView, setActiveView, isOpen }) => {
 
 export default function AdminSidebar({ activeView, setActiveView, isOpen, toggleSidebar, mode }) {
     const [isHovered, setIsHovered] = useState(false);
+    const [user, setUser] = useState({ first_name: 'Admin', email: 'admin@tht.com' });
     const showSidebar = isOpen || isHovered;
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const token = localStorage.getItem('access');
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE_URL}/api/users/profile/`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setUser(data);
+                }
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+            }
+        };
+        fetchProfile();
+    }, []);
 
     // Filter items based on mode
     const filteredItems = MENU_ITEMS.filter(item => {
@@ -286,13 +308,13 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
                     <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-800/50 mb-3">
                         <div className="flex items-center gap-3 overflow-hidden">
                             <img 
-                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" 
-                                alt="Admin" 
+                                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.first_name || 'Admin'}`} 
+                                alt={user.first_name} 
                                 className="h-9 w-9 bg-slate-700 rounded-full flex-shrink-0"
                             />
                             <div className="flex flex-col overflow-hidden">
-                                <span className="text-sm font-medium text-white truncate">Admin</span>
-                                <span className="text-xs text-slate-400 truncate">admin@tht.com</span>
+                                <span className="text-sm font-medium text-white truncate">{user.first_name || 'Admin'}</span>
+                                <span className="text-xs text-slate-400 truncate">{user.email}</span>
                             </div>
                         </div>
                         <ThemeToggle className="text-slate-400 hover:text-white hover:bg-slate-700 flex-shrink-0" />
