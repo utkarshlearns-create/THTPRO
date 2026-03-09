@@ -159,7 +159,7 @@ class SuperAdminAnalyticsView(APIView):
         # User counts
         total_parents = User.objects.filter(role='PARENT').count()
         # Role name inconsistency fix: 'TEACHER' is used for tutors in DB
-        total_tutors = User.objects.filter(role__in=['TEACHER', 'TUTOR']).count()
+        total_tutors = User.objects.filter(role='TEACHER').count()
         total_admins = User.objects.filter(role__in=['COUNSELLOR', 'TUTOR_ADMIN']).count()
         total_institutions = User.objects.filter(role='INSTITUTION').count()
         
