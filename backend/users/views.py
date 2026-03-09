@@ -16,6 +16,7 @@ from .serializers import (
 )
 from .models import TutorProfile, TutorKYC, TutorStatus, InstitutionProfile
 from .utils import verify_google_token
+from .admin_views import IsAdminOrSuperAdmin
 
 import sys
 import uuid
@@ -151,7 +152,7 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
 class AdminTutorListView(generics.ListAPIView):
     """Retrieve all tutors for admin dashboard with filtering."""
     serializer_class = TutorProfileSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsAdminOrSuperAdmin]
 
     def get_queryset(self):
         from django.db.models import Q
@@ -184,7 +185,7 @@ class AdminTutorListView(generics.ListAPIView):
 
 
 class AdminReviewView(APIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsAdminOrSuperAdmin]
 
     def post(self, request, pk):
         from django.shortcuts import get_object_or_404
