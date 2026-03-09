@@ -1327,20 +1327,22 @@ const TutorAssigned = () => {
                                         </Button>
                                         
                                         {['PENDING', 'RESCHEDULE_REQUESTED'].includes(application.demo_status) && (
-                                            <>
-                                                <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white flex-shrink-0 h-8" onClick={() => setDemoActionModal({ open: true, app: application, job, action: 'accept' })}>Accept</Button>
-                                                <Button size="sm" variant="outline" className="text-orange-600 border-orange-200 hover:bg-orange-50 dark:hover:bg-orange-900/20 flex-shrink-0 h-8" onClick={() => setDemoActionModal({ open: true, app: application, job, action: 'reschedule' })}>Reschedule</Button>
-                                                <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0 h-8" onClick={() => setDemoActionModal({ open: true, app: application, job, action: 'reject' })}>Reject</Button>
-                                            </>
+                                            <span className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 rounded-lg border border-amber-200 dark:border-amber-700/30 flex items-center gap-1.5">
+                                                <Clock size={12} />
+                                                Demo Scheduled — Awaiting tutor completion
+                                            </span>
                                         )}
                                         
                                         {application.demo_status === 'ACCEPTED' && (
-                                            <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white flex-shrink-0 h-8" onClick={() => setDemoActionModal({ open: true, app: application, job, action: 'complete' })}>Mark Completed</Button>
+                                            <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-lg border border-blue-200 dark:border-blue-700/30 flex items-center gap-1.5">
+                                                <Clock size={12} />
+                                                Demo in progress — Awaiting completion
+                                            </span>
                                         )}
                                         
                                         {application.demo_status === 'COMPLETED' && (
                                             <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white flex-shrink-0 h-8 px-6" onClick={() => setDemoActionModal({ open: true, app: application, job, action: 'confirm' })}>
-                                                Confirm Tutor (Hire)
+                                                ✅ Finalize & Hire Tutor
                                             </Button>
                                         )}
                                     </div>

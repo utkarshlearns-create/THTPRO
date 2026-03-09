@@ -10,6 +10,12 @@ from .tutor_job_views import (
     JobApplicantsView,
 )
 
+# Tutor demo endpoints
+from .tutor_demo_views import (
+    TutorMarkDemoCompletedView,
+    TutorScheduledDemosView,
+)
+
 # Admin endpoints
 from .admin_job_views import (
     AdminDashboardStatsView,
@@ -74,6 +80,8 @@ urlpatterns = [
     path('tutor/my-jobs/', MyJobPostsView.as_view(), name='tutor-job-list'),
     path('my-jobs/', MyJobPostsView.as_view(), name='my-job-list'),
     path('tutor/applications/', TutorApplicationsView.as_view(), name='tutor-applications'),
+    path('tutor/demos/', TutorScheduledDemosView.as_view(), name='tutor-scheduled-demos'),
+    path('tutor/demos/<int:pk>/complete/', TutorMarkDemoCompletedView.as_view(), name='tutor-mark-demo-completed'),
 
     # Admin endpoints
     path('admin/dashboard/stats/', AdminDashboardStatsView.as_view(), name='admin-dashboard-stats'),
