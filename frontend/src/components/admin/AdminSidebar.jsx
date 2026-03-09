@@ -66,13 +66,17 @@ const MENU_ITEMS = [
         ]
     },
     {
+        label: 'Finalized Tutors',
+        icon: UserCheck,
+        id: 'select-tutor-finalized'
+    },
+    {
         label: 'Tutor Applications',
         icon: MousePointer2,
         id: 'select-tutor',
         subItems: [
             { label: 'Applications List', id: 'select-tutor-apply-job' },
-            { label: 'Assigned Tutors / Demos', id: 'select-tutor-assigned' },
-            { label: 'Finalized Tutors', id: 'select-tutor-finalized' }
+            { label: 'Assigned Tutors / Demos', id: 'select-tutor-assigned' }
         ]
     },
     {
