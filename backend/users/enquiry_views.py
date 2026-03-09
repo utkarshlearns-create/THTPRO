@@ -5,7 +5,6 @@ from rest_framework import generics, permissions
 
 from .models import Enquiry
 from .serializers import EnquirySerializer
-from .admin_views import IsAdminOrSuperAdmin
 
 
 class EnquiryCreateView(generics.CreateAPIView):
@@ -22,7 +21,7 @@ class EnquiryCreateView(generics.CreateAPIView):
 
 class AdminEnquiryListView(generics.ListAPIView):
     """Admin view for enquiries."""
-    permission_classes = [IsAdminOrSuperAdmin]
+    permission_classes = [permissions.IsAdminUser]
     serializer_class = EnquirySerializer
 
     def get_queryset(self):
@@ -31,7 +30,7 @@ class AdminEnquiryListView(generics.ListAPIView):
 
 class AdminEnquiryUpdateView(generics.UpdateAPIView):
     """Admin view to update enquiry status."""
-    permission_classes = [IsAdminOrSuperAdmin]
+    permission_classes = [permissions.IsAdminUser]
     serializer_class = EnquirySerializer
 
     def get_queryset(self):

@@ -19,38 +19,23 @@ User = get_user_model()
 
 class AdminDashboardStatsView(APIView):
     """Get aggregated statistics for Admin Dashboard."""
-    from users.admin_views import IsAdminOrSuperAdmin
-    permission_classes = [permissions.IsAuthenticated, IsAdminOrSuperAdmin]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        from wallet.models import Transaction, Wallet
-        from django.db.models import Sum
+        if request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+            return Response({"error": "Admin access required"}, status=403)
 
         department = 'SUPERADMIN'
         if hasattr(request.user, 'admin_profile'):
             department = request.user.admin_profile.department
 
-        # Database uses 'TEACHER' for tutors
-        total_tutors = User.objects.filter(role='TEACHER').count()
-        total_parents = User.objects.filter(role='PARENT').count()
-        
-        # Consider APPROVED and ASSIGNED as active jobs
-        active_jobs = JobPost.objects.filter(status__in=['APPROVED', 'ASSIGNED', 'ACTIVE']).count()
-        pending_jobs = JobPost.objects.filter(status='PENDING_APPROVAL').count()
-        pending_kyc = TutorKYC.objects.filter(status='SUBMITTED').count()
-        
-        # Calculate real revenue from successful credits
-        total_revenue = Transaction.objects.filter(
-            transaction_type='CREDIT'
-        ).aggregate(total=Sum('amount'))['total'] or 0
-
         stats = {
-            "total_tutors": total_tutors,
-            "total_parents": total_parents,
-            "active_jobs": active_jobs,
-            "pending_jobs": pending_jobs,
-            "pending_kyc": pending_kyc,
-            "total_revenue": float(total_revenue),
+            "total_tutors": TutorProfile.objects.count(),
+            "total_parents": User.objects.filter(role='PARENT').count(),
+            "active_jobs": JobPost.objects.filter(status='APPROVED').count(),
+            "pending_jobs": JobPost.objects.filter(status='PENDING_APPROVAL').count(),
+            "pending_kyc": TutorKYC.objects.filter(status='SUBMITTED').count(),
+            "total_revenue": 0,
             "department": department,
         }
         return Response(stats)
@@ -77,9 +62,12 @@ class AdminPendingJobsView(generics.ListAPIView):
 class AdminJobListView(generics.ListAPIView):
     """Admin views jobs strictly filtered by an optional status parameter."""
     serializer_class = JobPostSerializer
-    permission_classes = [IsAdminOrSuperAdmin]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if self.request.user.role not in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR', 'TUTOR_ADMIN']:
+            return JobPost.objects.none()
+            
         status_param = self.request.query_params.get('status')
         queryset = JobPost.objects.all().select_related('posted_by', 'assigned_admin').order_by('-created_at')
         
@@ -94,7 +82,7 @@ class AdminJobListView(generics.ListAPIView):
 class AdminInstitutionJobListView(generics.ListAPIView):
     """List all pending jobs posted by Institutions for Admin approval."""
     serializer_class = JobPostSerializer
-    permission_classes = [IsAdminOrSuperAdmin]
+    permission_classes = [permissions.IsAuthenticated]
     pagination_class = None
 
     def get_queryset(self):

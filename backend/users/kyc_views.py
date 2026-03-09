@@ -11,7 +11,6 @@ from .models import TutorProfile, TutorKYC, TutorStatus
 from .serializers import TutorKYCSerializer
 from jobs.utils import assign_kyc_to_admin, send_notification
 from jobs.admin_models import AdminTask
-from .admin_views import IsAdminOrSuperAdmin
 
 
 class KYCDocumentUploadView(APIView):
@@ -160,11 +159,11 @@ class AdminPendingKYCView(generics.ListAPIView):
     List KYC verifications assigned to the logged-in admin
     """
     serializer_class = TutorKYCSerializer
-    permission_classes = [IsAdminOrSuperAdmin]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         # Check if user is admin
-        if self.request.user.role not in ['TUTOR_ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+        if self.request.user.role not in ['TUTOR_ADMIN', 'SUPERADMIN']:
             return TutorKYC.objects.none()
         
         # Return KYC records assigned to this admin with UNDER_REVIEW status
@@ -178,11 +177,11 @@ class AdminKYCVerifyView(APIView):
     """
     Admin can approve, reject, or request re-submission for KYC
     """
-    permission_classes = [IsAdminOrSuperAdmin]
+    permission_classes = [permissions.IsAuthenticated]
     
     def put(self, request, pk):
         # Check if user is admin
-        if request.user.role not in ['TUTOR_ADMIN', 'SUPERADMIN', 'COUNSELLOR']:
+        if request.user.role not in ['TUTOR_ADMIN', 'SUPERADMIN']:
             return Response(
                 {"error": "Only admins can verify KYC"},
                 status=status.HTTP_403_FORBIDDEN
