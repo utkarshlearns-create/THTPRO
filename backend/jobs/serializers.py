@@ -38,16 +38,25 @@ class JobPostSerializer(serializers.ModelSerializer):
         read_only_fields = ('posted_by', 'assigned_admin', 'created_at', 'updated_at')
 
     def get_application_count(self, obj):
+        if hasattr(obj, '_prefetched_objects_cache') and 'applications' in obj._prefetched_objects_cache:
+            return len(obj.applications.all())
         return obj.applications.count()
 
     def get_has_applied(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated and request.user.role == 'TEACHER':
+            if hasattr(obj, '_prefetched_objects_cache') and 'applications' in obj._prefetched_objects_cache:
+                return any(app.tutor.user_id == request.user.id for app in obj.applications.all())
             return obj.applications.filter(tutor__user=request.user).exists()
         return False
 
     def get_assigned_tutor(self, obj):
-        hired_app = obj.applications.filter(status='HIRED').first()
+        if hasattr(obj, '_prefetched_objects_cache') and 'applications' in obj._prefetched_objects_cache:
+            hired_apps = [app for app in obj.applications.all() if app.status == 'HIRED']
+            hired_app = hired_apps[0] if hired_apps else None
+        else:
+            hired_app = obj.applications.filter(status='HIRED').first()
+
         if hired_app:
             from users.serializers import PublicTutorProfileSerializer
             return PublicTutorProfileSerializer(hired_app.tutor, context=self.context).data
@@ -55,7 +64,12 @@ class JobPostSerializer(serializers.ModelSerializer):
 
     def get_demo_date(self, obj):
         # We also need to get the demo date for 'SHORTLISTED' apps, not just 'HIRED'
-        hired_app = obj.applications.filter(status__in=['HIRED', 'SHORTLISTED']).first()
+        if hasattr(obj, '_prefetched_objects_cache') and 'applications' in obj._prefetched_objects_cache:
+            hired_apps = [app for app in obj.applications.all() if app.status in ['HIRED', 'SHORTLISTED']]
+            hired_app = hired_apps[0] if hired_apps else None
+        else:
+            hired_app = obj.applications.filter(status__in=['HIRED', 'SHORTLISTED']).first()
+
         if hired_app and hired_app.demo_date:
             return hired_app.demo_date
         return None

@@ -39,7 +39,7 @@ class ParentJobListView(generics.ListAPIView):
     def get_queryset(self):
         return JobPost.objects.filter(
             status='APPROVED'
-        ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
+        ).select_related('posted_by', 'assigned_admin').prefetch_related('applications', 'applications__tutor', 'applications__tutor__user').order_by('-created_at')
 
 
 class JobDetailView(generics.RetrieveAPIView):
@@ -64,7 +64,7 @@ class JobSearchFilterView(generics.ListAPIView):
     def get_queryset(self):
         queryset = JobPost.objects.filter(
             status='APPROVED'
-        ).select_related('posted_by', 'assigned_admin').order_by('-created_at')
+        ).select_related('posted_by', 'assigned_admin').prefetch_related('applications', 'applications__tutor', 'applications__tutor__user').order_by('-created_at')
 
         params = self.request.query_params
 
