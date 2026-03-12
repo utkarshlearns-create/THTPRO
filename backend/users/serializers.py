@@ -243,6 +243,10 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request or not request.user.is_authenticated:
             return False
+
+        if hasattr(obj, 'favourited_by_current_user'):
+            return len(obj.favourited_by_current_user) > 0
+
         return FavouriteTutor.objects.filter(parent=request.user, tutor=obj).exists()
 
     def get_is_unlocked(self, obj):
@@ -259,6 +263,9 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
              if request.user.role in ['COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN']:
                  return True
         
+        if hasattr(obj, 'unlocked_by_current_user'):
+            return len(obj.unlocked_by_current_user) > 0
+
         from .models import ContactUnlock
         return ContactUnlock.objects.filter(parent=request.user, tutor=obj).exists()
 

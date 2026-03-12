@@ -32,7 +32,7 @@ class CRMJobListView(generics.ListAPIView):
     pagination_class = StandardPagination
 
     def get_queryset(self):
-        queryset = JobPost.objects.all().order_by('-created_at')
+        queryset = JobPost.objects.all().prefetch_related('applications', 'applications__tutor', 'applications__tutor__user').order_by('-created_at')
         
         # Filter by status
         status_filter = self.request.query_params.get('status')

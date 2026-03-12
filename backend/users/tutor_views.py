@@ -61,12 +61,23 @@ class PublicTutorSearchView(generics.ListAPIView):
         return context
 
     def get_queryset(self):
+        from .models import FavouriteTutor, ContactUnlock
+        from django.db.models import Prefetch
+
+        user = self.request.user
+
         queryset = TutorProfile.objects.filter(
             status_record__status__in=['ACTIVE', 'APPROVED']
         ).select_related('user', 'status_record').annotate(
             subjects_str=Cast('subjects', CharField()),
             classes_str=Cast('classes', CharField()),
         ).order_by('-profile_completion_percentage', '-teaching_experience_years')
+
+        if user.is_authenticated:
+            queryset = queryset.prefetch_related(
+                Prefetch('favourited_by_parents', queryset=FavouriteTutor.objects.filter(parent=user), to_attr='favourited_by_current_user'),
+                Prefetch('unlocked_by', queryset=ContactUnlock.objects.filter(parent=user), to_attr='unlocked_by_current_user')
+            )
 
         params = self.request.query_params
 
@@ -125,9 +136,22 @@ class PublicTutorDetailView(generics.RetrieveAPIView):
     """Get public details of a single tutor. Contact info only if unlocked."""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = PublicTutorProfileSerializer
-    queryset = TutorProfile.objects.filter(
-        status_record__status__in=['ACTIVE', 'APPROVED']
-    ).select_related('user', 'status_record')
+
+    def get_queryset(self):
+        from .models import FavouriteTutor, ContactUnlock
+        from django.db.models import Prefetch
+        user = self.request.user
+
+        queryset = TutorProfile.objects.filter(
+            status_record__status__in=['ACTIVE', 'APPROVED']
+        ).select_related('user', 'status_record')
+
+        if user.is_authenticated:
+            queryset = queryset.prefetch_related(
+                Prefetch('favourited_by_parents', queryset=FavouriteTutor.objects.filter(parent=user), to_attr='favourited_by_current_user'),
+                Prefetch('unlocked_by', queryset=ContactUnlock.objects.filter(parent=user), to_attr='unlocked_by_current_user')
+            )
+        return queryset
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -244,14 +268,20 @@ class FavouriteTutorListView(generics.ListAPIView):
         if self.request.user.role != 'PARENT':
             return TutorProfile.objects.none()
         
-        from .models import FavouriteTutor
+        from .models import FavouriteTutor, ContactUnlock
+        from django.db.models import Prefetch
+        user = self.request.user
+
         favourite_ids = FavouriteTutor.objects.filter(
-            parent=self.request.user
+            parent=user
         ).values_list('tutor_id', flat=True)
         
         return TutorProfile.objects.filter(
             id__in=favourite_ids
-        ).select_related('user', 'status_record')
+        ).select_related('user', 'status_record').prefetch_related(
+            Prefetch('favourited_by_parents', queryset=FavouriteTutor.objects.filter(parent=user), to_attr='favourited_by_current_user'),
+            Prefetch('unlocked_by', queryset=ContactUnlock.objects.filter(parent=user), to_attr='unlocked_by_current_user')
+        )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
