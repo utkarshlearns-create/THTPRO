@@ -1,3 +1,4 @@
+from rest_framework_simplejwt.views import TokenRefreshView
 from django.urls import path
 
 # Auth views
@@ -59,6 +60,7 @@ urlpatterns = [
     path('signup/', SignupView.as_view(), name='signup'),
     path('auth/google/', GoogleLoginView.as_view(), name='google_login'),
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('me/', CurrentUserView.as_view(), name='current_user'),
 
     # Tutor profile & search
