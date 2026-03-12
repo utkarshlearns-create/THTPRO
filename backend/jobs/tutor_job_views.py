@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from .models import JobPost, Application
+from core.roles import ADMIN_ROLES, COUNSELLOR, SUPERADMIN, TUTOR_ADMIN
 from .serializers import JobPostSerializer, TutorJobPostSerializer, ApplicationSerializer
 from .utils import assign_job_to_admin, send_notification
 from users.models import TutorProfile
@@ -168,7 +169,7 @@ class JobApplicantsView(generics.ListAPIView):
         
         # Check permissions: Poster, assigned parent, or Admin/Counsellor
         is_owner = (job.posted_by == user or job.parent == user)
-        is_admin = (user.role in ['ADMIN', 'SUPERADMIN', 'COUNSELLOR'])
+        is_admin = (user.role in ADMIN_ROLES)
         
         if not (is_owner or is_admin):
             return Application.objects.none()
