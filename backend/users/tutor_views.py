@@ -14,6 +14,7 @@ from .models import TutorProfile, TutorStatus, ContactUnlock
 from .serializers import TutorProfileSerializer, PublicTutorProfileSerializer
 from wallet.models import Wallet
 from jobs.utils import filter_by_subject
+from core.throttles import ContactUnlockThrottle
 
 
 class TutorProfileView(generics.RetrieveUpdateAPIView):
@@ -30,12 +31,18 @@ class TutorProfileView(generics.RetrieveUpdateAPIView):
 
 
 class DashboardStatsView(APIView):
+    """Return tutor dashboard statistics from actual application data."""
+
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
+        from jobs.models import Application
+
         stats = {
-            "total_applications": 0,
-            "accepted_applications": 0,
+            "total_applications": Application.objects.filter(tutor__user=request.user).count(),
+            "accepted_applications": Application.objects.filter(tutor__user=request.user, status='HIRED').count(),
+            "pending_applications": Application.objects.filter(tutor__user=request.user, status='APPLIED').count(),
+            "demo_scheduled": Application.objects.filter(tutor__user=request.user, demo_status='ACCEPTED').count(),
         }
         return Response(stats)
 
@@ -130,7 +137,9 @@ class PublicTutorDetailView(generics.RetrieveAPIView):
 
 class ContactUnlockView(APIView):
     """Unlock a tutor's contact information by spending credits. Cost: 50 Credits."""
+
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [ContactUnlockThrottle]
 
     UNLOCK_COST = 50
 
