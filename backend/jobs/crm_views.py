@@ -289,9 +289,12 @@ class AdminApplicationListView(generics.ListAPIView):
     def get_queryset(self):
         queryset = Application.objects.all().select_related('tutor', 'job').order_by('-created_at')
         
-        # If user is a COUNSELLOR, only show applications for jobs assigned to them
+        # If user is a COUNSELLOR, show applications for jobs assigned to them
+        # Except for HIRED applications, which are shared across all counsellors for visibility
         if self.request.user.role == COUNSELLOR:
-            queryset = queryset.filter(job__assigned_admin=self.request.user)
+            queryset = queryset.filter(
+                Q(job__assigned_admin=self.request.user) | Q(status='HIRED')
+            )
 
         # Filter by Status
         status_param = self.request.query_params.get('status')
