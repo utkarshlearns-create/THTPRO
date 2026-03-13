@@ -54,31 +54,42 @@ def verify_google_token(token):
     try:
         logger.debug('Verifying Google Token: %s...', token[:20])
 
+        # 1. Try as ID Token
         response = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={token}', timeout=10)
-
         if response.status_code == 200:
             data = response.json()
             if data.get('aud') != settings.GOOGLE_CLIENT_ID:
-                logger.error('Invalid audience: expected %s got %s', settings.GOOGLE_CLIENT_ID, data.get('aud'))
+                logger.error('Invalid ID Token audience: expected %s got %s', settings.GOOGLE_CLIENT_ID, data.get('aud'))
                 return {'error': 'invalid_audience'}
             return data
 
-        userinfo_response = requests.get(
-            'https://www.googleapis.com/oauth2/v3/userinfo',
-            headers={'Authorization': f'Bearer {token}'},
-            timeout=10,
-        )
-
-        if userinfo_response.status_code == 200:
-            data = userinfo_response.json()
-            # Access tokens do not return aud via this endpoint; reject for strict audience enforcement.
-            logger.error('userinfo token rejected: audience cannot be validated')
-            return {'error': 'invalid_audience'}
+        # 2. Try as Access Token
+        response = requests.get(f'https://oauth2.googleapis.com/tokeninfo?access_token={token}', timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            # For access tokens, 'azp' or 'aud' contains the Client ID
+            client_id = data.get('azp') or data.get('aud')
+            if client_id != settings.GOOGLE_CLIENT_ID:
+                logger.error('Invalid Access Token audience/azp: expected %s got %s', settings.GOOGLE_CLIENT_ID, client_id)
+                return {'error': 'invalid_audience'}
+            
+            # Access tokens from tokeninfo might lack profile data, fall back to userinfo if email is missing
+            if not data.get('email'):
+                userinfo_res = requests.get(
+                    'https://www.googleapis.com/oauth2/v3/userinfo',
+                    headers={'Authorization': f'Bearer {token}'},
+                    timeout=10,
+                )
+                if userinfo_res.status_code == 200:
+                    data.update(userinfo_res.json())
+                else:
+                    logger.error('Could not fetch userinfo for access token: %s', userinfo_res.status_code)
+                    return {'error': 'google_verification_failed'}
+            return data
 
         logger.error(
-            'Google verification failed: ID Token (%s), UserInfo (%s)',
+            'Google verification failed (ID/Access Token Info both failed): %s',
             response.status_code,
-            userinfo_response.status_code,
         )
         return {'error': 'google_verification_failed'}
     except Exception as exc:  # noqa: BLE001
