@@ -44,18 +44,12 @@ export default function AdminJobList({ status, title, adminId }) {
         fetchJobs();
     }, [status]);
 
-    const filteredJobs = jobs.filter(job => 
-        job.student_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.locality?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.class_grade?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{title}</h1>
-                    <p className="text-slate-500 dark:text-slate-400">View and manage {status.toLowerCase()} job postings.</p>
+                    <p className="text-slate-500 dark:text-slate-400">View and manage {(status || 'all').toLowerCase()} job postings.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="relative">
@@ -75,15 +69,25 @@ export default function AdminJobList({ status, title, adminId }) {
                 <div className="flex items-center justify-center h-64">
                     <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                 </div>
-            ) : filteredJobs.length === 0 ? (
+            ) : jobs.length === 0 ? (
                 <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800">
                     <Briefcase className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-slate-900 dark:text-white">No {status.toLowerCase()} jobs found</h3>
+                    <h3 className="text-lg font-medium text-slate-900 dark:text-white">No {(status || 'assigned').toLowerCase()} jobs found</h3>
                     <p className="text-slate-500 mt-1">Adjust your search or check back later.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {filteredJobs.map(job => (
+                    {jobs
+                        .filter(job => {
+                            if (!searchTerm) return true;
+                            const search = searchTerm.toLowerCase();
+                            return (
+                                job.student_name?.toLowerCase().includes(search) ||
+                                job.locality?.toLowerCase().includes(search) ||
+                                job.class_grade?.toLowerCase().includes(search)
+                            );
+                        })
+                        .map(job => (
                         <div key={job.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
                             
                             <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col">
