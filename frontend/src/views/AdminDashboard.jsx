@@ -44,6 +44,7 @@ const AdminDashboard = ({ mode }) => { // Accept mode prop
         if (activeView === 'jobs-rejected-list') return <AdminJobList status="REJECTED" title="Rejected Jobs" />;
         if (activeView === 'jobs-add-new') return <AddNewJob />;
         if (activeView === 'jobs-approve') return <ApproveJobs />;
+        if (activeView === 'my-assigned-jobs') return <AdminJobList adminId="me" title="My Assigned Jobs" />;
 
         // Notifications
         if (activeView === 'notifications-master') return <NotificationMaster />;

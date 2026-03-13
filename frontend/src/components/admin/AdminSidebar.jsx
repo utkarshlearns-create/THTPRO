@@ -41,6 +41,11 @@ const MENU_ITEMS = [
             { label: 'Approved Jobs', id: 'jobs-approved-list' },
         ]
     },
+    {
+        label: 'My Assignments',
+        icon: UserCheck,
+        id: 'my-assigned-jobs'
+    },
 
     {
         label: 'Parent Packages',

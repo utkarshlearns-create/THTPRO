@@ -84,13 +84,18 @@ class AdminJobListView(generics.ListAPIView):
             return JobPost.objects.none()
             
         status_param = self.request.query_params.get('status')
+        admin_id = self.request.query_params.get('admin_id')
         queryset = JobPost.objects.all().select_related('posted_by', 'assigned_admin').prefetch_related('applications', 'applications__tutor', 'applications__tutor__user').order_by('-created_at')
         
         if status_param:
             queryset = queryset.filter(status=status_param.upper())
             
-        # Optional: Admins and Counsellors might only see specific jobs, but the prompt says they want an Approved/Rejected jobs list.
-        # usually all approved/rejected jobs are visible.
+        if admin_id:
+            if admin_id == 'me':
+                queryset = queryset.filter(assigned_admin=self.request.user)
+            else:
+                queryset = queryset.filter(assigned_admin_id=admin_id)
+
         return queryset
 
 
@@ -136,6 +141,8 @@ class AdminApproveJobView(APIView):
             # You might want to allow counsellors to approve any pending job, not just those assigned.
             # Let's just fetch the job. If assignment is strict, add `assigned_admin=request.user`
             job_post = get_object_or_404(JobPost, pk=pk)
+        if not job_post.assigned_admin:
+            job_post.assigned_admin = request.user
         job_post.status = 'APPROVED'
         job_post.save()
 
@@ -166,6 +173,8 @@ class AdminRejectJobView(APIView):
             job_post = get_object_or_404(JobPost, pk=pk)
         reason = request.data.get('reason', 'Does not meet platform guidelines')
 
+        if not job_post.assigned_admin:
+            job_post.assigned_admin = request.user
         job_post.status = 'REJECTED'
         job_post.rejection_reason = reason
         job_post.save()
@@ -197,6 +206,8 @@ class AdminRequestModificationsView(APIView):
             job_post = get_object_or_404(JobPost, pk=pk)
         feedback = request.data.get('feedback', 'Please review and update your job post')
 
+        if not job_post.assigned_admin:
+            job_post.assigned_admin = request.user
         job_post.status = 'MODIFICATIONS_NEEDED'
         job_post.modification_feedback = feedback
         job_post.save()

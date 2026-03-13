@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 import Badge from '../../ui/badge';
 import JobAssignModal from './JobAssignModal';
 
-export default function AdminJobList({ status, title }) {
+export default function AdminJobList({ status, title, adminId }) {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -18,7 +18,12 @@ export default function AdminJobList({ status, title }) {
         setLoading(true);
         try {
             const token = localStorage.getItem('access');
-            const response = await fetch(`${API_BASE_URL}/api/jobs/admin/all/?status=${status}`, {
+            let queryParams = [];
+            if (status) queryParams.push(`status=${status}`);
+            if (adminId) queryParams.push(`admin_id=${adminId}`);
+            
+            const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+            const response = await fetch(`${API_BASE_URL}/api/jobs/admin/all/${queryString}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
