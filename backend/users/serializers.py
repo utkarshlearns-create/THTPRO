@@ -84,20 +84,26 @@ class TutorKYCSerializer(serializers.ModelSerializer):
     def get_aadhaar_document(self, obj):
         if not self._can_view_sensitive_docs(obj):
             return None
-        public_id = getattr(obj.aadhaar_document, 'public_id', None) if obj.aadhaar_document else None
-        return generate_signed_kyc_url(public_id, expiry_seconds=3600) if public_id else (obj.aadhaar_document.url if obj.aadhaar_document else None)
+        field = obj.aadhaar_front
+        public_id = getattr(field, 'public_id', None) if field else None
+        return generate_signed_kyc_url(public_id, expiry_seconds=3600) if public_id else (field.url if field else None)
 
     def get_education_certificate(self, obj):
         if not self._can_view_sensitive_docs(obj):
             return None
-        public_id = getattr(obj.education_certificate, 'public_id', None) if obj.education_certificate else None
-        return generate_signed_kyc_url(public_id, expiry_seconds=3600) if public_id else (obj.education_certificate.url if obj.education_certificate else None)
+        field = obj.highest_qualification_certificate
+        public_id = getattr(field, 'public_id', None) if field else None
+        return generate_signed_kyc_url(public_id, expiry_seconds=3600) if public_id else (field.url if field else None)
 
     def get_photo(self, obj):
-        if not self._can_view_sensitive_docs(obj):
+        """Photo is actually in the profile, not KYC, but we can return it here if needed for API compatibility"""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
             return None
-        public_id = getattr(obj.photo, 'public_id', None) if obj.photo else None
-        return generate_signed_kyc_url(public_id, expiry_seconds=3600) if public_id else (obj.photo.url if obj.photo else None)
+        profile = obj.tutor
+        if profile.profile_image:
+            return profile.profile_image.url
+        return profile.external_profile_image_url
 
 
 class TutorStatusSerializer(serializers.ModelSerializer):
