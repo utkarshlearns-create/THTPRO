@@ -115,10 +115,20 @@ class TutorProfileSerializer(serializers.ModelSerializer):
     kyc = TutorKYCSerializer(source='kyc_records', many=True, read_only=True)
     status_msg = TutorStatusSerializer(source='status_record', read_only=True)
     image = serializers.SerializerMethodField()
+    is_unlocked = serializers.SerializerMethodField()
+    contact_info = serializers.SerializerMethodField()
     
     class Meta:
         model = TutorProfile
-        fields = '__all__'
+        fields = [
+            'id', 'user', 'full_name', 'gender', 'whatsapp_number', 
+            'about_me', 'subjects', 'classes', 'class_subjects', 
+            'locality', 'teaching_mode', 'teaching_experience_years', 
+            'expected_fee', 'highest_qualification', 'is_bed', 'is_tet', 
+            'other_certifications', 'profile_image', 'external_profile_image_url',
+            'intro_video', 'profile_completion_percentage', 'created_at',
+            'kyc', 'status_msg', 'image', 'is_unlocked', 'contact_info'
+        ]
         read_only_fields = ['user', 'profile_completion_percentage']
 
     def to_internal_value(self, data):
@@ -183,8 +193,6 @@ class TutorProfileSerializer(serializers.ModelSerializer):
 
 
 
-    is_unlocked = serializers.SerializerMethodField()
-    contact_info = serializers.SerializerMethodField()
 
     def get_is_unlocked(self, obj):
         request = self.context.get('request')

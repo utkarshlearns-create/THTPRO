@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { MapPin, Clock, IndianRupee } from 'lucide-react';
+import API_BASE_URL from '../../../config';
+
 
 const JobMatchList = ({ onViewAll, userLocality }) => {
     const router = useRouter();
