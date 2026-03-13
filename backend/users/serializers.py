@@ -126,7 +126,7 @@ class TutorProfileSerializer(serializers.ModelSerializer):
             'locality', 'teaching_mode', 'teaching_experience_years', 
             'expected_fee', 'highest_qualification', 'is_bed', 'is_tet', 
             'other_certifications', 'profile_image', 'external_profile_image_url',
-            'intro_video', 'profile_completion_percentage', 'created_at',
+            'intro_video', 'profile_completion_percentage',
             'kyc', 'status_msg', 'image', 'is_unlocked', 'contact_info'
         ]
         read_only_fields = ['user', 'profile_completion_percentage']
