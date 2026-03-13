@@ -35,10 +35,10 @@ const MENU_ITEMS = [
         icon: Briefcase,
         id: 'jobs',
         subItems: [
-            { label: 'Approved Jobs', id: 'jobs-approved-list' },
-            { label: 'Rejected Jobs', id: 'jobs-rejected-list' },
-            { label: 'Add New Jobs', id: 'jobs-add-new' },
             { label: 'Approve Jobs', id: 'jobs-approve' },
+            { label: 'Add New Jobs', id: 'jobs-add-new' },
+            { label: 'Rejected Jobs', id: 'jobs-rejected-list' },
+            { label: 'Approved Jobs', id: 'jobs-approved-list' },
         ]
     },
 
