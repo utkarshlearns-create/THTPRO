@@ -32,15 +32,15 @@ const Footer = () => {
                         <ul className="space-y-2 text-sm text-slate-500">
                             <li><Link href="/help" className="hover:text-indigo-600 transition-colors">Help Center</Link></li>
                             <li><Link href="/contact" className="hover:text-indigo-600 transition-colors">Contact Us</Link></li>
-                            <li><Link href="/privacy" className="hover:text-indigo-600 transition-colors">Privacy Policy</Link></li>
+                            <li><Link href="/privacy-policy" className="hover:text-indigo-600 transition-colors">Privacy Policy</Link></li>
                         </ul>
                     </div>
                     
                     <div>
                         <h4 className="font-bold text-slate-900 dark:text-white mb-4">Contact</h4>
                          <ul className="space-y-2 text-sm text-slate-500">
-                            <li>support@thehometuitions.com</li>
-                            <li>+91 98765 43210</li>
+                            <li>support@thehometuitions.in</li>
+                            <li>+91 6387488141</li>
                         </ul>
                     </div>
                 </div>
