@@ -5,6 +5,10 @@ export const metadata = {
   title: "The Home Tuitions Pro - Find Verified Tutors Near You",
   description: "THTPRO is a smart tutor-parent matching platform. Find verified, background-checked tutors for your child. Post teaching requirements or apply as a tutor.",
   keywords: "tutor, home tuition, online tutoring, find tutor, THTPRO, verified tutors, India",
+   icons: {
+    icon: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }) {
