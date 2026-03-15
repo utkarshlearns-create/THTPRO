@@ -68,6 +68,13 @@ const Header = ({ sidebarOpen, setSidebarOpen, user, setActiveTab }) => {
         )}>
             {/* Left: Mobile Toggle & Welcome */}
             <div className="flex items-center gap-4 md:gap-6">
+                <button 
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className="p-2 -ml-2 lg:hidden text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                    aria-label="Toggle Sidebar"
+                >
+                    <Menu size={24} />
+                </button>
                 <div className="hidden md:block">
                     <h1 className="text-xl font-semibold text-slate-800 dark:text-white">
                         Welcome back, <span className="bg-gradient-to-r from-sky-400 to-indigo-600 dark:from-sky-300 dark:to-indigo-400 bg-clip-text text-transparent">{user?.full_name?.split(' ')[0] || user?.first_name || 'Tutor'}</span>

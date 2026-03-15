@@ -40,8 +40,8 @@ export default function AdminLayout({ children, activeView, setActiveView, mode 
             {/* Main Content */}
             <main 
                 className={cn(
-                    "transition-all duration-300 ease-in-out",
-                    "md:ml-64 min-h-screen", // Desktop margin for sidebar
+                    "transition-all duration-300 ease-in-out min-h-screen",
+                    sidebarOpen ? "md:ml-64" : "md:ml-0 lg:ml-20",
                     "p-4 md:p-8"
                 )}
             >

@@ -168,33 +168,40 @@ const ParentDashboard = () => {
                 className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 flex flex-col fixed h-full z-50 shadow-sm
                 ${(sidebarOpen || sidebarHover) ? 'w-64 translate-x-0' : 'w-64 -translate-x-full lg:w-20 lg:translate-x-0'}
             `}>
-                <div className="h-16 flex items-center justify-center border-b border-slate-100 dark:border-slate-800">
+                <div className="h-16 flex items-center justify-between px-4 border-b border-slate-100 dark:border-slate-800">
                      {(sidebarOpen || sidebarHover) ? (
-                        <div className="font-bold text-xl tracking-tight flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-                            <span className="text-slate-900 dark:text-white">THE HOME</span> TUITIONS
-                        </div>
+                        <>
+                            <div className="font-bold text-xl tracking-tight flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                                <span className="text-slate-900 dark:text-white">THE HOME</span> TUITIONS
+                            </div>
+                            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-500 hover:text-red-500">
+                                <X size={20} />
+                            </button>
+                        </>
                      ) : (
-                        <span className="font-bold text-xl text-indigo-600 dark:text-indigo-400">THT</span>
+                        <div className="w-full flex justify-center">
+                            <span className="font-bold text-xl text-indigo-600 dark:text-indigo-400">THT</span>
+                        </div>
                      )}
                 </div>
 
                 <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-                    <SidebarItem icon={<LayoutDashboard size={20} />} label="Overview" active={activeTab === 'overview'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('overview')} />
-                    <SidebarItem icon={<User size={20} />} label="My Profile" active={activeTab === 'profile'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('profile')} />
-                    <SidebarItem icon={<Briefcase size={20} />} label="Job Postings" active={activeTab === 'jobs_posted'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('jobs_posted')} />
-                    <SidebarItem icon={<User size={20} />} label="Your Tutor" active={activeTab === 'tutor_assigned'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('tutor_assigned')} />
-                    <SidebarItem icon={<History size={20} />} label="History" active={activeTab === 'history'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('history')} />
-                    <SidebarItem icon={<Unlock size={20} />} label="Unlocked Contacts" active={activeTab === 'unlocked_contacts'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('unlocked_contacts')} />
-                    <SidebarItem icon={<Wallet size={20} />} label="Wallet & Credits" active={activeTab === 'wallet'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('wallet')} />
+                    <SidebarItem icon={<LayoutDashboard size={20} />} label="Overview" active={activeTab === 'overview'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => { setActiveTab('overview'); if (window.innerWidth < 1024) setSidebarOpen(false); }} />
+                    <SidebarItem icon={<User size={20} />} label="My Profile" active={activeTab === 'profile'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => { setActiveTab('profile'); if (window.innerWidth < 1024) setSidebarOpen(false); }} />
+                    <SidebarItem icon={<Briefcase size={20} />} label="Job Postings" active={activeTab === 'jobs_posted'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => { setActiveTab('jobs_posted'); if (window.innerWidth < 1024) setSidebarOpen(false); }} />
+                    <SidebarItem icon={<User size={20} />} label="Your Tutor" active={activeTab === 'tutor_assigned'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => { setActiveTab('tutor_assigned'); if (window.innerWidth < 1024) setSidebarOpen(false); }} />
+                    <SidebarItem icon={<History size={20} />} label="History" active={activeTab === 'history'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => { setActiveTab('history'); if (window.innerWidth < 1024) setSidebarOpen(false); }} />
+                    <SidebarItem icon={<Unlock size={20} />} label="Unlocked Contacts" active={activeTab === 'unlocked_contacts'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => { setActiveTab('unlocked_contacts'); if (window.innerWidth < 1024) setSidebarOpen(false); }} />
+                    <SidebarItem icon={<Wallet size={20} />} label="Wallet & Credits" active={activeTab === 'wallet'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => { setActiveTab('wallet'); if (window.innerWidth < 1024) setSidebarOpen(false); }} />
                     <SidebarItem 
                         icon={<Heart size={20} />} 
                         label="Favourites" 
                         active={activeTab === 'favourites'} 
                         isOpen={sidebarOpen} 
                         isHovered={sidebarHover}
-                        onClick={() => setActiveTab('favourites')} 
+                        onClick={() => { setActiveTab('favourites'); if (window.innerWidth < 1024) setSidebarOpen(false); }} 
                     />
-                    <SidebarItem icon={<Bell size={20} />} label="Notifications" active={activeTab === 'notifications'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => setActiveTab('notifications')} />
+                    <SidebarItem icon={<Bell size={20} />} label="Notifications" active={activeTab === 'notifications'} isOpen={sidebarOpen} isHovered={sidebarHover} onClick={() => { setActiveTab('notifications'); if (window.innerWidth < 1024) setSidebarOpen(false); }} />
                 </nav>
 
                 <div className="p-4 border-t border-slate-100 dark:border-slate-800">
@@ -205,8 +212,8 @@ const ParentDashboard = () => {
                 </div>
             </aside>
 
-            {/* Main Content — no left margin on mobile */}
-            <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}>
+            {/* Main Content — no left margin on mobile, dynamic on desktop */}
+            <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'ml-0 lg:ml-20'}`}>
                 {/* Header */}
                 <header className="h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-20">
                     <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400 transition-colors">

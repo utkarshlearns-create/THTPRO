@@ -39,7 +39,7 @@ const TutorDashboardLayout = ({ children, activeTab, setActiveTab, user }) => {
 
             <main className={cn(
                 "pt-24 pb-12 px-4 sm:px-8 min-h-screen transition-all duration-300 relative z-10",
-                sidebarOpen ? "lg:ml-64" : "lg:ml-20"
+                sidebarOpen ? "lg:ml-64" : "lg:ml-20 ml-0"
             )}>
                 <div className="max-w-7xl mx-auto">
                     {children}
