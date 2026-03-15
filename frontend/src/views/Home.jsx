@@ -571,7 +571,7 @@ const LandingPage = () => {
                 The Home Tuitions is Lucknow's dedicated platform for connecting students with the best home tutors.
               </p>
               <div className="text-sm">
-                 &copy; 2024 The Home Tuitions. All rights reserved.
+                 &copy; 2026 The Home Tuitions. All rights reserved.
               </div>
             </div>
 
@@ -581,6 +581,8 @@ const LandingPage = () => {
                 <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
                 <li><Link href="/signup?role=teacher" className="hover:text-white transition-colors">Join as Tutor</Link></li>
                 <li><Link href="/signup?role=parent" className="hover:text-white transition-colors">Get a Home Tutor</Link></li>
+                <li><Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
                 <li><div className="opacity-50 cursor-not-allowed">Gallery</div></li>
                 <li><div className="opacity-50 cursor-not-allowed">Contact Us</div></li>
               </ul>
