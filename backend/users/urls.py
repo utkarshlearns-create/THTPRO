@@ -12,6 +12,11 @@ from .views import (
     CreateAdminUserView,
 )
 
+from .password_reset_views import (
+    PasswordResetRequestView,
+    PasswordResetConfirmView,
+)
+
 # Tutor views
 from .tutor_views import (
     TutorProfileView,
@@ -94,6 +99,9 @@ urlpatterns = [
     path('admin/tutors/<int:pk>/review/', AdminReviewView.as_view(), name='admin_review'),
     path('admin/kyc/pending/', AdminPendingKYCView.as_view(), name='admin_pending_kyc'),
     path('admin/kyc/<int:pk>/verify/', AdminKYCVerifyView.as_view(), name='admin_kyc_verify'),
+
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
+    path('password-reset/confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 
     # Enquiries
     path('contact/', EnquiryCreateView.as_view(), name='enquiry_create'),
