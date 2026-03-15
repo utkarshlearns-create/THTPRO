@@ -2,7 +2,11 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
 
+import { Slot } from "@radix-ui/react-slot";
+
 const Button = React.forwardRef(({ className, variant = "default", size = "default", asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
+    
     const variants = {
         default: "bg-blue-600 text-white hover:bg-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_20px_rgba(37,99,235,0.5)] border border-blue-500/20",
         outline: "border border-blue-200 dark:border-slate-700 bg-transparent hover:bg-blue-50 dark:hover:bg-slate-800 text-blue-700 dark:text-slate-200",
@@ -19,7 +23,7 @@ const Button = React.forwardRef(({ className, variant = "default", size = "defau
     };
 
     return (
-        <button
+        <Comp
             ref={ref}
             className={cn(
                 "inline-flex items-center justify-center font-medium transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none active:scale-95",

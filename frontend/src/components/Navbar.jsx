@@ -188,9 +188,9 @@ const Navbar = () => {
             <div className="px-4 pt-2 pb-6 space-y-2">
                 {!role && (
                     <>
-                        <Link href="/signup?role=parent" className="block px-3 py-3 text-slate-600 dark:text-slate-300 font-medium hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors">Find Tutors</Link>
-                        <Link href="/signup?role=teacher" className="block px-3 py-3 text-slate-600 dark:text-slate-300 font-medium hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors">Become a Tutor</Link>
-                        <Link href="/about" className="block px-3 py-3 text-slate-600 dark:text-slate-300 font-medium hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors">About Us</Link>
+                        <Link href="/signup?role=parent" onClick={() => setIsOpen(false)} className="block px-3 py-3 text-slate-600 dark:text-slate-300 font-medium hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors">Find Tutors</Link>
+                        <Link href="/signup?role=teacher" onClick={() => setIsOpen(false)} className="block px-3 py-3 text-slate-600 dark:text-slate-300 font-medium hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors">Become a Tutor</Link>
+                        <Link href="/about" onClick={() => setIsOpen(false)} className="block px-3 py-3 text-slate-600 dark:text-slate-300 font-medium hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors">About Us</Link>
                     </>
                 )}
                 {role ? (
@@ -217,6 +217,7 @@ const Navbar = () => {
                             )}
                         </div>
                         <Link href={['COUNSELLOR', 'TUTOR_ADMIN'].includes(role) ? '/dashboard/admin' : role === 'TEACHER' ? '/dashboard/tutor' : '/dashboard/parent'}
+                            onClick={() => setIsOpen(false)}
                             className="block w-full text-center px-3 py-3 text-indigo-600 dark:text-indigo-400 font-bold hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-lg"
                         >
                             Go to Dashboard
@@ -224,6 +225,7 @@ const Navbar = () => {
                         <button
                             onClick={() => {
                                 clearAuthState();
+                                setIsOpen(false);
                                 window.location.reload();
                             }}
                             className="block w-full text-left px-3 py-3 text-slate-500 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg"
@@ -233,10 +235,10 @@ const Navbar = () => {
                         </>
                 ) : (
                     <div className="flex flex-col gap-2 mt-4">
-                        <Button asChild className="w-full justify-center shadow-md bg-indigo-600 hover:bg-white hover:text-indigo-600 border-2 border-transparent hover:border-indigo-600 text-white transition-all duration-300">
+                        <Button asChild onClick={() => setIsOpen(false)} className="w-full justify-center shadow-md bg-indigo-600 hover:bg-white hover:text-indigo-600 border-2 border-transparent hover:border-indigo-600 text-white transition-all duration-300">
                             <Link href="/login">Log in</Link>
                         </Button>
-                        <Button asChild className="w-full justify-center bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-bold hover:bg-indigo-600 hover:text-white border-2 border-indigo-100 dark:border-slate-700 hover:border-transparent shadow-sm transition-all duration-300">
+                        <Button asChild onClick={() => setIsOpen(false)} className="w-full justify-center bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 font-bold hover:bg-indigo-600 hover:text-white border-2 border-indigo-100 dark:border-slate-700 hover:border-transparent shadow-sm transition-all duration-300">
                             <Link href="/signup">Get Started</Link>
                         </Button>
                     </div>
