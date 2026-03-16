@@ -56,6 +56,9 @@ const JobWizard = ({ onSuccess }) => {
     const [masterDataLoading, setMasterDataLoading] = useState(true);
     const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
     const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+    const [areaSuggestions, setAreaSuggestions] = useState([]);
+    const [isSearchingArea, setIsSearchingArea] = useState(false);
+    const [showAreaSuggestions, setShowAreaSuggestions] = useState(false);
     
     const dropdownRef = React.useRef(null);
 
@@ -296,6 +299,50 @@ const JobWizard = ({ onSuccess }) => {
             setLoading(false);
         }
     };
+    
+    // Search Area using Nominatim
+    useEffect(() => {
+        if (!formData.locality || formData.locality.length < 3 || !showAreaSuggestions) {
+            setAreaSuggestions([]);
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(async () => {
+            setIsSearchingArea(true);
+            try {
+                const query = `${formData.locality}, ${formData.city || 'Lucknow'}`;
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&countrycodes=in`,
+                    { headers: { 'Accept-Language': 'en-US,en;q=0.9' } }
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const filtered = data.map(item => {
+                        const addr = item.address;
+                        const areaName = addr.suburb || addr.neighbourhood || addr.city_district || addr.road || addr.village;
+                        const mainPart = areaName ? `${areaName}` : item.display_name.split(',')[0];
+                        return {
+                            display_name: mainPart,
+                            full_name: item.display_name
+                        };
+                    });
+                    
+                    // Remove duplicates
+                    const unique = Array.from(new Set(filtered.map(a => a.display_name)))
+                        .map(name => filtered.find(a => a.display_name === name));
+                        
+                    setAreaSuggestions(unique);
+                }
+            } catch (err) {
+                console.error("Nominatim error:", err);
+            } finally {
+                setIsSearchingArea(false);
+            }
+        }, 600);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [formData.locality, formData.city, showAreaSuggestions]);
 
     const detectLocation = () => {
         if (!navigator.geolocation) {
@@ -592,22 +639,66 @@ const JobWizard = ({ onSuccess }) => {
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="space-y-2 relative" ref={(node) => {
+                                            if (node) {
+                                                const handleClickOutside = (e) => {
+                                                    if (!node.contains(e.target)) setShowAreaSuggestions(false);
+                                                };
+                                                document.addEventListener('mousedown', handleClickOutside);
+                                            }
+                                        }}>
                                             <Label className="text-sm text-slate-500">Area / Locality</Label>
-                                            <Select 
-                                                name="locality" 
-                                                value={formData.locality} 
-                                                onValueChange={(val) => handleSelectChange('locality', val)}
-                                            >
-                                                <SelectTrigger className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
-                                                    <SelectValue placeholder="Select Area" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {locations.find(l => l.city === (formData.city || 'Lucknow'))?.localities?.map(loc => (
-                                                        <SelectItem key={loc.id} value={loc.name}>{loc.name}</SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
+                                            <div className="relative group">
+                                                <Input
+                                                    placeholder="Search Area (e.g. Gomti Nagar)"
+                                                    value={formData.locality}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setFormData(prev => ({ ...prev, locality: val }));
+                                                        setShowAreaSuggestions(true);
+                                                    }}
+                                                    onFocus={() => setShowAreaSuggestions(true)}
+                                                    className="py-6 text-lg bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500"
+                                                />
+                                                {isSearchingArea && (
+                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                                        <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <AnimatePresence>
+                                                {showAreaSuggestions && (areaSuggestions.length > 0 || isSearchingArea) && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        className="absolute z-[100] w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden"
+                                                    >
+                                                        <div className="max-h-60 overflow-y-auto custom-scrollbar p-1">
+                                                            {areaSuggestions.map((suggestion, index) => (
+                                                                <button
+                                                                    key={index}
+                                                                    onClick={() => {
+                                                                        setFormData(prev => ({ ...prev, locality: suggestion.display_name }));
+                                                                        setShowAreaSuggestions(false);
+                                                                        setAreaSuggestions([]);
+                                                                    }}
+                                                                    className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200 rounded-lg transition-colors flex items-start gap-3 group"
+                                                                >
+                                                                    <MapPin className="h-4 w-4 text-slate-400 group-hover:text-indigo-500 mt-1 shrink-0" />
+                                                                    <span className="text-base leading-tight">{suggestion.display_name}</span>
+                                                                </button>
+                                                            ))}
+                                                            {!isSearchingArea && areaSuggestions.length === 0 && formData.locality.length > 2 && (
+                                                                <div className="px-4 py-3 text-slate-500 text-sm italic">
+                                                                    Keep typing or use current entry...
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                     </div>
                                     <div className="flex justify-end mt-2 text-sm text-slate-500">
