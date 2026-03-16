@@ -104,6 +104,50 @@ const FindTutors = () => {
         setCurrentPage(1); // Reset to page 1 on filter change
     };
 
+    const [areaSuggestions, setAreaSuggestions] = useState([]);
+    const [isSearchingArea, setIsSearchingArea] = useState(false);
+    const [showAreaSuggestions, setShowAreaSuggestions] = useState(false);
+
+    // Search Area using Nominatim
+    useEffect(() => {
+        if (!filters.locality || filters.locality.length < 3 || !showAreaSuggestions) {
+            setAreaSuggestions([]);
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(async () => {
+            setIsSearchingArea(true);
+            try {
+                const query = `${filters.locality}, ${filters.city || 'Lucknow'}`;
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&countrycodes=in`,
+                    { headers: { 'Accept-Language': 'en-US,en;q=0.9' } }
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const filtered = data.map(item => {
+                        const addr = item.address;
+                        const areaName = addr.suburb || addr.neighbourhood || addr.city_district || addr.road || addr.village;
+                        const mainPart = areaName ? `${areaName}` : item.display_name.split(',')[0];
+                        return { display_name: mainPart };
+                    });
+                    
+                    const unique = Array.from(new Set(filtered.map(a => a.display_name)))
+                        .map(name => filtered.find(a => a.display_name === name));
+                        
+                    setAreaSuggestions(unique);
+                }
+            } catch (err) {
+                console.error("Nominatim error:", err);
+            } finally {
+                setIsSearchingArea(false);
+            }
+        }, 600);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [filters.locality, filters.city, showAreaSuggestions]);
+
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
             setCurrentPage(newPage);
@@ -258,20 +302,51 @@ const FindTutors = () => {
 
                                 <div>
                                     <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Area / Locality</label>
-                                    <div className="relative">
-                                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                                        <select
+                                    <div className="relative" ref={(node) => {
+                                        if (node) {
+                                            const handleClickOutside = (e) => {
+                                                if (!node.contains(e.target)) setShowAreaSuggestions(false);
+                                            };
+                                            document.addEventListener('mousedown', handleClickOutside);
+                                        }
+                                    }}>
+                                        <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400 z-10" />
+                                        <input
+                                            type="text"
                                             name="locality"
                                             value={filters.locality}
-                                            onChange={handleFilterChange}
-                                            className="w-full pl-10 pr-3 py-3 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-white/40 dark:border-slate-700 rounded-xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 text-slate-900 dark:text-white font-semibold appearance-none transition-all shadow-sm"
-                                            disabled={!filters.city}
-                                        >
-                                            <option value="">Select Area</option>
-                                            {filters.state && filters.city && (LOCATION_DATA[filters.state][filters.city] || []).map(l => (
-                                                <option key={l} value={l}>{l}</option>
-                                            ))}
-                                        </select>
+                                            onChange={(e) => {
+                                                handleFilterChange(e);
+                                                setShowAreaSuggestions(true);
+                                            }}
+                                            onFocus={() => setShowAreaSuggestions(true)}
+                                            placeholder="Search Area..."
+                                            className="w-full pl-10 pr-3 py-3 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-white/40 dark:border-slate-700 rounded-xl text-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 text-slate-900 dark:text-white font-semibold transition-all shadow-sm"
+                                            autoComplete="off"
+                                        />
+                                        {isSearchingArea && (
+                                            <div className="absolute right-3 top-3">
+                                                <Save size={14} className="animate-spin text-indigo-500" />
+                                            </div>
+                                        )}
+                                        {showAreaSuggestions && areaSuggestions.length > 0 && (
+                                            <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto">
+                                                {areaSuggestions.map((suggestion, index) => (
+                                                    <button
+                                                        key={index}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            handleFilterChange({ target: { name: 'locality', value: suggestion.display_name } });
+                                                            setShowAreaSuggestions(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center gap-3 text-xs"
+                                                    >
+                                                        <MapPin className="h-3 w-3 text-slate-400" />
+                                                        <span>{suggestion.display_name}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 

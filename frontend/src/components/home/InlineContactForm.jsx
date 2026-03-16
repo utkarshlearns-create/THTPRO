@@ -20,6 +20,49 @@ const InlineContactForm = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const [areaSuggestions, setAreaSuggestions] = useState([]);
+    const [isSearchingArea, setIsSearchingArea] = useState(false);
+    const [showAreaSuggestions, setShowAreaSuggestions] = useState(false);
+
+    // Search Area using Nominatim
+    React.useEffect(() => {
+        if (!formData.location || formData.location.length < 3 || !showAreaSuggestions) {
+            setAreaSuggestions([]);
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(async () => {
+            setIsSearchingArea(true);
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(formData.location + ', Lucknow')}&format=json&addressdetails=1&limit=5&countrycodes=in`,
+                    { headers: { 'Accept-Language': 'en-US,en;q=0.9' } }
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const filtered = data.map(item => {
+                        const addr = item.address;
+                        const areaName = addr.suburb || addr.neighbourhood || addr.city_district || addr.road || addr.village;
+                        const mainPart = areaName ? `${areaName}` : item.display_name.split(',')[0];
+                        return { display_name: mainPart };
+                    });
+                    
+                    const unique = Array.from(new Set(filtered.map(a => a.display_name)))
+                        .map(name => filtered.find(a => a.display_name === name));
+                        
+                    setAreaSuggestions(unique);
+                }
+            } catch (err) {
+                console.error("Nominatim error:", err);
+            } finally {
+                setIsSearchingArea(false);
+            }
+        }, 600);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [formData.location, showAreaSuggestions]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -169,24 +212,53 @@ const InlineContactForm = () => {
 
                                         <div>
                                             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Location/City</label>
-                                            <div className="relative">
-                                                <MapPin className="absolute left-4 top-3 h-5 w-5 text-slate-400" />
-                                                <select
+                                            <div className="relative" ref={(node) => {
+                                                if (node) {
+                                                    const handleClickOutside = (e) => {
+                                                        if (!node.contains(e.target)) setShowAreaSuggestions(false);
+                                                    };
+                                                    document.addEventListener('mousedown', handleClickOutside);
+                                                }
+                                            }}>
+                                                <MapPin className="absolute left-4 top-3 h-5 w-5 text-slate-400 z-10" />
+                                                <input
+                                                    type="text"
                                                     name="location"
                                                     required
                                                     value={formData.location}
-                                                    onChange={handleChange}
-                                                    className={`w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all font-medium cursor-pointer ${formData.location === '' ? 'text-slate-400' : 'text-slate-900 dark:text-white'}`}
-                                                >
-                                                    <option value="" disabled>Select your Area</option>
-                                                    {[
-                                                        "Aliganj", "Gomti Nagar", "Indira Nagar", "Hazratganj", 
-                                                        "Janki Puram", "Mahanagar", "Alambagh", "Vikas Nagar", 
-                                                        "South City", "Aashiana", "Other"
-                                                    ].sort().map(loc => (
-                                                        <option key={loc} value={loc} className="text-slate-900 dark:text-white">{loc}</option>
-                                                    ))}
-                                                </select>
+                                                    onChange={(e) => {
+                                                        handleChange(e);
+                                                        setShowAreaSuggestions(true);
+                                                    }}
+                                                    onFocus={() => setShowAreaSuggestions(true)}
+                                                    placeholder="Search Area in Lucknow"
+                                                    className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-slate-900 dark:text-white font-medium placeholder-slate-400"
+                                                    autoComplete="off"
+                                                />
+                                                {isSearchingArea && (
+                                                    <div className="absolute right-3 top-3">
+                                                        <div className="h-4 w-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                                                    </div>
+                                                )}
+
+                                                {showAreaSuggestions && areaSuggestions.length > 0 && (
+                                                    <div className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto">
+                                                        {areaSuggestions.map((suggestion, index) => (
+                                                            <button
+                                                                key={index}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setFormData(prev => ({ ...prev, location: suggestion.display_name }));
+                                                                    setShowAreaSuggestions(false);
+                                                                }}
+                                                                className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center gap-3"
+                                                            >
+                                                                <MapPin className="h-4 w-4 text-slate-400" />
+                                                                <span>{suggestion.display_name}</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

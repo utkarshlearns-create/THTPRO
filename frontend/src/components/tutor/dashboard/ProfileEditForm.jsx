@@ -157,11 +157,59 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
         
         // Auto-select state if a city is chosen and state is empty
         const selectedCity = e.target.value;
-        const matchedLocation = locations.find(l => l.city === selectedCity);
+        const matchedLocation = safeLocations.find(l => l.city === selectedCity);
         if (matchedLocation && !formData.state) {
             handleInputChange({ target: { name: 'state', value: matchedLocation.state } });
         }
     };
+
+    const [areaSuggestions, setAreaSuggestions] = useState([]);
+    const [isSearchingArea, setIsSearchingArea] = useState(false);
+    const [showAreaSuggestions, setShowAreaSuggestions] = useState(false);
+
+    // Search Area using Nominatim
+    useEffect(() => {
+        if (!formData.locality || formData.locality.length < 3 || !showAreaSuggestions) {
+            setAreaSuggestions([]);
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(async () => {
+            setIsSearchingArea(true);
+            try {
+                const query = `${formData.locality}, ${formData.city || 'Lucknow'}`;
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&countrycodes=in`,
+                    { headers: { 'Accept-Language': 'en-US,en;q=0.9' } }
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const filtered = data.map(item => {
+                        const addr = item.address;
+                        const areaName = addr.suburb || addr.neighbourhood || addr.city_district || addr.road || addr.village;
+                        const mainPart = areaName ? `${areaName}` : item.display_name.split(',')[0];
+                        return {
+                            display_name: mainPart,
+                            full_name: item.display_name
+                        };
+                    });
+                    
+                    // Remove duplicates
+                    const unique = Array.from(new Set(filtered.map(a => a.display_name)))
+                        .map(name => filtered.find(a => a.display_name === name));
+                        
+                    setAreaSuggestions(unique);
+                }
+            } catch (err) {
+                console.error("Nominatim error:", err);
+            } finally {
+                setIsSearchingArea(false);
+            }
+        }, 600);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [formData.locality, formData.city, showAreaSuggestions]);
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -347,12 +395,57 @@ const ProfileEditForm = ({ formData, handleInputChange, handleProfileFileChange,
                                         </FormGroup>
                                         <div className="md:col-span-2">
                                             <FormGroup label="Area / Locality">
-                                                <select name="locality" value={formData.locality || ''} onChange={handleInputChange} className="input-field" disabled={!formData.city}>
-                                                    <option value="">Select Primary Locality</option>
-                                                    {availableLocalities?.map(loc => (
-                                                        <option key={loc.id} value={loc.name}>{loc.name}</option>
-                                                    ))}
-                                                </select>
+                                                <div className="relative" ref={(node) => {
+                                                    if (node) {
+                                                        const handleClickOutside = (e) => {
+                                                            if (!node.contains(e.target)) setShowAreaSuggestions(false);
+                                                        };
+                                                        document.addEventListener('mousedown', handleClickOutside);
+                                                    }
+                                                }}>
+                                                    <div className="relative group">
+                                                        <input 
+                                                            type="text"
+                                                            name="locality" 
+                                                            value={formData.locality || ''} 
+                                                            onChange={(e) => {
+                                                                handleInputChange(e);
+                                                                setShowAreaSuggestions(true);
+                                                            }}
+                                                            onFocus={() => setShowAreaSuggestions(true)}
+                                                            className="input-field" 
+                                                            placeholder="Search Area (e.g. Gomti Nagar)"
+                                                            autoComplete="off"
+                                                        />
+                                                        {isSearchingArea && (
+                                                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                                                <Save className="h-4 w-4 animate-spin text-indigo-500" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {showAreaSuggestions && (areaSuggestions.length > 0 || isSearchingArea) && (
+                                                        <div className="absolute z-[100] w-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                                            <div className="max-h-60 overflow-y-auto p-1">
+                                                                {areaSuggestions.map((suggestion, index) => (
+                                                                    <button
+                                                                        key={index}
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            handleInputChange({ target: { name: 'locality', value: suggestion.display_name } });
+                                                                            setShowAreaSuggestions(false);
+                                                                            setAreaSuggestions([]);
+                                                                        }}
+                                                                        className="w-full text-left px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-200 rounded-lg transition-colors flex items-start gap-3 group"
+                                                                    >
+                                                                        <MapPin className="h-4 w-4 text-slate-400 group-hover:text-indigo-500 mt-1 shrink-0" />
+                                                                        <span className="text-base leading-tight">{suggestion.display_name}</span>
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
                                                 <p className="text-xs text-slate-500 mt-1">This is your primary area used to match you with nearby jobs.</p>
                                             </FormGroup>
                                         </div>
