@@ -12,7 +12,6 @@ Actual implementations live in:
 
 # Tutor endpoints
 from .tutor_job_views import (
-    TutorJobCreateView,
     JobCreateView,
     MyJobPostsView,
     TutorApplicationsView,

@@ -2,7 +2,6 @@ from django.urls import path
 
 # Tutor endpoints
 from .tutor_job_views import (
-    TutorJobCreateView,
     JobCreateView,
     MyJobPostsView,
     TutorApplicationsView,
