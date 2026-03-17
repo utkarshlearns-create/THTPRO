@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, SlidersHorizontal, MapPin, BookOpen, GraduationCap, X, ChevronDown, Check } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, MapPin, BookOpen, GraduationCap, Monitor, X, ChevronDown, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import JobCard from '../components/jobs/JobCard';
 import Navbar from '../components/Navbar';
