@@ -2,6 +2,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { LayoutDashboard, Briefcase, PlusCircle, Search, Settings, User, LogOut } from 'lucide-react';
@@ -14,6 +15,7 @@ const InstitutionDashboard = () => {
     const searchParams = useSearchParams();
     const initialTab = searchParams.get('tab') || 'overview';
     const [activeTab, setActiveTab] = useState(initialTab);
+    const [showSidebar, setShowSidebar] = useState(false);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -52,31 +54,53 @@ const InstitutionDashboard = () => {
 
     const SidebarItem = ({ id, icon, label }) => (
         <button
-            onClick={() => setActiveTab(id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+            onClick={() => {
+                setActiveTab(id);
+                setShowSidebar(false);
+            }}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                 activeTab === id 
-                ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-medium' 
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 font-bold' 
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50'
             }`}
         >
             {icon}
-            <span>{label}</span>
+            <span className="text-sm">{label}</span>
         </button>
     );
 
     if (loading) return <div className="min-h-screen flex items-center justify-center dark:bg-slate-950"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>;
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0B1120] font-sans pb-20 lg:pb-0">
             <Navbar />
             
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+                {/* Mobile Header Switcher */}
+                <div className="lg:hidden flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 mb-6">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+                            {profile?.institution_name?.charAt(0) || 'I'}
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-slate-900 dark:text-white text-sm">{profile?.institution_name || 'Institution'}</h3>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">{activeTab.replace('-', ' ')}</p>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={() => setShowSidebar(true)}
+                        className="p-2 bg-slate-50 dark:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300"
+                    >
+                        <LayoutDashboard size={20} />
+                    </button>
+                </div>
+
                 <div className="grid lg:grid-cols-12 gap-8">
-                    {/* Sidebar */}
-                    <div className="lg:col-span-3">
+                    {/* Sidebar Desktop */}
+                    <div className="hidden lg:block lg:col-span-3">
                         <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 sticky top-24">
                             <div className="flex items-center gap-4 mb-8">
-                                <div className="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xl">
+                                <div className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-xl">
                                     {profile?.institution_name?.charAt(0) || 'I'}
                                 </div>
                                 <div>
@@ -94,13 +118,62 @@ const InstitutionDashboard = () => {
                             </nav>
 
                             <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800">
-                                <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors font-bold text-sm">
                                     <LogOut size={20} />
                                     <span>Logout</span>
                                 </button>
                             </div>
                         </div>
                     </div>
+
+                    {/* Mobile Sidebar Overlay */}
+                    <AnimatePresence>
+                        {showSidebar && (
+                            <div className="fixed inset-0 z-[110] lg:hidden">
+                                <motion.div 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setShowSidebar(false)}
+                                    className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                                />
+                                <motion.aside 
+                                    initial={{ x: '-100%' }}
+                                    animate={{ x: 0 }}
+                                    exit={{ x: '-100%' }}
+                                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                                    className="absolute left-0 top-0 h-full w-[80%] max-w-xs bg-white dark:bg-slate-900 shadow-2xl p-6"
+                                >
+                                    <div className="flex items-center justify-between mb-8">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+                                                {profile?.institution_name?.charAt(0) || 'I'}
+                                            </div>
+                                            <div className="font-bold text-slate-900 dark:text-white truncate max-w-[120px]">Menu</div>
+                                        </div>
+                                        <button onClick={() => setShowSidebar(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+                                            <X size={20} className="text-slate-500" />
+                                        </button>
+                                    </div>
+
+                                    <nav className="space-y-2">
+                                        <SidebarItem id="overview" icon={<LayoutDashboard size={20} />} label="Overview" />
+                                        <SidebarItem id="my-jobs" icon={<Briefcase size={20} />} label="My Jobs" />
+                                        <SidebarItem id="post-job" icon={<PlusCircle size={20} />} label="Post New Job" />
+                                        <SidebarItem id="browse-tutors" icon={<Search size={20} />} label="Browse Tutors" />
+                                        <SidebarItem id="settings" icon={<Settings size={20} />} label="Settings" />
+                                    </nav>
+
+                                    <div className="absolute bottom-8 left-6 right-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors font-bold text-sm">
+                                            <LogOut size={20} />
+                                            <span>Logout</span>
+                                        </button>
+                                    </div>
+                                </motion.aside>
+                            </div>
+                        )}
+                    </AnimatePresence>
 
                     {/* Main Content */}
                     <div className="lg:col-span-9">
@@ -202,18 +275,18 @@ const MyJobsTab = () => {
             ) : (
                 <div className="grid gap-4">
                     {jobs.map(job => (
-                        <div key={job.id} className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                        <div key={job.id} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-md transition-shadow">
                             <div>
                                 <h3 className="font-bold text-lg text-slate-900 dark:text-white">{job.title}</h3>
-                                <p className="text-sm text-slate-500">{job.subject} • {job.class_level}</p>
-                                <div className="flex gap-2 mt-2">
-                                    <span className={`text-xs px-2 py-1 rounded-full ${job.status === 'OPEN' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}>{job.status}</span>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600">{job.job_type}</span>
+                                <p className="text-sm text-slate-500 mb-2">{job.subject} • {job.class_level}</p>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className={`text-[10px] font-bold px-2 py-1 rounded-lg uppercase tracking-wider ${job.status === 'OPEN' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}>{job.status}</span>
+                                    <span className="text-[10px] font-bold px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">{job.job_type}</span>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <p className="text-sm font-bold text-indigo-600">{job.salary_range || 'Salary not specified'}</p>
-                                <p className="text-xs text-slate-400 mt-1">Posted on {new Date(job.created_at).toLocaleDateString()}</p>
+                            <div className="sm:text-right w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-slate-50 dark:border-slate-800">
+                                <p className="text-lg font-bold text-indigo-600">{job.salary_range || 'Salary not specified'}</p>
+                                <p className="text-[10px] text-slate-400 mt-1 uppercase font-medium">Posted {new Date(job.created_at).toLocaleDateString()}</p>
                             </div>
                         </div>
                     ))}

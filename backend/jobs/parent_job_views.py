@@ -14,21 +14,10 @@ from django.db.models.functions import Cast
 from .models import JobPost, Application, InstituteJob
 from .serializers import JobPostSerializer, InstituteJobSerializer
 from .utils import filter_by_subject, send_notification
-from users.models import TutorProfile
+from users.models import TutorProfile, User
+from users.utils import get_tutor_image_url
 
 
-def _get_tutor_image(tutor):
-    """Get tutor's image URL, transforming Google Drive links to direct image links."""
-    if tutor.profile_image:
-        return tutor.profile_image.url
-    if tutor.external_profile_image_url:
-        url = tutor.external_profile_image_url
-        if "drive.google.com" in url:
-            match = re.search(r'id=([a-zA-Z0-9_-]+)', url) or re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
-            if match:
-                return f"https://lh3.googleusercontent.com/d/{match.group(1)}"
-        return url
-    return None
 
 
 class ParentJobListView(generics.ListAPIView):
@@ -141,7 +130,7 @@ class ParentStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        if request.user.role != 'PARENT':
+        if request.user.role != User.Role.PARENT:
             return Response({"error": "Only parents can view stats"}, status=403)
 
         user = request.user
@@ -202,7 +191,7 @@ class ParentStatsView(APIView):
             return {
                 "name": hire.tutor.full_name or hire.tutor.user.first_name,
                 "subject": hire.job.subjects[0] if hire.job.subjects else "General",
-                "image": _get_tutor_image(hire.tutor),
+                "image": get_tutor_image_url(hire.tutor),
             }
         return None
 
@@ -233,7 +222,7 @@ class ParentStatsView(APIView):
                 "subjects": t.subjects,
                 "locality": t.locality,
                 "rating": 4.8,
-                "image": _get_tutor_image(t),
+                "image": get_tutor_image_url(t),
                 "experience": t.teaching_experience_years,
             }
             for t in qs[:limit]
@@ -310,14 +299,14 @@ class InstituteJobViewSet(viewsets.ModelViewSet):
             mode = self.request.query_params.get('mode')
             if (mode == 'my_jobs'
                     and self.request.user.is_authenticated
-                    and self.request.user.role == 'INSTITUTION'):
+                    and self.request.user.role == User.Role.INSTITUTION):
                 return queryset.filter(institution=self.request.user)
             return queryset.filter(status='OPEN')
 
         return queryset
 
     def perform_create(self, serializer):
-        if self.request.user.role != 'INSTITUTION':
+        if self.request.user.role != User.Role.INSTITUTION:
             raise permissions.PermissionDenied("Only Institutions can post jobs.")
         serializer.save(institution=self.request.user)
 
@@ -376,7 +365,7 @@ class TutorRatingView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        if self.request.user.role != 'PARENT':
+        if self.request.user.role != User.Role.PARENT:
             raise permissions.PermissionDenied("Only parents can rate tutors")
         serializer.save(parent=self.request.user)
 
@@ -389,7 +378,7 @@ class TutorAttendanceView(generics.ListCreateAPIView):
         return TutorAttendance.objects.filter(marked_by=self.request.user).order_by('-date')
 
     def perform_create(self, serializer):
-        if self.request.user.role != 'PARENT':
+        if self.request.user.role != User.Role.PARENT:
             raise permissions.PermissionDenied("Only parents can mark attendance")
         serializer.save(marked_by=self.request.user)
 
@@ -399,7 +388,7 @@ class ParentCloseJobView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def patch(self, request, pk):
-        if request.user.role != 'PARENT':
+        if request.user.role != User.Role.PARENT:
             return Response({"error": "Only parents can perform this action"}, status=status.HTTP_403_FORBIDDEN)
             
         job = get_object_or_404(JobPost, pk=pk)
@@ -416,13 +405,12 @@ class ParentCloseJobView(APIView):
         
         return Response({"message": "Job successfully closed.", "status": job.status}, status=status.HTTP_200_OK)
 
-
 class ParentDemoActionView(APIView):
     """Parent accepts, rejects, requests reschedule, or completes a demo."""
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        if request.user.role != 'PARENT':
+        if request.user.role != User.Role.PARENT:
             return Response({"error": "Only parents can perform this action"}, status=status.HTTP_403_FORBIDDEN)
             
         action = request.data.get('action', '').upper()
@@ -477,13 +465,12 @@ class ParentDemoActionView(APIView):
             "demo_status": application.demo_status
         }, status=status.HTTP_200_OK)
 
-
 class ParentConfirmTutorView(APIView):
     """Parent confirms the tutor after a successful completed demo."""
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        if request.user.role != 'PARENT':
+        if request.user.role != User.Role.PARENT:
             return Response({"error": "Only parents can perform this action"}, status=status.HTTP_403_FORBIDDEN)
             
         application = get_object_or_404(Application, pk=pk)

@@ -76,7 +76,6 @@ urlpatterns = [
     path('create/', JobCreateView.as_view(), name='job-create'),
 
     # Tutor endpoints
-    path('tutor/create/', TutorJobCreateView.as_view(), name='tutor-job-create'),
     path('tutor/my-jobs/', MyJobPostsView.as_view(), name='tutor-job-list'),
     path('my-jobs/', MyJobPostsView.as_view(), name='my-job-list'),
     path('tutor/applications/', TutorApplicationsView.as_view(), name='tutor-applications'),

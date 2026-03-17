@@ -10,40 +10,13 @@ from .models import JobPost, Application
 from core.roles import ADMIN_ROLES, COUNSELLOR, SUPERADMIN, TUTOR_ADMIN
 from .serializers import JobPostSerializer, TutorJobPostSerializer, ApplicationSerializer
 from .utils import assign_job_to_admin, send_notification
-from users.models import TutorProfile
+from users.models import TutorProfile, User
 
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class TutorJobCreateView(APIView):
-    """Tutor creates a job opportunity post."""
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request):
-        if request.user.role != 'TEACHER':
-            return Response({"error": "Only tutors can post job opportunities"}, status=403)
-
-        serializer = TutorJobPostSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                job_post = serializer.save(posted_by=request.user, status='PENDING_APPROVAL')
-                assigned_admin = assign_job_to_admin(job_post)
-                logger.info(f"Job {job_post.id} created by tutor {request.user.username}, assigned to {assigned_admin.username}")
-                return Response({
-                    "message": "Job posted successfully! It's being reviewed by our team.",
-                    "job_id": job_post.id,
-                    "status": job_post.status,
-                    "assigned_to": assigned_admin.username,
-                }, status=status.HTTP_201_CREATED)
-            except Exception as e:
-                logger.error(f"Error creating job post: {e}")
-                if 'job_post' in locals():
-                    job_post.delete()
-                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class JobCreateView(APIView):
@@ -51,9 +24,12 @@ class JobCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        allowed_roles = ['PARENT', 'TEACHER', 'COUNSELLOR', 'TUTOR_ADMIN', 'SUPERADMIN', 'INSTITUTION']
+        allowed_roles = [
+            User.Role.PARENT, User.Role.TEACHER, User.Role.COUNSELLOR, 
+            User.Role.TUTOR_ADMIN, User.Role.SUPERADMIN, User.Role.INSTITUTION
+        ]
         if request.user.role not in allowed_roles:
-            return Response({"error": "You must be logged in as a Parent, Tutor, or Institution to post a job."}, status=403)
+            return Response({"error": "You do not have permission to post a job."}, status=403)
 
         serializer = TutorJobPostSerializer(data=request.data)
         if serializer.is_valid():
@@ -93,7 +69,7 @@ class TutorApplicationsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        if request.user.role != 'TEACHER':
+        if request.user.role != User.Role.TEACHER:
             return Response({"error": "Only tutors can view applications"}, status=403)
 
         try:
@@ -128,7 +104,7 @@ class JobApplicationCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        if request.user.role != 'TEACHER':
+        if request.user.role != User.Role.TEACHER:
             return Response({"error": "Only tutors can apply for jobs"}, status=403)
 
         job = get_object_or_404(JobPost, pk=pk)

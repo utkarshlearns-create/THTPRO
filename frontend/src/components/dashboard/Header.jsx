@@ -75,13 +75,13 @@ const Header = ({ sidebarOpen, setSidebarOpen, user, setActiveTab }) => {
                 >
                     <Menu size={24} />
                 </button>
-                <div className="hidden md:block">
-                    <h1 className="text-xl font-semibold text-slate-800 dark:text-white">
-                        Welcome back, <span className="bg-gradient-to-r from-sky-400 to-indigo-600 dark:from-sky-300 dark:to-indigo-400 bg-clip-text text-transparent">{user?.full_name?.split(' ')[0] || user?.first_name || 'Tutor'}</span>
+                <div className="flex flex-col">
+                    <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-slate-800 dark:text-white leading-tight">
+                        Hi, <span className="bg-gradient-to-r from-sky-400 to-indigo-600 dark:from-sky-300 dark:to-indigo-400 bg-clip-text text-transparent">{user?.full_name?.split(' ')[0] || user?.first_name || 'Tutor'}</span>
                     </h1>
-                    <p className="text-xs text-slate-500 flex items-center gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#22c55e]"></span>
-                        Profile Active
+                    <p className="text-[10px] sm:text-xs text-slate-500 flex items-center gap-1.5 sm:gap-2">
+                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#22c55e]"></span>
+                        Active
                     </p>
                 </div>
             </div>
@@ -100,10 +100,10 @@ const Header = ({ sidebarOpen, setSidebarOpen, user, setActiveTab }) => {
                  {/* Wallet Jewel */}
                  <button 
                     onClick={() => setActiveTab && setActiveTab('wallet')}
-                    className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-indigo-500/30 rounded-full shadow-sm hover:border-indigo-500/60 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-indigo-500/30 rounded-full shadow-sm hover:border-indigo-500/60 transition-colors cursor-pointer"
                  >
-                    <Gem className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-                    <span className="text-sm font-bold text-slate-700 dark:text-indigo-100">500 Credits</span>
+                    <Gem className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500 dark:text-indigo-400" />
+                    <span className="text-[11px] sm:text-sm font-bold text-slate-700 dark:text-indigo-100 whitespace-nowrap">500 Cr</span>
                  </button>
 
                  {/* Notification Bell */}

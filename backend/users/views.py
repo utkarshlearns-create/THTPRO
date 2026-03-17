@@ -119,20 +119,22 @@ class GoogleLoginView(APIView):
                 user.save()
                 logger.info(f"GoogleLoginView: Created new user {user.id} with role {role}")
 
-                # Create associated profiles
-                if role == 'TEACHER':
-                    if not hasattr(user, 'tutor_profile'):
-                        TutorProfile.objects.create(user=user)
-                        TutorStatus.objects.create(tutor=user.tutor_profile)
+                # Create associated profiles if they don't exist
+                if role == User.Role.TEACHER:
+                    # Note: signals.py also handles this, but we use get_or_create to be safe
+                    profile, created = TutorProfile.objects.get_or_create(user=user)
+                    if created:
+                        TutorStatus.objects.get_or_create(tutor=profile)
                         logger.info(f"GoogleLoginView: Created TutorProfile & Status for {user.id}")
-                elif role == 'INSTITUTION':
-                    if not hasattr(user, 'institution_profile'):
-                        InstitutionProfile.objects.create(
-                            user=user,
-                            institution_name=name or "New Institution",
-                            contact_person=name or "",
-                        )
-                        logger.info(f"GoogleLoginView: Created InstitutionProfile for {user.id}")
+                elif role == User.Role.INSTITUTION:
+                    InstitutionProfile.objects.get_or_create(
+                        user=user,
+                        defaults={
+                            'institution_name': name or "New Institution",
+                            'contact_person': name or "",
+                        }
+                    )
+                    logger.info(f"GoogleLoginView: Ensured InstitutionProfile for {user.id}")
 
             refresh = RefreshToken.for_user(user)
             refresh['role'] = user.role
@@ -144,7 +146,6 @@ class GoogleLoginView(APIView):
             })
         except Exception as e:
             tb = traceback.format_exc()
-            print(f"GoogleLoginView UNHANDLED ERROR: {tb}", file=sys.stderr)
             logger.critical(f"GoogleLoginView UNHANDLED ERROR: {tb}")
             return Response({"error": f"Server error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

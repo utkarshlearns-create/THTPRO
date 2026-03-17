@@ -136,7 +136,7 @@ const ParentDashboard = () => {
     };
 
     const handleLogout = () => {
-        clearAuthState();
+        localStorage.clear();
         router.push('/login');
     };
 
@@ -174,7 +174,7 @@ const ParentDashboard = () => {
                             <div className="font-bold text-xl tracking-tight flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
                                 <span className="text-slate-900 dark:text-white">THE HOME</span> TUITIONS
                             </div>
-                            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-500 hover:text-red-500">
+                            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-500 hover:text-red-500 rounded-full hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
                                 <X size={20} />
                             </button>
                         </>
@@ -222,12 +222,23 @@ const ParentDashboard = () => {
                     <div className="flex items-center gap-3 sm:gap-4">
                         <button 
                             onClick={() => router.push('/parent-home')}
-                            className="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-indigo-900/30 rounded-xl transition-all shadow-sm flex items-center gap-2"
+                            className="p-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 bg-slate-100 hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-indigo-900/30 rounded-full transition-all flex items-center gap-2"
                             title="Go to Parent Home"
                         >
-                            <Home size={20} />
-                            <span className="hidden sm:inline-block text-sm font-medium">Home</span>
+                            <Home size={18} />
                         </button>
+
+                        {/* Wallet Credits (Mobile Visible) */}
+                         <button 
+                            onClick={() => setActiveTab('wallet')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-500/30 rounded-full hover:border-emerald-500 transition-colors"
+                         >
+                            <Wallet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <span className="text-[11px] sm:text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                                ₹{stats?.stats?.wallet_balance || (wallet?.balance || '0')}
+                            </span>
+                         </button>
+
                         <ThemeToggle />
                          <div className="text-right hidden md:block pl-2 border-l border-slate-200 dark:border-slate-800">
                             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-none">Parent Account</p>

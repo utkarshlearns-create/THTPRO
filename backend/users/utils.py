@@ -2,6 +2,7 @@
 
 import logging
 import random
+import re
 import string
 import time
 
@@ -103,3 +104,29 @@ def generate_signed_kyc_url(public_id, expiry_seconds=3600):
         return None
     expires_at = int(time.time()) + int(expiry_seconds)
     return private_download_url(public_id, resource_type='raw', expires_at=expires_at, attachment=False)
+
+
+def get_tutor_image_url(profile):
+    """
+    Centralized utility to get a tutor's profile image URL.
+    Handles transformation of Google Drive links to direct image links.
+    """
+    if not profile:
+        return None
+
+    if profile.profile_image:
+        return profile.profile_image.url
+
+    url = profile.external_profile_image_url
+    if not url:
+        return None
+
+    # Transform Google Drive links to direct image links
+    if "drive.google.com" in url:
+        # Handle both id=FILE_ID and /file/d/FILE_ID/
+        match = re.search(r'id=([a-zA-Z0-9_-]+)', url) or re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
+        if match:
+            file_id = match.group(1)
+            return f"https://lh3.googleusercontent.com/d/{file_id}"
+
+    return url

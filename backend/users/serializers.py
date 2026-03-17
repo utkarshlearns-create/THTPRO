@@ -43,7 +43,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 from .models import TutorProfile
 
 from .models import TutorProfile, TutorKYC, TutorStatus, Enquiry, InstitutionProfile, FavouriteTutor
-from .utils import generate_signed_kyc_url
+from .utils import generate_signed_kyc_url, get_tutor_image_url
 from core.roles import ADMIN_ROLES
 
 class FavouriteTutorSerializer(serializers.ModelSerializer):
@@ -177,19 +177,7 @@ class TutorProfileSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def get_image(self, obj):
-        if obj.profile_image:
-            return obj.profile_image.url
-        if obj.external_profile_image_url:
-            url = obj.external_profile_image_url
-            # Transform Google Drive links to direct image links
-            if "drive.google.com" in url:
-                import re
-                match = re.search(r'id=([a-zA-Z0-9_-]+)', url) or re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
-                if match:
-                    file_id = match.group(1)
-                    return f"https://lh3.googleusercontent.com/d/{file_id}"
-            return url
-        return None
+        return get_tutor_image_url(obj)
 
 
 
@@ -293,20 +281,7 @@ class PublicTutorProfileSerializer(serializers.ModelSerializer):
         return None
         
     def get_image(self, obj):
-        if obj.profile_image:
-            return obj.profile_image.url
-        if obj.external_profile_image_url:
-            url = obj.external_profile_image_url
-            # Transform Google Drive links to direct image links
-            if "drive.google.com" in url:
-                import re
-                # Handle both id=FILE_ID and /file/d/FILE_ID/
-                match = re.search(r'id=([a-zA-Z0-9_-]+)', url) or re.search(r'/file/d/([a-zA-Z0-9_-]+)', url)
-                if match:
-                    file_id = match.group(1)
-                    return f"https://lh3.googleusercontent.com/d/{file_id}"
-            return url
-        return None
+        return get_tutor_image_url(obj)
 
 
 class InstitutionProfileSerializer(serializers.ModelSerializer):
