@@ -193,13 +193,13 @@ const LandingPage = () => {
             {/* Parent Card */}
             <motion.div variants={itemVariants}>
               <div className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                <div className="relative h-48 sm:h-56 overflow-hidden">
+                <div className="relative aspect-[4/3] w-full overflow-hidden">
                   <img 
                     src="/custom-parent.png" 
                     alt="Indian parent and student" 
-                    className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                 </div>
                 <div className="p-6 text-center">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">I'm a Parent/Student</h3>
@@ -219,13 +219,13 @@ const LandingPage = () => {
             <motion.div variants={itemVariants}>
               <div className="group bg-white dark:bg-slate-900 rounded-2xl border-2 border-teal-400 dark:border-teal-600 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 relative">
                 <div className="absolute top-4 right-4 z-10 bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">Popular</div>
-                <div className="relative h-48 sm:h-56 overflow-hidden">
+                <div className="relative aspect-[4/3] w-full overflow-hidden">
                   <img 
                     src="/custom-teacher.png" 
                     alt="Indian female teacher in classroom" 
-                    className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                 </div>
                 <div className="p-6 text-center">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">I'm a Teacher</h3>
@@ -244,13 +244,13 @@ const LandingPage = () => {
             {/* School/Institute Card */}
             <motion.div variants={itemVariants}>
               <div className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                <div className="relative h-48 sm:h-56 overflow-hidden">
+                <div className="relative aspect-[4/3] w-full overflow-hidden">
                   <img 
                     src="https://images.unsplash.com/photo-1562774053-701939374585?w=600&h=400&fit=crop" 
                     alt="Indian school building campus" 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                 </div>
                 <div className="p-6 text-center">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">I'm a School/Institute</h3>
