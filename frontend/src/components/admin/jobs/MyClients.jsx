@@ -17,7 +17,7 @@ import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
-import { Badge } from '../../ui/badge';
+import Badge from '../../ui/badge';
 import { 
     Table, 
     TableBody, 
