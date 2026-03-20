@@ -35,12 +35,17 @@ const MENU_ITEMS = [
         icon: Briefcase,
         id: 'jobs',
         subItems: [
-            { label: 'My Clients', id: 'my-clients' },
             { label: 'Approve Jobs', id: 'jobs-approve' },
             { label: 'Add New Jobs', id: 'jobs-add-new' },
             { label: 'Rejected Jobs', id: 'jobs-rejected-list' },
             { label: 'Approved Jobs', id: 'jobs-approved-list' },
         ]
+    },
+    {
+        label: 'My Clients',
+        icon: Users,
+        id: 'my-clients',
+        roles: ['SUPERADMIN', 'COUNSELLOR']
     },
     {
         label: 'My Assignments',

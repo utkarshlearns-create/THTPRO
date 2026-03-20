@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db.models import Q
 
 from .models import JobPost, Application
 from .admin_models import AdminTask
@@ -318,25 +319,32 @@ class CounsellorClientsView(APIView):
             return Response({"error": "Admin access required"}, status=403)
         
         # Unique parents from JobPosts assigned to this admin
-        job_parents = JobPost.objects.filter(assigned_admin=request.user).values_list('parent', flat=True).distinct()
+        # Check both 'parent' and 'posted_by' fields to capture all clients
+        assigned_jobs = JobPost.objects.filter(assigned_admin=request.user)
+        job_parents = set(assigned_jobs.values_list('parent', flat=True)) | set(assigned_jobs.values_list('posted_by', flat=True))
+        
         # Unique parents from enquiries assigned to this admin
         from users.models import Enquiry
         enquiry_parents = Enquiry.objects.filter(assigned_admin=request.user).values_list('email', flat=True).distinct()
         
-        # Let's focus on JobPost parents (Users) for "My Clients"
+        # Filter out None and get User objects
         parent_ids = [pid for pid in job_parents if pid]
         parents = User.objects.filter(id__in=parent_ids)
         
         client_list = []
         for parent in parents:
-            parent_jobs = JobPost.objects.filter(parent=parent, assigned_admin=request.user)
+            parent_jobs = JobPost.objects.filter(
+                Q(parent=parent) | Q(posted_by=parent),
+                assigned_admin=request.user
+            ).distinct()
+            
             client_list.append({
                 "id": parent.id,
                 "name": f"{parent.first_name} {parent.last_name}" if parent.first_name else parent.username,
                 "email": parent.email,
                 "phone": parent.phone,
                 "total_jobs": parent_jobs.count(),
-                "hired_tutors": Application.objects.filter(job__parent=parent, status='HIRED').count(),
+                "hired_tutors": Application.objects.filter(job__in=parent_jobs, status='HIRED').count(),
                 "last_active": parent_jobs.order_by('-updated_at').first().updated_at if parent_jobs.exists() else None
             })
             
@@ -351,7 +359,10 @@ class CounsellorClientHistoryView(APIView):
             return Response({"error": "Admin access required"}, status=403)
             
         parent = get_object_or_404(User, id=parent_id)
-        jobs = JobPost.objects.filter(parent=parent).order_by('-created_at')
+        # Check both parent and posted_by for full history
+        jobs = JobPost.objects.filter(
+            Q(parent=parent) | Q(posted_by=parent)
+        ).order_by('-created_at').distinct()
         
         history = []
         for job in jobs:
