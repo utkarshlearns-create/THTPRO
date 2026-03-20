@@ -1,5 +1,6 @@
 import "./globals.css";
 import Providers from "./providers";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 export const metadata = {
   title: "The Home Tuitions Pro - Find Verified Tutors Near You",
@@ -47,6 +48,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="font-sans antialiased">
         <Providers>{children}</Providers>
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ''} />
       </body>
     </html>
   );
