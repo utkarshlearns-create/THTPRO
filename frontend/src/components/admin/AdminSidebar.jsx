@@ -16,7 +16,7 @@ import {
     Circle,
     Package,
     Building2,
-    Lock
+    Lock as LockIcon
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import ThemeToggle from '../ui/ThemeToggle';
@@ -344,7 +344,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
                         onClick={() => setShowChangePassword(true)}
                         className="w-full flex items-center gap-2 p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors text-sm font-medium mb-1"
                     >
-                        <Lock size={16} className="text-indigo-500" />
+                        <LockIcon size={16} className="text-indigo-500" />
                         <span>Change Password</span>
                     </button>
                 )}

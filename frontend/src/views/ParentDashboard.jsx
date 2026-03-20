@@ -22,7 +22,8 @@ import {
   X,
   Heart,
   AlertCircle,
-  MapPin
+  MapPin,
+  Lock as LockIcon
 } from 'lucide-react';
 import API_BASE_URL from '../config';
 import { clearAuthState } from '../utils/auth';
@@ -1116,7 +1117,7 @@ const MyProfile = ({ latestJob, stats, userProfile, onEdit, onChangePassword }) 
                             onClick={onChangePassword}
                             className="flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-900/50 transition-all shadow-sm"
                         >
-                            <Lock className="h-4 w-4 text-indigo-500" />
+                            <LockIcon className="h-4 w-4 text-indigo-500" />
                             Change Password
                         </button>
                     </div>

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { LayoutDashboard, Briefcase, PlusCircle, Search, Settings, User, LogOut, X, Lock } from 'lucide-react';
+import { LayoutDashboard, Briefcase, PlusCircle, Search, Settings, User, LogOut, X, Lock as LockIcon } from 'lucide-react';
 import PostJob from '../components/institution/PostJob';
 import BrowseTutors from '../components/institution/BrowseTutors';
 import API_BASE_URL from '../config';
@@ -310,7 +310,7 @@ const SettingsTab = ({ profile, onChangePassword }) => (
                 onClick={onChangePassword}
                 className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-900/50 transition-all shadow-sm"
             >
-                <Lock className="h-4 w-4 text-indigo-500" />
+                <LockIcon className="h-4 w-4 text-indigo-500" />
                 Change Password
             </button>
         </div>

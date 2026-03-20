@@ -15,7 +15,7 @@ import {
   LogOut,
   CreditCard,
   Building2,
-  Lock
+  Lock as LockIcon
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ThemeToggle from '../components/ui/ThemeToggle';
@@ -261,7 +261,7 @@ const SuperAdminLayout = ({ children }) => {
                                 }}
                                 className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-brand-gold/10 hover:text-brand-gold transition-colors flex items-center gap-2"
                             >
-                                <Lock size={16} /> Change Password
+                                <LockIcon size={16} /> Change Password
                             </button>
                              <button 
                                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center gap-2"

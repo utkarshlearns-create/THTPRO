@@ -12,6 +12,7 @@ import JobMatchList from '../components/tutor/dashboard/JobMatchList';
 import MyApplications from '../components/tutor/dashboard/MyApplications';
 import NotificationsTab from '../components/tutor/dashboard/NotificationsTab';
 import { toast } from 'react-hot-toast';
+import { Lock as LockIcon } from 'lucide-react';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 
 const TutorDashboard = () => {
@@ -314,7 +315,7 @@ const TutorDashboard = () => {
                             onClick={() => setShowChangePassword(true)}
                             className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-900/50 transition-all shadow-sm"
                         >
-                            <Lock className="h-4 w-4 text-indigo-500" />
+                            <LockIcon className="h-4 w-4 text-indigo-500" />
                             Change Password
                         </button>
                     </div>

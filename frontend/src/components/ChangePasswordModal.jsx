@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, X, CheckCircle } from 'lucide-react';
+import { Lock as LockIcon, Eye, EyeOff, X, CheckCircle } from 'lucide-react';
 import API_BASE_URL from '../config';
 
 export default function ChangePasswordModal({ isOpen, onClose }) {
@@ -102,7 +102,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Current Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <LockIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type={showPasswords ? 'text' : 'password'}
                     value={formData.current_password}
@@ -119,7 +119,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">New Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <LockIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type={showPasswords ? 'text' : 'password'}
                     value={formData.new_password}
@@ -136,7 +136,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Confirm New Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <LockIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type={showPasswords ? 'text' : 'password'}
                     value={formData.confirm_password}
