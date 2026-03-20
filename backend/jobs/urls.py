@@ -26,7 +26,12 @@ from .admin_job_views import (
     AdminUpdateJobView,
     AdminInstitutionJobListView,
     AdminJobListView,
+    CounsellorClientsView,
+    CounsellorClientHistoryView,
+    TransferLeadView,
+    TransferClientView
 )
+from users.admin_views import AdminListView
 
 # Parent endpoints
 from .parent_job_views import (
@@ -92,6 +97,15 @@ urlpatterns = [
     path('admin/<int:pk>/update/', AdminUpdateJobView.as_view(), name='admin-update-job'),
     path('admin/institution-pending/', AdminInstitutionJobListView.as_view(), name='admin-institution-pending-jobs'),
     path('admin/all/', AdminJobListView.as_view(), name='admin-all-jobs'),
+    
+    # Counsellor "My Clients" & Transfers
+    path('admin/my-clients/', CounsellorClientsView.as_view(), name='admin-my-clients'),
+    path('admin/my-clients/<int:parent_id>/history/', CounsellorClientHistoryView.as_view(), name='admin-client-history'),
+    path('admin/transfer-lead/<int:pk>/', TransferLeadView.as_view(), name='admin-transfer-lead'),
+    path('admin/transfer-client/<int:parent_id>/', TransferClientView.as_view(), name='admin-transfer-client'),
+    
+    # Admin List for Transfers
+    path('admin/list-admins/', AdminListView.as_view(), name='admin-list-admins'),
 
     # Parent endpoints
     path('parent/approved/', ParentJobListView.as_view(), name='parent-approved-jobs'),

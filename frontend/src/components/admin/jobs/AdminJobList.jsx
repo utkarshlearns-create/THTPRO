@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Loader2, IndianRupee, Clock, Briefcase, Eye, AlertCircle } from 'lucide-react';
+import { Search, MapPin, Loader2, IndianRupee, Clock, Briefcase, Eye, AlertCircle, ArrowRightLeft } from 'lucide-react';
 import API_BASE_URL from '../../../config';
 import { toast } from 'react-hot-toast';
 import Badge from '../../ui/badge';
@@ -13,6 +13,12 @@ export default function AdminJobList({ status, title, adminId }) {
     
     // Assign Tutor Feature
     const [assignModalJobId, setAssignModalJobId] = useState(null);
+    
+    // Transfer Lead Feature
+    const [transferLead, setTransferLead] = useState(null);
+    const [admins, setAdmins] = useState([]);
+    const [targetAdmin, setTargetAdmin] = useState('');
+    const [transferLoading, setTransferLoading] = useState(false);
 
     const fetchJobs = async () => {
         setLoading(true);
@@ -40,9 +46,53 @@ export default function AdminJobList({ status, title, adminId }) {
         }
     };
 
+    const fetchAdmins = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/admin/list-admins/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setAdmins(data.results || data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch admins");
+        }
+    };
+
+    const handleTransferLead = async () => {
+        if (!targetAdmin || !transferLead) return;
+        setTransferLoading(true);
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/admin/transfer-lead/${transferLead.id}/`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ new_admin_id: targetAdmin })
+            });
+            if (response.ok) {
+                toast.success("Lead transferred successfully");
+                setTransferLead(null);
+                setTargetAdmin('');
+                fetchJobs();
+            } else {
+                toast.error("Transfer failed");
+            }
+        } catch (error) {
+            toast.error("Transfer error");
+        } finally {
+            setTransferLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchJobs();
-    }, [status]);
+        if (adminId === 'me') fetchAdmins();
+    }, [status, adminId]);
 
     return (
         <div className="space-y-6">
@@ -153,6 +203,14 @@ export default function AdminJobList({ status, title, adminId }) {
                                             <Eye size={14} /> View Applicants
                                         </button>
                                     )}
+                                    {adminId === 'me' && (
+                                        <button 
+                                            onClick={() => setTransferLead(job)}
+                                            className="px-3 py-1.5 text-xs font-bold border border-blue-200 text-blue-600 hover:bg-blue-50 bg-white rounded-lg transition-colors flex items-center gap-1.5"
+                                        >
+                                            <ArrowRightLeft size={14} /> Transfer
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -169,6 +227,61 @@ export default function AdminJobList({ status, title, adminId }) {
                         fetchJobs();
                     }} 
                 />
+            )}
+
+            {/* Transfer Lead Modal */}
+            {transferLead && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+                    <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-6 border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg">
+                                <ArrowRightLeft size={20} />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Transfer Lead</h3>
+                        </div>
+                        
+                        <p className="text-sm text-slate-500 mb-6 font-medium">
+                            Transfer Job #{transferLead.id} ({transferLead.student_name}) to another counsellor.
+                        </p>
+                        
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Select Target Counselor</label>
+                            <select 
+                                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                value={targetAdmin}
+                                onChange={(e) => setTargetAdmin(e.target.value)}
+                            >
+                                <option value="">Choose an admin...</option>
+                                {admins
+                                    .filter(a => a.id !== parseInt(localStorage.getItem('user_id')))
+                                    .map(admin => (
+                                        <option key={admin.id} value={admin.id}>
+                                            {admin.username} ({admin.role})
+                                        </option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+
+                        <div className="flex justify-end gap-3 mt-8">
+                            <button 
+                                className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                                onClick={() => { setTransferLead(null); setTargetAdmin(''); }}
+                                disabled={transferLoading}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                className="px-5 py-2.5 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg shadow-blue-500/20 disabled:opacity-50 transition-all flex items-center gap-2"
+                                disabled={!targetAdmin || transferLoading}
+                                onClick={handleTransferLead}
+                            >
+                                {transferLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                                Confirm Transfer
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

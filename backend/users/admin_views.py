@@ -366,3 +366,11 @@ class AdminPerformanceView(APIView):
             'summary': summary,
             'admins': admin_performance
         })
+
+class AdminListView(generics.ListAPIView):
+    """List all active admins for transfer dropdowns."""
+    serializer_class = UserAdminSerializer
+    permission_classes = [IsAdminOrSuperAdmin]
+
+    def get_queryset(self):
+        return User.objects.filter(role__in=[COUNSELLOR, TUTOR_ADMIN, SUPERADMIN], is_active=True).order_by('username')

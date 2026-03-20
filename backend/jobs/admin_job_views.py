@@ -308,3 +308,123 @@ class AdminAssignTutorView(APIView):
             "tutor_id": tutor_profile.id,
             "status": "ASSIGNED",
         })
+
+class CounsellorClientsView(APIView):
+    """List unique parents assigned to the counsellor."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role not in ADMIN_ROLES:
+            return Response({"error": "Admin access required"}, status=403)
+        
+        # Unique parents from JobPosts assigned to this admin
+        job_parents = JobPost.objects.filter(assigned_admin=request.user).values_list('parent', flat=True).distinct()
+        # Unique parents from enquiries assigned to this admin
+        from users.models import Enquiry
+        enquiry_parents = Enquiry.objects.filter(assigned_admin=request.user).values_list('email', flat=True).distinct()
+        
+        # Let's focus on JobPost parents (Users) for "My Clients"
+        parent_ids = [pid for pid in job_parents if pid]
+        parents = User.objects.filter(id__in=parent_ids)
+        
+        client_list = []
+        for parent in parents:
+            parent_jobs = JobPost.objects.filter(parent=parent, assigned_admin=request.user)
+            client_list.append({
+                "id": parent.id,
+                "name": f"{parent.first_name} {parent.last_name}" if parent.first_name else parent.username,
+                "email": parent.email,
+                "phone": parent.phone,
+                "total_jobs": parent_jobs.count(),
+                "hired_tutors": Application.objects.filter(job__parent=parent, status='HIRED').count(),
+                "last_active": parent_jobs.order_by('-updated_at').first().updated_at if parent_jobs.exists() else None
+            })
+            
+        return Response(client_list)
+
+class CounsellorClientHistoryView(APIView):
+    """Full history for a specific client (parent)."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, parent_id):
+        if request.user.role not in ADMIN_ROLES:
+            return Response({"error": "Admin access required"}, status=403)
+            
+        parent = get_object_or_404(User, id=parent_id)
+        jobs = JobPost.objects.filter(parent=parent).order_by('-created_at')
+        
+        history = []
+        for job in jobs:
+            hired_application = job.applications.filter(status='HIRED').first()
+            history.append({
+                "id": job.id,
+                "status": job.status,
+                "subjects": job.subjects,
+                "class_grade": job.class_grade,
+                "locality": job.locality,
+                "created_at": job.created_at,
+                "hired_tutor": {
+                    "id": hired_application.tutor.id,
+                    "name": hired_application.tutor.full_name,
+                    "phone": hired_application.tutor.user.phone
+                } if hired_application else None
+            })
+            
+        return Response({
+            "parent_id": parent.id,
+            "parent_name": f"{parent.first_name} {parent.last_name}" if parent.first_name else parent.username,
+            "history": history
+        })
+
+class TransferLeadView(APIView):
+    """Transfer a specific job (lead) to another admin."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        if request.user.role not in ADMIN_ROLES:
+            return Response({"error": "Admin access required"}, status=403)
+            
+        job = get_object_or_404(JobPost, pk=pk)
+        new_admin_id = request.data.get('new_admin_id')
+        
+        if not new_admin_id:
+            return Response({"error": "New admin ID is required"}, status=400)
+            
+        new_admin = get_object_or_404(User, id=new_admin_id)
+        if new_admin.role not in ADMIN_ROLES:
+            return Response({"error": "Target user is not an admin"}, status=400)
+            
+        job.assigned_admin = new_admin
+        job.save()
+        
+        # Log or notify?
+        return Response({"message": f"Job {pk} transferred to {new_admin.username}"})
+
+class TransferClientView(APIView):
+    """Transfer all data for a parent to another admin."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, parent_id):
+        if request.user.role not in ADMIN_ROLES:
+            return Response({"error": "Admin access required"}, status=403)
+            
+        parent = get_object_or_404(User, id=parent_id)
+        new_admin_id = request.data.get('new_admin_id')
+        
+        if not new_admin_id:
+            return Response({"error": "New admin ID is required"}, status=400)
+            
+        new_admin = get_object_or_404(User, id=new_admin_id)
+        
+        # Update all JobPosts
+        jobs_updated = JobPost.objects.filter(parent=parent).update(assigned_admin=new_admin)
+        
+        # Update all Enquiries
+        from users.models import Enquiry
+        enquiries_updated = Enquiry.objects.filter(email=parent.email).update(assigned_admin=new_admin)
+        
+        return Response({
+            "message": f"Client {parent.username} and related records transferred to {new_admin.username}",
+            "jobs_updated": jobs_updated,
+            "enquiries_updated": enquiries_updated
+        })
