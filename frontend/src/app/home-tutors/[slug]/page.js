@@ -168,8 +168,9 @@ export default async function Page({ params }) {
 
   // 4.D Fetch Tutors
   let tutors = [];
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
   try {
-    const res = await fetch(`${API_BASE_URL}/api/users/tutors/search/?subject=${subjectRaw}&locality=${areaRaw}`, {
+    const res = await fetch(`${backendUrl}/api/users/tutors/search/?subject=${subjectRaw}&locality=${areaRaw}/`, {
         next: { revalidate: 3600 }
     });
     if (res.ok) {
