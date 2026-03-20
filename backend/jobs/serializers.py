@@ -138,6 +138,18 @@ class NotificationSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('user', 'created_at')
 
+class AdminJobUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for admins to update job details"""
+    class Meta:
+        model = JobPost
+        fields = [
+            'student_name', 'student_gender', 'tutor_gender_preference', 
+            'tuition_mode', 'class_grade', 'board', 'subjects', 
+            'locality', 'preferred_time', 'budget_range', 
+            'hourly_rate', 'requirements', 'parent_whatsapp_number'
+        ]
+        extra_kwargs = {field: {'required': False} for field in fields}
+
 from .models import TutorRating, TutorAttendance
 
 class TutorRatingSerializer(serializers.ModelSerializer):

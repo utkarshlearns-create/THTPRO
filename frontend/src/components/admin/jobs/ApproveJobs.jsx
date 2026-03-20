@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle, XCircle, Eye, Loader2, X, Clock, MapPin, IndianRupee, BookOpen, User as UserIcon, Briefcase } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Eye, Loader2, X, Clock, MapPin, IndianRupee, BookOpen, User as UserIcon, Briefcase, Pencil, Save } from 'lucide-react';
 import { 
     Table, 
     TableBody, 
@@ -20,6 +20,8 @@ export default function ApproveJobs() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedJob, setSelectedJob] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState(null);
 
     const fetchPendingJobs = async () => {
         setLoading(true);
@@ -77,6 +79,39 @@ export default function ApproveJobs() {
             console.error("Error approving job:", error);
             toast.error("Server error");
         }
+    };
+
+    const handleUpdate = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/jobs/admin/${editForm.id}/update/`, {
+                method: 'PATCH',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(editForm)
+            });
+
+            if (response.ok) {
+                toast.success('Job updated successfully');
+                setIsEditing(false);
+                setEditForm(null);
+                fetchPendingJobs();
+            } else {
+                toast.error("Failed to update job");
+            }
+        } catch (error) {
+            console.error("Error updating job:", error);
+            toast.error("Server error");
+        }
+    };
+
+    const handleEditStart = (job) => {
+        // Ensure subjects is an array for the form if it comes as a string
+        const subjects = Array.isArray(job.subjects) ? job.subjects : (typeof job.subjects === 'string' ? job.subjects.split(',').map(s => s.trim()) : []);
+        setEditForm({ ...job, subjects });
+        setIsEditing(true);
     };
 
     const handleReject = async () => {
@@ -196,6 +231,15 @@ export default function ApproveJobs() {
                                                 onClick={() => handleApprove(job.id)}
                                             >
                                                 <CheckCircle size={14} />
+                                            </Button>
+                                            <Button 
+                                                size="sm" 
+                                                variant="outline"
+                                                className="h-8 w-8 p-0 border-blue-200 text-blue-600 hover:bg-blue-50" 
+                                                title="Edit Job"
+                                                onClick={() => handleEditStart(job)}
+                                            >
+                                                <Pencil size={14} />
                                             </Button>
                                             <Button 
                                                 size="sm" 
@@ -347,6 +391,156 @@ export default function ApproveJobs() {
                     </div>
                 </div>
             )}
+
+            {/* Edit Job Modal */}
+            {isEditing && editForm && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
+                        {/* Header */}
+                        <div className="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-800 sticky top-0 bg-white dark:bg-slate-900 z-10">
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <Pencil size={20} className="text-blue-500" />
+                                    Edit Job: {editForm.id}
+                                </h3>
+                                <p className="text-sm text-slate-500 mt-1">Modify details for better tutor matching.</p>
+                            </div>
+                            <Button variant="ghost" size="icon" onClick={() => setIsEditing(false)} className="rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+                                <X className="h-5 w-5 text-slate-500" />
+                            </Button>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Left Column: Basic Info */}
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Basic Information</h4>
+                                    
+                                    <div>
+                                        <label className="text-xs text-slate-500 mb-1 block">Student Name</label>
+                                        <input 
+                                            type="text"
+                                            value={editForm.student_name || ''}
+                                            onChange={(e) => setEditForm({...editForm, student_name: e.target.value})}
+                                            className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-slate-500 mb-1 block">Location / Locality</label>
+                                        <input 
+                                            type="text"
+                                            value={editForm.locality || ''}
+                                            onChange={(e) => setEditForm({...editForm, locality: e.target.value})}
+                                            className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-slate-500 mb-1 block">Parent WhatsApp</label>
+                                        <input 
+                                            type="text"
+                                            value={editForm.parent_whatsapp_number || ''}
+                                            onChange={(e) => setEditForm({...editForm, parent_whatsapp_number: e.target.value})}
+                                            className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Right Column: Academic Needs */}
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Academic Details</h4>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-xs text-slate-500 mb-1 block">Class / Grade</label>
+                                            <input 
+                                                type="text"
+                                                value={editForm.class_grade || ''}
+                                                onChange={(e) => setEditForm({...editForm, class_grade: e.target.value})}
+                                                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-slate-500 mb-1 block">Board</label>
+                                            <input 
+                                                type="text"
+                                                value={editForm.board || ''}
+                                                onChange={(e) => setEditForm({...editForm, board: e.target.value})}
+                                                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs text-slate-500 mb-1 block">Subjects (comma separated)</label>
+                                        <input 
+                                            type="text"
+                                            value={Array.isArray(editForm.subjects) ? editForm.subjects.join(', ') : editForm.subjects}
+                                            onChange={(e) => setEditForm({...editForm, subjects: e.target.value.split(',').map(s => s.trim())})}
+                                            className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-xs text-slate-500 mb-1 block">Budget</label>
+                                            <input 
+                                                type="text"
+                                                value={editForm.budget_range || ''}
+                                                onChange={(e) => setEditForm({...editForm, budget_range: e.target.value})}
+                                                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-slate-500 mb-1 block">Tuition Mode</label>
+                                            <select 
+                                                value={editForm.tuition_mode || 'HOME'}
+                                                onChange={(e) => setEditForm({...editForm, tuition_mode: e.target.value})}
+                                                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                            >
+                                                <option value="HOME">Home Tuition</option>
+                                                <option value="ONLINE_ONE_TO_ONE">Online 1-to-1</option>
+                                                <option value="ONLINE_GROUP">Online Group</option>
+                                                <option value="INSTITUTION">Institution</option>
+                                                <option value="BOTH">Both / Any</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label className="text-xs text-slate-500 mb-1 block">Requirements / Feedback</label>
+                                <textarea 
+                                    value={editForm.requirements || ''}
+                                    onChange={(e) => setEditForm({...editForm, requirements: e.target.value})}
+                                    rows={4}
+                                    className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                                    placeholder="Add specific tutor requirements or guidelines..."
+                                />
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end gap-3 sticky bottom-0">
+                            <Button 
+                                variant="outline" 
+                                onClick={() => setIsEditing(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button 
+                                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20"
+                                onClick={handleUpdate}
+                            >
+                                <Save size={16} className="mr-2" />
+                                Save Changes
+                            </Button>
+                        </div>
+                    </div>
+                </div>
 
             {/* Reject Modal */}
             {rejectJobId && (

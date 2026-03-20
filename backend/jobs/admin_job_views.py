@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from .models import JobPost, Application
 from .admin_models import AdminTask
-from .serializers import JobPostSerializer
+from .serializers import JobPostSerializer, AdminJobUpdateSerializer
 from .utils import send_notification
 from users.models import TutorProfile, TutorKYC
 from django.contrib.auth import get_user_model
@@ -222,6 +222,25 @@ class AdminRequestModificationsView(APIView):
             )
         return Response({"message": "Modification request sent", "feedback": feedback})
 
+
+class AdminUpdateJobView(generics.UpdateAPIView):
+    """Admin updates any field of a job post."""
+    serializer_class = AdminJobUpdateSerializer
+    queryset = JobPost.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def check_permissions(self, request):
+        super().check_permissions(request)
+        if request.user.role not in [TUTOR_ADMIN, SUPERADMIN, COUNSELLOR]:
+            self.permission_denied(request, message="Admin access required")
+
+    def perform_update(self, serializer):
+        job_post = self.get_object()
+        # Automatically assign the job to the admin who is editing it if unassigned
+        if not job_post.assigned_admin:
+            serializer.save(assigned_admin=self.request.user)
+        else:
+            serializer.save()
 
 class AdminAssignTutorView(APIView):
     """Admin manually assigns a tutor to a job."""

@@ -23,6 +23,7 @@ from .admin_job_views import (
     AdminRejectJobView,
     AdminRequestModificationsView,
     AdminAssignTutorView,
+    AdminUpdateJobView,
     AdminInstitutionJobListView,
     AdminJobListView,
 )
@@ -88,6 +89,7 @@ urlpatterns = [
     path('admin/<int:pk>/reject/', AdminRejectJobView.as_view(), name='admin-reject-job'),
     path('admin/<int:pk>/request-modifications/', AdminRequestModificationsView.as_view(), name='admin-request-modifications'),
     path('admin/<int:pk>/assign-tutor/', AdminAssignTutorView.as_view(), name='admin-assign-tutor'),
+    path('admin/<int:pk>/update/', AdminUpdateJobView.as_view(), name='admin-update-job'),
     path('admin/institution-pending/', AdminInstitutionJobListView.as_view(), name='admin-institution-pending-jobs'),
     path('admin/all/', AdminJobListView.as_view(), name='admin-all-jobs'),
 
