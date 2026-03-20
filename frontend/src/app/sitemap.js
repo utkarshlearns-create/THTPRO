@@ -1,8 +1,8 @@
 export default function sitemap() {
-  const baseUrl = 'https://www.thehometuitions.com';
+  const baseUrl = 'https://thehometuitions.com';
 
   const subjects = [
-    'maths', 'physics', 'chemistry', 'biology', 'english',
+    'maths', 'physics', 'chemistry', 'biology', 'english', 
     'hindi', 'science', 'commerce', 'accounts', 'coding'
   ];
 
@@ -14,26 +14,25 @@ export default function sitemap() {
   const areas = [
     'gomti-nagar','aliganj','indira-nagar','hazratganj','rajajipuram',
     'alambagh','chinhat','vibhuti-khand','nirala-nagar','mahanagar',
-    'jankipuram','sultanpur-road','faizabad-road','telibagh',
-    'sushant-golf-city','aminabad','charbagh'
+    'jankipuram','sultanpur-road','faizabad-road','kursi-road',
+    'telibagh','sushant-golf-city','kanpur-road','lucknow-cantonment',
+    'aminabad','charbagh'
   ];
 
   const staticPages = [
-    { url: `${baseUrl}/`, priority: 1.0, changeFrequency: 'daily' },
-    { url: `${baseUrl}/login`, priority: 0.5, changeFrequency: 'monthly' },
-    { url: `${baseUrl}/signup`, priority: 0.5, changeFrequency: 'monthly' },
-    { url: `${baseUrl}/privacy-policy`, priority: 0.3, changeFrequency: 'yearly' },
-    { url: `${baseUrl}/terms`, priority: 0.3, changeFrequency: 'yearly' },
+    { url: `${baseUrl}/`, priority: 1.0, lastModified: new Date() },
+    { url: `${baseUrl}/privacy-policy`, priority: 0.3, lastModified: new Date() },
+    { url: `${baseUrl}/terms`, priority: 0.3, lastModified: new Date() },
   ];
 
-  // Subject only pages: /home-tutors/maths-tutor-lucknow
+  // 1. Subject only pages: /home-tutors/maths-tutor-lucknow
   const subjectPages = subjects.map(subject => ({
     url: `${baseUrl}/home-tutors/${subject}-tutor-lucknow`,
-    priority: 0.9,
+    priority: 0.8,
     changeFrequency: 'weekly',
   }));
 
-  // Subject + class pages: /home-tutors/maths-tutor-class-10-lucknow
+  // 2. Subject + Class pages: /home-tutors/maths-tutor-class-10-lucknow
   const subjectClassPages = subjects.flatMap(subject =>
     classes.map(cls => ({
       url: `${baseUrl}/home-tutors/${subject}-tutor-${cls}-lucknow`,
@@ -42,12 +41,12 @@ export default function sitemap() {
     }))
   );
 
-  // Subject + class + area pages: /home-tutors/maths-tutor-class-10-gomti-nagar-lucknow
+  // 3. Subject + Class + Area pages: /home-tutors/maths-tutor-class-10-gomti-nagar-lucknow
   const subjectClassAreaPages = subjects.flatMap(subject =>
     classes.flatMap(cls =>
       areas.map(area => ({
         url: `${baseUrl}/home-tutors/${subject}-tutor-${cls}-${area}-lucknow`,
-        priority: 0.7,
+        priority: 0.8,
         changeFrequency: 'weekly',
       }))
     )

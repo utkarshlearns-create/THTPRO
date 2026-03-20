@@ -4,9 +4,9 @@ export default function robots() {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/dashboard', '/admin', '/superadmin', '/admin-login'],
+        disallow: ['/dashboard', '/admin', '/superadmin', '/api'],
       },
     ],
-    sitemap: 'https://www.thehometuitions.com/sitemap.xml',
+    sitemap: 'https://thehometuitions.com/sitemap.xml',
   };
 }
