@@ -12,12 +12,14 @@ import JobMatchList from '../components/tutor/dashboard/JobMatchList';
 import MyApplications from '../components/tutor/dashboard/MyApplications';
 import NotificationsTab from '../components/tutor/dashboard/NotificationsTab';
 import { toast } from 'react-hot-toast';
+import ChangePasswordModal from '../components/ChangePasswordModal';
 
 const TutorDashboard = () => {
     const searchParams = useSearchParams();
     const initialTab = searchParams.get('tab') || 'dashboard_home';
     const [activeTab, setActiveTab] = useState(initialTab);
     const [activeSection, setActiveSection] = useState('personal'); // For Profile Edit (Personal/Professional)
+    const [showChangePassword, setShowChangePassword] = useState(false);
     const router = useRouter();
 
     const [loading, setLoading] = useState(true);
@@ -302,13 +304,35 @@ const TutorDashboard = () => {
 
             {activeTab === 'notifications' && <NotificationsTab />}
 
+            {activeTab === 'settings' && (
+                <div className="space-y-6 animate-in fade-in duration-500">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Account Settings</h1>
+                    <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Security</h3>
+                        <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">Manage your account security and password.</p>
+                        <button
+                            onClick={() => setShowChangePassword(true)}
+                            className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-900/50 transition-all shadow-sm"
+                        >
+                            <Lock className="h-4 w-4 text-indigo-500" />
+                            Change Password
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Placeholder for other tabs */}
-            {(activeTab === 'locations' || activeTab === 'settings' || activeTab === 'support') && (
+            {(activeTab === 'locations' || activeTab === 'support') && (
                 <div className="flex flex-col items-center justify-center h-[50vh] text-slate-500">
                     <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white">Coming Soon</h2>
                     <p>This module is under development.</p>
                 </div>
             )}
+
+            <ChangePasswordModal 
+                isOpen={showChangePassword} 
+                onClose={() => setShowChangePassword(false)} 
+            />
         </TutorDashboardLayout>
     );
 };

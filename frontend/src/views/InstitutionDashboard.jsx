@@ -5,10 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { LayoutDashboard, Briefcase, PlusCircle, Search, Settings, User, LogOut } from 'lucide-react';
+import { LayoutDashboard, Briefcase, PlusCircle, Search, Settings, User, LogOut, X } from 'lucide-react';
 import PostJob from '../components/institution/PostJob';
 import BrowseTutors from '../components/institution/BrowseTutors';
 import API_BASE_URL from '../config';
+import ChangePasswordModal from '../components/ChangePasswordModal';
+import { Lock } from 'lucide-react';
 
 const InstitutionDashboard = () => {
     const router = useRouter();
@@ -18,6 +20,7 @@ const InstitutionDashboard = () => {
     const [showSidebar, setShowSidebar] = useState(false);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showChangePassword, setShowChangePassword] = useState(false);
 
     useEffect(() => {
         fetchProfile();
@@ -181,10 +184,14 @@ const InstitutionDashboard = () => {
                         {activeTab === 'my-jobs' && <MyJobsTab />}
                         {activeTab === 'post-job' && <PostJob onSuccess={() => setActiveTab('my-jobs')} />}
                         {activeTab === 'browse-tutors' && <BrowseTutors />}
-                        {activeTab === 'settings' && <SettingsTab profile={profile} />}
+                        {activeTab === 'settings' && <SettingsTab profile={profile} onChangePassword={() => setShowChangePassword(true)} />}
                     </div>
                 </div>
             </div>
+            <ChangePasswordModal 
+                isOpen={showChangePassword} 
+                onClose={() => setShowChangePassword(false)} 
+            />
             <Footer />
         </div>
     );
@@ -296,11 +303,20 @@ const MyJobsTab = () => {
     );
 }
 
-const SettingsTab = ({ profile }) => (
+const SettingsTab = ({ profile, onChangePassword }) => (
     <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-100 dark:border-slate-800">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Settings</h2>
-        <p className="text-slate-500">Profile editing coming soon.</p>
-        <div className="mt-4">
+        <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Settings</h2>
+            <button
+                onClick={onChangePassword}
+                className="flex items-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-900/50 transition-all shadow-sm"
+            >
+                <Lock className="h-4 w-4 text-indigo-500" />
+                Change Password
+            </button>
+        </div>
+        <p className="text-slate-500 mb-6 text-sm">Profile editing coming soon. You can manage your security settings here.</p>
+        <div>
              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Institution Name</label>
              <input type="text" disabled value={profile?.institution_name || ''} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-slate-100 dark:disabled:bg-slate-800 p-2" />
         </div>

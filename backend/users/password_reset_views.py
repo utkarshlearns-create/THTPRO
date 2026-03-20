@@ -131,3 +131,50 @@ class PasswordResetConfirmView(APIView):
         logger.info('Password reset successful for user %s', user.pk)
 
         return Response({'message': 'Password reset successful. You can now log in with your new password.'}, status=status.HTTP_200_OK)
+
+
+class ChangePasswordView(APIView):
+    """
+    POST /api/users/change-password/
+    Authenticated users can change their own password.
+    Accepts { current_password, new_password }
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [LoginThrottle]
+
+    def post(self, request):
+        current_password = request.data.get('current_password', '')
+        new_password = request.data.get('new_password', '')
+
+        if not current_password or not new_password:
+            return Response(
+                {'error': 'Both current_password and new_password are required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if len(new_password) < 8:
+            return Response(
+                {'error': 'New password must be at least 8 characters.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not request.user.check_password(current_password):
+            return Response(
+                {'error': 'Current password is incorrect.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if current_password == new_password:
+            return Response(
+                {'error': 'New password must be different from current password.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        request.user.set_password(new_password)
+        request.user.save()
+        logger.info('Password changed for user %s', request.user.pk)
+
+        return Response(
+            {'message': 'Password changed successfully.'},
+            status=status.HTTP_200_OK
+        )

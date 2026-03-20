@@ -33,6 +33,7 @@ import ThemeToggle from '../components/ui/ThemeToggle';
 import ParentOnboardingPopup from '../components/ParentOnboardingPopup';
 import TutorCard from '../components/tutor/TutorCard';
 import JobWizard from '../components/JobWizard';
+import ChangePasswordModal from '../components/ChangePasswordModal';
 
 // Skeleton component for loading states
 const Skeleton = ({ className }) => (
@@ -62,6 +63,7 @@ const ParentDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [showEditProfile, setShowEditProfile] = useState(false);
     const [showJobWizard, setShowJobWizard] = useState(false);
+    const [showChangePassword, setShowChangePassword] = useState(false);
 
     const [error, setError] = useState(null);
 
@@ -428,7 +430,20 @@ const ParentDashboard = () => {
                     )}
 
                     {/* MY PROFILE VIEW */}
-                    {activeTab === 'profile' && <MyProfile latestJob={latestJob} stats={stats} userProfile={userProfile} onEdit={() => setShowEditProfile(true)} />}
+                    {activeTab === 'profile' && (
+                        <MyProfile 
+                            latestJob={latestJob} 
+                            stats={stats} 
+                            userProfile={userProfile} 
+                            onEdit={() => setShowEditProfile(true)} 
+                            onChangePassword={() => setShowChangePassword(true)}
+                        />
+                    )}
+
+                    <ChangePasswordModal 
+                        isOpen={showChangePassword} 
+                        onClose={() => setShowChangePassword(false)} 
+                    />
 
                     {/* TUTOR ASSIGNED VIEW */}
                     {activeTab === 'tutor_assigned' && <TutorAssigned />}
@@ -1015,7 +1030,7 @@ const JobsList = () => {
     );
 };
 
-const MyProfile = ({ latestJob, stats, userProfile, onEdit }) => {
+const MyProfile = ({ latestJob, stats, userProfile, onEdit, onChangePassword }) => {
     // Generate Location String dynamically
     let locationStr = "Location Not Provided";
     if (userProfile?.locality) {
@@ -1093,7 +1108,18 @@ const MyProfile = ({ latestJob, stats, userProfile, onEdit }) => {
                         </div>
                     </div>
 
-                    <Button onClick={onEdit} className="w-full mt-6 hover:bg-slate-100 dark:hover:bg-slate-800" variant="outline">Edit Basic Info</Button>
+                    <div className="grid grid-cols-1 gap-3 mt-6">
+                        <Button onClick={onEdit} className="w-full hover:bg-slate-100 dark:hover:bg-slate-800" variant="outline">
+                            Edit Basic Info
+                        </Button>
+                        <button
+                            onClick={onChangePassword}
+                            className="flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-indigo-900/50 transition-all shadow-sm"
+                        >
+                            <Lock className="h-4 w-4 text-indigo-500" />
+                            Change Password
+                        </button>
+                    </div>
                 </CardContent>
             </Card>
 

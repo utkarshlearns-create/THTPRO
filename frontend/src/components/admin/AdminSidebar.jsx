@@ -15,10 +15,12 @@ import {
     ChevronRight,
     Circle,
     Package,
-    Building2
+    Building2,
+    Lock
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import ThemeToggle from '../ui/ThemeToggle';
+import ChangePasswordModal from '../ChangePasswordModal';
 
 const MENU_ITEMS = [
     {
@@ -211,6 +213,7 @@ const NavItem = ({ item, activeView, setActiveView, isOpen }) => {
 export default function AdminSidebar({ activeView, setActiveView, isOpen, toggleSidebar, mode }) {
     const [isHovered, setIsHovered] = useState(false);
     const [user, setUser] = useState({ first_name: 'Admin', email: 'admin@tht.com' });
+    const [showChangePassword, setShowChangePassword] = useState(false);
     const showSidebar = isOpen || isHovered;
 
     useEffect(() => {
@@ -336,6 +339,16 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
                     </div>
                 )}
                 
+                {showSidebar && (
+                    <button
+                        onClick={() => setShowChangePassword(true)}
+                        className="w-full flex items-center gap-2 p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors text-sm font-medium mb-1"
+                    >
+                        <Lock size={16} className="text-indigo-500" />
+                        <span>Change Password</span>
+                    </button>
+                )}
+
                 <button 
                     onClick={() => {
                         localStorage.removeItem('role');
@@ -350,6 +363,11 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
                     <span className={cn("transition-all duration-300 whitespace-nowrap", !showSidebar ? "w-0 opacity-0 overflow-hidden" : "opacity-100")}>Sign Out</span>
                 </button>
             </div>
+
+            <ChangePasswordModal 
+                isOpen={showChangePassword} 
+                onClose={() => setShowChangePassword(false)} 
+            />
         </aside>
     );
 }

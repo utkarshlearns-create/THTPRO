@@ -14,11 +14,13 @@ import {
   ChevronDown,
   LogOut,
   CreditCard,
-  Building2
+  Building2,
+  Lock
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import CreateAdminModal from '../components/superadmin/CreateAdminModal';
+import ChangePasswordModal from '../components/ChangePasswordModal';
 import NotificationDropdown from '../components/superadmin/NotificationDropdown';
 import ErrorBoundary from '../components/ErrorBoundary';
 
@@ -33,6 +35,7 @@ const SuperAdminLayout = ({ children }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [showCreateAdmin, setShowCreateAdmin] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedMenus, setExpandedMenus] = useState({});
   const pathname = usePathname();
@@ -251,6 +254,15 @@ const SuperAdminLayout = ({ children }) => {
                             >
                                 <Users size={16} /> Create Admin
                             </button>
+                            <button 
+                                onClick={() => {
+                                    setShowChangePassword(true);
+                                    setProfileOpen(false);
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-brand-gold/10 hover:text-brand-gold transition-colors flex items-center gap-2"
+                            >
+                                <Lock size={16} /> Change Password
+                            </button>
                              <button 
                                 className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center gap-2"
                                 onClick={() => {
@@ -281,6 +293,11 @@ const SuperAdminLayout = ({ children }) => {
                 }}
             />
         )}
+
+        <ChangePasswordModal 
+            isOpen={showChangePassword} 
+            onClose={() => setShowChangePassword(false)} 
+        />
 
       </div>
     </div>
