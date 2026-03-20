@@ -12,7 +12,7 @@ import JobMatchList from '../components/tutor/dashboard/JobMatchList';
 import MyApplications from '../components/tutor/dashboard/MyApplications';
 import NotificationsTab from '../components/tutor/dashboard/NotificationsTab';
 import { toast } from 'react-hot-toast';
-import { Lock as LockIcon } from 'lucide-react';
+import { Lock as LockIcon, User, Phone, Mail, X, ArrowRight } from 'lucide-react';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 
 const TutorDashboard = () => {
@@ -21,6 +21,8 @@ const TutorDashboard = () => {
     const [activeTab, setActiveTab] = useState(initialTab);
     const [activeSection, setActiveSection] = useState('personal'); // For Profile Edit (Personal/Professional)
     const [showChangePassword, setShowChangePassword] = useState(false);
+    const [showProfileReminder, setShowProfileReminder] = useState(false);
+    const [registrationInfo, setRegistrationInfo] = useState(null);
     const router = useRouter();
 
     const [loading, setLoading] = useState(true);
@@ -55,6 +57,7 @@ const TutorDashboard = () => {
         }
         fetchProfile();
         fetchStats();
+        fetchRegistrationInfo();
     }, [searchParams]);
 
     const fetchStats = async () => {
@@ -65,6 +68,19 @@ const TutorDashboard = () => {
             });
             if (response.ok) setStats(await response.json());
         } catch (error) { console.error("Error fetching stats:", error); }
+    };
+
+    const fetchRegistrationInfo = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/users/me/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setRegistrationInfo(data);
+            }
+        } catch (error) { console.error("Error fetching user info:", error); }
     };
 
     const fetchProfile = async () => {
@@ -78,9 +94,15 @@ const TutorDashboard = () => {
             if (response.ok) {
                 const data = await response.json();
                 setUserProfile(data);
-                setCompletionPercentage(data.profile_completion_percentage || 0);
+                const pct = data.profile_completion_percentage || 0;
+                setCompletionPercentage(pct);
                 setFormData(prev => ({ ...prev, ...data }));
                 if (data.status_msg) setStatus(data.status_msg.status);
+                // Show profile reminder popup if profile is incomplete
+                if (pct < 100) {
+                    const dismissed = sessionStorage.getItem('profile_reminder_dismissed');
+                    if (!dismissed) setShowProfileReminder(true);
+                }
             } else if (response.status === 401) {
                 clearAuthState();
                 router.push('/login');
@@ -330,10 +352,101 @@ const TutorDashboard = () => {
                 </div>
             )}
 
-            <ChangePasswordModal 
-                isOpen={showChangePassword} 
-                onClose={() => setShowChangePassword(false)} 
+            <ChangePasswordModal
+                isOpen={showChangePassword}
+                onClose={() => setShowChangePassword(false)}
             />
+
+            {/* Profile Completion Reminder Popup */}
+            {showProfileReminder && registrationInfo && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md relative border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5">
+                            <button
+                                onClick={() => {
+                                    setShowProfileReminder(false);
+                                    sessionStorage.setItem('profile_reminder_dismissed', 'true');
+                                }}
+                                className="absolute top-4 right-4 text-white/70 hover:text-white"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                            <h2 className="text-xl font-bold text-white">Welcome, {registrationInfo.first_name || 'Tutor'}!</h2>
+                            <p className="text-indigo-100 text-sm mt-1">Your profile is {completionPercentage}% complete</p>
+                        </div>
+
+                        {/* Progress bar */}
+                        <div className="px-6 pt-4">
+                            <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5">
+                                <div
+                                    className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2.5 rounded-full transition-all duration-500"
+                                    style={{ width: `${completionPercentage}%` }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Registration info card */}
+                        <div className="px-6 py-4">
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">Your registered details:</p>
+                            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 space-y-3 border border-slate-100 dark:border-slate-700">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                                        <User className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-400 font-medium">Name</p>
+                                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{registrationInfo.first_name || 'Not provided'}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                        <Phone className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-400 font-medium">Phone</p>
+                                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{registrationInfo.phone || 'Not provided'}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                                        <Mail className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-400 font-medium">Email</p>
+                                        <p className="text-sm font-semibold text-slate-900 dark:text-white">{registrationInfo.email || 'Not provided'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CTA */}
+                        <div className="px-6 pb-6">
+                            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Complete your profile to unlock job applications and increase your visibility to parents.</p>
+                            <button
+                                onClick={() => {
+                                    setShowProfileReminder(false);
+                                    sessionStorage.setItem('profile_reminder_dismissed', 'true');
+                                    setActiveTab('profile');
+                                }}
+                                className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow-lg shadow-indigo-200 dark:shadow-none transition-all"
+                            >
+                                Complete My Profile
+                                <ArrowRight className="h-4 w-4" />
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowProfileReminder(false);
+                                    sessionStorage.setItem('profile_reminder_dismissed', 'true');
+                                }}
+                                className="w-full text-center mt-2 py-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-sm transition-colors"
+                            >
+                                I'll do it later
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </TutorDashboardLayout>
     );
 };

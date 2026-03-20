@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
-import { Save, User, Briefcase, ShieldCheck, Camera, RotateCcw, X } from 'lucide-react';
+import { Save, User, Briefcase, ShieldCheck, Camera, RotateCcw, X, MapPin } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import KYCUpload from './KYCUpload';
 import MultiSelect from '../../ui/multi-select';
