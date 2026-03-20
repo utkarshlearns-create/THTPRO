@@ -234,8 +234,7 @@ export default function ApproveJobs() {
                                             </Button>
                                             <Button 
                                                 size="sm" 
-                                                variant="outline"
-                                                className="h-8 w-8 p-0 border-blue-200 text-blue-600 hover:bg-blue-50" 
+                                                className="h-8 w-8 p-0 bg-blue-600 hover:bg-blue-700 text-white" 
                                                 title="Edit Job"
                                                 onClick={() => handleEditStart(job)}
                                             >
