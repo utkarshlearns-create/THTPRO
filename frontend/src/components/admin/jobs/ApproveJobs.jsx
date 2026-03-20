@@ -540,6 +540,7 @@ export default function ApproveJobs() {
                         </div>
                     </div>
                 </div>
+            )}
 
             {/* Reject Modal */}
             {rejectJobId && (
