@@ -110,14 +110,21 @@ export default function UserPackagesPage() {
         setLoading(true);
         try {
             const token = localStorage.getItem('access');
+            const storedRole = localStorage.getItem('role');
             const userData = localStorage.getItem('user');
-            let role = 'TEACHER';
-            if (userData) {
+            let role = storedRole || 'TEACHER';
+            
+            if (role === 'TUTOR') role = 'TEACHER';
+            if (role === 'STUDENT') role = 'PARENT';
+
+            if (userData && (!storedRole || storedRole === 'TEACHER')) {
                 try {
                     const user = JSON.parse(userData);
-                    role = user.role;
-                    if (role === 'TUTOR') role = 'TEACHER';
-                    if (role === 'STUDENT') role = 'PARENT';
+                    if (user.role) {
+                        role = user.role;
+                        if (role === 'TUTOR') role = 'TEACHER';
+                        if (role === 'STUDENT') role = 'PARENT';
+                    }
                 } catch (e) {}
             }
             
