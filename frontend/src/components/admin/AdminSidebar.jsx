@@ -266,7 +266,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
             if (item.header === 'INSTITUTE MANAGEMENT') return false;
             if (item.header === 'CRM') return false;
             if (['jobs', 'parent-package', 'institute-jobs',
-                 'tutor-package', 'followups', 'my-clients'].includes(item.id)) return false;
+                 'tutor-package', 'followups', 'my-clients', 'my-assigned-jobs'].includes(item.id)) return false;
             return true;
         }
 
