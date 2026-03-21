@@ -456,7 +456,7 @@ const ParentDashboard = () => {
                     {activeTab === 'unlocked_contacts' && <UnlockedContactsList />}
 
                     {/* WALLET VIEW */}
-                    {activeTab === 'wallet' && <WalletSection wallet={wallet} />}
+                    {activeTab === 'wallet' && <WalletSection wallet={wallet} router={router} />}
 
                     {/* FAVOURITES VIEW */}
                     {activeTab === 'favourites' && <FavouritesSection />}
@@ -1582,7 +1582,7 @@ const HistorySection = () => (
     </div>
 );
 
-const WalletSection = ({ wallet }) => (
+const WalletSection = ({ wallet, router }) => (
     <div className="space-y-6 animate-in fade-in duration-300">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Wallet & Credits</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1613,7 +1613,11 @@ const WalletSection = ({ wallet }) => (
                 </CardHeader>
                 <CardContent className="space-y-3">
                     {[500, 1000, 2000].map(amount => (
-                        <button key={amount} className="w-full flex justify-between items-center p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all group">
+                        <button 
+                            key={amount} 
+                            onClick={() => router.push('/packages')}
+                            className="w-full flex justify-between items-center p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all group"
+                        >
                             <span className="font-semibold text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">₹ {amount} - Buy {amount === 500 ? '4' : amount === 1000 ? '10' : '22'} Credits</span>
                             <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">ADD</span>
                         </button>
