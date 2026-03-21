@@ -30,6 +30,10 @@ export default function ApproveTutorList() {
             if (response.ok) {
                 const data = await response.json();
                 setTutors(Array.isArray(data) ? data : data.results || []);
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                console.error("API error:", response.status, errorData);
+                toast.error(`Failed to load tutors: ${errorData.detail || response.statusText}`);
             }
         } catch (error) {
             console.error("Error fetching tutors:", error);

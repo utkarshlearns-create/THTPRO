@@ -102,22 +102,31 @@ class TutorKYCSerializer(serializers.ModelSerializer):
     def _get_doc_url(self, field):
         if not field:
             return None
-        public_id = getattr(field, 'public_id', None)
-        if public_id:
-            return generate_signed_kyc_url(public_id, expiry_seconds=3600)
-        return field.url if hasattr(field, 'url') else None
+        try:
+            public_id = getattr(field, 'public_id', None)
+            if public_id:
+                return generate_signed_kyc_url(public_id, expiry_seconds=3600)
+            if hasattr(field, 'url'):
+                return field.url
+        except Exception as e:
+            logger.warning("Failed to get doc URL: %s", e)
+        return None
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        # Replace raw file paths with signed URLs for authorized users
         doc_fields = [
             'aadhaar_front', 'aadhaar_back', 'highest_qualification_certificate',
         ]
-        if self._can_view_docs(instance):
-            for field_name in doc_fields:
-                field_value = getattr(instance, field_name, None)
-                data[field_name] = self._get_doc_url(field_value)
-        else:
+        try:
+            if self._can_view_docs(instance):
+                for field_name in doc_fields:
+                    field_value = getattr(instance, field_name, None)
+                    data[field_name] = self._get_doc_url(field_value)
+            else:
+                for field_name in doc_fields:
+                    data[field_name] = None
+        except Exception as e:
+            logger.warning("Failed to serialize KYC docs for %s: %s", instance.id, e)
             for field_name in doc_fields:
                 data[field_name] = None
         return data

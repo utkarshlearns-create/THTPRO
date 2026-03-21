@@ -14,6 +14,7 @@ import ApproveTutorList from '../components/admin/tutors/ApproveTutorList';
 import JobApplicationsList from '../components/admin/tutors/JobApplicationsList';
 import AssignedJobsList from '../components/admin/tutors/AssignedJobsList';
 import FinalizedTutorsList from '../components/admin/tutors/FinalizedTutorsList';
+import PendingKYCVerifications from '../components/admin/kyc/PendingKYCVerifications';
 import EnquiryList from '../components/admin/enquiries/EnquiryList';
 import UnlockedJobsList from '../components/admin/reports/UnlockedJobsList';
 import ParentViewHistory from '../components/admin/reports/ParentViewHistory';
@@ -70,6 +71,7 @@ const AdminDashboard = ({ mode }) => { // Accept mode prop
 
         // Approve Tutor
         if (activeView === 'approve-tutor-list') return <ApproveTutorList />;
+        if (activeView === 'pending-kyc-verification') return <PendingKYCVerifications />;
 
         // Select Tutor
         if (activeView === 'select-tutor-apply-job') return <JobApplicationsList />;
