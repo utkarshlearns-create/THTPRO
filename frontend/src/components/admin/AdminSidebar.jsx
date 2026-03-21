@@ -76,8 +76,7 @@ const MENU_ITEMS = [
         icon: UserCheck,
         id: 'approve-tutor',
         subItems: [
-            { label: 'Pending Verification', id: 'approve-tutor-list' },
-            { label: 'KYC Documents', id: 'pending-kyc-verification' }
+            { label: 'Pending Verification', id: 'pending-kyc-verification' }
         ]
     },
     {

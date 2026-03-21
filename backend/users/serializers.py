@@ -75,6 +75,11 @@ class TutorKYCSerializer(serializers.ModelSerializer):
             'qualification_verified',
             'created_at', 'updated_at',
         ]
+        extra_kwargs = {
+            'aadhaar_front': {'write_only': True},
+            'aadhaar_back': {'write_only': True},
+            'highest_qualification_certificate': {'write_only': True},
+        }
 
     def get_tutor(self, obj):
         profile = obj.tutor
@@ -114,16 +119,16 @@ class TutorKYCSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        # Doc fields are write_only, so we manually add URLs on read
         doc_fields = [
             'aadhaar_front', 'aadhaar_back', 'highest_qualification_certificate',
         ]
         try:
-            if self._can_view_docs(instance):
-                for field_name in doc_fields:
-                    field_value = getattr(instance, field_name, None)
-                    data[field_name] = self._get_doc_url(field_value)
-            else:
-                for field_name in doc_fields:
+            can_view = self._can_view_docs(instance)
+            for field_name in doc_fields:
+                if can_view:
+                    data[field_name] = self._get_doc_url(getattr(instance, field_name, None))
+                else:
                     data[field_name] = None
         except Exception as e:
             logger.warning("Failed to serialize KYC docs for %s: %s", instance.id, e)

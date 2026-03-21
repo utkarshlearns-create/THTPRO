@@ -32,7 +32,7 @@ const AdminDashboard = ({ mode }) => { // Accept mode prop
     // Determine default view based on mode
     const getDefaultView = () => {
         if (mode === 'counsellor') return 'jobs-approved-list';
-        if (mode === 'tutor') return 'approve-tutor-list';
+        if (mode === 'tutor') return 'pending-kyc-verification';
         return 'home';
     }
     
