@@ -1,6 +1,7 @@
 """
 KYC-related API views
 """
+import logging
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,6 +14,8 @@ from .serializers import TutorKYCSerializer
 from jobs.utils import assign_kyc_to_admin, send_notification
 from jobs.admin_models import AdminTask
 from core.throttles import KYCUploadThrottle
+
+logger = logging.getLogger(__name__)
 
 
 class KYCDocumentUploadView(APIView):
@@ -46,51 +49,63 @@ class KYCDocumentUploadView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
+        # Save documents first (outside admin assignment)
         try:
-            with transaction.atomic():
-                if not kyc_record or kyc_record.status in [TutorKYC.Status.VERIFIED, TutorKYC.Status.REJECTED]:
-                    serializer = TutorKYCSerializer(data=request.data, context={"request": request})
-                    serializer.is_valid(raise_exception=True)
-                    kyc_instance = serializer.save(
-                        tutor=profile,
-                        status=TutorKYC.Status.SUBMITTED,
-                        submission_count=(kyc_record.submission_count + 1) if kyc_record else 1
-                    )
-                else:
-                    serializer = TutorKYCSerializer(kyc_record, data=request.data, partial=True, context={"request": request})
-                    serializer.is_valid(raise_exception=True)
-                    kyc_instance = serializer.save(
-                        status=TutorKYC.Status.SUBMITTED,
-                        submission_count=kyc_record.submission_count + 1
-                    )
-
-                tutor_status, _ = TutorStatus.objects.get_or_create(tutor=profile)
-                tutor_status.status = TutorStatus.State.KYC_SUBMITTED
-                tutor_status.save()
-
-                assigned_admin = assign_kyc_to_admin(kyc_instance)
-                # Ensure status is UNDER_REVIEW after assignment
-                kyc_instance.status = TutorKYC.Status.UNDER_REVIEW
-                kyc_instance.save()
-
-                send_notification(
-                    user=request.user,
-                    title="KYC Submitted Successfully",
-                    message="Your KYC documents have been submitted and are under review. You'll be notified once verified.",
-                    notification_type='SYSTEM',
-                    related_kyc=kyc_instance
+            if not kyc_record or kyc_record.status in [TutorKYC.Status.VERIFIED, TutorKYC.Status.REJECTED]:
+                serializer = TutorKYCSerializer(data=request.data, context={"request": request})
+                serializer.is_valid(raise_exception=True)
+                kyc_instance = serializer.save(
+                    tutor=profile,
+                    status=TutorKYC.Status.SUBMITTED,
+                    submission_count=(kyc_record.submission_count + 1) if kyc_record else 1
                 )
-
-            return Response({
-                "message": "KYC documents submitted successfully",
-                "status": kyc_instance.status,
-                "assigned_admin": assigned_admin.username
-            }, status=status.HTTP_201_CREATED)
-        except Exception:
+            else:
+                serializer = TutorKYCSerializer(kyc_record, data=request.data, partial=True, context={"request": request})
+                serializer.is_valid(raise_exception=True)
+                kyc_instance = serializer.save(
+                    status=TutorKYC.Status.SUBMITTED,
+                    submission_count=kyc_record.submission_count + 1
+                )
+        except Exception as e:
+            logger.exception("KYC serializer/save failed for user %s: %s", request.user.username, e)
             return Response(
-                {"error": "KYC submission failed. Please try again shortly."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": f"Failed to save documents: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
             )
+
+        # Update tutor status
+        tutor_status, _ = TutorStatus.objects.get_or_create(tutor=profile)
+        tutor_status.status = TutorStatus.State.KYC_SUBMITTED
+        tutor_status.save()
+
+        # Try to assign admin (non-fatal if it fails)
+        assigned_admin_name = None
+        try:
+            assigned_admin = assign_kyc_to_admin(kyc_instance)
+            kyc_instance.status = TutorKYC.Status.UNDER_REVIEW
+            kyc_instance.save()
+            assigned_admin_name = assigned_admin.username
+        except Exception as e:
+            logger.exception("Admin assignment failed for KYC %s: %s", kyc_instance.id, e)
+            # Documents are saved, just no admin assigned yet
+
+        # Send notification (non-fatal)
+        try:
+            send_notification(
+                user=request.user,
+                title="KYC Submitted Successfully",
+                message="Your KYC documents have been submitted and are under review. You'll be notified once verified.",
+                notification_type='SYSTEM',
+                related_kyc=kyc_instance
+            )
+        except Exception as e:
+            logger.warning("Failed to send KYC notification for user %s: %s", request.user.username, e)
+
+        return Response({
+            "message": "KYC documents submitted successfully",
+            "status": kyc_instance.status,
+            "assigned_admin": assigned_admin_name
+        }, status=status.HTTP_201_CREATED)
 
 
 class KYCStatusView(APIView):

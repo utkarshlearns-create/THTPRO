@@ -298,7 +298,8 @@ const TutorDashboard = () => {
                         handleFileChange,
                         handleKycSubmit,
                         kycUploading,
-                        status
+                        status,
+                        existingKyc: userProfile?.kyc?.[0] || null
                     }}
                 />
             )}
