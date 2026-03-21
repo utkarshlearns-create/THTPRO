@@ -97,7 +97,7 @@ const WalletPage = () => {
                             
                             <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-sm p-3 rounded-lg flex items-start gap-2">
                                 <AlertCircle size={16} className="mt-0.5 shrink-0" />
-                                <p>1 Credit = ₹1. Credits are used to unlock tutor contacts.</p>
+                                <p>Credits are used to unlock tutor contacts. Buy a subscription package to get more credits.</p>
                             </div>
                         </div>
 
@@ -125,7 +125,9 @@ const WalletPage = () => {
                                             {amount} Credits
                                         </div>
                                         <div className="text-indigo-600 font-medium group-hover:underline">
-                                           ₹{amount}
+                                        <div className="text-indigo-600 font-medium">
+                                           ₹{amount} (INR)
+                                        </div>
                                         </div>
                                     </button>
                                 ))}
@@ -174,7 +176,7 @@ const WalletPage = () => {
                                             <div className={`font-bold ${
                                                 tx.transaction_type === 'CREDIT' ? 'text-emerald-600' : 'text-slate-900 dark:text-white'
                                             }`}>
-                                                {tx.transaction_type === 'CREDIT' ? '+' : '-'}{parseFloat(tx.amount).toLocaleString()}
+                                                {tx.transaction_type === 'CREDIT' ? '+' : '-'}{parseInt(tx.amount)} Credits
                                             </div>
                                         </div>
                                     ))

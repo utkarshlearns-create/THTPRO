@@ -1591,7 +1591,7 @@ const WalletSection = ({ wallet }) => (
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32 blur-3xl"></div>
                 <div className="relative z-10">
                     <p className="text-indigo-200 font-medium mb-2">Available Balance</p>
-                    <h2 className="text-5xl font-bold tracking-tight">₹ {wallet?.balance || '0.00'}</h2>
+                    <h2 className="text-5xl font-bold tracking-tight">{parseInt(wallet?.balance || 0)} Credits</h2>
                     <div className="mt-8 flex gap-3">
                         <Button className="bg-white text-indigo-900 hover:bg-indigo-50 font-bold border-0">
                             + Add Money
@@ -1611,7 +1611,7 @@ const WalletSection = ({ wallet }) => (
                 <CardContent className="space-y-3">
                     {[500, 1000, 2000].map(amount => (
                         <button key={amount} className="w-full flex justify-between items-center p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all group">
-                            <span className="font-semibold text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">₹ {amount}</span>
+                            <span className="font-semibold text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">₹ {amount} - Buy {amount === 500 ? '4' : amount === 1000 ? '10' : '22'} Credits</span>
                             <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">ADD</span>
                         </button>
                     ))}
@@ -1639,7 +1639,7 @@ const WalletSection = ({ wallet }) => (
                                     </div>
                                 </div>
                                 <span className={`font-bold ${tx.transaction_type === 'CREDIT' ? 'text-green-600 dark:text-green-400' : 'text-slate-900 dark:text-slate-200'}`}>
-                                    {tx.transaction_type === 'CREDIT' ? '+' : '-'} ₹{tx.amount}
+                                    {tx.transaction_type === 'CREDIT' ? '+' : '-'} {parseInt(tx.amount)} Credits
                                 </span>
                              </div>
                         ))}
