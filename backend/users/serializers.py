@@ -52,18 +52,47 @@ class FavouriteTutorSerializer(serializers.ModelSerializer):
         fields = ['id', 'tutor', 'created_at']
 
 class TutorKYCSerializer(serializers.ModelSerializer):
-    """Serialize KYC records and expose signed document URLs for authorized users only."""
-
-    aadhaar_document = serializers.SerializerMethodField()
-    education_certificate = serializers.SerializerMethodField()
-    photo = serializers.SerializerMethodField()
+    """Serialize KYC records with all document fields.
+    On write: accepts file uploads for all document fields.
+    On read: returns signed Cloudinary URLs for authorized users.
+    """
+    tutor = serializers.SerializerMethodField()
 
     class Meta:
         model = TutorKYC
-        fields = ['id', 'status', 'submission_count', 'rejection_reason', 'created_at', 'aadhaar_document', 'education_certificate', 'photo']
-        read_only_fields = ['status', 'submission_count', 'rejection_reason', 'created_at']
+        fields = [
+            'id', 'tutor', 'status', 'submission_count', 'rejection_reason',
+            'documents_to_resubmit', 'admin_feedback',
+            'aadhaar_front', 'aadhaar_back', 'highest_qualification_certificate',
+            'pan_document', 'passport_document', 'police_verification', 'teaching_certificate',
+            'aadhaar_front_verified', 'aadhaar_back_verified',
+            'qualification_verified', 'pan_verified',
+            'created_at', 'updated_at',
+        ]
+        read_only_fields = [
+            'status', 'submission_count', 'rejection_reason',
+            'documents_to_resubmit', 'admin_feedback',
+            'aadhaar_front_verified', 'aadhaar_back_verified',
+            'qualification_verified', 'pan_verified',
+            'created_at', 'updated_at',
+        ]
 
-    def _can_view_sensitive_docs(self, obj):
+    def get_tutor(self, obj):
+        profile = obj.tutor
+        return {
+            'id': profile.id,
+            'user_id': profile.user_id,
+            'full_name': profile.full_name,
+            'user': {
+                'username': profile.user.username,
+                'phone': profile.user.phone,
+                'email': profile.user.email,
+            },
+            'subjects': profile.subjects,
+            'highest_qualification': profile.highest_qualification,
+        }
+
+    def _can_view_docs(self, obj):
         request = self.context.get('request')
         if not request or not request.user.is_authenticated:
             return False
@@ -71,39 +100,29 @@ class TutorKYCSerializer(serializers.ModelSerializer):
             return True
         return getattr(obj.tutor, 'user_id', None) == request.user.id
 
-    def _signed_url(self, field):
+    def _get_doc_url(self, field):
         if not field:
-            return None
-        if not self._can_view_sensitive_docs(self.instance if isinstance(self.instance, TutorKYC) else None):
             return None
         public_id = getattr(field, 'public_id', None)
         if public_id:
             return generate_signed_kyc_url(public_id, expiry_seconds=3600)
-        return field.url
+        return field.url if hasattr(field, 'url') else None
 
-    def get_aadhaar_document(self, obj):
-        if not self._can_view_sensitive_docs(obj):
-            return None
-        field = obj.aadhaar_front
-        public_id = getattr(field, 'public_id', None) if field else None
-        return generate_signed_kyc_url(public_id, expiry_seconds=3600) if public_id else (field.url if field else None)
-
-    def get_education_certificate(self, obj):
-        if not self._can_view_sensitive_docs(obj):
-            return None
-        field = obj.highest_qualification_certificate
-        public_id = getattr(field, 'public_id', None) if field else None
-        return generate_signed_kyc_url(public_id, expiry_seconds=3600) if public_id else (field.url if field else None)
-
-    def get_photo(self, obj):
-        """Photo is actually in the profile, not KYC, but we can return it here if needed for API compatibility"""
-        request = self.context.get('request')
-        if not request or not request.user.is_authenticated:
-            return None
-        profile = obj.tutor
-        if profile.profile_image:
-            return profile.profile_image.url
-        return profile.external_profile_image_url
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Replace raw file paths with signed URLs for authorized users
+        doc_fields = [
+            'aadhaar_front', 'aadhaar_back', 'highest_qualification_certificate',
+            'pan_document', 'passport_document', 'police_verification', 'teaching_certificate',
+        ]
+        if self._can_view_docs(instance):
+            for field_name in doc_fields:
+                field_value = getattr(instance, field_name, None)
+                data[field_name] = self._get_doc_url(field_value)
+        else:
+            for field_name in doc_fields:
+                data[field_name] = None
+        return data
 
 
 class TutorStatusSerializer(serializers.ModelSerializer):
