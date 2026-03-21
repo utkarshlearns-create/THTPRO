@@ -27,6 +27,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { motion } from 'framer-motion';
 import ContactPopup from '../components/home/ContactPopup';
 import InlineContactForm from '../components/home/InlineContactForm';
+import LocationSearch from '../components/home/LocationSearch';
 
 const FadeIn = ({ children, className, delay = 0 }) => (
   <motion.div
@@ -520,6 +521,9 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+      
+      {/* Search by Location Section */}
+      <LocationSearch />
 
       {/* For Tutors CTA */}
       <section className="py-20 bg-indigo-900 dark:bg-indigo-950 relative overflow-hidden">
@@ -589,7 +593,19 @@ const LandingPage = () => {
             </div>
 
             <div>
-              <h3 className="text-white font-semibold mb-6 uppercase tracking-wider text-sm">Contact</h3>
+              <h3 className="text-white font-semibold mb-6 uppercase tracking-wider text-sm">Popular in Lucknow</h3>
+              <ul className="space-y-4 text-sm">
+                <li><Link href="/home-tutors/maths-tutor-class-10-gomti-nagar-lucknow" className="hover:text-white transition-colors">Maths Tutor in Gomti Nagar</Link></li>
+                <li><Link href="/home-tutors/physics-tutor-class-12-aliganj-lucknow" className="hover:text-white transition-colors">Physics Tutor in Aliganj</Link></li>
+                <li><Link href="/home-tutors/home-tutor-class-10-indira-nagar-lucknow" className="hover:text-white transition-colors">Class 10 Tutors in Indira Nagar</Link></li>
+                <li><Link href="/home-tutors/english-tutor-class-8-hazratganj-lucknow" className="hover:text-white transition-colors">English Tutor in Hazratganj</Link></li>
+                <li><Link href="/home-tutors/home-tutor-gomti-nagar-lucknow" className="hover:text-white transition-colors">Home Tutors in Gomti Nagar</Link></li>
+                <li><Link href="/home-tutors/home-tutor-aliganj-lucknow" className="hover:text-white transition-colors">Home Tutors in Aliganj</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-white font-semibold mb-6 uppercase tracking-wider text-sm">Contact Us</h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <span className="text-slate-500">Phone:</span>
@@ -601,7 +617,7 @@ const LandingPage = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-slate-500">Address:</span>
-                  <span className="text-white">Verma Complex 1st floor, A-mart Chauraha near Bal Nikunj School Madiyaon, Lko, U.P</span>
+                  <span className="text-white text-xs leading-relaxed">Verma Complex 1st floor, A-mart Chauraha near Bal Nikunj School Madiyaon, Lko, U.P</span>
                 </li>
               </ul>
             </div>
