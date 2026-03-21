@@ -43,7 +43,6 @@ const KYCStatusCard = () => {
         );
     }
 
-    // Determine status details
     const getStatusConfig = () => {
         const status = kycStatus?.status || 'NOT_SUBMITTED';
         
@@ -56,7 +55,7 @@ const KYCStatusCard = () => {
                 label: 'Not Submitted',
                 message: 'Upload your KYC documents to get verified',
                 action: 'Upload Documents',
-                actionLink: '/dashboard/tutor?tab=profile&section=verification'
+                actionLink: '/tutor/kyc'
             },
             'SUBMITTED': {
                 icon: Clock,
@@ -86,7 +85,7 @@ const KYCStatusCard = () => {
                 label: 'Rejected',
                 message: kycStatus?.admin_feedback || 'Please review feedback and re-upload documents',
                 action: 'Re-upload Documents',
-                actionLink: '/dashboard/tutor?tab=profile&section=verification'
+                actionLink: '/tutor/kyc'
             },
             'RESUBMIT_REQUIRED': {
                 icon: AlertCircle,
@@ -96,7 +95,7 @@ const KYCStatusCard = () => {
                 label: 'Changes Needed',
                 message: kycStatus?.admin_feedback || 'Some documents need to be re-uploaded',
                 action: 'Update Documents',
-                actionLink: '/dashboard/tutor?tab=profile&section=verification'
+                actionLink: '/tutor/kyc'
             }
         };
 
