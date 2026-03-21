@@ -128,7 +128,7 @@ const Navbar = () => {
                     <div className="flex items-center gap-6 ml-auto">
                         <Link href={role === 'TEACHER' ? '/dashboard/tutor?tab=wallet' : role === 'INSTITUTION' ? '/dashboard/institution?tab=wallet' : '/dashboard/parent?tab=wallet'} className="flex items-center gap-2 px-4 py-2 bg-slate-100/80 dark:bg-slate-800/80 rounded-full text-indigo-900 dark:text-indigo-100 font-bold text-sm border border-slate-200/60 dark:border-slate-700/60 shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                              <Wallet size={18} className="text-indigo-600 dark:text-indigo-400" />
-                             <span>₹ {walletBalance}</span>
+                             <span>{parseInt(walletBalance)} Credits</span>
                         </Link>
                         <Link href={role === 'TEACHER' ? '/dashboard/tutor?tab=notifications' : role === 'INSTITUTION' ? '/dashboard/institution?tab=notifications' : '/dashboard/parent?tab=notifications'} className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
                             <Bell size={24} />
@@ -199,7 +199,7 @@ const Navbar = () => {
                         <div className="flex items-center justify-between px-3 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                             <Link href={role === 'TEACHER' ? '/dashboard/tutor?tab=wallet' : '/dashboard/parent?tab=wallet'} className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 font-bold text-sm">
                                  <Wallet size={18} className="text-indigo-600 dark:text-indigo-400" />
-                                 <span>₹ {walletBalance}</span>
+                                  <span>{parseInt(walletBalance)} Credits</span>
                             </Link>
                             <Link href={role === 'TEACHER' ? '/dashboard/tutor?tab=notifications' : '/dashboard/parent?tab=notifications'} className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 rounded-full">
                                 <Bell size={20} />

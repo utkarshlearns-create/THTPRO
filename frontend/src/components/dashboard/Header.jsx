@@ -10,10 +10,12 @@ const Header = ({ sidebarOpen, setSidebarOpen, user, setActiveTab }) => {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [walletBalance, setWalletBalance] = useState(0);
     const notificationRef = useRef(null);
 
     useEffect(() => {
         fetchNotifications();
+        fetchWalletBalance();
         
         const handleClickOutside = (event) => {
             if (notificationRef.current && !notificationRef.current.contains(event.target)) {
@@ -39,6 +41,22 @@ const Header = ({ sidebarOpen, setSidebarOpen, user, setActiveTab }) => {
             }
         } catch (error) {
             console.error("Error fetching notifications:", error);
+        }
+    };
+
+    const fetchWalletBalance = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            if (!token) return;
+            const res = await fetch(`${API_BASE_URL}/api/wallet/me/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setWalletBalance(data.balance);
+            }
+        } catch (error) {
+            console.error("Error fetching wallet balance:", error);
         }
     };
 
@@ -103,7 +121,9 @@ const Header = ({ sidebarOpen, setSidebarOpen, user, setActiveTab }) => {
                     className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-indigo-500/30 rounded-full shadow-sm hover:border-indigo-500/60 transition-colors cursor-pointer"
                  >
                     <Gem className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500 dark:text-indigo-400" />
-                    <span className="text-[11px] sm:text-sm font-bold text-slate-700 dark:text-indigo-100 whitespace-nowrap">500 Cr</span>
+                    <span className="text-[11px] sm:text-sm font-bold text-slate-700 dark:text-indigo-100 whitespace-nowrap">
+                        {parseInt(walletBalance)} Credits
+                    </span>
                  </button>
 
                  {/* Notification Bell */}
