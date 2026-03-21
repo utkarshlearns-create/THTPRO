@@ -187,11 +187,11 @@ class AdminTutorListView(generics.ListAPIView):
             else:
                 queryset = queryset.filter(status_record__status=status_param)
 
-        # Non-superadmin: only show tutors whose KYC is assigned to this admin
-        if self.request.user.role != SUPERADMIN:
+        # Non-superadmin: show tutors whose KYC is assigned to this admin
+        # OR has no admin assigned yet (legacy/unassigned records)
+        if self.request.user.role != SUPERADMIN and status_param == 'PENDING':
             assigned_tutor_ids = TutorKYC.objects.filter(
-                assigned_admin=self.request.user,
-                status__in=[TutorKYC.Status.SUBMITTED, TutorKYC.Status.UNDER_REVIEW]
+                Q(assigned_admin=self.request.user) | Q(assigned_admin__isnull=True),
             ).values_list('tutor_id', flat=True)
             queryset = queryset.filter(id__in=assigned_tutor_ids)
 
