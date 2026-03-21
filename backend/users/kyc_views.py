@@ -156,21 +156,22 @@ class KYCStatusView(APIView):
 
 class AdminPendingKYCView(generics.ListAPIView):
     """
-    List KYC verifications assigned to the logged-in admin
+    List KYC verifications assigned to the logged-in admin (or unassigned)
     """
     serializer_class = TutorKYCSerializer
     permission_classes = [permissions.IsAuthenticated]
-    
+
     def get_queryset(self):
-        # Check if user is admin
+        from django.db.models import Q
+
         if self.request.user.role not in ['TUTOR_ADMIN', 'SUPERADMIN']:
             return TutorKYC.objects.none()
-        
-        # Return KYC records assigned to this admin with UNDER_REVIEW or SUBMITTED status
+
+        # Show KYC records that are assigned to this admin OR unassigned
         return TutorKYC.objects.filter(
-            assigned_admin=self.request.user,
+            Q(assigned_admin=self.request.user) | Q(assigned_admin__isnull=True),
             status__in=[TutorKYC.Status.UNDER_REVIEW, TutorKYC.Status.SUBMITTED]
-        ).select_related('tutor__user', 'assigned_admin').order_by('-assigned_at')
+        ).select_related('tutor__user', 'assigned_admin').order_by('-created_at')
 
 
 class AdminKYCVerifyView(APIView):
