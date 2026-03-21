@@ -162,12 +162,15 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
 # ==================== ADMIN VIEWS (kept here for backward compat) ====================
 
 class AdminTutorListView(generics.ListAPIView):
-    """Retrieve all tutors for admin dashboard with filtering."""
+    """Retrieve tutors for admin dashboard with filtering.
+    SUPERADMIN sees all; TUTOR_ADMIN sees only tutors whose KYC is assigned to them.
+    """
     serializer_class = TutorProfileSerializer
     permission_classes = [IsAdminRole]
 
     def get_queryset(self):
         from django.db.models import Q
+        from core.roles import SUPERADMIN
 
         queryset = TutorProfile.objects.all().select_related(
             'user', 'status_record'
@@ -183,6 +186,14 @@ class AdminTutorListView(generics.ListAPIView):
                 ])
             else:
                 queryset = queryset.filter(status_record__status=status_param)
+
+        # Non-superadmin: only show tutors whose KYC is assigned to this admin
+        if self.request.user.role != SUPERADMIN:
+            assigned_tutor_ids = TutorKYC.objects.filter(
+                assigned_admin=self.request.user,
+                status__in=[TutorKYC.Status.SUBMITTED, TutorKYC.Status.UNDER_REVIEW]
+            ).values_list('tutor_id', flat=True)
+            queryset = queryset.filter(id__in=assigned_tutor_ids)
 
         q = self.request.query_params.get('q')
         if q:
