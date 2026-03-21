@@ -174,6 +174,29 @@ class AdminPendingKYCView(generics.ListAPIView):
         ).select_related('tutor__user', 'assigned_admin').order_by('-created_at')
 
 
+class AdminVerifiedKYCView(generics.ListAPIView):
+    """
+    List KYC records verified by the logged-in admin.
+    SUPERADMIN sees all verified records.
+    """
+    serializer_class = TutorKYCSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.role not in ['TUTOR_ADMIN', 'SUPERADMIN']:
+            return TutorKYC.objects.none()
+
+        qs = TutorKYC.objects.filter(
+            status=TutorKYC.Status.VERIFIED
+        ).select_related('tutor__user', 'assigned_admin').order_by('-reviewed_at')
+
+        # TUTOR_ADMIN only sees their own verified records
+        if self.request.user.role == 'TUTOR_ADMIN':
+            qs = qs.filter(assigned_admin=self.request.user)
+
+        return qs
+
+
 class AdminKYCVerifyView(APIView):
     """
     Admin can approve, reject, or request re-submission for KYC

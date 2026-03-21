@@ -8,7 +8,7 @@ import {
     Users,
     GraduationCap,
     UserCheck,
-    MousePointer2,
+
     FileText,
     LogOut,
     ChevronDown,
@@ -80,18 +80,9 @@ const MENU_ITEMS = [
         ]
     },
     {
-        label: 'Finalized Tutors',
+        label: 'Verified Tutors',
         icon: UserCheck,
-        id: 'select-tutor-finalized'
-    },
-    {
-        label: 'Tutor Applications',
-        icon: MousePointer2,
-        id: 'select-tutor',
-        subItems: [
-            { label: 'Applications List', id: 'select-tutor-apply-job' },
-            { label: 'Assigned Tutors / Demos', id: 'select-tutor-assigned' }
-        ]
+        id: 'verified-tutors'
     },
     {
         label: 'Tutor Packages',
@@ -261,8 +252,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
             if (item.header === 'TUTOR MANAGEMENT') return false;
             if (item.header === 'INSTITUTE MANAGEMENT') return false;
             if (['approve-tutor', 'tutor-package', 'parent-package',
-                 'institute-jobs', 'select-tutor-finalized',
-                 'select-tutor'].includes(item.id)) return false;
+                 'institute-jobs', 'verified-tutors'].includes(item.id)) return false;
             return true;
         }
 

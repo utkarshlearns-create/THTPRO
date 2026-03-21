@@ -243,12 +243,19 @@ const TutorDashboard = () => {
     };
 
     const handleKycSubmit = async () => {
-        if (!kycFiles.aadhaar_front || !kycFiles.aadhaar_back || !kycFiles.highest_qualification_certificate) return alert("Please select all Aadhaar Front, Aadhaar Back and Certificate.");
+        const existingKyc = userProfile?.kyc?.[0] || null;
+        const hasAadhaarFront = kycFiles.aadhaar_front || existingKyc?.aadhaar_front;
+        const hasAadhaarBack = kycFiles.aadhaar_back || existingKyc?.aadhaar_back;
+        const hasCertificate = kycFiles.highest_qualification_certificate || existingKyc?.highest_qualification_certificate;
+
+        if (!hasAadhaarFront || !hasAadhaarBack || !hasCertificate) return alert("Please select all Aadhaar Front, Aadhaar Back and Certificate.");
         setKycUploading(true);
         try {
             const token = localStorage.getItem('access');
             const data = new FormData();
-            Object.keys(kycFiles).forEach(key => data.append(key, kycFiles[key]));
+            Object.keys(kycFiles).forEach(key => {
+                if (kycFiles[key]) data.append(key, kycFiles[key]);
+            });
             
             const response = await fetch(`${API_BASE_URL}/api/users/kyc/upload/`, {
                 method: 'POST',

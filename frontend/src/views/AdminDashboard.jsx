@@ -11,9 +11,7 @@ import TutorPackageMaster from '../components/admin/packages/TutorPackageMaster'
 import PurchaseList from '../components/admin/packages/PurchaseList';
 import InstituteJobApprovals from '../components/admin/institutions/InstituteJobApprovals';
 import ApproveTutorList from '../components/admin/tutors/ApproveTutorList';
-import JobApplicationsList from '../components/admin/tutors/JobApplicationsList';
-import AssignedJobsList from '../components/admin/tutors/AssignedJobsList';
-import FinalizedTutorsList from '../components/admin/tutors/FinalizedTutorsList';
+import VerifiedTutorsList from '../components/admin/kyc/VerifiedTutorsList';
 import PendingKYCVerifications from '../components/admin/kyc/PendingKYCVerifications';
 import EnquiryList from '../components/admin/enquiries/EnquiryList';
 import UnlockedJobsList from '../components/admin/reports/UnlockedJobsList';
@@ -73,10 +71,8 @@ const AdminDashboard = ({ mode }) => { // Accept mode prop
         if (activeView === 'approve-tutor-list') return <ApproveTutorList />;
         if (activeView === 'pending-kyc-verification') return <PendingKYCVerifications />;
 
-        // Select Tutor
-        if (activeView === 'select-tutor-apply-job') return <JobApplicationsList />;
-        if (activeView === 'select-tutor-assigned') return <AssignedJobsList />;
-        if (activeView === 'select-tutor-finalized') return <FinalizedTutorsList />;
+        // Verified Tutors
+        if (activeView === 'verified-tutors') return <VerifiedTutorsList />;
 
         // Reports
         if (activeView === 'enquiries') return <EnquiryList />;

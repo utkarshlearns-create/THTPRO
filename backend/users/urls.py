@@ -57,6 +57,7 @@ from .kyc_views import (
     KYCDocumentUploadView,
     KYCStatusView,
     AdminPendingKYCView,
+    AdminVerifiedKYCView,
     AdminKYCVerifyView,
 )
 
@@ -99,6 +100,7 @@ urlpatterns = [
     path('admin/tutors/', AdminTutorListView.as_view(), name='admin_tutor_list'),
     path('admin/tutors/<int:pk>/review/', AdminReviewView.as_view(), name='admin_review'),
     path('admin/kyc/pending/', AdminPendingKYCView.as_view(), name='admin_pending_kyc'),
+    path('admin/kyc/verified/', AdminVerifiedKYCView.as_view(), name='admin_verified_kyc'),
     path('admin/kyc/<int:pk>/verify/', AdminKYCVerifyView.as_view(), name='admin_kyc_verify'),
 
     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),

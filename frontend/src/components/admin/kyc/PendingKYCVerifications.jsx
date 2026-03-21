@@ -26,9 +26,14 @@ const PendingKYCVerifications = () => {
             if (response.ok) {
                 const data = await response.json();
                 setKycList(Array.isArray(data) ? data : data.results || []);
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('API error fetching KYC list:', response.status, errorData);
+                alert(`Failed to load KYC verifications: ${errorData.detail || errorData.error || response.statusText}`);
             }
         } catch (error) {
             console.error('Error fetching KYC list:', error);
+            alert('Failed to load KYC verifications. Please check your connection.');
         } finally {
             setLoading(false);
         }
