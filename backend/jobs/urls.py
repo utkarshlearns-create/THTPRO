@@ -29,7 +29,8 @@ from .admin_job_views import (
     CounsellorClientsView,
     CounsellorClientHistoryView,
     TransferLeadView,
-    TransferClientView
+    TransferClientView,
+    CounsellorUpdateApplicationStatusView,
 )
 from users.admin_views import AdminListView
 
@@ -111,7 +112,8 @@ urlpatterns = [
     path('admin/my-clients/<int:parent_id>/history/', CounsellorClientHistoryView.as_view(), name='admin-client-history'),
     path('admin/transfer-lead/<int:pk>/', TransferLeadView.as_view(), name='admin-transfer-lead'),
     path('admin/transfer-client/<int:parent_id>/', TransferClientView.as_view(), name='admin-transfer-client'),
-    
+    path('admin/applications/<int:pk>/update-status/', CounsellorUpdateApplicationStatusView.as_view(), name='counsellor-update-application-status'),
+
     # Admin List for Transfers
     path('admin/list-admins/', AdminListView.as_view(), name='admin-list-admins'),
 

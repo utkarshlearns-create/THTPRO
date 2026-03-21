@@ -116,6 +116,23 @@ class JobApplicationCreateView(APIView):
         except TutorProfile.DoesNotExist:
             return Response({"error": "Complete your tutor profile first"}, status=400)
 
+        # Block applying if tutor has an active hired job with pending payment
+        active_hired = Application.objects.filter(
+            tutor=tutor_profile,
+            status='HIRED',
+            job_completion_status='ONGOING',
+        ).exclude(payment_status='PAID')
+
+        if active_hired.exists():
+            active_job = active_hired.first()
+            return Response({
+                "error": "You currently have an active tuition assignment. You can apply for new jobs only after your current tuition is completed and payment is received.",
+                "active_job_id": active_job.job.id,
+                "active_job_class": active_job.job.class_grade,
+                "active_job_subjects": active_job.job.subjects,
+                "payment_status": active_job.payment_status,
+            }, status=400)
+
         if Application.objects.filter(job=job, tutor=tutor_profile).exists():
             return Response({"error": "You have already applied for this job"}, status=400)
 

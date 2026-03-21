@@ -1,13 +1,14 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { 
-  Briefcase, 
-  MapPin, 
-  Clock, 
-  Wallet, 
-  CheckCircle, 
+import {
+  Briefcase,
+  MapPin,
+  Clock,
+  Wallet,
+  CheckCircle,
   AlertCircle,
-  UserPlus
+  UserPlus,
+  AlertTriangle
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import API_BASE_URL from '../config';
@@ -17,13 +18,14 @@ import TutorHowItWorks from '../components/tutor/TutorHowItWorks';
 import TutorTestimonials from '../components/tutor/TutorTestimonials';
 
 const TutorHome = () => {
-    const [jobs, setJobs] = useState([]); // All Open Jobs
+    const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [profileStatus, setProfileStatus] = useState({ percent: 0, status: 'SIGNED_UP' });
     const [activeCategory, setActiveCategory] = useState('All');
+    const [hasActiveHiredJob, setHasActiveHiredJob] = useState(false);
+    const [activeHiredJobDetails, setActiveHiredJobDetails] = useState(null);
     const router = useRouter();
 
-    // Fetch profile status and jobs
     useEffect(() => {
         fetchJobs(activeCategory);
         fetchProfileStatus();
@@ -38,10 +40,29 @@ const TutorHome = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                setProfileStatus({ 
-                    percent: data.profile_completion_percentage || 0, 
-                    status: data.status_msg?.status || 'SIGNED_UP' 
+                setProfileStatus({
+                    percent: data.profile_completion_percentage || 0,
+                    status: data.status_msg?.status || 'SIGNED_UP'
                 });
+            }
+
+            // Check for active hired applications
+            const appsRes = await fetch(`${API_BASE_URL}/api/jobs/tutor/applications/?status=HIRED`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (appsRes.ok) {
+                const appsData = await appsRes.json();
+                const apps = appsData.applications || [];
+                const activeApp = apps.find(
+                    app => app.job_completion_status === 'ONGOING' && app.payment_status !== 'PAID'
+                );
+                if (activeApp) {
+                    setHasActiveHiredJob(true);
+                    setActiveHiredJobDetails(activeApp);
+                } else {
+                    setHasActiveHiredJob(false);
+                    setActiveHiredJobDetails(null);
+                }
             }
         } catch (error) {
             console.error("Error fetching profile status:", error);
@@ -53,10 +74,9 @@ const TutorHome = () => {
         try {
             const token = localStorage.getItem('access');
             const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-            
+
             let url = `${API_BASE_URL}/api/jobs/`;
             if (category !== 'All') {
-                // We use the search endpoint for specific categories to leverage filters
                 url = `${API_BASE_URL}/api/jobs/search/?subject=${encodeURIComponent(category)}`;
             }
 
@@ -72,34 +92,59 @@ const TutorHome = () => {
         }
     };
 
-    const canApply = profileStatus.percent >= 80 && (profileStatus.status === 'APPROVED' || profileStatus.status === 'ACTIVE');
+    const canApply = profileStatus.percent >= 80 &&
+        (profileStatus.status === 'APPROVED' || profileStatus.status === 'ACTIVE') &&
+        !hasActiveHiredJob;
+
+    const getStatusBanner = () => {
+        if (hasActiveHiredJob) {
+            return {
+                className: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-900/50',
+                icon: <AlertTriangle size={20} />,
+                text: 'You have an active tuition in progress. Complete it and receive payment before applying for new jobs.'
+            };
+        }
+        if (canApply) {
+            return {
+                className: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/50',
+                icon: <CheckCircle size={20} />,
+                text: 'You are verified & eligible to apply'
+            };
+        }
+        return {
+            className: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50',
+            icon: <AlertCircle size={20} />,
+            text: `Complete Profile to Apply (${profileStatus.percent}%)`
+        };
+    };
+
+    const banner = getStatusBanner();
+
+    const getButtonText = () => {
+        if (hasActiveHiredJob) return 'Complete Current Tuition to Apply';
+        if (canApply) return 'Apply for this Job';
+        return 'Complete Profile to Apply';
+    };
 
     return (
         <div className="bg-white dark:bg-slate-950 min-h-screen pb-32 transition-colors duration-300">
-            {/* 1. HERO SECTION (Full width, light blue) */}
             <TutorHero />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 space-y-24">
-                
-                {/* 2. FEATURE CARDS */}
-                <TutorFeatureCards />
 
-                {/* 3. HOW IT WORKS */}
+                <TutorFeatureCards />
                 <TutorHowItWorks />
 
-                {/* 4. FIND JOBS SECTION (The core utility) */}
                 <div id="browse-jobs" className="scroll-mt-32">
                     <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
                         <div className="max-w-2xl">
                             <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4">Latest Student Requirements</h2>
                             <p className="text-xl text-slate-500 dark:text-slate-400">Apply to thousands of verified tutoring opportunities near you.</p>
                         </div>
-                        
-                        {/* Status Banner */}
-                        <div className={`px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-3 shadow-sm
-                            ${canApply ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/50' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50'}`}>
-                            {canApply ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-                            {canApply ? "You are verified & eligible to apply" : `Complete Profile to Apply (${profileStatus.percent}%)`}
+
+                        <div className={`px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-3 shadow-sm ${banner.className}`}>
+                            {banner.icon}
+                            {banner.text}
                         </div>
                     </div>
 
@@ -112,12 +157,12 @@ const TutorHome = () => {
                             { name: 'English', label: 'English Language' },
                             { name: 'Social Studies', label: 'Social Studies' }
                         ].map((cat) => (
-                            <button 
+                            <button
                                 key={cat.name}
                                 onClick={() => setActiveCategory(cat.name)}
                                 className={`px-6 py-3 rounded-xl font-bold whitespace-nowrap transition-all duration-300
-                                    ${activeCategory === cat.name 
-                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none scale-105' 
+                                    ${activeCategory === cat.name
+                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none scale-105'
                                         : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                             >
                                 {cat.label}
@@ -161,18 +206,18 @@ const TutorHome = () => {
                                                 <span className="flex items-center gap-2 font-medium bg-slate-50 dark:bg-slate-800/50 p-2 rounded-xl"><UserPlus size={18} className="text-indigo-500" /> {job.student_gender} Student</span>
                                             </div>
                                         </div>
-                                        
+
                                         <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
-                                            <button 
+                                            <button
                                                 disabled={!canApply}
                                                 onClick={() => router.push(`/jobs/${job.id}`)}
                                                 className={`px-8 py-4 rounded-2xl font-black transition-all w-full text-lg shadow-xl
-                                                ${canApply 
-                                                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-200 dark:hover:shadow-none' 
+                                                ${canApply
+                                                    ? 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-200 dark:hover:shadow-none'
                                                     : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}
                                                 `}
                                             >
-                                                {canApply ? 'Apply for this Job' : 'Complete Profile to Apply'}
+                                                {getButtonText()}
                                             </button>
                                         </div>
                                     </div>
@@ -182,7 +227,6 @@ const TutorHome = () => {
                     </div>
                 </div>
 
-                {/* 5. TESTIMONIALS */}
                 <TutorTestimonials />
 
              </div>
@@ -191,4 +235,3 @@ const TutorHome = () => {
 };
 
 export default TutorHome;
-

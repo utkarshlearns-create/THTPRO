@@ -411,6 +411,76 @@ class TransferLeadView(APIView):
         # Log or notify?
         return Response({"message": f"Job {pk} transferred to {new_admin.username}"})
 
+class CounsellorUpdateApplicationStatusView(APIView):
+    """PATCH /api/jobs/admin/applications/<pk>/update-status/"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        if request.user.role not in ADMIN_ROLES:
+            return Response({"error": "Admin access required"}, status=403)
+        try:
+            application = Application.objects.select_related('job', 'tutor__user').get(pk=pk)
+        except Application.DoesNotExist:
+            return Response({"error": "Application not found"}, status=404)
+        if application.status != 'HIRED':
+            return Response({"error": "Can only update status for HIRED applications."}, status=400)
+
+        payment_status = request.data.get('payment_status')
+        job_completion_status = request.data.get('job_completion_status')
+        counsellor_notes = request.data.get('counsellor_notes')
+        payment_amount = request.data.get('payment_amount')
+
+        valid_payment = [c[0] for c in Application.PAYMENT_STATUS_CHOICES]
+        valid_completion = [c[0] for c in Application.JOB_COMPLETION_STATUS_CHOICES]
+
+        if payment_status and payment_status not in valid_payment:
+            return Response({"error": f"Invalid payment_status. Choose from {valid_payment}"}, status=400)
+        if job_completion_status and job_completion_status not in valid_completion:
+            return Response({"error": f"Invalid job_completion_status. Choose from {valid_completion}"}, status=400)
+
+        if payment_status:
+            application.payment_status = payment_status
+        if job_completion_status:
+            application.job_completion_status = job_completion_status
+            if job_completion_status == 'COMPLETED':
+                application.completed_at = timezone.now()
+                application.job.status = 'CLOSED'
+                application.job.save()
+        if counsellor_notes is not None:
+            application.counsellor_notes = counsellor_notes
+        if payment_amount is not None:
+            application.payment_amount = payment_amount
+
+        application.save()
+
+        if payment_status == 'PAID':
+            send_notification(
+                user=application.tutor.user,
+                title='Payment Received',
+                message=f'Payment for your tuition ({application.job.class_grade} - {", ".join(application.job.subjects)}) has been confirmed. You can now apply for new jobs.',
+                notification_type='SYSTEM',
+                related_job=application.job,
+            )
+
+        if job_completion_status == 'COMPLETED':
+            send_notification(
+                user=application.tutor.user,
+                title='Tuition Completed',
+                message=f'Your tuition assignment ({application.job.class_grade} - {", ".join(application.job.subjects)}) has been marked as completed.',
+                notification_type='SYSTEM',
+                related_job=application.job,
+            )
+
+        return Response({
+            "message": "Application status updated successfully.",
+            "application_id": application.id,
+            "payment_status": application.payment_status,
+            "job_completion_status": application.job_completion_status,
+            "counsellor_notes": application.counsellor_notes,
+            "payment_amount": str(application.payment_amount) if application.payment_amount else None,
+        })
+
+
 class TransferClientView(APIView):
     """Transfer all data for a parent to another admin."""
     permission_classes = [permissions.IsAuthenticated]

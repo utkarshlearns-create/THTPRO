@@ -1446,6 +1446,18 @@ const TutorAssigned = () => {
                                             <div className="flex items-center gap-2 flex-wrap mb-1">
                                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{application.tutor_name}</h3>
                                                 <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-full">Confirmed</span>
+                                                {application.job_completion_status === 'ONGOING' && (
+                                                    <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full">Classes in Progress</span>
+                                                )}
+                                                {application.job_completion_status === 'COMPLETED' && (
+                                                    <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">Tuition Completed</span>
+                                                )}
+                                                {application.job_completion_status === 'DROPPED' && (
+                                                    <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full">Tuition Ended</span>
+                                                )}
+                                                {application.job_completion_status === 'ON_HOLD' && (
+                                                    <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 rounded-full">On Hold</span>
+                                                )}
                                             </div>
                                             <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
                                                 <Briefcase size={13} className="shrink-0" />

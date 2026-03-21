@@ -13,11 +13,13 @@ import {
 import Badge from '../../ui/badge';
 import API_BASE_URL from '../../../config';
 import { toast } from 'react-hot-toast';
+import ApplicationStatusPanel from '../jobs/ApplicationStatusPanel';
 
 export default function AssignedJobsList() {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [expandedId, setExpandedId] = useState(null);
 
     const fetchAssignedJobs = async () => {
         setLoading(true);
@@ -109,21 +111,35 @@ export default function AssignedJobsList() {
                             </TableRow>
                         ) : (
                             Array.isArray(jobs) && jobs.map((app) => (
-                                <TableRow key={app.id}>
-                                    <TableCell className="font-medium text-slate-900 dark:text-white">JD-{app.job}</TableCell>
-                                    <TableCell>{app.job_details?.parent_name || 'N/A'}</TableCell>
-                                    <TableCell className="font-medium text-blue-600">{app.tutor_name}</TableCell>
-                                    <TableCell>{app.job_details?.subjects?.join(', ') || 'N/A'}</TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-1.5">
-                                            <Calendar className="h-3 w-3 text-slate-400" />
-                                            {app.demo_date ? new Date(app.demo_date).toLocaleDateString() : new Date(app.updated_at).toLocaleDateString()}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        {getDemoStatusBadge(app)}
-                                    </TableCell>
-                                </TableRow>
+                                <React.Fragment key={app.id}>
+                                    <TableRow
+                                        className={app.status === 'HIRED' ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50' : ''}
+                                        onClick={() => app.status === 'HIRED' && setExpandedId(expandedId === app.id ? null : app.id)}
+                                    >
+                                        <TableCell className="font-medium text-slate-900 dark:text-white">JD-{app.job}</TableCell>
+                                        <TableCell>{app.job_details?.parent_name || 'N/A'}</TableCell>
+                                        <TableCell className="font-medium text-blue-600">{app.tutor_name}</TableCell>
+                                        <TableCell>{app.job_details?.subjects?.join(', ') || 'N/A'}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-1.5">
+                                                <Calendar className="h-3 w-3 text-slate-400" />
+                                                {app.demo_date ? new Date(app.demo_date).toLocaleDateString() : new Date(app.updated_at).toLocaleDateString()}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            {getDemoStatusBadge(app)}
+                                        </TableCell>
+                                    </TableRow>
+                                    {expandedId === app.id && app.status === 'HIRED' && (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="p-0">
+                                                <div className="px-4 pb-4">
+                                                    <ApplicationStatusPanel application={app} onUpdated={() => fetchAssignedJobs()} />
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </React.Fragment>
                             ))
                         )}
                     </TableBody>

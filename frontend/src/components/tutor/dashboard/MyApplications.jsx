@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
-import { Briefcase, MapPin, Clock, Send, CheckCircle, XCircle, Loader, Filter, Search, CalendarCheck, Play } from 'lucide-react';
+import { Briefcase, MapPin, Clock, Send, CheckCircle, XCircle, Loader, Filter, Search, CalendarCheck, Play, AlertTriangle } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import API_BASE_URL from '../../../config';
 import { toast } from 'react-hot-toast';
@@ -417,6 +417,49 @@ const MyApplications = () => {
                                             <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
                                                 <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Your Message:</p>
                                                 <p className="text-sm text-slate-600 dark:text-slate-400">{application.cover_message}</p>
+                                            </div>
+                                        )}
+
+                                        {/* Status pills for HIRED applications */}
+                                        {application.status === 'HIRED' && (
+                                            <div className="mt-4 flex flex-wrap gap-2">
+                                                {/* Job completion status pill */}
+                                                {application.job_completion_status === 'ONGOING' && (
+                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Classes Ongoing</span>
+                                                )}
+                                                {application.job_completion_status === 'COMPLETED' && (
+                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Completed</span>
+                                                )}
+                                                {application.job_completion_status === 'DROPPED' && (
+                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Dropped</span>
+                                                )}
+                                                {application.job_completion_status === 'ON_HOLD' && (
+                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">On Hold</span>
+                                                )}
+
+                                                {/* Payment status pill */}
+                                                {application.payment_status === 'PENDING' && (
+                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Payment Pending</span>
+                                                )}
+                                                {application.payment_status === 'PARTIALLY_PAID' && (
+                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">Partially Paid</span>
+                                                )}
+                                                {application.payment_status === 'PAID' && (
+                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">Payment Received</span>
+                                                )}
+                                                {application.payment_status === 'OVERDUE' && (
+                                                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Payment Overdue</span>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Warning when applying is blocked */}
+                                        {application.status === 'HIRED' && application.job_completion_status === 'ONGOING' && application.payment_status !== 'PAID' && (
+                                            <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg flex items-start gap-2">
+                                                <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                                                <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                                                    New applications are paused. Your counsellor will unlock applying after this tuition is completed and payment is confirmed.
+                                                </p>
                                             </div>
                                         )}
                                     </CardContent>

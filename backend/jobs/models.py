@@ -83,6 +83,25 @@ class Application(models.Model):
     is_confirmed = models.BooleanField(default=False)
     demo_completed_at = models.DateTimeField(null=True, blank=True)
     parent_notified_for_review = models.BooleanField(default=False)
+
+    PAYMENT_STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('PARTIALLY_PAID', 'Partially Paid'),
+        ('PAID', 'Paid'),
+        ('OVERDUE', 'Overdue'),
+    )
+    JOB_COMPLETION_STATUS_CHOICES = (
+        ('ONGOING', 'Ongoing'),
+        ('COMPLETED', 'Completed'),
+        ('DROPPED', 'Dropped'),
+        ('ON_HOLD', 'On Hold'),
+    )
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='PENDING', blank=True)
+    job_completion_status = models.CharField(max_length=20, choices=JOB_COMPLETION_STATUS_CHOICES, default='ONGOING', blank=True)
+    counsellor_notes = models.TextField(blank=True, null=True)
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

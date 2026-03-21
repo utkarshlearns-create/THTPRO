@@ -92,11 +92,17 @@ class ApplicationSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Application
-        fields = ['id', 'job', 'job_details', 'tutor', 'tutor_name', 'tutor_details', 'cover_message', 
-                  'status', 'demo_date', 'demo_status', 'demo_remarks', 'is_confirmed', 
-                  'demo_completed_at', 'parent_notified_for_review', 'created_at', 'updated_at']
-        read_only_fields = ('job', 'tutor', 'demo_date', 'demo_status', 'demo_remarks', 'is_confirmed', 
-                           'demo_completed_at', 'parent_notified_for_review', 'status', 'created_at', 'updated_at')
+        fields = ['id', 'job', 'job_details', 'tutor', 'tutor_name', 'tutor_details', 'cover_message',
+                  'status', 'demo_date', 'demo_status', 'demo_remarks', 'is_confirmed',
+                  'demo_completed_at', 'parent_notified_for_review',
+                  'payment_status', 'job_completion_status', 'counsellor_notes',
+                  'payment_amount', 'completed_at',
+                  'created_at', 'updated_at']
+        read_only_fields = ('job', 'tutor', 'demo_date', 'demo_status', 'demo_remarks', 'is_confirmed',
+                           'demo_completed_at', 'parent_notified_for_review', 'status',
+                           'payment_status', 'job_completion_status', 'counsellor_notes',
+                           'payment_amount', 'completed_at',
+                           'created_at', 'updated_at')
 
     def get_tutor_details(self, obj):
         """Return tutor profile details for admin/parent review"""
