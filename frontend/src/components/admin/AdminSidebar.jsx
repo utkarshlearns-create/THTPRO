@@ -118,6 +118,16 @@ const MENU_ITEMS = [
         ]
     },
 
+    // CRM
+    {
+        header: 'CRM',
+    },
+    {
+        label: 'Follow-Ups',
+        icon: Bell,
+        id: 'followups'
+    },
+
     // GENERAL
     {
         header: 'GENERAL',
@@ -241,7 +251,7 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
         if (!mode) return true; // Show all if no mode specified
 
         // Common items
-        if (['home', 'notifications', 'reports'].includes(item.id)) return true;
+        if (['home', 'notifications', 'reports', 'followups'].includes(item.id)) return true;
         
         // Specific section handling mapping roles to dashboard features
         if (mode === 'COUNSELLOR') {

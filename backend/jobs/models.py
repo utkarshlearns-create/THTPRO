@@ -209,6 +209,7 @@ class Locality(models.Model):
 
 # Import additional models
 from .admin_models import AdminTask, Notification, AdminProfile
+from .followup_models import FollowUp
 
 
 class InstituteJob(models.Model):

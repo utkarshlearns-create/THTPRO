@@ -18,6 +18,7 @@ import EnquiryList from '../components/admin/enquiries/EnquiryList';
 import UnlockedJobsList from '../components/admin/reports/UnlockedJobsList';
 import ParentViewHistory from '../components/admin/reports/ParentViewHistory';
 import MyClients from '../components/admin/jobs/MyClients';
+import FollowUpManager from '../components/admin/followups/FollowUpManager';
 
 const PlaceholderView = ({ title, description }) => (
     <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
@@ -47,6 +48,7 @@ const AdminDashboard = ({ mode }) => { // Accept mode prop
         if (activeView === 'jobs-approve') return <ApproveJobs />;
         if (activeView === 'my-assigned-jobs') return <AdminJobList adminId="me" title="My Assigned Jobs" />;
         if (activeView === 'my-clients') return <MyClients />;
+        if (activeView === 'followups') return <FollowUpManager />;
 
         // Notifications
         if (activeView === 'notifications-master') return <NotificationMaster />;

@@ -75,6 +75,14 @@ from .crm_views import (
     AdminApplicationListView,
 )
 
+# Follow-up views
+from .followup_views import (
+    FollowUpListCreateView,
+    FollowUpDetailView,
+    FollowUpStatsView,
+    FollowUpDueView,
+)
+
 
 urlpatterns = [
     # General endpoints
@@ -152,4 +160,10 @@ urlpatterns = [
     path('crm/admins/', CRMAdminListView.as_view(), name='crm-admin-list'),
     path('crm/pipeline/', CRMPipelineStatsView.as_view(), name='crm-pipeline-stats'),
     path('crm/applications/', AdminApplicationListView.as_view(), name='crm-application-list'),
+
+    # Follow-up endpoints
+    path('followups/', FollowUpListCreateView.as_view(), name='followup-list-create'),
+    path('followups/stats/', FollowUpStatsView.as_view(), name='followup-stats'),
+    path('followups/due/', FollowUpDueView.as_view(), name='followup-due'),
+    path('followups/<int:pk>/', FollowUpDetailView.as_view(), name='followup-detail'),
 ]
