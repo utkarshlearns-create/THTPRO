@@ -69,6 +69,9 @@ class KYCDocumentUploadView(APIView):
                 tutor_status.save()
 
                 assigned_admin = assign_kyc_to_admin(kyc_instance)
+                # Ensure status is UNDER_REVIEW after assignment
+                kyc_instance.status = TutorKYC.Status.UNDER_REVIEW
+                kyc_instance.save()
 
                 send_notification(
                     user=request.user,
@@ -148,10 +151,10 @@ class AdminPendingKYCView(generics.ListAPIView):
         if self.request.user.role not in ['TUTOR_ADMIN', 'SUPERADMIN']:
             return TutorKYC.objects.none()
         
-        # Return KYC records assigned to this admin with UNDER_REVIEW status
+        # Return KYC records assigned to this admin with UNDER_REVIEW or SUBMITTED status
         return TutorKYC.objects.filter(
             assigned_admin=self.request.user,
-            status=TutorKYC.Status.UNDER_REVIEW
+            status__in=[TutorKYC.Status.UNDER_REVIEW, TutorKYC.Status.SUBMITTED]
         ).select_related('tutor__user', 'assigned_admin').order_by('-assigned_at')
 
 
@@ -179,9 +182,98 @@ class AdminKYCVerifyView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        action = request.data.get('action')  # 'approve', 'reject', 'resubmit'
-        
-        if action == 'approve':
+        action = request.data.get('action')  # 'approve', 'reject', 'resubmit', 'verify_documents'
+
+        if action == 'verify_documents':
+            documents = request.data.get('documents', {})
+            rejection_notes = request.data.get('rejection_notes', '')
+
+            if not documents:
+                return Response(
+                    {"error": "Documents dict is required with document field names as keys and true/false as values"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Map of document field names to their verified flag fields
+            doc_verified_map = {
+                'aadhaar_front': 'aadhaar_front_verified',
+                'aadhaar_back': 'aadhaar_back_verified',
+                'highest_qualification_certificate': 'qualification_verified',
+                'pan_document': 'pan_verified',
+            }
+
+            rejected_docs = []
+            for doc_name, is_approved in documents.items():
+                verified_field = doc_verified_map.get(doc_name)
+                if verified_field:
+                    setattr(kyc_record, verified_field, bool(is_approved))
+                    if not is_approved:
+                        rejected_docs.append(doc_name)
+
+            if rejected_docs:
+                # Some documents rejected
+                kyc_record.status = TutorKYC.Status.REJECTED
+                kyc_record.documents_to_resubmit = rejected_docs
+                kyc_record.rejection_reason = rejection_notes
+                kyc_record.reviewed_at = timezone.now()
+                kyc_record.save()
+
+                tutor_status = TutorStatus.objects.get(tutor=kyc_record.tutor)
+                tutor_status.status = TutorStatus.State.REJECTED
+                tutor_status.save()
+
+                AdminTask.objects.filter(
+                    related_kyc=kyc_record,
+                    admin=request.user,
+                    status='PENDING'
+                ).update(status='COMPLETED', completed_at=timezone.now())
+
+                # Format rejected doc names for display
+                display_names = [d.replace('_', ' ').title() for d in rejected_docs]
+                send_notification(
+                    user=kyc_record.tutor.user,
+                    title="KYC Document Issue",
+                    message=f"Some of your KYC documents need attention: {', '.join(display_names)}. {rejection_notes} Please reupload them or contact your admin.",
+                    notification_type='KYC_REJECTED',
+                    related_kyc=kyc_record
+                )
+
+                return Response({
+                    "message": "Some documents rejected",
+                    "status": "REJECTED",
+                    "rejected_documents": rejected_docs,
+                    "rejection_notes": rejection_notes
+                })
+            else:
+                # All documents approved
+                kyc_record.status = TutorKYC.Status.VERIFIED
+                kyc_record.reviewed_at = timezone.now()
+                kyc_record.save()
+
+                tutor_status = TutorStatus.objects.get(tutor=kyc_record.tutor)
+                tutor_status.status = TutorStatus.State.APPROVED
+                tutor_status.save()
+
+                AdminTask.objects.filter(
+                    related_kyc=kyc_record,
+                    admin=request.user,
+                    status='PENDING'
+                ).update(status='COMPLETED', completed_at=timezone.now())
+
+                send_notification(
+                    user=kyc_record.tutor.user,
+                    title="KYC Approved!",
+                    message="Congratulations! Your KYC has been verified. You can now post job opportunities and appear in parent searches.",
+                    notification_type='KYC_APPROVED',
+                    related_kyc=kyc_record
+                )
+
+                return Response({
+                    "message": "All documents verified, KYC approved",
+                    "status": "VERIFIED"
+                })
+
+        elif action == 'approve':
             # Mark all documents as verified
             kyc_record.aadhaar_front_verified = True
             kyc_record.aadhaar_back_verified = True

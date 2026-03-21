@@ -230,7 +230,7 @@ def assign_kyc_to_admin(kyc_record):
     
     if not admin_profiles.exists():
         logger.warning("No TUTOR_OPS admins available. Falling back to any admin.")
-        admins = User.objects.filter(role__in=[TUTOR_ADMIN, COUNSELLOR, SUPERADMIN], is_active=True)
+        admins = User.objects.filter(role__in=[TUTOR_ADMIN, SUPERADMIN], is_active=True)
         if not admins.exists():
              logger.error("No active admins available for KYC assignment")
              raise Exception("No active admins available")

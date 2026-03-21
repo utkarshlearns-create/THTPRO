@@ -248,23 +248,39 @@ export default function AdminSidebar({ activeView, setActiveView, isOpen, toggle
 
     // Filter items based on mode
     const filteredItems = MENU_ITEMS.filter(item => {
-        if (!mode) return true; // Show all if no mode specified
+        if (!mode) return true;
 
-        // Common items
-        if (['home', 'notifications', 'reports', 'followups'].includes(item.id)) return true;
-        
-        // Specific section handling mapping roles to dashboard features
+        // Always show these for all roles
+        if (['home', 'notifications', 'reports'].includes(item.id)) return true;
+
         if (mode === 'COUNSELLOR') {
-            if (['approve-tutor', 'tutor-package', 'parent-package'].includes(item.id)) return false;
-            return true;
-        }
-        
-        if (mode === 'TUTOR_ADMIN') {
-            if (['PARENT MANAGEMENT', 'INSTITUTE MANAGEMENT'].includes(item.header)) return false;
-            if (['jobs', 'parent-package', 'institute-jobs'].includes(item.id)) return false;
+            // Counsellor sees: jobs, my-clients, my-assigned-jobs,
+            //                  followups, enquiries, notifications, reports
+            // Counsellor does NOT see: KYC approval, tutor packages,
+            //                          parent packages, institute jobs
+            if (item.header === 'TUTOR MANAGEMENT') return false;
+            if (item.header === 'INSTITUTE MANAGEMENT') return false;
+            if (['approve-tutor', 'tutor-package', 'parent-package',
+                 'institute-jobs', 'select-tutor-finalized',
+                 'select-tutor'].includes(item.id)) return false;
             return true;
         }
 
+        if (mode === 'TUTOR_ADMIN') {
+            // TUTOR_ADMIN sees: KYC approval, tutor applications,
+            //                   finalized tutors, notifications, reports
+            // TUTOR_ADMIN does NOT see: jobs, packages, followups,
+            //                           my-clients, institute jobs,
+            //                           parent management
+            if (item.header === 'PARENT MANAGEMENT') return false;
+            if (item.header === 'INSTITUTE MANAGEMENT') return false;
+            if (item.header === 'CRM') return false;
+            if (['jobs', 'parent-package', 'institute-jobs',
+                 'tutor-package', 'followups', 'my-clients'].includes(item.id)) return false;
+            return true;
+        }
+
+        // SUPERADMIN sees everything
         return true;
     });
 
