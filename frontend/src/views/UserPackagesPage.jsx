@@ -116,6 +116,8 @@ export default function UserPackagesPage() {
                 try {
                     const user = JSON.parse(userData);
                     role = user.role;
+                    if (role === 'TUTOR') role = 'TEACHER';
+                    if (role === 'STUDENT') role = 'PARENT';
                 } catch (e) {}
             }
             
