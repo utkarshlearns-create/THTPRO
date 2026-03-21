@@ -25,6 +25,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', '')
 # OAuth client ID from Google Cloud Console > Credentials > OAuth client.
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', '')
 
+# Razorpay keys from Razorpay Dashboard > API Keys.
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
 # Razorpay webhook secret from Razorpay Dashboard > Webhooks.
 RAZORPAY_WEBHOOK_SECRET = os.environ.get('RAZORPAY_WEBHOOK_SECRET', '')
 
@@ -33,7 +36,7 @@ MSG91_AUTH_KEY = os.environ.get('MSG91_AUTH_KEY', '')
 # MSG91 flow template id containing OTP variable.
 MSG91_TEMPLATE_ID = os.environ.get('MSG91_TEMPLATE_ID', '')
 
-WELCOME_BONUS_CREDITS = int(os.environ.get('WELCOME_BONUS_CREDITS', '500'))
+WELCOME_BONUS_CREDITS = int(os.environ.get('WELCOME_BONUS_CREDITS', '0'))
 
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
@@ -211,6 +214,8 @@ if not DEBUG:
         'CLOUDINARY_CLOUD_NAME',
         'CLOUDINARY_API_KEY',
         'CLOUDINARY_API_SECRET',
+        'RAZORPAY_KEY_ID',
+        'RAZORPAY_KEY_SECRET',
         'RAZORPAY_WEBHOOK_SECRET',
         'CORS_ALLOWED_ORIGINS',
     ]

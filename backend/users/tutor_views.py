@@ -165,7 +165,7 @@ class ContactUnlockView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     throttle_classes = [ContactUnlockThrottle]
 
-    UNLOCK_COST = 50
+    UNLOCK_COST = 1
 
     def post(self, request, pk):
         if request.user.role != 'PARENT':

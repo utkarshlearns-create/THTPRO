@@ -2,16 +2,20 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../ui/card';
 import { Button } from '../../ui/button';
-import { Wallet, CheckCircle, FileText, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Wallet, CheckCircle, FileText, ArrowUpRight, ArrowDownLeft, CreditCard, Loader2 } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import API_BASE_URL from '../../../config';
+import { useRouter } from 'next/navigation';
 
 const WalletSection = () => {
     const [wallet, setWallet] = useState(null);
+    const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
         fetchWallet();
+        fetchTransactions();
     }, []);
 
     const fetchWallet = async () => {
@@ -31,14 +35,40 @@ const WalletSection = () => {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-slate-400">Loading Wallet...</div>;
+    const fetchTransactions = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await fetch(`${API_BASE_URL}/api/wallet/transactions/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setTransactions(Array.isArray(data) ? data : data.results || []);
+            }
+        } catch (error) {
+            console.error("Error fetching transactions:", error);
+        }
+    };
+
+    // Compute totals from transactions
+    const totalEarned = transactions
+        .filter(tx => tx.transaction_type === 'CREDIT')
+        .reduce((acc, tx) => acc + parseFloat(tx.amount || 0), 0);
+    const totalSpent = transactions
+        .filter(tx => tx.transaction_type === 'DEBIT')
+        .reduce((acc, tx) => acc + parseFloat(tx.amount || 0), 0);
+
+    if (loading) return <div className="p-8 text-center text-slate-400"><Loader2 className="animate-spin mx-auto" size={32} /></div>;
 
     return (
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Wallet</h1>
-                <Button variant="outline" className="gap-2">
-                    <FileText size={16} /> Download Statement
+                <Button 
+                    onClick={() => router.push('/packages')} 
+                    className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                    <CreditCard size={16} /> Buy Credits
                 </Button>
             </div>
             
@@ -52,21 +82,23 @@ const WalletSection = () => {
                     <div className="relative z-10 flex justify-between items-start">
                         <div>
                             <p className="text-indigo-100 font-medium mb-1 flex items-center gap-2">
-                                <Wallet size={18} /> Available Balance
+                                <Wallet size={18} /> Available Credits
                             </p>
-                            <h2 className="text-5xl font-bold tracking-tight mt-2 text-shadow-lg">₹ {wallet?.balance || '0.00'}</h2>
+                            <h2 className="text-5xl font-bold tracking-tight mt-2 text-shadow-lg">
+                                {parseInt(wallet?.balance || 0)} <span className="text-2xl font-medium opacity-80">Credits</span>
+                            </h2>
                         </div>
                         <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md border border-white/20">
-                            <img src="https://cdn-icons-png.flaticon.com/512/217/217853.png" alt="Chip" className="h-8 w-8 opacity-80" />
+                            <CreditCard className="h-8 w-8 opacity-80" />
                         </div>
                     </div>
                     
                     <div className="relative z-10 mt-8 flex gap-4">
-                        <Button className="bg-white text-indigo-700 hover:bg-slate-50 border-none shadow-lg">
-                            + Add Credits
-                        </Button>
-                        <Button variant="glass" className="text-white hover:bg-white/20">
-                            Transfer to Bank
+                        <Button 
+                            onClick={() => router.push('/packages')} 
+                            className="bg-white text-indigo-700 hover:bg-slate-50 border-none shadow-lg"
+                        >
+                            + Buy More Credits
                         </Button>
                     </div>
                 </div>
@@ -78,8 +110,8 @@ const WalletSection = () => {
                             <ArrowDownLeft size={20} />
                         </div>
                         <div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">Total Earned</p>
-                            <p className="text-lg font-bold text-slate-900 dark:text-slate-200">₹ 14,250</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">Credits Earned</p>
+                            <p className="text-lg font-bold text-slate-900 dark:text-slate-200">{parseInt(totalEarned)} Credits</p>
                         </div>
                     </div>
                      <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-4">
@@ -87,8 +119,8 @@ const WalletSection = () => {
                             <ArrowUpRight size={20} />
                         </div>
                          <div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">Total Spent</p>
-                            <p className="text-lg font-bold text-slate-900 dark:text-slate-200">₹ 2,100</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">Credits Used</p>
+                            <p className="text-lg font-bold text-slate-900 dark:text-slate-200">{parseInt(totalSpent)} Credits</p>
                         </div>
                     </div>
                 </Card>
@@ -97,12 +129,12 @@ const WalletSection = () => {
             {/* Transactions */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Recent Transactions</CardTitle>
+                    <CardTitle>Credit History</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="divide-y divide-slate-100 dark:divide-white/5">
-                        {Array.isArray(wallet?.transactions) && wallet.transactions.length > 0 ? (
-                            wallet.transactions.map((tx) => (
+                        {transactions.length > 0 ? (
+                            transactions.map((tx) => (
                                 <div key={tx.id} className="p-4 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                                     <div className="flex items-center gap-4">
                                         <div className={cn(
@@ -120,14 +152,14 @@ const WalletSection = () => {
                                         "font-bold font-mono",
                                         tx.transaction_type === 'CREDIT' ? "text-green-600 dark:text-green-400" : "text-slate-900 dark:text-slate-200"
                                     )}>
-                                        {tx.transaction_type === 'CREDIT' ? '+' : '-'} ₹{tx.amount}
+                                        {tx.transaction_type === 'CREDIT' ? '+' : '-'} {parseInt(tx.amount)} Credits
                                     </span>
                                 </div>
                             ))
                         ) : (
                             <div className="p-12 text-center text-slate-500 flex flex-col items-center gap-3">
                                 <FileText size={48} className="opacity-20" />
-                                <p>No transactions yet.</p>
+                                <p>No transactions yet. Purchase credits to get started!</p>
                             </div>
                         )}
                     </div>
@@ -138,4 +170,3 @@ const WalletSection = () => {
 };
 
 export default WalletSection;
-

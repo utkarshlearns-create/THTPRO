@@ -238,7 +238,7 @@ const ParentDashboard = () => {
                          >
                             <Wallet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                             <span className="text-[11px] sm:text-sm font-bold text-emerald-700 dark:text-emerald-300">
-                                ₹{stats?.stats?.wallet_balance || (wallet?.balance || '0')}
+                                {parseInt(stats?.stats?.wallet_balance || wallet?.balance || 0)} Credits
                             </span>
                          </button>
 
@@ -277,12 +277,12 @@ const ParentDashboard = () => {
                                     <>
                                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                                             <InsightCard 
-                                                title="Wallet Balance" 
-                                                value={`₹ ${stats?.stats?.wallet_balance || (wallet?.balance || '0')}`} 
+                                                title="Wallet Credits" 
+                                                value={`${parseInt(stats?.stats?.wallet_balance || wallet?.balance || 0)} Credits`} 
                                                 icon={<Wallet className="text-emerald-500" />}
                                                 description="Available credits for unlocking"
-                                                trend={stats?.stats?.wallet_balance > 100 ? "Healthy balance" : "Consider recharging"}
-                                                trendColor={stats?.stats?.wallet_balance > 100 ? "text-emerald-600" : "text-amber-600"}
+                                                trend={parseInt(stats?.stats?.wallet_balance || 0) > 0 ? "Credits available" : "Buy credits to unlock contacts"}
+                                                trendColor={parseInt(stats?.stats?.wallet_balance || 0) > 0 ? "text-emerald-600" : "text-amber-600"}
                                             />
                                         </motion.div>
                                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>

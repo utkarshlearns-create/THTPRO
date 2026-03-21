@@ -7,13 +7,15 @@ import API_BASE_URL from '../config';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
-const PackageCard = ({ pkg, index, onPurchase }) => {
-    const features = [
-        `${pkg.credits} Credits included`,
-        'Valid for 1 year',
-        'Instant activation',
-        '24/7 Support access'
-    ];
+const PackageCard = ({ pkg, index, onPurchase, purchasing }) => {
+    const features = Array.isArray(pkg.features) && pkg.features.length > 0
+        ? pkg.features
+        : [
+            `${pkg.credit_amount} Credits included`,
+            'Valid forever',
+            'Instant activation',
+            '24/7 Support access'
+        ];
 
     return (
         <motion.div
@@ -42,7 +44,6 @@ const PackageCard = ({ pkg, index, onPurchase }) => {
                             {index >= 2 && <Shield className={index === 1 ? 'text-white' : 'text-blue-500'} size={28} />}
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">{pkg.name}</h3>
-                        <p className="text-sm text-slate-500 mt-1">{pkg.description}</p>
                     </div>
 
                     {/* Price */}
@@ -52,7 +53,7 @@ const PackageCard = ({ pkg, index, onPurchase }) => {
                             <span className="text-4xl font-extrabold text-slate-900 dark:text-white">{pkg.price}</span>
                         </div>
                         <p className="text-sm text-slate-500 mt-2">
-                            <span className="text-emerald-600 font-semibold">{pkg.credits} Credits</span>
+                            <span className="text-emerald-600 font-semibold">{pkg.credit_amount} Credits</span>
                         </p>
                     </div>
 
@@ -69,14 +70,18 @@ const PackageCard = ({ pkg, index, onPurchase }) => {
                     {/* Action */}
                     <Button
                         onClick={() => onPurchase(pkg)}
+                        disabled={purchasing}
                         className={`w-full ${
                             index === 1 
                                 ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-500/30' 
                                 : 'bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 text-white'
                         }`}
                     >
-                        <CreditCard size={16} className="mr-2" />
-                        Purchase Now
+                        {purchasing ? (
+                            <><Loader2 size={16} className="mr-2 animate-spin" /> Processing...</>
+                        ) : (
+                            <><CreditCard size={16} className="mr-2" /> Purchase Now</>
+                        )}
                     </Button>
                 </CardContent>
             </Card>
@@ -87,20 +92,18 @@ const PackageCard = ({ pkg, index, onPurchase }) => {
 export default function UserPackagesPage() {
     const [packages, setPackages] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [userRole, setUserRole] = useState(null);
+    const [purchasing, setPurchasing] = useState(false);
 
     useEffect(() => {
-        // Get user role from local storage or API
-        const userData = localStorage.getItem('user');
-        if (userData) {
-            try {
-                const user = JSON.parse(userData);
-                setUserRole(user.role);
-            } catch (e) {
-                console.error('Error parsing user data');
-            }
-        }
         fetchPackages();
+        // Load Razorpay script
+        if (!document.getElementById('razorpay-script')) {
+            const script = document.createElement('script');
+            script.id = 'razorpay-script';
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.async = true;
+            document.body.appendChild(script);
+        }
     }, []);
 
     const fetchPackages = async () => {
@@ -108,7 +111,7 @@ export default function UserPackagesPage() {
         try {
             const token = localStorage.getItem('access');
             const userData = localStorage.getItem('user');
-            let role = 'TEACHER'; // Default
+            let role = 'TEACHER';
             if (userData) {
                 try {
                     const user = JSON.parse(userData);
@@ -132,9 +135,91 @@ export default function UserPackagesPage() {
     };
 
     const handlePurchase = async (pkg) => {
-        // TODO: Integrate with payment gateway
-        toast.success(`Redirecting to payment for ${pkg.name}...`);
-        // This would redirect to payment gateway in production
+        setPurchasing(true);
+        try {
+            const token = localStorage.getItem('access');
+            const userData = localStorage.getItem('user');
+            let userName = '';
+            let userEmail = '';
+            let userPhone = '';
+            if (userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    userName = user.first_name || user.username || '';
+                    userEmail = user.email || '';
+                    userPhone = user.phone || '';
+                } catch (e) {}
+            }
+
+            // Step 1: Create Razorpay order from backend
+            const orderRes = await fetch(`${API_BASE_URL}/api/wallet/create-order/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ package_id: pkg.id }),
+            });
+
+            if (!orderRes.ok) {
+                const errData = await orderRes.json();
+                toast.error(errData.error || 'Failed to create order');
+                setPurchasing(false);
+                return;
+            }
+
+            const orderData = await orderRes.json();
+
+            // Step 2: Open Razorpay checkout
+            if (typeof window.Razorpay === 'undefined') {
+                toast.error('Payment gateway not loaded. Please refresh and try again.');
+                setPurchasing(false);
+                return;
+            }
+
+            const options = {
+                key: orderData.key_id,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: 'The Home Tuitions',
+                description: `${orderData.package_name} — ${orderData.credits} Credits`,
+                order_id: orderData.order_id,
+                handler: function (response) {
+                    // Payment successful
+                    toast.success(`Payment successful! ${orderData.credits} credits added to your wallet.`);
+                    // Optionally refresh wallet data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                },
+                prefill: {
+                    name: userName,
+                    email: userEmail,
+                    contact: userPhone,
+                },
+                theme: {
+                    color: '#4F46E5',
+                },
+                modal: {
+                    ondismiss: function () {
+                        setPurchasing(false);
+                        toast('Payment cancelled', { icon: '⚠️' });
+                    },
+                },
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.on('payment.failed', function (response) {
+                toast.error('Payment failed. Please try again.');
+                setPurchasing(false);
+            });
+            rzp.open();
+
+        } catch (error) {
+            console.error('Purchase error:', error);
+            toast.error('Something went wrong. Please try again.');
+            setPurchasing(false);
+        }
     };
 
     if (loading) {
@@ -181,6 +266,7 @@ export default function UserPackagesPage() {
                                 pkg={pkg} 
                                 index={index}
                                 onPurchase={handlePurchase}
+                                purchasing={purchasing}
                             />
                         ))}
                     </div>
@@ -204,4 +290,3 @@ export default function UserPackagesPage() {
         </div>
     );
 }
-

@@ -24,12 +24,30 @@ const TutorHome = () => {
     const [activeCategory, setActiveCategory] = useState('All');
     const [hasActiveHiredJob, setHasActiveHiredJob] = useState(false);
     const [activeHiredJobDetails, setActiveHiredJobDetails] = useState(null);
+    const [walletCredits, setWalletCredits] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
         fetchJobs(activeCategory);
         fetchProfileStatus();
+        fetchWalletCredits();
     }, [activeCategory]);
+
+    const fetchWalletCredits = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            if (!token) return;
+            const res = await fetch(`${API_BASE_URL}/api/wallet/me/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setWalletCredits(parseInt(data.balance || 0));
+            }
+        } catch (err) {
+            console.error('Error fetching wallet:', err);
+        }
+    };
 
     const fetchProfileStatus = async () => {
         try {
@@ -92,9 +110,11 @@ const TutorHome = () => {
         }
     };
 
+    const hasCredits = walletCredits !== null ? walletCredits >= 1 : true;
     const canApply = profileStatus.percent >= 80 &&
         (profileStatus.status === 'APPROVED' || profileStatus.status === 'ACTIVE') &&
-        !hasActiveHiredJob;
+        !hasActiveHiredJob &&
+        hasCredits;
 
     const getStatusBanner = () => {
         if (hasActiveHiredJob) {
@@ -102,6 +122,13 @@ const TutorHome = () => {
                 className: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-900/50',
                 icon: <AlertTriangle size={20} />,
                 text: 'You have an active tuition in progress. Complete it and receive payment before applying for new jobs.'
+            };
+        }
+        if (!hasCredits && profileStatus.percent >= 80) {
+            return {
+                className: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50',
+                icon: <AlertCircle size={20} />,
+                text: '0 Credits — Buy credits to apply for jobs'
             };
         }
         if (canApply) {
@@ -122,6 +149,7 @@ const TutorHome = () => {
 
     const getButtonText = () => {
         if (hasActiveHiredJob) return 'Complete Current Tuition to Apply';
+        if (!hasCredits && profileStatus.percent >= 80) return 'Buy Credits to Apply';
         if (canApply) return 'Apply for this Job';
         return 'Complete Profile to Apply';
     };
@@ -209,12 +237,20 @@ const TutorHome = () => {
 
                                         <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
                                             <button
-                                                disabled={!canApply}
-                                                onClick={() => router.push(`/jobs/${job.id}`)}
+                                                disabled={!canApply && hasCredits}
+                                                onClick={() => {
+                                                    if (!hasCredits && profileStatus.percent >= 80) {
+                                                        router.push('/packages');
+                                                    } else {
+                                                        router.push(`/jobs/${job.id}`);
+                                                    }
+                                                }}
                                                 className={`px-8 py-4 rounded-2xl font-black transition-all w-full text-lg shadow-xl
                                                 ${canApply
                                                     ? 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-indigo-200 dark:hover:shadow-none'
-                                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}
+                                                    : !hasCredits && profileStatus.percent >= 80
+                                                        ? 'bg-amber-500 text-white hover:bg-amber-600 cursor-pointer'
+                                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'}
                                                 `}
                                             >
                                                 {getButtonText()}

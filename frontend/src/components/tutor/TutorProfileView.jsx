@@ -17,11 +17,31 @@ const TutorProfileView = ({ tutorId }) => {
     const [toggling, setToggling] = useState(false);
     const [isParent, setIsParent] = useState(false);
     const [error, setError] = useState(null);
+    const [walletBalance, setWalletBalance] = useState(null);
 
     useEffect(() => {
         const userRole = localStorage.getItem('role');
         setIsParent(userRole === 'PARENT');
+        if (userRole === 'PARENT') {
+            fetchWalletBalance();
+        }
     }, []);
+
+    const fetchWalletBalance = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            if (!token) return;
+            const res = await fetch(`${API_BASE_URL}/api/wallet/me/`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setWalletBalance(parseInt(data.balance || 0));
+            }
+        } catch (err) {
+            console.error('Error fetching wallet:', err);
+        }
+    };
 
     useEffect(() => {
         const fetchTutor = async () => {
@@ -80,7 +100,14 @@ const TutorProfileView = ({ tutorId }) => {
     };
 
     const handleUnlock = async () => {
-        if (!confirm("Unlock contact for 50 Credits?")) return;
+        // Check credit balance first
+        if (walletBalance !== null && walletBalance < 1) {
+            if (confirm('You need credits to unlock contacts. Go to Buy Credits?')) {
+                router.push('/packages');
+            }
+            return;
+        }
+        if (!confirm('Unlock this tutor\'s contact for 1 Credit?')) return;
         
         setUnlocking(true);
         try {
@@ -96,7 +123,6 @@ const TutorProfileView = ({ tutorId }) => {
             const data = await response.json();
 
             if (response.ok) {
-                // Update local state with unlocked info
                 setTutor(prev => ({
                     ...prev,
                     is_unlocked: true,
@@ -105,12 +131,15 @@ const TutorProfileView = ({ tutorId }) => {
                         email: data.email
                     }
                 }));
-                alert("Contact unlocked successfully!");
+                setWalletBalance(prev => (prev !== null ? prev - 1 : null));
+                alert('Contact unlocked successfully!');
             } else {
-                alert(data.error || "Failed to unlock contact");
                 if (response.status === 402) {
-                    // Redirect to wallet recharge?
-                    // router.push('/wallet');
+                    if (confirm('Insufficient credits. Go to Buy Credits?')) {
+                        router.push('/packages');
+                    }
+                } else {
+                    alert(data.error || 'Failed to unlock contact');
                 }
             }
         } catch (err) {
@@ -285,13 +314,22 @@ const TutorProfileView = ({ tutorId }) => {
                                         <Lock className="h-8 w-8 text-slate-400 mx-auto mb-3" />
                                         <h3 className="font-bold text-slate-900 dark:text-white mb-1">Contact Hidden</h3>
                                         <p className="text-sm text-slate-500 mb-4">Unlock to view phone number & email</p>
-                                        <button 
-                                            onClick={handleUnlock}
-                                            disabled={unlocking}
-                                            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 dark:shadow-none disabled:opacity-50"
-                                        >
-                                            {unlocking ? "Unlocking..." : "Unlock for 50 Credits"}
-                                        </button>
+                                        {walletBalance !== null && walletBalance < 1 ? (
+                                            <button 
+                                                onClick={() => router.push('/packages')}
+                                                className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-amber-200 dark:shadow-none"
+                                            >
+                                                Buy Credits to Unlock
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                onClick={handleUnlock}
+                                                disabled={unlocking}
+                                                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200 dark:shadow-none disabled:opacity-50"
+                                            >
+                                                {unlocking ? 'Unlocking...' : 'Unlock for 1 Credit'}
+                                            </button>
+                                        )}
                                     </div>
                                 )}
 

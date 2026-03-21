@@ -1,6 +1,8 @@
 """
 Tutor-facing job views: create jobs, apply, view applications.
 """
+from decimal import Decimal
+
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,6 +13,7 @@ from core.roles import ADMIN_ROLES, COUNSELLOR, SUPERADMIN, TUTOR_ADMIN
 from .serializers import JobPostSerializer, TutorJobPostSerializer, ApplicationSerializer
 from .utils import assign_job_to_admin, send_notification
 from users.models import TutorProfile, User
+from wallet.models import Wallet
 
 import logging
 
@@ -132,6 +135,14 @@ class JobApplicationCreateView(APIView):
                 "active_job_subjects": active_job.job.subjects,
                 "payment_status": active_job.payment_status,
             }, status=400)
+
+        # Block applying if teacher has 0 credits
+        wallet, _ = Wallet.objects.get_or_create(user=request.user)
+        if wallet.balance < Decimal('1'):
+            return Response({
+                "error": "You have 0 rejection credits. Purchase credits to apply for jobs.",
+                "credits": float(wallet.balance),
+            }, status=402)
 
         if Application.objects.filter(job=job, tutor=tutor_profile).exists():
             return Response({"error": "You have already applied for this job"}, status=400)

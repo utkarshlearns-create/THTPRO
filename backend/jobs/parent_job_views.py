@@ -16,6 +16,27 @@ from .serializers import JobPostSerializer, InstituteJobSerializer
 from .utils import filter_by_subject, send_notification
 from users.models import TutorProfile, User
 from users.utils import get_tutor_image_url
+from wallet.models import Wallet
+from decimal import Decimal
+
+import logging
+logger = logging.getLogger(__name__)
+
+
+def _deduct_teacher_rejection_credit(application):
+    """Deduct 1 rejection credit from a teacher when explicitly rejected.
+    
+    Only called for EXPLICIT rejections by parent or admin,
+    NOT for bulk rejections when another tutor is hired.
+    """
+    try:
+        tutor_user = application.tutor.user
+        wallet, _ = Wallet.objects.get_or_create(user=tutor_user)
+        if wallet.balance >= Decimal('1'):
+            wallet.debit(Decimal('1'), f'Rejection credit used: {application.job.class_grade}')
+            logger.info(f'Deducted 1 rejection credit from {tutor_user.username}')
+    except Exception as exc:
+        logger.error(f'Error deducting rejection credit: {exc}')
 
 
 
@@ -352,6 +373,7 @@ class ParentApplicationActionView(APIView):
         elif action == 'REJECT':
             application.status = 'REJECTED'
             application.save()
+            _deduct_teacher_rejection_credit(application)
             return Response({"message": "Application rejected."})
             
         return Response({"error": "Invalid action, must be ACCEPT or REJECT"}, status=status.HTTP_400_BAD_REQUEST)

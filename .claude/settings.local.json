@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py makemigrations jobs --name=\"add_payment_completion_to_application\")",
+      "Bash(python manage.py check)"
+    ]
+  }
+}
