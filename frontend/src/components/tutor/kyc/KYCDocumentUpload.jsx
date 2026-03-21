@@ -1,28 +1,23 @@
 "use client";
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, CheckCircle, XCircle, FileText, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { Upload, CheckCircle, FileText, AlertCircle } from 'lucide-react';
 import API_BASE_URL from '../../../config';
 
 const KYCDocumentUpload = () => {
     const [documents, setDocuments] = useState({
         aadhaar_front: null,
         aadhaar_back: null,
-        highest_qualification_certificate: null,
-        pan: null,
-        passport: null,
-        police_verification: null,
-        teaching_certificate: null
+        highest_qualification_certificate: null
     });
-    
+
     const [uploading, setUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState(null);
 
-    const createDropzone = (docType, accept, required = false) => {
+    const createDropzone = (docType, accept) => {
         const onDrop = useCallback((acceptedFiles) => {
             if (acceptedFiles.length > 0) {
                 const file = acceptedFiles[0];
-                // Validate file size (5MB max)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('File size must be less than 5MB');
                     return;
@@ -40,16 +35,11 @@ const KYCDocumentUpload = () => {
         return { getRootProps, getInputProps, isDragActive };
     };
 
-    const aadhaarFrontDropzone = createDropzone('aadhaar_front', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }, true);
-    const aadhaarBackDropzone = createDropzone('aadhaar_back', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }, true);
-    const educationDropzone = createDropzone('highest_qualification_certificate', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }, true);
-    const panDropzone = createDropzone('pan', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
-    const passportDropzone = createDropzone('passport', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
-    const policeDropzone = createDropzone('police_verification', { 'application/pdf': ['.pdf'] });
-    const teachingDropzone = createDropzone('teaching_certificate', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
+    const aadhaarFrontDropzone = createDropzone('aadhaar_front', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
+    const aadhaarBackDropzone = createDropzone('aadhaar_back', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
+    const educationDropzone = createDropzone('highest_qualification_certificate', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
 
     const handleSubmit = async () => {
-        // Validate required documents
         if (!documents.aadhaar_front || !documents.aadhaar_back || !documents.highest_qualification_certificate) {
             alert('Please upload all required documents (Aadhaar Front, Back and Certificate)');
             return;
@@ -57,15 +47,9 @@ const KYCDocumentUpload = () => {
 
         setUploading(true);
         const formData = new FormData();
-        
-        // Append all uploaded documents
-        if (documents.aadhaar_front) formData.append('aadhaar_front', documents.aadhaar_front);
-        if (documents.aadhaar_back) formData.append('aadhaar_back', documents.aadhaar_back);
-        if (documents.highest_qualification_certificate) formData.append('highest_qualification_certificate', documents.highest_qualification_certificate);
-        if (documents.pan) formData.append('pan_document', documents.pan);
-        if (documents.passport) formData.append('passport_document', documents.passport);
-        if (documents.police_verification) formData.append('police_verification', documents.police_verification);
-        if (documents.teaching_certificate) formData.append('teaching_certificate', documents.teaching_certificate);
+        formData.append('aadhaar_front', documents.aadhaar_front);
+        formData.append('aadhaar_back', documents.aadhaar_back);
+        formData.append('highest_qualification_certificate', documents.highest_qualification_certificate);
 
         try {
             const token = localStorage.getItem('access');
@@ -78,10 +62,8 @@ const KYCDocumentUpload = () => {
             });
 
             if (response.ok) {
-                const data = await response.json();
                 setUploadStatus('success');
                 alert('KYC documents submitted successfully! You will be notified once verified.');
-                // Redirect to status page after 2 seconds
                 setTimeout(() => {
                     window.location.href = '/tutor/kyc/status';
                 }, 2000);
@@ -99,20 +81,15 @@ const KYCDocumentUpload = () => {
         }
     };
 
-    const requiredCount = [documents.aadhaar_front, documents.aadhaar_back, documents.highest_qualification_certificate].filter(Boolean).length;
-    const optionalCount = [documents.pan, documents.passport, documents.police_verification, documents.teaching_certificate].filter(Boolean).length;
+    const uploadedCount = [documents.aadhaar_front, documents.aadhaar_back, documents.highest_qualification_certificate].filter(Boolean).length;
 
-    const UploadCard = ({ title, dropzone, document, required, accept }) => (
+    const UploadCard = ({ title, dropzone, document, accept }) => (
         <div className="bg-white dark:bg-slate-900 rounded-xl border-2 border-slate-200 dark:border-slate-800 p-6 transition-all hover:border-indigo-300 dark:hover:border-indigo-700">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-slate-900 dark:text-white">{title}</h3>
-                {required ? (
-                    <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded-full">Required</span>
-                ) : (
-                    <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-full">Optional</span>
-                )}
+                <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded-full">Required</span>
             </div>
-            
+
             <div
                 {...dropzone.getRootProps()}
                 className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
@@ -139,9 +116,9 @@ const KYCDocumentUpload = () => {
                     </div>
                 )}
             </div>
-            
+
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                {accept.includes('pdf') ? 'JPG, PNG, PDF' : 'JPG, PNG only'} • Max 5MB
+                JPG, PNG, PDF • Max 5MB
             </p>
         </div>
     );
@@ -151,7 +128,7 @@ const KYCDocumentUpload = () => {
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <button 
+                    <button
                         onClick={() => window.history.back()}
                         className="text-indigo-600 dark:text-indigo-400 hover:underline mb-4 flex items-center gap-2"
                     >
@@ -196,64 +173,26 @@ const KYCDocumentUpload = () => {
                 </div>
 
                 {/* Upload Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <UploadCard 
-                        title="📄 Aadhaar Card (Front)"
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <UploadCard
+                        title="Aadhaar Card (Front)"
                         dropzone={aadhaarFrontDropzone}
                         document={documents.aadhaar_front}
-                        required={true}
                         accept="image/pdf"
                     />
-                    <UploadCard 
-                        title="📄 Aadhaar Card (Back)"
+                    <UploadCard
+                        title="Aadhaar Card (Back)"
                         dropzone={aadhaarBackDropzone}
                         document={documents.aadhaar_back}
-                        required={true}
                         accept="image/pdf"
                     />
-                    <UploadCard 
-                        title="🎓 Highest Qualification Certificate"
+                    <UploadCard
+                        title="Highest Qualification Certificate"
                         dropzone={educationDropzone}
                         document={documents.highest_qualification_certificate}
-                        required={true}
-                        accept="image/pdf"
-                    />
-                    <UploadCard 
-                        title="📜 Teaching Certificate"
-                        dropzone={teachingDropzone}
-                        document={documents.teaching_certificate}
-                        required={false}
                         accept="image/pdf"
                     />
                 </div>
-
-                {/* Additional Documents (Collapsible) */}
-                <details className="mb-8">
-                    <summary className="cursor-pointer text-indigo-600 dark:text-indigo-400 font-medium mb-4">+ Add Additional Documents (Optional)</summary>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <UploadCard 
-                            title="📄 PAN Card"
-                            dropzone={panDropzone}
-                            document={documents.pan}
-                            required={false}
-                            accept="image/pdf"
-                        />
-                        <UploadCard 
-                            title="📘 Passport"
-                            dropzone={passportDropzone}
-                            document={documents.passport}
-                            required={false}
-                            accept="image/pdf"
-                        />
-                        <UploadCard 
-                            title="🛡️ Police Verification"
-                            dropzone={policeDropzone}
-                            document={documents.police_verification}
-                            required={false}
-                            accept="pdf"
-                        />
-                    </div>
-                </details>
 
                 {/* Upload Checklist */}
                 <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-6 mb-8 border border-indigo-200 dark:border-indigo-800">
@@ -261,17 +200,11 @@ const KYCDocumentUpload = () => {
                         <FileText className="h-5 w-5" />
                         Upload Checklist
                     </h3>
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-indigo-700 dark:text-indigo-300">Required Documents:</span>
-                            <span className={`text-sm font-bold ${requiredCount === 3 ? 'text-green-600 dark:text-green-400' : 'text-indigo-700 dark:text-indigo-300'}`}>
-                                {requiredCount}/3 uploaded
-                            </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-indigo-700 dark:text-indigo-300">Optional Documents:</span>
-                            <span className="text-sm font-bold text-indigo-700 dark:text-indigo-300">{optionalCount}/4 uploaded</span>
-                        </div>
+                    <div className="flex items-center justify-between">
+                        <span className="text-sm text-indigo-700 dark:text-indigo-300">Documents Uploaded:</span>
+                        <span className={`text-sm font-bold ${uploadedCount === 3 ? 'text-green-600 dark:text-green-400' : 'text-indigo-700 dark:text-indigo-300'}`}>
+                            {uploadedCount}/3
+                        </span>
                     </div>
                 </div>
 
@@ -285,9 +218,9 @@ const KYCDocumentUpload = () => {
                     </button>
                     <button
                         onClick={handleSubmit}
-                        disabled={requiredCount < 3 || uploading}
+                        disabled={uploadedCount < 3 || uploading}
                         className={`px-8 py-3 rounded-lg font-semibold transition-all ${
-                            requiredCount === 3 && !uploading
+                            uploadedCount === 3 && !uploading
                                 ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg hover:shadow-xl'
                                 : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed'
                         }`}
@@ -315,4 +248,3 @@ const KYCDocumentUpload = () => {
 };
 
 export default KYCDocumentUpload;
-

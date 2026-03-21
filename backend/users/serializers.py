@@ -64,16 +64,15 @@ class TutorKYCSerializer(serializers.ModelSerializer):
             'id', 'tutor', 'status', 'submission_count', 'rejection_reason',
             'documents_to_resubmit', 'admin_feedback',
             'aadhaar_front', 'aadhaar_back', 'highest_qualification_certificate',
-            'pan_document', 'passport_document', 'police_verification', 'teaching_certificate',
             'aadhaar_front_verified', 'aadhaar_back_verified',
-            'qualification_verified', 'pan_verified',
+            'qualification_verified',
             'created_at', 'updated_at',
         ]
         read_only_fields = [
             'status', 'submission_count', 'rejection_reason',
             'documents_to_resubmit', 'admin_feedback',
             'aadhaar_front_verified', 'aadhaar_back_verified',
-            'qualification_verified', 'pan_verified',
+            'qualification_verified',
             'created_at', 'updated_at',
         ]
 
@@ -113,7 +112,6 @@ class TutorKYCSerializer(serializers.ModelSerializer):
         # Replace raw file paths with signed URLs for authorized users
         doc_fields = [
             'aadhaar_front', 'aadhaar_back', 'highest_qualification_certificate',
-            'pan_document', 'passport_document', 'police_verification', 'teaching_certificate',
         ]
         if self._can_view_docs(instance):
             for field_name in doc_fields:

@@ -199,7 +199,6 @@ class AdminKYCVerifyView(APIView):
                 'aadhaar_front': 'aadhaar_front_verified',
                 'aadhaar_back': 'aadhaar_back_verified',
                 'highest_qualification_certificate': 'qualification_verified',
-                'pan_document': 'pan_verified',
             }
 
             rejected_docs = []
@@ -278,8 +277,6 @@ class AdminKYCVerifyView(APIView):
             kyc_record.aadhaar_front_verified = True
             kyc_record.aadhaar_back_verified = True
             kyc_record.qualification_verified = True
-            if kyc_record.pan_document:
-                kyc_record.pan_verified = True
             
             # Update KYC status
             kyc_record.status = TutorKYC.Status.VERIFIED

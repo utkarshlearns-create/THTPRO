@@ -115,9 +115,9 @@ const PendingKYCVerifications = () => {
                         {/* Documents Grid */}
                         <div>
                             <h4 className="font-semibold text-slate-900 dark:text-white mb-4">
-                                Documents ({[kyc.aadhaar_front, kyc.aadhaar_back, kyc.highest_qualification_certificate, kyc.pan_document, kyc.passport_document, kyc.police_verification, kyc.teaching_certificate].filter(Boolean).length} uploaded)
+                                Documents ({[kyc.aadhaar_front, kyc.aadhaar_back, kyc.highest_qualification_certificate].filter(Boolean).length} uploaded)
                             </h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {kyc.aadhaar_front && (
                                     <DocumentPreview 
                                         title="Aadhaar Front" 
@@ -136,34 +136,6 @@ const PendingKYCVerifications = () => {
                                     <DocumentPreview 
                                         title="Highest Qualification" 
                                         url={kyc.highest_qualification_certificate}
-                                        type="pdf"
-                                    />
-                                )}
-                                {kyc.teaching_certificate && (
-                                    <DocumentPreview 
-                                        title="Teaching Cert" 
-                                        url={kyc.teaching_certificate}
-                                        type="pdf"
-                                    />
-                                )}
-                                {kyc.pan_document && (
-                                    <DocumentPreview 
-                                        title="PAN Card" 
-                                        url={kyc.pan_document}
-                                        type="image"
-                                    />
-                                )}
-                                {kyc.passport_document && (
-                                    <DocumentPreview 
-                                        title="Passport" 
-                                        url={kyc.passport_document}
-                                        type="image"
-                                    />
-                                )}
-                                {kyc.police_verification && (
-                                    <DocumentPreview 
-                                        title="Police Verification" 
-                                        url={kyc.police_verification}
                                         type="pdf"
                                     />
                                 )}
@@ -360,11 +332,7 @@ const ActionModal = ({ action, kyc, onClose, onSubmit }) => {
     const documentOptions = [
         { value: 'aadhaar_front', label: 'Aadhaar Card (Front)' },
         { value: 'aadhaar_back', label: 'Aadhaar Card (Back)' },
-        { value: 'highest_qualification_certificate', label: 'Highest Qualification Certificate' },
-        { value: 'pan', label: 'PAN Card' },
-        { value: 'passport', label: 'Passport' },
-        { value: 'police_verification', label: 'Police Verification' },
-        { value: 'teaching_certificate', label: 'Teaching Certificate' }
+        { value: 'highest_qualification_certificate', label: 'Highest Qualification Certificate' }
     ];
 
     return (
