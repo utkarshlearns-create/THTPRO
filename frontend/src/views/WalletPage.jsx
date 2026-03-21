@@ -104,7 +104,7 @@ const WalletPage = () => {
                         {/* Add Funds */}
                         <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
                             <h3 className="font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                                <Plus size={18} className="text-emerald-500" /> Add Funds
+                                <Plus size={18} className="text-emerald-500" /> Add Credits
                             </h3>
                             
                             {message && (

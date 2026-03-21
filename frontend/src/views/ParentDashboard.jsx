@@ -1593,8 +1593,11 @@ const WalletSection = ({ wallet }) => (
                     <p className="text-indigo-200 font-medium mb-2">Available Balance</p>
                     <h2 className="text-5xl font-bold tracking-tight">{parseInt(wallet?.balance || 0)} Credits</h2>
                     <div className="mt-8 flex gap-3">
-                        <Button className="bg-white text-indigo-900 hover:bg-indigo-50 font-bold border-0">
-                            + Add Money
+                        <Button 
+                            onClick={() => router.push('/packages')}
+                            className="bg-white text-indigo-900 hover:bg-indigo-50 font-bold border-0"
+                        >
+                            + Add Credits
                         </Button>
                         <Button variant="outline" className="text-white border-white/20 hover:bg-white/10 hover:text-white">
                             View Statement
