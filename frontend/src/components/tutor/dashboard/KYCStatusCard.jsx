@@ -44,7 +44,8 @@ const KYCStatusCard = () => {
     }
 
     const getStatusConfig = () => {
-        const status = kycStatus?.status || 'NOT_SUBMITTED';
+        const rawStatus = kycStatus?.kyc?.status || kycStatus?.status || 'NOT_SUBMITTED';
+        const status = rawStatus === 'APPROVED' ? 'VERIFIED' : rawStatus;
         
         const configs = {
             'NOT_SUBMITTED': {
@@ -62,6 +63,16 @@ const KYCStatusCard = () => {
                 color: 'text-blue-600 dark:text-blue-400',
                 bg: 'bg-blue-50 dark:bg-blue-900/20',
                 border: 'border-blue-200 dark:border-blue-900/50',
+                label: 'Under Review',
+                message: 'Your documents are being reviewed by our team',
+                action: 'View Status',
+                actionLink: '/tutor/kyc/status'
+            },
+            'UNDER_REVIEW': {
+                icon: Clock,
+                color: 'text-amber-600 dark:text-amber-400',
+                bg: 'bg-amber-50 dark:bg-amber-900/20',
+                border: 'border-amber-200 dark:border-amber-900/50',
                 label: 'Under Review',
                 message: 'Your documents are being reviewed by our team',
                 action: 'View Status',
@@ -99,17 +110,18 @@ const KYCStatusCard = () => {
             }
         };
 
-        return (configs[status] || configs['VERIFIED'] && status === 'APPROVED') ? configs[status === 'APPROVED' ? 'VERIFIED' : status] : (configs[status] || configs['NOT_SUBMITTED']);
+        return configs[status] || configs['NOT_SUBMITTED'];
     };
 
     const config = getStatusConfig();
     const StatusIcon = config.icon;
 
     // Timeline steps
+    const currentStatus = kycStatus?.kyc?.status || kycStatus?.status || 'NOT_SUBMITTED';
     const timelineSteps = [
-        { label: 'Submitted', completed: kycStatus?.status !== 'NOT_SUBMITTED' },
-        { label: 'Under Review', completed: ['SUBMITTED', 'VERIFIED', 'APPROVED', 'REJECTED', 'RESUBMIT_REQUIRED'].includes(kycStatus?.status) },
-        { label: 'Verified', completed: kycStatus?.status === 'VERIFIED' || kycStatus?.status === 'APPROVED' }
+        { label: 'Submitted', completed: currentStatus !== 'NOT_SUBMITTED' },
+        { label: 'Under Review', completed: ['SUBMITTED', 'UNDER_REVIEW', 'VERIFIED', 'APPROVED', 'REJECTED', 'RESUBMIT_REQUIRED'].includes(currentStatus) },
+        { label: 'Verified', completed: currentStatus === 'VERIFIED' || currentStatus === 'APPROVED' }
     ];
 
     return (
