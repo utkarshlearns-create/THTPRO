@@ -216,63 +216,85 @@ def send_notification(user, title, message, notification_type, related_job=None,
 def assign_kyc_to_admin(kyc_record):
     """
     Assign KYC verification to admin with least total workload.
-    Uses AdminProfile for availability and department tracking.
+    Never raises. Always sets status to UNDER_REVIEW.
+    Returns admin user or None.
     """
     from .admin_models import AdminTask, AdminProfile
     from users.models import TutorKYC
-    
-    # Get active TUTOR_OPS or SUPERADMIN admins
-    admin_profiles = AdminProfile.objects.filter(
-        Q(department='TUTOR_OPS') | Q(department='SUPERADMIN'),
-        is_available=True,
-        user__is_active=True
-    ).order_by('pending_kyc_count')
-    
-    if not admin_profiles.exists():
-        logger.warning("No TUTOR_OPS admins available. Falling back to any admin.")
-        admins = User.objects.filter(role__in=[TUTOR_ADMIN, SUPERADMIN], is_active=True)
-        if not admins.exists():
-             logger.error("No active admins available for KYC assignment")
-             raise Exception("No active admins available")
-        assigned_admin = random.choice(admins)
-    else:
-        # Pick least loaded
-        min_count = admin_profiles.first().pending_kyc_count
-        candidates = admin_profiles.filter(pending_kyc_count=min_count)
-        chosen_profile = random.choice(candidates)
-        assigned_admin = chosen_profile.user
-        
-        # Increment counter
-        chosen_profile.pending_kyc_count += 1
-        chosen_profile.save()
-    
-    logger.info(f"Assigning KYC {kyc_record.id} to admin {assigned_admin.username}")
-    
-    # Update KYC record
-    kyc_record.assigned_admin = assigned_admin
-    kyc_record.assigned_at = timezone.now()
-    kyc_record.status = TutorKYC.Status.UNDER_REVIEW
-    kyc_record.save()
-    
-    # Create AdminTask
-    AdminTask.objects.create(
-        admin=assigned_admin,
-        task_type='KYC_VERIFICATION',
-        related_kyc=kyc_record,
-        status='PENDING',
-        notes=f"KYC verification for {kyc_record.tutor.user.username}"
-    )
-    
-    # Send notification to admin
-    send_notification(
-        user=assigned_admin,
-        title="New KYC Verification Request",
-        message=f"KYC verification assigned for tutor: {kyc_record.tutor.full_name or kyc_record.tutor.user.username}",
-        notification_type='KYC_ASSIGNED',
-        related_kyc=kyc_record
-    )
-    
-    
+
+    logger.info("assign_kyc_to_admin: KYC id=%s tutor=%s",
+        kyc_record.id, kyc_record.tutor.user.username)
+
+    assigned_admin = None
+
+    # Try 1: AdminProfile with TUTOR_OPS or SUPERADMIN department
+    try:
+        admin_profiles = AdminProfile.objects.filter(
+            Q(department='TUTOR_OPS') | Q(department='SUPERADMIN'),
+            is_available=True,
+            user__is_active=True
+        ).order_by('pending_kyc_count')
+
+        logger.info("TUTOR_OPS admin profiles found: %s", admin_profiles.count())
+
+        if admin_profiles.exists():
+            min_count = admin_profiles.first().pending_kyc_count
+            candidates = list(admin_profiles.filter(pending_kyc_count=min_count))
+            chosen_profile = random.choice(candidates)
+            assigned_admin = chosen_profile.user
+            chosen_profile.pending_kyc_count += 1
+            chosen_profile.save()
+    except Exception as e:
+        logger.warning("AdminProfile lookup failed: %s", e)
+
+    # Try 2: Any active TUTOR_ADMIN or SUPERADMIN user
+    if not assigned_admin:
+        try:
+            admins = list(User.objects.filter(
+                role__in=[TUTOR_ADMIN, SUPERADMIN],
+                is_active=True
+            ))
+            logger.info("Fallback admins found: %s — %s",
+                len(admins), [(a.username, a.role) for a in admins])
+            if admins:
+                assigned_admin = random.choice(admins)
+        except Exception as e:
+            logger.warning("Fallback admin lookup failed: %s", e)
+
+    # Always set UNDER_REVIEW regardless of assignment success
+    try:
+        kyc_record.status = TutorKYC.Status.UNDER_REVIEW
+        kyc_record.assigned_at = timezone.now()
+        if assigned_admin:
+            kyc_record.assigned_admin = assigned_admin
+        kyc_record.save()
+        logger.info("KYC %s → UNDER_REVIEW, assigned_admin=%s",
+            kyc_record.id, assigned_admin.username if assigned_admin else 'unassigned')
+    except Exception as e:
+        logger.error("Failed to update KYC record %s: %s", kyc_record.id, e)
+
+    # Create AdminTask and notify if admin found
+    if assigned_admin:
+        try:
+            AdminTask.objects.get_or_create(
+                admin=assigned_admin,
+                related_kyc=kyc_record,
+                defaults={
+                    'task_type': 'KYC_VERIFICATION',
+                    'status': 'PENDING',
+                    'notes': f"KYC for {kyc_record.tutor.full_name or kyc_record.tutor.user.username}"
+                }
+            )
+            send_notification(
+                user=assigned_admin,
+                title="New KYC Verification Request",
+                message=f"KYC assigned: {kyc_record.tutor.full_name or kyc_record.tutor.user.username}",
+                notification_type='KYC_ASSIGNED',
+                related_kyc=kyc_record
+            )
+        except Exception as e:
+            logger.warning("AdminTask/notification failed: %s", e)
+
     return assigned_admin
 
 

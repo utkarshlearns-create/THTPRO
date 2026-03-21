@@ -79,15 +79,15 @@ class KYCDocumentUploadView(APIView):
         tutor_status.save()
 
         # Try to assign admin (non-fatal if it fails)
+        # assign_kyc_to_admin now always sets UNDER_REVIEW and never raises
         assigned_admin_name = None
         try:
             assigned_admin = assign_kyc_to_admin(kyc_instance)
-            kyc_instance.status = TutorKYC.Status.UNDER_REVIEW
-            kyc_instance.save()
-            assigned_admin_name = assigned_admin.username
+            kyc_instance.refresh_from_db()
+            if assigned_admin:
+                assigned_admin_name = assigned_admin.username
         except Exception as e:
             logger.exception("Admin assignment failed for KYC %s: %s", kyc_instance.id, e)
-            # Documents are saved, just no admin assigned yet
 
         # Send notification (non-fatal)
         try:
