@@ -215,7 +215,8 @@ def send_notification(user, title, message, notification_type, related_job=None,
 
 def assign_kyc_to_admin(kyc_record):
     """
-    Assign KYC verification to admin with least total workload.
+    Assign KYC verification to the TUTOR_ADMIN or SUPERADMIN with the
+    least workload.  COUNSELLORs are never eligible for KYC tasks.
     Never raises. Always sets status to UNDER_REVIEW.
     Returns admin user or None.
     """
@@ -227,15 +228,16 @@ def assign_kyc_to_admin(kyc_record):
 
     assigned_admin = None
 
-    # Try 1: AdminProfile with TUTOR_OPS or SUPERADMIN department
+    # Try 1: Use AdminProfile for workload-balanced assignment
+    #         Filter strictly by role (TUTOR_ADMIN / SUPERADMIN)
     try:
         admin_profiles = AdminProfile.objects.filter(
-            Q(department='TUTOR_OPS') | Q(department='SUPERADMIN'),
+            user__role__in=[TUTOR_ADMIN, SUPERADMIN],
             is_available=True,
             user__is_active=True
         ).order_by('pending_kyc_count')
 
-        logger.info("TUTOR_OPS admin profiles found: %s", admin_profiles.count())
+        logger.info("TUTOR_ADMIN/SUPERADMIN admin profiles found: %s", admin_profiles.count())
 
         if admin_profiles.exists():
             min_count = admin_profiles.first().pending_kyc_count
@@ -247,7 +249,7 @@ def assign_kyc_to_admin(kyc_record):
     except Exception as e:
         logger.warning("AdminProfile lookup failed: %s", e)
 
-    # Try 2: Any active TUTOR_ADMIN or SUPERADMIN user
+    # Try 2: Fallback – any active TUTOR_ADMIN or SUPERADMIN user
     if not assigned_admin:
         try:
             admins = list(User.objects.filter(

@@ -2,22 +2,75 @@
 import React from 'react';
 import { Card } from '../../ui/card';
 import { Button } from '../../ui/button';
-import { Upload, CheckCircle, FileText, ExternalLink } from 'lucide-react';
+import { Upload, CheckCircle, FileText, ExternalLink, AlertCircle } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 
 const KYCUpload = ({ kycFiles, handleFileChange, handleKycSubmit, kycUploading, status, existingKyc }) => {
+    const kycStatus = existingKyc?.status;
+    const isRejected = kycStatus === 'REJECTED' || status === 'KYC_REJECTED';
+    const isUnderReview = kycStatus === 'UNDER_REVIEW' || kycStatus === 'SUBMITTED' || status === 'UNDER_REVIEW';
+    const isVerified = kycStatus === 'VERIFIED' || status === 'VERIFIED';
+    
     return (
         <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
              <div className="flex justify-between items-center">
                 <h1 className="text-xl font-bold text-slate-900 dark:text-white hidden md:block">Document Verification</h1>
                 <Button
                     onClick={handleKycSubmit}
-                    disabled={kycUploading || status === 'UNDER_REVIEW'}
+                    disabled={kycUploading || isUnderReview || isVerified}
                     variant="sapphire"
                 >
-                    {kycUploading ? 'Uploading...' : status === 'UNDER_REVIEW' ? 'Under Review' : 'Submit for Verification'}
+                    {kycUploading ? 'Uploading...' : isUnderReview ? 'Under Review' : isVerified ? 'Verified' : 'Submit for Verification'}
                 </Button>
             </div>
+
+            {isRejected && (
+                <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-lg">
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
+                        <div>
+                            <h3 className="text-red-800 dark:text-red-200 font-medium">Verification Rejected</h3>
+                            <p className="text-red-700 dark:text-red-300 text-sm mt-1">
+                                {existingKyc?.rejection_reason || 'Your documents were rejected. Please check the feedback and re-upload.'}
+                            </p>
+                            {existingKyc?.admin_feedback && (
+                                <p className="text-red-600 dark:text-red-400 text-sm mt-2 font-medium flex items-baseline gap-1">
+                                    <span className="shrink-0">Admin Feedback:</span> 
+                                    <span className="font-normal">{existingKyc.admin_feedback}</span>
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {isUnderReview && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-lg">
+                    <div className="flex items-start gap-3">
+                        <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+                        <div>
+                            <h3 className="text-amber-800 dark:text-amber-200 font-medium">Under Review</h3>
+                            <p className="text-amber-700 dark:text-amber-300 text-sm mt-1">
+                                Your KYC documents are currently being reviewed by our team. This usually takes 24-48 hours.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+             
+            {isVerified && (
+                <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded-r-lg">
+                    <div className="flex items-start gap-3">
+                        <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+                        <div>
+                            <h3 className="text-green-800 dark:text-green-200 font-medium">Verification Successful</h3>
+                            <p className="text-green-700 dark:text-green-300 text-sm mt-1">
+                                Your documents have been verified successfully. Your profile is active.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <UploadZone

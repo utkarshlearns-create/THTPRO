@@ -4,6 +4,65 @@ import { useDropzone } from 'react-dropzone';
 import { Upload, CheckCircle, FileText, AlertCircle } from 'lucide-react';
 import API_BASE_URL from '../../../config';
 
+const UploadCard = ({ title, documentName, document, onFileSelect, accept }) => {
+    const onDrop = useCallback((acceptedFiles) => {
+        if (acceptedFiles.length > 0) {
+            const file = acceptedFiles[0];
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+            onFileSelect(documentName, file);
+        }
+    }, [documentName, onFileSelect]);
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        onDrop,
+        accept,
+        maxFiles: 1
+    });
+
+    return (
+        <div className="bg-white dark:bg-slate-900 rounded-xl border-2 border-slate-200 dark:border-slate-800 p-6 transition-all hover:border-indigo-300 dark:hover:border-indigo-700">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-slate-900 dark:text-white">{title}</h3>
+                <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded-full">Required</span>
+            </div>
+
+            <div
+                {...getRootProps()}
+                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
+                    isDragActive
+                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
+                        : document
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                        : 'border-slate-300 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-600'
+                }`}
+            >
+                <input {...getInputProps()} />
+                {document ? (
+                    <div className="space-y-2">
+                        <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400 mx-auto" />
+                        <p className="text-sm font-medium text-green-700 dark:text-green-300">{document.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{(document.size / 1024).toFixed(2)} KB</p>
+                    </div>
+                ) : (
+                    <div className="space-y-2">
+                        <Upload className="h-12 w-12 text-slate-400 mx-auto" />
+                        <p className="text-sm text-slate-600 dark:text-slate-300">
+                            {isDragActive ? 'Drop file here' : 'Drag & drop or click to upload'}
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                JPG, PNG, PDF • Max 5MB
+            </p>
+        </div>
+    );
+};
+
 const KYCDocumentUpload = () => {
     const [documents, setDocuments] = useState({
         aadhaar_front: null,
@@ -14,30 +73,9 @@ const KYCDocumentUpload = () => {
     const [uploading, setUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState(null);
 
-    const createDropzone = (docType, accept) => {
-        const onDrop = useCallback((acceptedFiles) => {
-            if (acceptedFiles.length > 0) {
-                const file = acceptedFiles[0];
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('File size must be less than 5MB');
-                    return;
-                }
-                setDocuments(prev => ({ ...prev, [docType]: file }));
-            }
-        }, [docType]);
-
-        const { getRootProps, getInputProps, isDragActive } = useDropzone({
-            onDrop,
-            accept,
-            maxFiles: 1
-        });
-
-        return { getRootProps, getInputProps, isDragActive };
-    };
-
-    const aadhaarFrontDropzone = createDropzone('aadhaar_front', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
-    const aadhaarBackDropzone = createDropzone('aadhaar_back', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
-    const educationDropzone = createDropzone('highest_qualification_certificate', { 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] });
+    const handleFileSelect = useCallback((docType, file) => {
+        setDocuments(prev => ({ ...prev, [docType]: file }));
+    }, []);
 
     const handleSubmit = async () => {
         if (!documents.aadhaar_front || !documents.aadhaar_back || !documents.highest_qualification_certificate) {
@@ -82,46 +120,6 @@ const KYCDocumentUpload = () => {
     };
 
     const uploadedCount = [documents.aadhaar_front, documents.aadhaar_back, documents.highest_qualification_certificate].filter(Boolean).length;
-
-    const UploadCard = ({ title, dropzone, document, accept }) => (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border-2 border-slate-200 dark:border-slate-800 p-6 transition-all hover:border-indigo-300 dark:hover:border-indigo-700">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-slate-900 dark:text-white">{title}</h3>
-                <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded-full">Required</span>
-            </div>
-
-            <div
-                {...dropzone.getRootProps()}
-                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
-                    dropzone.isDragActive
-                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20'
-                        : document
-                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                        : 'border-slate-300 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-600'
-                }`}
-            >
-                <input {...dropzone.getInputProps()} />
-                {document ? (
-                    <div className="space-y-2">
-                        <CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400 mx-auto" />
-                        <p className="text-sm font-medium text-green-700 dark:text-green-300">{document.name}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{(document.size / 1024).toFixed(2)} KB</p>
-                    </div>
-                ) : (
-                    <div className="space-y-2">
-                        <Upload className="h-12 w-12 text-slate-400 mx-auto" />
-                        <p className="text-sm text-slate-600 dark:text-slate-300">
-                            {dropzone.isDragActive ? 'Drop file here' : 'Drag & drop or click to upload'}
-                        </p>
-                    </div>
-                )}
-            </div>
-
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                JPG, PNG, PDF • Max 5MB
-            </p>
-        </div>
-    );
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6">
@@ -176,21 +174,24 @@ const KYCDocumentUpload = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <UploadCard
                         title="Aadhaar Card (Front)"
-                        dropzone={aadhaarFrontDropzone}
+                        documentName="aadhaar_front"
                         document={documents.aadhaar_front}
-                        accept="image/pdf"
+                        onFileSelect={handleFileSelect}
+                        accept={{ 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }}
                     />
                     <UploadCard
                         title="Aadhaar Card (Back)"
-                        dropzone={aadhaarBackDropzone}
+                        documentName="aadhaar_back"
                         document={documents.aadhaar_back}
-                        accept="image/pdf"
+                        onFileSelect={handleFileSelect}
+                        accept={{ 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }}
                     />
                     <UploadCard
                         title="Highest Qualification Certificate"
-                        dropzone={educationDropzone}
+                        documentName="highest_qualification_certificate"
                         document={documents.highest_qualification_certificate}
-                        accept="image/pdf"
+                        onFileSelect={handleFileSelect}
+                        accept={{ 'image/*': ['.jpg', '.jpeg', '.png'], 'application/pdf': ['.pdf'] }}
                     />
                 </div>
 
