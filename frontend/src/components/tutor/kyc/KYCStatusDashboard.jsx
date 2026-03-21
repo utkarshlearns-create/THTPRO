@@ -123,7 +123,7 @@ const KYCStatusDashboard = () => {
                 {/* Header */}
                 <div className="mb-8">
                     <button 
-                        onClick={() => window.history.back()}
+                        onClick={() => window.location.href = '/dashboard/tutor'}
                         className="text-indigo-600 dark:text-indigo-400 hover:underline mb-4 flex items-center gap-2"
                     >
                         ← Back to Dashboard
@@ -272,7 +272,7 @@ const KYCStatusDashboard = () => {
                     )}
                     {status === 'VERIFIED' && (
                         <button
-                            onClick={() => window.location.href = '/tutor/dashboard'}
+                            onClick={() => window.location.href = '/dashboard/tutor'}
                             className="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
                         >
                             Go to Dashboard
