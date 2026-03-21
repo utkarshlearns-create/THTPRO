@@ -214,7 +214,6 @@ if not DEBUG:
         'CLOUDINARY_CLOUD_NAME',
         'CLOUDINARY_API_KEY',
         'CLOUDINARY_API_SECRET',
-        'RAZORPAY_WEBHOOK_SECRET',
         'CORS_ALLOWED_ORIGINS',
     ]
     missing = [v for v in REQUIRED_ENV_VARS if not os.environ.get(v)]
