@@ -106,7 +106,10 @@ class RazorpayWebhookView(APIView):
         ).hexdigest()
 
         if not hmac.compare_digest(expected_signature, provided_signature):
+            logger.error(f"Razorpay webhook signature mismatch! Expected: {expected_signature}, Provided: {provided_signature}")
             return Response({'error': 'Invalid webhook signature'}, status=400)
+
+        logger.info(f"Razorpay webhook received: {raw_body.decode('utf-8')}")
 
         try:
             payload = json.loads(raw_body.decode('utf-8'))
@@ -143,6 +146,8 @@ class RazorpayWebhookView(APIView):
                 credits_to_add = Decimal(str(package.credit_amount))
             except SubscriptionPackage.DoesNotExist:
                 logger.warning(f'Package {package_id} not found for payment {payment_id}')
+        
+        logger.info(f"Processing payment for user_id: {user_id}, package_id: {package_id}, amount: {amount_paise}")
         if credits_to_add <= 0:
             # Fallback: treat amount as credits (should not happen with packages)
             credits_to_add = Decimal(str(amount_paise)) / Decimal('100')

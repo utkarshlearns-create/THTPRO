@@ -1,12 +1,13 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from decimal import Decimal
 
 User = get_user_model()
 
 class Wallet(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='wallet')
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -15,9 +16,16 @@ class Wallet(models.Model):
     @transaction.atomic
     def credit(self, amount, description=""):
         """Add funds to wallet"""
+        from decimal import Decimal
+        amount = Decimal(str(amount))
+        
         if amount <= 0:
             raise ValueError("Amount must be positive")
         
+        # Ensure self.balance is Decimal
+        if not isinstance(self.balance, Decimal):
+            self.balance = Decimal(str(self.balance))
+
         self.balance += amount
         self.save()
         
@@ -32,8 +40,15 @@ class Wallet(models.Model):
     @transaction.atomic
     def debit(self, amount, description=""):
         """Deduct funds from wallet"""
+        from decimal import Decimal
+        amount = Decimal(str(amount))
+        
         if amount <= 0:
             raise ValueError("Amount must be positive")
+        
+        if not isinstance(self.balance, Decimal):
+            self.balance = Decimal(str(self.balance))
+
         if self.balance < amount:
             raise ValueError("Insufficient balance")
         
